@@ -9,11 +9,11 @@ class MetadataBase(ABC):
 
     @abstractmethod
     def __init__(self):
-        pass
+        self._metadata = dict()
 
-    @abstractmethod
-    def values(self) -> Dict:
+    @property
+    def value(self) -> Dict:
         """Return actual json representation of metadata that will be load to ES
 
         """
-        pass
+        return self._metadata
