@@ -9,7 +9,7 @@ class MaterializerBase(ABC):
 
     @abstractmethod
     def get(self, *args, **kwargs) -> pd.DataFrame:
-        """API for Materialize, every Materializer should implement `get` methods, returns a pandas dataframe.
+        """API for Materialize, every Materializer should implement `get` method, returns a pandas dataframe.
 
         """
         pass

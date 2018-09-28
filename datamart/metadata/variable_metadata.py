@@ -1,9 +1,9 @@
 from datamart.metadata.metadata_base import MetadataBase
-import typing
+from datamart.utilities.utils import Utils
 
 
 class VariableMetadata(MetadataBase):
-    def __init__(self, description: typing.Dict, datamart_id: int):
+    def __init__(self, description: dict, datamart_id: int):
         """Init method of VariableMetadata.
 
         Args:
@@ -30,7 +30,11 @@ class VariableMetadata(MetadataBase):
 
         self._metadata["semantic_type"] = description.get("semantic_type", [])
         self._metadata["named_entity"] = description.get("named_entity", None)
-        self._metadata["temporal_coverage"] = description.get("temporal_coverage", [])
+
+        self._metadata["temporal_coverage"] = description.get("temporal_coverage", {})
+        if self.temporal_coverage:
+            self.temporal_coverage = Utils.temporal_coverage_validate(self.temporal_coverage)
+
         self._metadata["spatial_coverage"] = description.get("named_entity", None)
         self._metadata["materialization_component"] = description.get("materialization_component", None)
 

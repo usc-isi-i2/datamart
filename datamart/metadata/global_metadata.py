@@ -1,10 +1,10 @@
 from datamart.metadata.metadata_base import MetadataBase
 from datamart.metadata.variable_metadata import VariableMetadata
-import typing
+from datamart.utilities.utils import Utils
 
 
 class GlobalMetadata(MetadataBase):
-    def __init__(self, description: typing.Dict, datamart_id: int):
+    def __init__(self, description: dict, datamart_id: int):
         """Init method of GlobalMetadata.
 
         Args:
@@ -31,8 +31,15 @@ class GlobalMetadata(MetadataBase):
 
         self._metadata["url"] = description.get("url", None)
         self._metadata["keywords"] = description.get("keywords", None)
+
         self._metadata["date_published"] = description.get("date_published", None)
+        if self.date_published:
+            self.date_published = Utils.date_validate(self.date_published)
+
         self._metadata["date_updated"] = description.get("date_updated", None)
+        if self.date_updated:
+            self.date_updated = Utils.date_validate(self.date_updated)
+
         self._metadata["provenance"] = description.get("provenance", None)
         self._metadata["original_identifier"] = description.get("original_identifier", None)
 
@@ -44,6 +51,8 @@ class GlobalMetadata(MetadataBase):
         self._metadata["materialization_component"] = description.get("materialization_component", None)
         self._metadata["variables"] = list()
         self._variables = list()
+
+        self._metadata["license"] = description.get("license", None)
 
     def add_variable_metadata(self, variable_metadata: VariableMetadata):
         """Add a variable_metadata to this golbal metadata instance.
@@ -78,13 +87,25 @@ class GlobalMetadata(MetadataBase):
     def keywords(self):
         return self._metadata["keywords"]
 
+    @keywords.setter
+    def keywords(self, value):
+        self._metadata["keywords"] = value
+
     @property
     def date_published(self):
         return self._metadata["date_published"]
 
+    @date_published.setter
+    def date_published(self, value):
+        self._metadata["date_published"] = value
+
     @property
     def date_updated(self):
         return self._metadata["date_updated"]
+
+    @date_updated.setter
+    def date_updated(self, value):
+        self._metadata["date_updated"] = value
 
     @property
     def provenance(self):
@@ -109,3 +130,7 @@ class GlobalMetadata(MetadataBase):
     @property
     def variable_values(self):
         return self._metadata["variables"]
+
+    @property
+    def license(self):
+        return self._metadata["license"]
