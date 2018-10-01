@@ -2,5 +2,5 @@
 
 ```commandline
 conda env create .
-conda activate datamart_env
+source activate datamart_env
 ```
