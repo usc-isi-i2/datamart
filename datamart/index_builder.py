@@ -25,7 +25,7 @@ class IndexBuilder(object):
     def indexing(self,
                  description_path: str,
                  data_path: str = None,
-                 query_data_for_indexing: str = False
+                 query_data_for_indexing: bool = False
                  ):
         """API for the index builder.
 
@@ -49,7 +49,6 @@ class IndexBuilder(object):
                 raise ValueError("No materialization method found")
             materializer = self.load_materializer(materializer_module)
             data = materializer.get()
-
         metadata = self.construct_global_metadata(description=description, data=data)
         metadata_json = metadata.value
 
@@ -143,7 +142,7 @@ class IndexBuilder(object):
             VariableMetadata instance
         """
 
-        variable_metadata = VariableMetadata(description, datamart_id=col_offset+self.current_global_index)
+        variable_metadata = VariableMetadata(description, datamart_id=col_offset+self.current_global_index+1)
 
         if data is not None:
             variable_metadata = self.profiling_column(variable_metadata, data.iloc[:, col_offset])

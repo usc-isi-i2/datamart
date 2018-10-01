@@ -18,7 +18,6 @@ class GlobalMetadata(MetadataBase):
         super().__init__()
 
         self._metadata["datamart_id"] = datamart_id
-
         try:
             self._metadata["title"] = description["title"]
         except:

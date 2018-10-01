@@ -1,0 +1,14 @@
+sudo: required
+language: python
+python:
+- 3.6.6
+services:
+  - docker
+install:
+  - sudo apt-get update
+  # We do this conditionally because it saves us some downloading if the
+  # version is the same.
+  - conda env create .
+  - conda activate datamart_env
+script:
+  - python -W ignore -m unittest discover

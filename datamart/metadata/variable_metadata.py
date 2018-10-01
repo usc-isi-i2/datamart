@@ -19,7 +19,7 @@ class VariableMetadata(MetadataBase):
         self._metadata["datamart_id"] = datamart_id
 
         try:
-            self._metadata["title"] = description["title"]
+            self._metadata["name"] = description["name"]
         except:
             raise ValueError("No title found")
 
@@ -35,7 +35,7 @@ class VariableMetadata(MetadataBase):
         if self.temporal_coverage:
             self.temporal_coverage = Utils.temporal_coverage_validate(self.temporal_coverage)
 
-        self._metadata["spatial_coverage"] = description.get("named_entity", None)
+        self._metadata["spatial_coverage"] = description.get("spatial_coverage", None)
         self._metadata["materialization_component"] = description.get("materialization_component", None)
 
     @property
@@ -43,8 +43,8 @@ class VariableMetadata(MetadataBase):
         return self._metadata["datamart_id"]
 
     @property
-    def title(self):
-        return self._metadata["title"]
+    def name(self):
+        return self._metadata["name"]
 
     @property
     def description(self):

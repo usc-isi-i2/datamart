@@ -40,6 +40,6 @@ class Utils:
             coverage['start'] = dateutil.parser.parse(coverage['start']).isoformat()
             coverage['end'] = dateutil.parser.parse(coverage['end']).isoformat()
         except:
-            warnings.warn("Can not parse start or end date in temporal coverage")
+            warnings.warn("Can not parse start or end date in temporal coverage, set to True for datamart profiler")
             return True
         return coverage
