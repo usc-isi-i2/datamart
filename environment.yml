@@ -11,7 +11,6 @@ dependencies:
     - python-dateutil==2.7.3
     - pytz==2018.5
     - six==1.11.0
-    - python==3.6.6
     - libedit==3.1.20170329
     - sqlite==3.24.0
     - ncurses==6.1
