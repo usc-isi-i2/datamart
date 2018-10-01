@@ -2,8 +2,6 @@ name: datamart_env
 dependencies:
   - ca-certificates=2018.03.07=0
   - certifi=2018.8.24=py36_1
-  - libcxx=4.0.1
-  - libcxxabi=4.0.1
   - libedit=3.1.20170329
   - libffi=3.2.1
   - ncurses=6.1
@@ -23,3 +21,5 @@ dependencies:
     - python-dateutil==2.7.3
     - pytz==2018.5
     - six==1.11.0
+    - libcxx==4.0.1
+    - libcxxabi==4.0.1
