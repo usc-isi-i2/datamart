@@ -1,0 +1,1908 @@
+abu dhabi,CITY:AE000001
+ajman,CITY:AE000002
+dubai,CITY:AE000003
+sharjah,CITY:AE000006
+kabul,CITY:AF000007
+kandahar,CITY:AF000008
+algiers,CITY:AG000001
+annaba,CITY:AG000002
+batna,CITY:AG000003
+bechar,CITY:AG000004
+bejaia,CITY:AG000005
+constantine,CITY:AG000006
+guelma,CITY:AG000007
+laghouat,CITY:AG000008
+medea,CITY:AG000009
+mostaganem,CITY:AG000010
+oran,CITY:AG000011
+oum el bouaghi,CITY:AG000012
+saida,CITY:AG000013
+sidi-bel-abbes,CITY:AG000014
+skikda,CITY:AG000015
+tamanrasset,CITY:AG000016
+tlemcen,CITY:AG000017
+baku,CITY:AJ000001
+naxcivian,CITY:AJ000002
+durres,CITY:AL000001
+shkoder,CITY:AL000004
+tirana,CITY:AL000005
+yerevan,CITY:AM000001
+luanda,CITY:AO000005
+lubango,CITY:AO000006
+namibe,CITY:AO000008
+bahia blanca,CITY:AR000001
+buenos aires,CITY:AR000002
+catamarca,CITY:AR000003
+comodoro rivadavia,CITY:AR000004
+cordoba,CITY:AR000005
+corrientes,CITY:AR000006
+formosa,CITY:AR000007
+la plata,CITY:AR000008
+la rioja,CITY:AR000009
+mendoza,CITY:AR000010
+neuquen,CITY:AR000011
+parana,CITY:AR000012
+posadas,CITY:AR000013
+resistencia,CITY:AR000014
+rio gallegos,CITY:AR000015
+rosario,CITY:AR000016
+salta,CITY:AR000017
+san juan,CITY:RQ000003
+san luis,CITY:AR000019
+san miguel de tucuman,CITY:AR000020
+santa rosa,CITY:AR000023
+santiago del estero,CITY:AR000024
+ushuaia,CITY:AR000025
+adelaide,CITY:AS000001
+brisbane,CITY:AS000002
+cairns,CITY:AS000003
+canberra,CITY:AS000004
+darwin,CITY:AS000005
+melbourne,CITY:AS000006
+newcastle,CITY:AS000007
+perth,CITY:AS000008
+rockhampton,CITY:AS000009
+sydney,CITY:AS000010
+townsville,CITY:AS000011
+graz,CITY:AU000001
+innsbruck,CITY:AU000002
+klagenfurt,CITY:AU000003
+salzburg,CITY:AU000005
+vienna,CITY:AU000006
+al-muharraq,CITY:BA000001
+manama,CITY:BA000002
+bridgetown,CITY:BB000001
+francistown,CITY:BC000001
+gaborone,CITY:BC000002
+molepolole,CITY:BC000003
+brussels,CITY:BE000002
+gent,CITY:BE000003
+hasselt,CITY:BE000004
+liege,CITY:BE000005
+nassau,CITY:BF000001
+barisal,CITY:BG000001
+chittagong,CITY:BG000002
+dhaka,CITY:BG000003
+rajshahi,CITY:BG000005
+belize,CITY:BH000001
+sarajevo,CITY:BK000001
+cochabamba,CITY:BL000001
+la paz,CITY:MX000016
+oruro,CITY:BL000003
+potosi,CITY:BL000004
+santa cruz de la sierra,CITY:BL000005
+sucre,CITY:BL000006
+tarija,CITY:BL000007
+trinidad,CITY:BL000008
+mandalay,CITY:BM000003
+myitkyina,CITY:BM000005
+rangoon,CITY:BM000007
+sagaing,CITY:BM000008
+sittwe,CITY:BM000009
+abomey,CITY:BN000001
+cotonou,CITY:BN000002
+lokossa,CITY:BN000003
+natitingou,CITY:BN000004
+parakou,CITY:BN000005
+brest,CITY:FR000005
+homyel',CITY:BO000002
+hrodna,CITY:BO000003
+mahilyow,CITY:BO000004
+minsk,CITY:BO000005
+vitsyebsk,CITY:BO000006
+honiara,CITY:BP000001
+aracaju,CITY:BR000001
+belem,CITY:BR000002
+belo horizonte,CITY:BR000003
+boa vista,CITY:BR000004
+brasilia,CITY:BR000005
+campo grande,CITY:BR000006
+cuiaba,CITY:BR000007
+curitiba,CITY:BR000008
+florianopolis,CITY:BR000009
+fortaleza,CITY:BR000010
+goiania,CITY:BR000011
+joao pessoa,CITY:BR000012
+macapa,CITY:BR000013
+maceio,CITY:BR000014
+manaus,CITY:BR000015
+natal,CITY:BR000016
+niteroi,CITY:BR000017
+palmas,CITY:BR000018
+porto alegre,CITY:BR000019
+porto velho,CITY:BR000020
+recife,CITY:BR000021
+rio branco,CITY:BR000022
+rio de janeiro,CITY:BR000023
+salvador,CITY:BR000024
+santarem,CITY:BR000025
+santos,CITY:BR000026
+sao luis,CITY:BR000027
+sao paulo,CITY:BR000028
+teresina,CITY:BR000029
+vitoria,CITY:SP000020
+sofia,CITY:BU000002
+varna,CITY:BU000003
+bandar seri begawan,CITY:BX000001
+bujumbura,CITY:BY000001
+muyinga,CITY:BY000002
+calgary,CITY:CA000001
+edmonton,CITY:CA000002
+fredericton,CITY:CA000003
+halifax,CITY:CA000004
+montreal,CITY:CA000005
+ottawa,CITY:CA000006
+quebec,CITY:CA000007
+regina,CITY:CA000008
+saint john,CITY:CA000009
+saskatoon,CITY:CA000010
+toronto,CITY:CA000011
+vancouver,CITY:CA000012
+victoria,CITY:CA000013
+winnipeg,CITY:CA000014
+phnom penh,CITY:CB000004
+abeche,CITY:CD000001
+moundou,CITY:CD000002
+ndjamena,CITY:CD000003
+sarh,CITY:CD000004
+colombo,CITY:CE000002
+trincomalee,CITY:CE000005
+brazzaville,CITY:CF000001
+loubomo,CITY:CF000002
+pointe noire,CITY:CF000003
+bandundu,CITY:CG000001
+kananga,CITY:CG000002
+kinshasa,CITY:CG000003
+lumumbashi,CITY:CG000005
+matadi,CITY:CG000006
+mbandaka,CITY:CG000007
+mbuji-mayi,CITY:CG000008
+beijing,CITY:CH000003
+changchun,CITY:CH000004
+changsha,CITY:CH000005
+chengdu,CITY:CH000006
+chongqing,CITY:CH000007
+dalian,CITY:CH000008
+fushun,CITY:CH000009
+fuzhou,CITY:CH000010
+guangzhou,CITY:CH000011
+guiyang,CITY:CH000012
+hangzhou,CITY:CH000013
+harbin,CITY:CH000014
+hefei,CITY:CH000015
+hong kong,CITY:CH000016
+huhot,CITY:CH000017
+jinan,CITY:CH000019
+kashi,CITY:CH000020
+kunming,CITY:CH000021
+lanzhou,CITY:CH000022
+lhasa,CITY:CH000023
+macau,CITY:CH000025
+nanchang,CITY:CH000026
+nanjing,CITY:CH000027
+nanning,CITY:CH000028
+qingdao,CITY:CH000029
+qiqihar,CITY:CH000030
+shanghai,CITY:CH000031
+shenyang,CITY:CH000032
+shijiazhuang,CITY:CH000033
+taiyuan,CITY:CH000037
+tianjin,CITY:CH000039
+urumqi,CITY:CH000040
+wuhan,CITY:CH000041
+xi'an,CITY:CH000042
+xining,CITY:CH000043
+yinchuan,CITY:CH000044
+zhengzhou,CITY:CH000045
+antofagasta,CITY:CI000001
+concepcion,CITY:CI000002
+copiapo,CITY:CI000003
+coquimbo,CITY:CI000004
+la serena,CITY:CI000006
+puerto montt,CITY:CI000007
+punta arenas,CITY:CI000008
+santiago,CITY:DR000008
+temuco,CITY:CI000011
+bertoua,CITY:CM000003
+douala,CITY:CM000004
+garoua,CITY:CM000006
+maroua,CITY:CM000007
+ngaoundere,CITY:CM000008
+arauca,CITY:CO000001
+armenia,CITY:CO000002
+barranquilla,CITY:CO000003
+bogota,CITY:CO000004
+bucaramanga,CITY:CO000005
+cali,CITY:CO000006
+cartagena,CITY:CO000007
+cucuta,CITY:CO000008
+ibague,CITY:CO000010
+medellin,CITY:CO000012
+monteria,CITY:CO000013
+neiva,CITY:CO000014
+pasto,CITY:CO000015
+pereira,CITY:CO000016
+quibdo,CITY:CO000017
+riohacha,CITY:CO000018
+san andres,CITY:CO000019
+santa marta,CITY:CO000020
+valledupar,CITY:CO000023
+villavicencio,CITY:CO000024
+puerto limon,CITY:CS000001
+san jose,CITY:CS000002
+bangui,CITY:CT000001
+berberati,CITY:CT000002
+camaguey,CITY:CU000001
+havana,CITY:CU000005
+matanzas,CITY:CU000008
+praia,CITY:CV000001
+lemesos,CITY:CY000001
+nicosia,CITY:CY000002
+alborg,CITY:DA000001
+copenhagen,CITY:DA000003
+santo domingo,CITY:DR000009
+babahoyo,CITY:EC000002
+loja,CITY:EC000006
+portoviejo,CITY:EC000008
+quito,CITY:EC000009
+al ghurdaqah,CITY:EG000001
+alexandria,CITY:EG000002
+aswan,CITY:EG000003
+cairo,CITY:EG000005
+giza,CITY:EG000007
+ismailia,CITY:EG000008
+marsa matruh,CITY:EG000009
+qena,CITY:EG000010
+suez,CITY:EG000012
+cork,CITY:EI000001
+dublin,CITY:EI000002
+galway,CITY:EI000003
+bata,CITY:EK000001
+malabo,CITY:EK000002
+tallinn,CITY:EN000001
+asmara,CITY:ER000001
+nueva san salvador,CITY:ES000001
+san salvador,CITY:ES000002
+sonsonate,CITY:ES000004
+addis ababa,CITY:ET000001
+arba minch,CITY:ET000002
+awasa,CITY:ET000003
+debre markos,CITY:ET000004
+dese,CITY:ET000005
+gonder,CITY:ET000006
+jima,CITY:ET000007
+brno,CITY:EZ000001
+ostrava,CITY:EZ000004
+prague,CITY:EZ000006
+usti nad labem,CITY:EZ000007
+cayenne,CITY:FG000001
+helsinki,CITY:FI000001
+joensuu,CITY:FI000002
+jyvaskyla,CITY:FI000003
+kuopio,CITY:FI000004
+oulu,CITY:FI000005
+turku,CITY:FI000006
+suva,CITY:FJ000001
+ajaccio,CITY:FR000001
+amiens,CITY:FR000002
+besancon,CITY:FR000003
+caen,CITY:FR000006
+clermont-ferrand,CITY:FR000007
+dijon,CITY:FR000008
+le havre,CITY:FR000009
+lille,CITY:FR000010
+limoges,CITY:FR000011
+lyon,CITY:FR000012
+marseille,CITY:FR000013
+montpellier,CITY:FR000014
+nancy,CITY:FR000015
+nantes,CITY:FR000016
+orleans,CITY:FR000017
+paris,CITY:FR000018
+poitiers,CITY:FR000019
+reims,CITY:FR000020
+rennes,CITY:FR000021
+rouen,CITY:FR000022
+strasbourg,CITY:FR000023
+toulouse,CITY:FR000024
+brikama,CITY:GA000001
+libreville,CITY:GB000001
+port gentil,CITY:GB000002
+bat'umi,CITY:GG000001
+sokhumi,CITY:GG000002
+t'bilisi,CITY:GG000003
+accra,CITY:GH000001
+ho,CITY:GH000004
+koforidua,CITY:GH000005
+kumasi,CITY:GH000006
+sekondi,CITY:GH000007
+sunyani,CITY:GH000008
+tamale,CITY:GH000009
+wa,CITY:GH000010
+berlin,CITY:GM000001
+bonn,CITY:GM000002
+bremen,CITY:GM000003
+bremerhaven,CITY:GM000004
+cologne,CITY:GM000005
+dortmund,CITY:GM000006
+dresden,CITY:GM000007
+duisburg,CITY:GM000008
+dusseldorf,CITY:GM000009
+erfurt,CITY:GM000010
+essen,CITY:GM000011
+frankfurt,CITY:GM000012
+hamburg,CITY:GM000013
+hannover,CITY:GM000014
+kiel,CITY:GM000015
+leipzig,CITY:GM000016
+magdeburg,CITY:GM000017
+mainz,CITY:GM000018
+munich,CITY:GM000019
+potsdam,CITY:GM000020
+saarbrucken,CITY:GM000021
+schwerin,CITY:GM000022
+stuttgart,CITY:GM000023
+wiesbaden,CITY:GM000024
+athens,CITY:GR000001
+ioannina,CITY:GR000002
+iraklion,CITY:GR000003
+larisa,CITY:GR000004
+piraeus,CITY:GR000006
+thessaloniki,CITY:GR000007
+guatemala,CITY:GT000004
+conakry,CITY:GV000001
+kankan,CITY:GV000002
+kindia,CITY:GV000003
+nzerekore,CITY:GV000004
+georgetown,CITY:GY000001
+la ceiba,CITY:HO000002
+san pedro sula,CITY:HO000003
+tegucigalpa,CITY:HO000004
+rijeka,CITY:HR000001
+zagreb,CITY:HR000002
+budapest,CITY:HU000002
+debrecen,CITY:HU000003
+miskolc,CITY:HU000008
+pecs,CITY:HU000010
+szeged,CITY:HU000011
+szombathely,CITY:HU000014
+reykjavik,CITY:IC000001
+ambon,CITY:ID000001
+balikpapan,CITY:ID000002
+banda aceh,CITY:ID000003
+bandjermasin,CITY:ID000004
+bengkulu,CITY:ID000006
+denpasar,CITY:ID000007
+jakarta,CITY:ID000008
+jambi,CITY:ID000009
+jayapura,CITY:ID000010
+kupang,CITY:ID000011
+makassar,CITY:ID000012
+manado,CITY:ID000013
+mataram,CITY:ID000014
+medan,CITY:ID000015
+padang,CITY:ID000016
+palembang,CITY:ID000017
+palu,CITY:ID000018
+pontianak,CITY:ID000019
+samarinda,CITY:ID000020
+semarang,CITY:ID000021
+surabaja,CITY:ID000022
+tanjungkarang-telukbetung,CITY:ID000023
+agartala,CITY:IN000001
+ahmadabad,CITY:IN000002
+aizawl,CITY:IN000003
+amritsar,CITY:IN000004
+bangalore,CITY:IN000005
+bhopal,CITY:IN000006
+bhubaneshwar,CITY:IN000007
+chandigarh,CITY:IN000008
+chennai,CITY:IN000009
+cochin,CITY:IN000010
+delhi,CITY:IN000011
+hyderabad,CITY:PK000002
+imphal,CITY:IN000013
+jaipur,CITY:IN000014
+kanpur,CITY:IN000015
+kohima,CITY:IN000016
+kolkata,CITY:IN000017
+lucknow,CITY:IN000018
+madurai,CITY:IN000019
+mangalore,CITY:IN000020
+mumbai,CITY:IN000021
+nagpur,CITY:IN000022
+new delhi,CITY:IN000023
+panaji,CITY:IN000024
+patna,CITY:IN000025
+pondicherry,CITY:IN000026
+port blair,CITY:IN000027
+pune,CITY:IN000028
+shillong,CITY:IN000029
+simla,CITY:IN000030
+trivandrum,CITY:IN000031
+varanasi,CITY:IN000032
+vishakhapatnam,CITY:IN000033
+ahvaz,CITY:IR000001
+arak,CITY:IR000002
+esfahan,CITY:IR000003
+hamadan,CITY:IR000004
+ilam,CITY:IR000005
+kerman,CITY:IR000006
+kermanshah,CITY:IR000007
+khorramabad,CITY:IR000008
+mashhad,CITY:IR000009
+rasht,CITY:IR000010
+sanandaj,CITY:IR000011
+semnan,CITY:IR000013
+shahr-e kord,CITY:IR000014
+shiraz,CITY:IR000015
+tabriz,CITY:IR000016
+tehran,CITY:IR000017
+yazd,CITY:IR000018
+zahedan,CITY:IR000019
+zanjan,CITY:IR000020
+beersheba,CITY:IS000001
+jerusalem,CITY:IS000003
+ramla,CITY:IS000005
+tel aviv-yafo,CITY:IS000006
+bologna,CITY:IT000004
+cagliari,CITY:IT000005
+campobasso,CITY:IT000006
+genoa,CITY:IT000009
+milan,CITY:IT000010
+naples,CITY:IT000011
+palermo,CITY:IT000012
+rome,CITY:IT000015
+trento,CITY:IT000016
+trieste,CITY:IT000017
+turin,CITY:IT000018
+abidjan,CITY:IV000002
+bondoukou,CITY:IV000005
+bouake,CITY:IV000007
+daloa,CITY:IV000008
+dimbokro,CITY:IV000010
+ferkessedougou,CITY:IV000012
+gagnoa,CITY:IV000013
+korhogo,CITY:IV000015
+man,CITY:IV000016
+yamoussoukro,CITY:IV000021
+al basrah,CITY:IZ000003
+aomori,CITY:JA000001
+fukuoka,CITY:JA000002
+gifu,CITY:JA000003
+hiroshima,CITY:JA000004
+kawasaki,CITY:JA000005
+kita kyushu,CITY:JA000006
+kobe,CITY:JA000007
+kyoto,CITY:JA000008
+nagasaki,CITY:JA000009
+nagoya,CITY:JA000010
+naha,CITY:JA000011
+osaka,CITY:JA000012
+sapporo,CITY:JA000013
+sendai,CITY:JA000014
+shimonoseki,CITY:JA000015
+tokyo,CITY:JA000016
+yokohama,CITY:JA000017
+kingston,CITY:JM000001
+montego bay,CITY:JM000002
+spanish town,CITY:JM000003
+al mafraq,CITY:JO000001
+az zarqa',CITY:JO000004
+irbid,CITY:JO000005
+mombasa,CITY:KE000003
+nairobi,CITY:KE000004
+bishkek,CITY:KG000001
+karakol,CITY:KG000002
+osh,CITY:KG000003
+haeju,CITY:KN000002
+hyesan,CITY:KN000004
+kaesong,CITY:KN000005
+p'yongyang,CITY:KN000007
+sariwon,CITY:KN000008
+sinuiju,CITY:KN000009
+wonsan,CITY:KN000010
+ch'unch'on,CITY:KS000001
+ch'ungju,CITY:KS000002
+cheju,CITY:KS000003
+chonju,CITY:KS000004
+inch`on,CITY:KS000005
+kwangju,CITY:KS000006
+pusan,CITY:KS000007
+seoul,CITY:KS000008
+taegu,CITY:KS000009
+taejon,CITY:KS000010
+kuwait,CITY:KU000001
+aktyubinsk,CITY:KZ000001
+almaty,CITY:KZ000002
+astana,CITY:KZ000003
+atyrau,CITY:KZ000004
+dzhambul,CITY:KZ000005
+karaganda,CITY:KZ000006
+kokshetau,CITY:KZ000007
+kostanay,CITY:KZ000008
+kyzylorda,CITY:KZ000009
+pavlodar,CITY:KZ000010
+petropavlovsk,CITY:KZ000011
+semipalatinsk,CITY:KZ000012
+shymkent,CITY:KZ000013
+taldykorgan,CITY:KZ000014
+ural'sk,CITY:KZ000015
+ust'-kamenogorsk,CITY:KZ000016
+zhezkazgan,CITY:KZ000017
+savannakhet,CITY:LA000001
+vientiane,CITY:LA000002
+beirut,CITY:LE000001
+tripoli,CITY:LY000006
+zahle,CITY:LE000004
+riga,CITY:LG000001
+vilnius,CITY:LH000001
+monrovia,CITY:LI000001
+banska bystrica,CITY:LO000001
+kosice,CITY:LO000003
+mafeteng,CITY:LT000001
+maseru,CITY:LT000002
+luxembourg,CITY:LU000001
+ajdabiya,CITY:LY000001
+al khums,CITY:LY000002
+benghazi,CITY:LY000003
+darnah,CITY:LY000004
+misratah,CITY:LY000005
+antananarivo,CITY:MA000001
+antsiranana,CITY:MA000002
+fianarantsoa,CITY:MA000003
+mahajanga,CITY:MA000004
+toamasina,CITY:MA000005
+toliara,CITY:MA000006
+fort-de-france,CITY:MB000001
+chisinau,CITY:MD000001
+mamoutzou,CITY:MF000001
+ulaanbaatar,CITY:MG000002
+blantyre,CITY:MI000001
+lilongwe,CITY:MI000002
+podgorica,CITY:MJ000001
+skopje,CITY:MK000001
+bamako,CITY:ML000001
+gao,CITY:ML000002
+kayes,CITY:ML000003
+mopti,CITY:ML000004
+segou,CITY:ML000005
+sikasso,CITY:ML000006
+casablanca,CITY:MO000002
+marrakech,CITY:MO000004
+meknes,CITY:MO000005
+oujda,CITY:MO000006
+rabat,CITY:MO000007
+port louis,CITY:MP000001
+nouadhibou,CITY:MR000001
+nouakchott,CITY:MR000002
+muscat,CITY:MU000001
+acapulco,CITY:MX000001
+aguascalientes,CITY:MX000002
+campeche,CITY:MX000003
+chetumal,CITY:MX000004
+chihuahua,CITY:MX000005
+chilpancingo de los bravo,CITY:MX000006
+ciudad victoria,CITY:MX000007
+colima,CITY:MX000008
+cuernavaca,CITY:MX000009
+culiacan,CITY:MX000010
+durango,CITY:MX000011
+guadalajara,CITY:MX000012
+guanajuato,CITY:MX000013
+hermosillo,CITY:MX000014
+jalapa,CITY:MX000015
+mazatlan,CITY:MX000017
+merida,CITY:MX000018
+mexicali,CITY:MX000019
+mexico city,CITY:MX000020
+monterrey,CITY:MX000021
+morelia,CITY:MX000022
+oaxaca,CITY:MX000023
+pachuca,CITY:MX000024
+puebla,CITY:MX000025
+queretaro,CITY:MX000026
+saltillo,CITY:MX000027
+san luis potosi,CITY:MX000028
+tampico,CITY:MX000029
+tepic,CITY:MX000030
+tlaxcala,CITY:MX000031
+toluca,CITY:MX000032
+tuxtla gutierrez,CITY:MX000033
+veracruz,CITY:MX000034
+villahermosa,CITY:MX000035
+zacatecas,CITY:MX000036
+johor baharu,CITY:MY000003
+kota baharu,CITY:MY000005
+kota kinabalu,CITY:MY000006
+kuala lumpur,CITY:MY000007
+kuantan new port,CITY:MY000009
+kuching,CITY:MY000010
+melaka,CITY:MY000011
+pinang,CITY:MY000012
+shah alam,CITY:MY000014
+beira,CITY:MZ000001
+chimoio,CITY:MZ000002
+inhambane,CITY:MZ000003
+lichinga,CITY:MZ000004
+maputo,CITY:MZ000005
+nampula,CITY:MZ000006
+pemba,CITY:MZ000007
+quelimane,CITY:MZ000008
+tete,CITY:MZ000009
+xai-xai,CITY:MZ000010
+maradi,CITY:NG000001
+niamey,CITY:NG000002
+tahoua,CITY:NG000003
+zinder,CITY:NG000004
+enugu,CITY:NI000011
+ilorin,CITY:NI000013
+jos,CITY:NI000015
+kano,CITY:NI000017
+lagos,CITY:NI000019
+maiduguri,CITY:NI000021
+makurdi,CITY:NI000022
+minna,CITY:NI000023
+port harcourt,CITY:NI000025
+yola,CITY:NI000028
+'s-hertogenbosch,CITY:NL000001
+amsterdam,CITY:NL000002
+arnhem,CITY:NL000003
+assen,CITY:NL000004
+groningen,CITY:NL000005
+haarlem,CITY:NL000006
+leeuwarden,CITY:NL000007
+maastricht,CITY:NL000008
+rotterdam,CITY:NL000009
+the hague,CITY:NL000010
+utrecht,CITY:NL000011
+zwolle,CITY:NL000012
+bergen,CITY:NO000001
+drammen,CITY:NO000002
+kristiansand,CITY:NO000003
+oslo,CITY:NO000004
+stavanger,CITY:NO000005
+tromso,CITY:NO000006
+trondheim,CITY:NO000007
+bhairawa,CITY:NP000001
+biratnagar,CITY:NP000002
+kathmandu,CITY:NP000004
+willemstad,CITY:NT000001
+chinandega,CITY:NU000001
+esteli,CITY:NU000002
+jinotega,CITY:NU000004
+juigalpa,CITY:NU000005
+managua,CITY:NU000007
+masaya,CITY:NU000008
+matagalpa,CITY:NU000009
+auckland,CITY:NZ000001
+christchurch,CITY:NZ000002
+wellington,CITY:NZ000007
+asuncion,CITY:PA000001
+coronel oviedo,CITY:PA000002
+encarnacion,CITY:PA000003
+arequipa,CITY:PE000002
+ayacucho,CITY:PE000003
+cajamarca,CITY:PE000004
+callao,CITY:PE000005
+chiclayo,CITY:PE000007
+cuzco,CITY:PE000009
+huanuco,CITY:PE000011
+huaraz,CITY:PE000012
+iquitos,CITY:PE000014
+lima,CITY:PE000015
+piura,CITY:PE000017
+pucallpa,CITY:PE000018
+tacna,CITY:PE000020
+trujillo,CITY:PE000021
+tumbes,CITY:PE000022
+islamabad,CITY:PK000003
+karachi,CITY:PK000004
+lahore,CITY:PK000005
+peshawar,CITY:PK000006
+quetta,CITY:PK000007
+rawalpindi,CITY:PK000008
+bialystok,CITY:PL000002
+elblag,CITY:PL000007
+krakow,CITY:PL000017
+poznan,CITY:PL000030
+siedlce,CITY:PL000034
+szczecin,CITY:PL000037
+warsaw,CITY:PL000042
+wroclaw,CITY:PL000044
+colon,CITY:PM000001
+panama,CITY:PM000003
+aveiro,CITY:PO000001
+braga,CITY:PO000002
+coimbra,CITY:PO000003
+evora,CITY:PO000004
+funchal,CITY:PO000005
+lisbon,CITY:PO000006
+porto,CITY:PO000007
+port moresby,CITY:PP000002
+bissau,CITY:PU000001
+doha,CITY:QA000001
+belgrade,CITY:RB000001
+saint-denis,CITY:RE000001
+arad,CITY:RO000002
+bacau,CITY:RO000003
+baia mare,CITY:RO000004
+bistrita,CITY:RO000005
+botosani,CITY:RO000006
+braila,CITY:RO000007
+bucharest,CITY:RO000009
+buzau,CITY:RO000010
+calarasi,CITY:RO000011
+cluj-napoca,CITY:RO000012
+constanta,CITY:RO000013
+craiova,CITY:RO000014
+deva,CITY:RO000015
+drobeta- turmu sererin,CITY:RO000016
+galati,CITY:RO000018
+iasi,CITY:RO000020
+rimnicu vilcea,CITY:RO000026
+sibiu,CITY:RO000029
+suceava,CITY:RO000032
+targu jiu,CITY:RO000034
+timisoara,CITY:RO000036
+tulcea,CITY:RO000037
+manila,CITY:RP000002
+mayaguez,CITY:RQ000001
+ponce,CITY:RQ000002
+abakan,CITY:RS000001
+arkangel'sk,CITY:RS000002
+astrakhan,CITY:RS000003
+barnaul,CITY:RS000004
+belgorod,CITY:RS000005
+birobidzhan,CITY:RS000006
+blagoveshchensk,CITY:RS000007
+ceboksary,CITY:RS000008
+chelyabinsk,CITY:RS000009
+chita,CITY:RS000011
+elista,CITY:RS000012
+gor'kiy,CITY:RS000013
+gorno-altaysk,CITY:RS000014
+groznyy,CITY:RS000015
+irkutsk,CITY:RS000016
+ivanovo,CITY:RS000017
+izevsk,CITY:RS000018
+kaliningrad,CITY:RS000019
+kaluga,CITY:RS000020
+kazan',CITY:RS000021
+kemerovo,CITY:RS000022
+khabarovsk,CITY:RS000023
+khanty-mansiysk,CITY:RS000024
+klintsy,CITY:RS000025
+kostroma,CITY:RS000026
+kotlas,CITY:RS000027
+krasnodar,CITY:RS000028
+krasnoyarsk,CITY:RS000029
+kurgan,CITY:RS000030
+kursk,CITY:RS000031
+kuybyskev,CITY:RS000032
+kyzyl,CITY:RS000033
+lipetsk,CITY:RS000034
+machackala,CITY:RS000035
+magadan,CITY:RS000036
+majkop,CITY:RS000037
+moscow,CITY:RS000038
+murmansk,CITY:RS000039
+nazran,CITY:RS000041
+novgorod,CITY:RS000043
+novokuznetsk,CITY:RS000044
+novosibirsk,CITY:RS000045
+omsk,CITY:RS000046
+orel,CITY:RS000047
+orenburg,CITY:RS000048
+penza,CITY:RS000049
+perm',CITY:RS000050
+petropavloski-kamchatskiy,CITY:RS000051
+petrozavodsk,CITY:RS000052
+pskov,CITY:RS000053
+rostov-on-don,CITY:RS000054
+ryazan,CITY:RS000055
+saint petersburg,CITY:RS000056
+saransk,CITY:RS000057
+saratov,CITY:RS000058
+smolensk,CITY:RS000059
+stavropol,CITY:RS000060
+sverdlovsk,CITY:RS000061
+syktyvkar,CITY:RS000062
+tambov,CITY:RS000063
+tomsk,CITY:RS000064
+tula,CITY:RS000065
+tver,CITY:RS000066
+tyumen,CITY:RS000067
+ufa,CITY:RS000068
+ul'yanovsk,CITY:RS000069
+ulan ude,CITY:RS000070
+vladikavkaz,CITY:RS000071
+vladimir,CITY:RS000072
+vladivostok,CITY:RS000073
+volgograd,CITY:RS000074
+vologda,CITY:RS000075
+vorkuta,CITY:RS000076
+voronezh,CITY:RS000077
+vyatka,CITY:RS000078
+yakutsk,CITY:RS000079
+yaroslavl,CITY:RS000080
+yuzhno-sakhalinsk,CITY:RS000081
+kigali,CITY:RW000006
+abha,CITY:SA000001
+jeddah,CITY:SA000003
+mecca,CITY:SA000004
+medina,CITY:SA000005
+riyadh,CITY:SA000007
+sakakah,CITY:SA000008
+tabuk,CITY:SA000009
+bisho,CITY:SF000001
+bloemfontein,CITY:SF000002
+cape town,CITY:SF000003
+durban,CITY:SF000004
+johannesburg,CITY:SF000005
+kimberley,CITY:SF000006
+mmabatho (mafikeng),CITY:SF000007
+nelspruit,CITY:SF000008
+pietermaritzburg (ulundi),CITY:SF000009
+pietersburg (polokwane),CITY:SF000010
+port elizabeth,CITY:SF000011
+pretoria,CITY:SF000012
+richards bay,CITY:SF000013
+dakar,CITY:SG000001
+kolda,CITY:SG000002
+thies,CITY:SG000003
+ziguinchor,CITY:SG000004
+ljubljana,CITY:SI000001
+freetown,CITY:SL000002
+singapore,CITY:SN000001
+barcelona,CITY:SP000001
+bilbao,CITY:SP000002
+ceuta,CITY:SP000003
+logrono,CITY:SP000005
+madrid,CITY:SP000006
+melilla,CITY:SP000007
+murcia,CITY:SP000009
+oviedo,CITY:SP000010
+palma de mallorca,CITY:SP000011
+pamplona,CITY:SP000012
+santa cruz de tenerife,CITY:SP000013
+santander,CITY:SP000014
+santiago de compostela,CITY:SP000015
+seville,CITY:SP000016
+toledo,CITY:SP000017
+valencia,CITY:SP000018
+valladolid,CITY:SP000019
+zaragoza,CITY:SP000021
+el fasher,CITY:SU000001
+el obeid,CITY:SU000002
+khartoum,CITY:SU000003
+malakal,CITY:SU000004
+omdurman,CITY:SU000005
+port sudan,CITY:SU000006
+wau,CITY:SU000007
+gavle,CITY:SW000001
+goteborg,CITY:SW000002
+halmstad,CITY:SW000003
+jonkoping,CITY:SW000004
+karlstad,CITY:SW000005
+linkoping,CITY:SW000006
+malmo,CITY:SW000007
+orebro,CITY:SW000008
+stockholm,CITY:SW000009
+umea,CITY:SW000010
+uppsala,CITY:SW000011
+vasteras,CITY:SW000012
+vaxjo,CITY:SW000013
+aleppo,CITY:SY000001
+damascus,CITY:SY000004
+dayr az zawr,CITY:SY000005
+hamah,CITY:SY000006
+homs,CITY:SY000007
+tartus,CITY:SY000009
+basel,CITY:SZ000001
+geneva,CITY:SZ000003
+saint gallen,CITY:SZ000006
+zurich,CITY:SZ000007
+bangkok,CITY:TH000001
+chang rai,CITY:TH000003
+chanthaburi,CITY:TH000004
+chiang mai,CITY:TH000005
+chon buri,CITY:TH000006
+chumphon,CITY:TH000007
+kanchanaburi,CITY:TH000010
+khon kaen,CITY:TH000011
+lampang,CITY:TH000012
+nakhon ratchasima,CITY:TH000015
+nakhon si thammarat,CITY:TH000016
+nong khai,CITY:TH000017
+phetchabun,CITY:TH000018
+phitsanulok,CITY:TH000019
+phuket,CITY:TH000021
+sakon nakhon,CITY:TH000023
+samut prakan,CITY:TH000024
+supham buri,CITY:TH000026
+surat thani,CITY:TH000027
+trang,CITY:TH000028
+ubon ratchathani,CITY:TH000029
+udon thani,CITY:TH000030
+uttaradit,CITY:TH000031
+dushanbe,CITY:TI000001
+kulob,CITY:TI000002
+leninobod,CITY:TI000003
+qurghonteppa,CITY:TI000004
+lome,CITY:TO000003
+bizerte,CITY:TS000002
+gabes,CITY:TS000003
+gafsa,CITY:TS000004
+jendouba,CITY:TS000005
+kairouan,CITY:TS000006
+sfax,CITY:TS000009
+tunis,CITY:TS000012
+adiyaman,CITY:TU000001
+agri,CITY:TU000002
+aintab,CITY:TU000003
+ankara,CITY:TU000005
+antalya,CITY:TU000006
+aydin,CITY:TU000008
+balikesir,CITY:TU000009
+bingol,CITY:TU000010
+bolu,CITY:TU000011
+burdur,CITY:TU000012
+bursa,CITY:TU000013
+canakkale,CITY:TU000014
+cankiri,CITY:TU000015
+corum,CITY:TU000016
+denizli,CITY:TU000017
+diyarbakir,CITY:TU000018
+edirne,CITY:TU000019
+elazig,CITY:TU000020
+erzincan,CITY:TU000021
+erzurum,CITY:TU000022
+giresun,CITY:TU000024
+hakkari,CITY:TU000025
+isparta,CITY:TU000026
+istanbul,CITY:TU000027
+izmir,CITY:TU000028
+kahramanmaras,CITY:TU000029
+kars,CITY:TU000030
+kastamonu,CITY:TU000031
+kirsehir,CITY:TU000034
+konya,CITY:TU000036
+kutahya,CITY:TU000037
+malatya,CITY:TU000038
+mersin,CITY:TU000041
+mus,CITY:TU000042
+nevsehir,CITY:TU000043
+nigde,CITY:TU000044
+rize,CITY:TU000046
+sakarya,CITY:TU000047
+samsun,CITY:TU000048
+siirt,CITY:TU000049
+sivas,CITY:TU000050
+tekirdag,CITY:TU000051
+tokat,CITY:TU000052
+usak,CITY:TU000054
+van,CITY:TU000055
+yozgat,CITY:TU000056
+zonguldak,CITY:TU000057
+ashgabat,CITY:TX000001
+mary,CITY:TX000002
+turkmenbashi,CITY:TX000003
+arusha,CITY:TZ000001
+bukoba,CITY:TZ000002
+dar es salaam,CITY:TZ000003
+dodoma,CITY:TZ000004
+iringa,CITY:TZ000005
+moshi,CITY:TZ000009
+mtwara,CITY:TZ000010
+musoma,CITY:TZ000011
+mwanza,CITY:TZ000012
+songea,CITY:TZ000015
+tabora,CITY:TZ000017
+zanzibar,CITY:TZ000019
+arua,CITY:UG000001
+gulu,CITY:UG000002
+jinja,CITY:UG000003
+belfast,CITY:UK000001
+birmingham,CITY:US010004
+dundee,CITY:UK000004
+edinburgh,CITY:UK000005
+glasgow,CITY:UK000006
+leeds,CITY:UK000007
+liverpool,CITY:UK000008
+london,CITY:UK000009
+manchester,CITY:US330006
+sheffield,CITY:UK000011
+southampton,CITY:UK000012
+cherkasy,CITY:UP000001
+chernihiv,CITY:UP000002
+chernivtsi,CITY:UP000003
+dnipropetrovs'k,CITY:UP000004
+donets'k,CITY:UP000005
+ivano-frankivs'k,CITY:UP000006
+kharkiv,CITY:UP000007
+kherson,CITY:UP000008
+khmel'nyts'kyz,CITY:UP000009
+kirovohrad,CITY:UP000010
+kovel',CITY:UP000011
+kyiv,CITY:UP000012
+l'viv,CITY:UP000013
+luhans'k,CITY:UP000014
+mykolayiv,CITY:UP000015
+odesa,CITY:UP000016
+poltava,CITY:UP000017
+rivne,CITY:UP000018
+simferopol',CITY:UP000019
+sumy,CITY:UP000020
+ternopil',CITY:UP000021
+uzhhorod,CITY:UP000022
+vinnytsya,CITY:UP000023
+zaporiyhzhya,CITY:UP000024
+zhytomyra,CITY:UP000025
+washington d.c.,CITY:US000001
+alexander city,CITY:US010001
+anniston,CITY:US010002
+auburn,CITY:US010003
+cullman,CITY:US010005
+dothan,CITY:US010006
+enterprise,CITY:US010007
+eufaula,CITY:US010008
+florence,CITY:US450004
+fort payne,CITY:US010010
+gadsden,CITY:US010011
+huntsville,CITY:US480032
+jasper,CITY:US010013
+mobile,CITY:US010014
+montgomery,CITY:US010015
+selma,CITY:US010016
+talladega,CITY:US010017
+troy,CITY:US010018
+tuscaloosa,CITY:US010019
+anchorage,CITY:US020001
+fairbanks,CITY:US020002
+juneau,CITY:US020003
+nome,CITY:US020004
+seward,CITY:US020005
+bullhead city,CITY:US040001
+casa grande,CITY:US040002
+douglas,CITY:US130011
+flagstaff,CITY:US040004
+green valley,CITY:US040005
+kingman,CITY:US040006
+lake havasu city,CITY:US040007
+mesa,CITY:US040008
+nogales,CITY:US040009
+payson,CITY:US040010
+phoenix,CITY:US040011
+prescott,CITY:US040012
+sierra vista,CITY:US040013
+tucson,CITY:US040014
+yuma,CITY:US040015
+arkadelphia,CITY:US050001
+blytheville,CITY:US050002
+camden,CITY:US050003
+conway,CITY:US050004
+el dorado,CITY:US050005
+fayetteville,CITY:US370008
+forrest city,CITY:US050007
+fort smith,CITY:US050008
+harrison,CITY:US050009
+hope,CITY:US050010
+hot springs,CITY:US050011
+jonesboro,CITY:US050012
+little rock,CITY:US050013
+magnolia,CITY:US050014
+mountain home,CITY:US160006
+paragould,CITY:US050016
+pine bluff,CITY:US050017
+russellville,CITY:US050018
+searcy,CITY:US050019
+siloam springs,CITY:US050020
+anaheim,CITY:US060001
+bakersfield,CITY:US060002
+barstow,CITY:US060003
+blythe,CITY:US060004
+chico,CITY:US060005
+clearlake,CITY:US060006
+coalinga,CITY:US060007
+el centro,CITY:US060008
+eureka,CITY:US060009
+fresno,CITY:US060010
+grass valley,CITY:US060011
+long beach,CITY:US060012
+los angeles,CITY:US060013
+merced,CITY:US060014
+modesto,CITY:US060015
+monterey,CITY:US060016
+napa,CITY:US060017
+oakland,CITY:US060018
+oceanside,CITY:US060019
+oxnard,CITY:US060020
+palm springs,CITY:US060021
+red bluff,CITY:US060022
+redding,CITY:US060023
+ridgecrest,CITY:US060024
+riverside,CITY:US060025
+rosamond,CITY:US060026
+sacramento,CITY:US060027
+salinas,CITY:US060028
+san bernardino,CITY:US060029
+san diego,CITY:US060030
+san francisco,CITY:US060031
+san jose,CITY:US060032
+san luis obispo,CITY:US060033
+santa ana,CITY:US060034
+santa barbara,CITY:US060035
+santa clarita,CITY:US060036
+santa cruz,CITY:US060037
+santa maria,CITY:US060038
+santa rosa,CITY:US060039
+simi valley,CITY:US060040
+soledad,CITY:US060041
+stockton,CITY:US060042
+susanville,CITY:US060043
+ukiah,CITY:US060044
+vallejo,CITY:US060045
+visalia,CITY:US060046
+yuba city,CITY:US060047
+yucca valley,CITY:US060048
+boulder,CITY:US080001
+canon city,CITY:US080002
+colorado springs,CITY:US080003
+denver,CITY:US080004
+durango,CITY:US080005
+fort collins,CITY:US080006
+fort morgan,CITY:US080007
+grand junction,CITY:US080008
+montrose,CITY:US080009
+pueblo,CITY:US080010
+sterling,CITY:US080011
+bridgeport,CITY:US090001
+danbury,CITY:US090002
+hartford,CITY:US090003
+new haven,CITY:US090004
+new london,CITY:US090005
+norwalk,CITY:US090006
+norwich,CITY:US090007
+stamford,CITY:US090008
+torrington,CITY:US090009
+waterbury,CITY:US090010
+willimantic,CITY:US090011
+dover,CITY:US100001
+newark,CITY:US390020
+belle glade,CITY:US120001
+boca raton,CITY:US120002
+boynton beach,CITY:US120003
+bradenton,CITY:US120004
+cape coral,CITY:US120005
+cocoa,CITY:US120006
+coral springs,CITY:US120007
+crestview,CITY:US120008
+daytona beach,CITY:US120009
+deltona,CITY:US120010
+destin,CITY:US120011
+fort lauderdale,CITY:US120012
+fort myers,CITY:US120013
+fort walton beach,CITY:US120014
+gainesville,CITY:US480025
+homosassa springs,CITY:US120016
+immokalee,CITY:US120017
+jacksonville,CITY:US480034
+jupiter,CITY:US120019
+key largo,CITY:US120020
+key west,CITY:US120021
+kissimmee,CITY:US120022
+marathon,CITY:US120023
+melbourne,CITY:US120024
+miami,CITY:US120025
+naples,CITY:US120026
+ocala,CITY:US120027
+orlando,CITY:US120028
+palatka,CITY:US120029
+palm coast,CITY:US120030
+panama city,CITY:US120031
+pensacola,CITY:US120032
+pompano beach,CITY:US120033
+port charlotte,CITY:US120034
+port st. lucie,CITY:US120035
+sarasota,CITY:US120036
+spring hill,CITY:US120037
+st. augustine,CITY:US120038
+st. petersburg,CITY:US120039
+tallahassee,CITY:US120040
+tampa,CITY:US120041
+titusville,CITY:US120042
+west palm beach,CITY:US120043
+albany,CITY:US360001
+americus,CITY:US130002
+athens,CITY:US480004
+atlanta,CITY:US130004
+augusta,CITY:US230001
+bainbridge,CITY:US130006
+brunswick,CITY:US130007
+carrollton,CITY:US130008
+columbus,CITY:US390011
+dalton,CITY:US130010
+dublin,CITY:US130012
+fort benning south,CITY:US130013
+griffin,CITY:US130015
+hinesville,CITY:US130016
+lagrange,CITY:US130017
+macon,CITY:US130018
+milledgeville,CITY:US130019
+peachtree city,CITY:US130020
+rome,CITY:US130021
+savannah,CITY:US130022
+st. marys,CITY:US420019
+statesboro,CITY:US130024
+thomasville,CITY:US130025
+tifton,CITY:US130026
+valdosta,CITY:US130027
+vidalia,CITY:US130028
+waycross,CITY:US130029
+hilo,CITY:US150001
+honolulu,CITY:US150002
+kahului,CITY:US150003
+boise,CITY:US160001
+coeur d'alene,CITY:US160002
+idaho falls,CITY:US160003
+lewiston,CITY:US230003
+moscow,CITY:US160005
+nampa,CITY:US160007
+pocatello,CITY:US160008
+twin falls,CITY:US160009
+aurora,CITY:US170001
+bloomington,CITY:US180001
+carbondale,CITY:US170003
+champaign,CITY:US170004
+charleston,CITY:US540003
+chicago,CITY:US170006
+crystal lake,CITY:US170007
+danville,CITY:US510007
+dekalb,CITY:US170009
+decatur,CITY:US170010
+dixon,CITY:US170011
+effingham,CITY:US170012
+elgin,CITY:US170013
+freeport,CITY:US480024
+galesburg,CITY:US170015
+joliet,CITY:US170016
+kankakee,CITY:US170017
+kewanee,CITY:US170018
+lincoln,CITY:US310008
+macomb,CITY:US170020
+mount vernon,CITY:US530012
+naperville,CITY:US170022
+ottawa,CITY:US170023
+peoria,CITY:US170024
+pontiac,CITY:US260019
+quincy,CITY:US170026
+rockford,CITY:US170027
+springfield,CITY:US290019
+streator,CITY:US170029
+waukegan,CITY:US170030
+evansville,CITY:US180002
+fort wayne,CITY:US180003
+indianapolis,CITY:US180004
+kokomo,CITY:US180005
+lafayette,CITY:US220009
+madison,CITY:US550006
+michigan city,CITY:US180008
+muncie,CITY:US180009
+richmond,CITY:US510015
+shelbyville,CITY:US180011
+south bend,CITY:US180012
+terre haute,CITY:US180013
+vincennes,CITY:US180014
+ames,CITY:US190001
+burlington,CITY:US500001
+carroll,CITY:US190003
+cedar falls,CITY:US190004
+cedar rapids,CITY:US190005
+clinton,CITY:US190006
+davenport,CITY:US190007
+des moines,CITY:US190008
+dubuque,CITY:US190009
+fort dodge,CITY:US190010
+iowa city,CITY:US190011
+keokuk,CITY:US190012
+marshalltown,CITY:US190013
+mason city,CITY:US190014
+oskaloosa,CITY:US190015
+ottumwa,CITY:US190016
+sioux city,CITY:US190017
+spencer,CITY:US190018
+storm lake,CITY:US190019
+waterloo,CITY:US190020
+coffeyville,CITY:US200001
+dodge city,CITY:US200002
+emporia,CITY:US200003
+garden city,CITY:US200004
+great bend,CITY:US200005
+hays,CITY:US200006
+hutchinson,CITY:US270010
+lawrence,CITY:US200008
+leavenworth,CITY:US200009
+liberal,CITY:US200010
+manhattan,CITY:US200011
+pittsburg,CITY:US200012
+salina,CITY:US200013
+topeka,CITY:US200014
+wichita,CITY:US200015
+winfield,CITY:US200016
+bowling green,CITY:US390005
+campbellsville,CITY:US210002
+elizabethtown,CITY:US210004
+fort knox,CITY:US210005
+frankfort,CITY:US210006
+hopkinsville,CITY:US210007
+lexington,CITY:US310007
+louisville,CITY:US210009
+madisonville,CITY:US210010
+middlesborough,CITY:US210011
+murray,CITY:US210012
+owensboro,CITY:US210013
+paducah,CITY:US210014
+somerset,CITY:US210015
+alexandria,CITY:US510001
+bastrop,CITY:US220002
+baton rouge,CITY:US220003
+bogalusa,CITY:US220004
+fort polk south,CITY:US220005
+hammond,CITY:US220006
+houma,CITY:US220007
+jennings,CITY:US220008
+lake charles,CITY:US220010
+minden,CITY:US220011
+monroe,CITY:US220012
+morgan city,CITY:US220013
+natchitoches,CITY:US220014
+new iberia,CITY:US220015
+new orleans,CITY:US220016
+opelousas,CITY:US220017
+ruston,CITY:US220018
+shreveport,CITY:US220019
+thibodaux,CITY:US220020
+bangor,CITY:US230002
+portland,CITY:US410014
+waterville,CITY:US230005
+annapolis,CITY:US240001
+baltimore,CITY:US240002
+cambridge,CITY:US390006
+cumberland,CITY:US240004
+easton,CITY:US240005
+frederick,CITY:US240006
+hagerstown,CITY:US240007
+ocean pines,CITY:US240008
+salisbury,CITY:US370020
+westminster,CITY:US240010
+barnstable town,CITY:US250001
+boston,CITY:US250002
+brockton,CITY:US250003
+fall river,CITY:US250004
+gloucester,CITY:US250005
+greenfield,CITY:US250006
+leominster,CITY:US250007
+lowell,CITY:US250008
+new bedford,CITY:US250009
+north adams,CITY:US250010
+northampton,CITY:US250011
+pittsfield,CITY:US250012
+worcester,CITY:US250014
+alpena,CITY:US260001
+ann arbor,CITY:US260002
+benton harbor,CITY:US260003
+big rapids,CITY:US260004
+cadillac,CITY:US260005
+detroit,CITY:US260006
+escanaba,CITY:US260007
+flint,CITY:US260008
+grand rapids,CITY:US260009
+holland,CITY:US260010
+jackson,CITY:US470007
+kalamazoo,CITY:US260012
+lansing,CITY:US260013
+marquette,CITY:US260014
+midland,CITY:US480045
+mount pleasant,CITY:US480047
+muskegon,CITY:US260017
+owosso,CITY:US260018
+port huron,CITY:US260020
+saginaw,CITY:US260021
+sault ste. marie,CITY:US260022
+sturgis,CITY:US260023
+traverse city,CITY:US260024
+austin,CITY:US480005
+bemidji,CITY:US270002
+brainerd,CITY:US270003
+buffalo,CITY:US360006
+duluth,CITY:US270005
+fairmont,CITY:US540004
+faribault,CITY:US270007
+fergus falls,CITY:US270008
+hibbing,CITY:US270009
+mankato,CITY:US270011
+marshall,CITY:US290012
+minneapolis,CITY:US270013
+new ulm,CITY:US270014
+owatonna,CITY:US270015
+rochester,CITY:US360026
+saint paul,CITY:US270017
+st. cloud,CITY:US270018
+willmar,CITY:US270019
+worthington,CITY:US270020
+biloxi,CITY:US280001
+clarksdale,CITY:US280002
+cleveland,CITY:US390010
+corinth,CITY:US280005
+greenville,CITY:US480028
+greenwood,CITY:US450006
+grenada,CITY:US280008
+gulfport,CITY:US280009
+hattiesburg,CITY:US280010
+laurel,CITY:US280012
+mccomb,CITY:US280013
+meridian,CITY:US280014
+natchez,CITY:US280015
+oxford,CITY:US280016
+picayune,CITY:US280017
+tupelo,CITY:US280018
+vicksburg,CITY:US280019
+yazoo city,CITY:US280020
+cape girardeau,CITY:US290001
+columbia,CITY:US470004
+excelsior springs,CITY:US290003
+farmington,CITY:US350006
+fort leonard wood,CITY:US290005
+jefferson city,CITY:US290006
+joplin,CITY:US290007
+kansas city,CITY:US290008
+kennett,CITY:US290009
+kirksville,CITY:US290010
+lebanon,CITY:US470011
+maryville,CITY:US290013
+moberly,CITY:US290014
+poplar bluff,CITY:US290015
+rolla,CITY:US290016
+sedalia,CITY:US290017
+sikeston,CITY:US290018
+st. joseph,CITY:US290020
+st. louis,CITY:US290021
+warrensburg,CITY:US290022
+washington,CITY:US290023
+west plains,CITY:US290024
+billings,CITY:US300001
+bozeman,CITY:US300002
+butte,CITY:US300003
+great falls,CITY:US300004
+helena,CITY:US300005
+kalispell,CITY:US300006
+missoula,CITY:US300007
+beatrice,CITY:US310001
+fremont,CITY:US310003
+grand island,CITY:US310004
+hastings,CITY:US310005
+kearney,CITY:US310006
+norfolk,CITY:US510014
+north platte,CITY:US310010
+omaha,CITY:US310011
+scottsbluff,CITY:US310012
+boulder city,CITY:US320001
+carson city,CITY:US320002
+elko,CITY:US320003
+las vegas,CITY:US320004
+pahrump,CITY:US320005
+reno,CITY:US320006
+berlin,CITY:US330001
+claremont,CITY:US330002
+concord,CITY:US330003
+keene,CITY:US330004
+laconia,CITY:US330005
+nashua,CITY:US330007
+portsmouth,CITY:US390021
+jersey city,CITY:US340001
+lakewood,CITY:US340002
+pleasantville,CITY:US340004
+toms river,CITY:US340005
+trenton,CITY:US340006
+vineland,CITY:US340007
+alamogordo,CITY:US350001
+albuquerque,CITY:US350002
+carlsbad,CITY:US350003
+clovis,CITY:US350004
+deming,CITY:US350005
+gallup,CITY:US350007
+las cruces,CITY:US350008
+roswell,CITY:US350009
+santa fe,CITY:US350010
+silver city,CITY:US350011
+amsterdam,CITY:US360002
+binghamton,CITY:US360003
+brentwood,CITY:US360004
+brooklyn,CITY:US360005
+commack,CITY:US360007
+coram,CITY:US360008
+elmira,CITY:US360009
+hempstead,CITY:US360010
+huntington station,CITY:US360011
+ithaca,CITY:US360012
+jamestown,CITY:US380005
+kingston,CITY:US360014
+levittown,CITY:US360015
+massena,CITY:US360016
+middletown,CITY:US360017
+new city,CITY:US360018
+new york,CITY:US360019
+niagara falls,CITY:US360020
+ogdensburg,CITY:US360021
+oneonta,CITY:US360022
+oswego,CITY:US360023
+plattsburgh,CITY:US360024
+poughkeepsie,CITY:US360025
+saratoga springs,CITY:US360027
+syracuse,CITY:US360028
+utica,CITY:US360029
+watertown,CITY:US460008
+yonkers,CITY:US360031
+asheboro,CITY:US370001
+asheville,CITY:US370002
+boone,CITY:US370003
+charlotte,CITY:US370005
+durham,CITY:US370006
+elizabeth city,CITY:US370007
+fort bragg,CITY:US370009
+gastonia,CITY:US370010
+greensboro,CITY:US370011
+hendersonville,CITY:US370013
+hickory,CITY:US370014
+new bern,CITY:US370016
+raleigh,CITY:US370017
+roanoke rapids,CITY:US370018
+rocky mount,CITY:US370019
+statesville,CITY:US370021
+wilmington,CITY:US370022
+winston-salem,CITY:US370023
+bismarck,CITY:US380001
+dickinson,CITY:US380002
+fargo,CITY:US380003
+grand forks,CITY:US380004
+minot,CITY:US380006
+williston,CITY:US380007
+akron,CITY:US390001
+ashland,CITY:US390002
+ashtabula,CITY:US390003
+canton,CITY:US390007
+chillicothe,CITY:US390008
+cincinnati,CITY:US390009
+dayton,CITY:US390012
+defiance,CITY:US390013
+delaware,CITY:US390014
+lima,CITY:US390015
+mansfield,CITY:US390016
+marion,CITY:US390017
+mentor,CITY:US390018
+new philadelphia,CITY:US390019
+salem,CITY:US410016
+sandusky,CITY:US390023
+steubenville,CITY:US390024
+toledo,CITY:US390025
+urbana,CITY:US390026
+wooster,CITY:US390027
+youngstown,CITY:US390028
+zanesville,CITY:US390029
+ada,CITY:US400001
+altus,CITY:US400002
+ardmore,CITY:US400003
+bartlesville,CITY:US400004
+chickasha,CITY:US400005
+durant,CITY:US400006
+elk city,CITY:US400007
+enid,CITY:US400008
+guymon,CITY:US400009
+lawton,CITY:US400010
+mcalester,CITY:US400011
+muskogee,CITY:US400012
+oklahoma city,CITY:US400013
+okmulgee,CITY:US400014
+ponca city,CITY:US400015
+shawnee,CITY:US400016
+stillwater,CITY:US400017
+tahlequah,CITY:US400018
+tulsa,CITY:US400019
+woodward,CITY:US400020
+bend,CITY:US410001
+city of the dalles,CITY:US410002
+coos bay,CITY:US410003
+corvallis,CITY:US410004
+eugene,CITY:US410005
+grants pass,CITY:US410006
+hermiston,CITY:US410007
+hillsboro,CITY:US410008
+klamath falls,CITY:US410009
+la grande,CITY:US410010
+medford,CITY:US410011
+ontario,CITY:US410012
+pendleton,CITY:US410013
+roseburg,CITY:US410015
+st. helens,CITY:US410017
+allentown,CITY:US420001
+altoona,CITY:US420002
+bethlehem,CITY:US420003
+bloomsburg,CITY:US420004
+chambersburg,CITY:US420005
+chester,CITY:US420006
+erie,CITY:US420007
+hanover,CITY:US420008
+harrisburg,CITY:US420009
+hazleton,CITY:US420010
+johnstown,CITY:US420011
+lancaster,CITY:US420012
+meadville,CITY:US420014
+philadelphia,CITY:US420015
+pittsburgh,CITY:US420016
+reading,CITY:US420017
+scranton,CITY:US420018
+state college,CITY:US420020
+uniontown,CITY:US420021
+wilkes-barre,CITY:US420022
+williamsport,CITY:US420023
+york,CITY:US420024
+newport,CITY:US440001
+providence,CITY:US440002
+westerly,CITY:US440003
+clemson,CITY:US450002
+hilton head island,CITY:US450007
+myrtle beach,CITY:US450008
+orangeburg,CITY:US450009
+rock hill,CITY:US450010
+spartanburg,CITY:US450011
+sumter,CITY:US450012
+aberdeen,CITY:US530001
+brookings,CITY:US460002
+huron,CITY:US460003
+mitchell,CITY:US460004
+pierre,CITY:US460005
+rapid city,CITY:US460006
+sioux falls,CITY:US460007
+yankton,CITY:US460009
+bristol,CITY:US470001
+chattanooga,CITY:US470002
+clarksville,CITY:US470003
+cookeville,CITY:US470005
+dyersburg,CITY:US470006
+johnson city,CITY:US470008
+kingsport,CITY:US470009
+knoxville,CITY:US470010
+mcminnville,CITY:US470012
+memphis,CITY:US470013
+morristown,CITY:US470014
+murfreesboro,CITY:US470015
+nashville,CITY:US470016
+union city,CITY:US470017
+abilene,CITY:US480001
+amarillo,CITY:US480002
+arlington,CITY:US510002
+bay city,CITY:US480006
+beaumont,CITY:US480007
+beeville,CITY:US480008
+brenham,CITY:US480009
+brownsville,CITY:US480010
+bryan,CITY:US480011
+college station,CITY:US480012
+conroe,CITY:US480013
+corpus christi,CITY:US480014
+corsicana,CITY:US480015
+dallas,CITY:US480016
+del rio,CITY:US480017
+denton,CITY:US480018
+eagle pass,CITY:US480019
+el campo,CITY:US480020
+el paso,CITY:US480021
+fort hood,CITY:US480022
+fort worth,CITY:US480023
+galveston,CITY:US480026
+gatesville,CITY:US480027
+harlingen,CITY:US480029
+henderson,CITY:US480030
+houston,CITY:US480031
+irving,CITY:US480033
+katy,CITY:US480035
+kerrville,CITY:US480036
+killeen,CITY:US480037
+kingsville,CITY:US480038
+lake jackson,CITY:US480039
+laredo,CITY:US480040
+longview,CITY:US480041
+lubbock,CITY:US480042
+lufkin,CITY:US480043
+mcallen,CITY:US480044
+mineral wells,CITY:US480046
+nacogdoches,CITY:US480048
+new braunfels,CITY:US480049
+odessa,CITY:US480050
+palestine,CITY:US480051
+paris,CITY:US480052
+plano,CITY:US480053
+port arthur,CITY:US480054
+rio grande city,CITY:US480055
+round rock,CITY:US480056
+san antonio,CITY:US480057
+san marcos,CITY:US480058
+sherman,CITY:US480059
+stephenville,CITY:US480060
+sulphur springs,CITY:US480061
+texarkana,CITY:US480062
+the woodlands,CITY:US480063
+tyler,CITY:US480064
+uvalde,CITY:US480065
+vernon,CITY:US480066
+victoria,CITY:US480067
+waco,CITY:US480068
+waxahachie,CITY:US480069
+wichita falls,CITY:US480070
+brigham city,CITY:US490001
+cedar city,CITY:US490002
+logan,CITY:US490003
+ogden,CITY:US490004
+provo,CITY:US490005
+salt lake city,CITY:US490006
+st. george,CITY:US490007
+montpelier,CITY:US500002
+rutland,CITY:US500003
+blacksburg,CITY:US510003
+centreville,CITY:US510004
+charlottesville,CITY:US510005
+chesapeake,CITY:US510006
+fredericksburg,CITY:US510008
+hampton,CITY:US510009
+harrisonburg,CITY:US510010
+leesburg,CITY:US510011
+lynchburg,CITY:US510012
+newport news,CITY:US510013
+roanoke,CITY:US510016
+virginia beach,CITY:US510017
+winchester,CITY:US510018
+anacortes,CITY:US530002
+bellevue,CITY:US530003
+bellingham,CITY:US530004
+bremerton,CITY:US530005
+centralia,CITY:US530006
+ellensburg,CITY:US530007
+everett,CITY:US530008
+federal way,CITY:US530009
+kennewick,CITY:US530010
+moses lake,CITY:US530011
+oak harbor,CITY:US530013
+olympia,CITY:US530014
+port angeles,CITY:US530015
+pullman,CITY:US530016
+redmond,CITY:US530017
+seattle,CITY:US530018
+spokane,CITY:US530019
+sunnyside,CITY:US530020
+tacoma,CITY:US530021
+vancouver,CITY:US530022
+walla walla,CITY:US530023
+wenatchee,CITY:US530024
+yakima,CITY:US530025
+beckley,CITY:US540001
+bluefield,CITY:US540002
+huntington,CITY:US540005
+martinsburg,CITY:US540006
+morgantown,CITY:US540007
+parkersburg,CITY:US540008
+wheeling,CITY:US540009
+eau claire,CITY:US550001
+green bay,CITY:US550002
+janesville,CITY:US550003
+kenosha,CITY:US550004
+la crosse,CITY:US550005
+manitowoc,CITY:US550007
+marinette,CITY:US550008
+milwaukee,CITY:US550009
+oshkosh,CITY:US550010
+racine,CITY:US550011
+river falls,CITY:US550012
+sheboygan,CITY:US550013
+wausau,CITY:US550014
+casper,CITY:US560001
+cheyenne,CITY:US560002
+evanston,CITY:US560003
+gillette,CITY:US560004
+laramie,CITY:US560005
+rock springs,CITY:US560006
+sheridan,CITY:US560007
+bobo dioulasso,CITY:UV000002
+ouagadougou,CITY:UV000004
+ouahigouya,CITY:UV000005
+melo,CITY:UY000002
+montevideo,CITY:UY000003
+paysandu,CITY:UY000004
+rivera,CITY:UY000005
+salto,CITY:UY000006
+tacuarembo,CITY:UY000007
+andizhan,CITY:UZ000001
+bukhara,CITY:UZ000002
+dzhizak,CITY:UZ000003
+fergana,CITY:UZ000004
+gulistan,CITY:UZ000005
+karshi,CITY:UZ000006
+namangan,CITY:UZ000007
+navoi,CITY:UZ000008
+nukus,CITY:UZ000009
+samarkand,CITY:UZ000010
+tashkent,CITY:UZ000011
+termez,CITY:UZ000012
+urgench,CITY:UZ000013
+barcelona,CITY:VE000001
+barquisimeto,CITY:VE000002
+caracas,CITY:VE000003
+ciudad bolivar,CITY:VE000004
+coro,CITY:VE000005
+cumana,CITY:VE000006
+guanare,CITY:VE000007
+maracaibo,CITY:VE000008
+maturin,CITY:VE000009
+merida,CITY:VE000010
+puerto ayacucho,CITY:VE000011
+puerto la cruz,CITY:VE000012
+san carlos,CITY:VE000013
+san cristobal,CITY:VE000014
+san felipe,CITY:VE000015
+san juan de los morros,CITY:VE000017
+valencia,CITY:VE000019
+bien hoa,CITY:VM000002
+buon me thuot,CITY:VM000003
+can tho,CITY:VM000004
+da lat,CITY:VM000005
+da nang,CITY:VM000006
+haiphong,CITY:VM000008
+hanoi,CITY:VM000009
+ho chi minh city,CITY:VM000010
+hue,CITY:VM000013
+my tho,CITY:VM000015
+nha trang,CITY:VM000016
+phan thiet,CITY:VM000017
+play cu,CITY:VM000019
+qui nhon,CITY:VM000020
+soc trang,CITY:VM000022
+tan an,CITY:VM000023
+thanh hoa,CITY:VM000026
+truc giang,CITY:VM000028
+tuy hoa,CITY:VM000029
+vinh long,CITY:VM000031
+walvis bay,CITY:WA000001
+windhoek,CITY:WA000002
+manzini,CITY:WZ000001
+mbabane,CITY:WZ000002
+chipata,CITY:ZA000001
+kabwe,CITY:ZA000002
+kasama,CITY:ZA000003
+livingstone,CITY:ZA000004
+lusaka,CITY:ZA000005
+mongu,CITY:ZA000006
+ndola,CITY:ZA000007
+bulawayo,CITY:ZI000001
+gweru,CITY:ZI000002
+harare,CITY:ZI000003
+masvingo,CITY:ZI000004
