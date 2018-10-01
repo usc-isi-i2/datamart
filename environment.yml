@@ -11,15 +11,15 @@ dependencies:
     - python-dateutil==2.7.3
     - pytz==2018.5
     - six==1.11.0
-    - python==3.6.6=hc167b69_0
-    - libedit==3.1.20170329=hb402a30_2
-    - sqlite==3.24.0=ha441bb4_0
-    - ncurses==6.1=h0a44026_0
-    - libffi==3.2.1=h475c297_4
-    - tk==8.6.8=ha441bb4_0
-    - zlib==1.2.11=hf3cbc9b_2
-    - openssl==1.0.2p=h1de35cc_0
-    - xz==5.2.4=h1de35cc_4
-    - libcxxabi==4.0.1=hebd6815_0
-    - libcxx==4.0.1=h579ed51_0
-    - readline==7.0=h1de35cc_5
+    - python==3.6.6
+    - libedit==3.1.20170329
+    - sqlite==3.24.0
+    - ncurses==6.1
+    - libffi==3.2.1
+    - tk==8.6.8
+    - zlib==1.2.11
+    - openssl==1.0.2p
+    - xz==5.2.4
+    - libcxxabi==4.0.1
+    - libcxx==4.0.1
+    - readline==7.0
