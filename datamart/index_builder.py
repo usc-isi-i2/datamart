@@ -18,11 +18,11 @@ class IndexBuilder(object):
 
         """
 
-        utils_path = os.path.join(os.path.dirname(__file__), "utilities")
-        self.index_info = json.load(open(os.path.join(utils_path, 'index_info.json'), 'r'))
+        resources_path = os.path.join(os.path.dirname(__file__), "resources")
+        self.index_info = json.load(open(os.path.join(resources_path, 'index_info.json'), 'r'))
         self.current_global_index = self.index_info["current_index"]
         self.GLOBAL_INDEX_INTERVAL = 10000
-        self.index_schema = json.load(open(os.path.join(utils_path, 'index_schema.json'), 'r'))
+        self.index_schema = json.load(open(os.path.join(resources_path, 'index_schema.json'), 'r'))
 
     def indexing(self,
                  description_path: str,

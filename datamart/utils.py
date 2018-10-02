@@ -39,21 +39,20 @@ class Utils:
                 "end": None
             }
         elif "start" in coverage or "end" in coverage:
+            coverage['need_profile'] = False
             try:
                 coverage['start'] = dateutil.parser.parse(coverage['start']).isoformat()
+            except:
+                warnings.warn("Can not parse start date in temporal coverage")
+                coverage['start'] = None
+                coverage['need_profile'] = True
+            try:
                 coverage['end'] = dateutil.parser.parse(coverage['end']).isoformat()
             except:
-                warnings.warn("Can not parse start or end date in temporal coverage, set to True for datamart profiler")
-                return {
-                    "need_profile": True,
-                    "start": None,
-                    "end": None
-                }
-            return {
-                    "need_profile": False,
-                    "start": coverage['start'],
-                    "end": coverage['end']
-                }
+                warnings.warn("Can not parse end date in temporal coverage")
+                coverage['end'] = None
+                coverage['need_profile'] = True
+            return coverage
         else:
             return {
                 "need_profile": False,

@@ -10,7 +10,7 @@ class NoaaMaterializer(MaterializerBase):
         MaterializerBase.__init__(self)
         tokens = ['QoCwZxSlvRuUHcKhflbujnBSOFhHvZoS']          
         self.headers = { "token": "%s"% (tokens[0]) }
-        with open('../utilities/city_id_map.csv', 'r') as csv_file:
+        with open('../resources/city_id_map.csv', 'r') as csv_file:
             reader = csv.reader(csv_file)
             self.city_to_id_map = dict(reader)
         self.location = ''

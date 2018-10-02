@@ -1,5 +1,5 @@
 from datamart.metadata.metadata_base import MetadataBase
-from datamart.utilities.utils import Utils
+from datamart.utils import Utils
 
 
 class VariableMetadata(MetadataBase):
