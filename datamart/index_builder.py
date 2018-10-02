@@ -95,6 +95,13 @@ class IndexBuilder(object):
             out.write("\n")
 
     def save_index_config(self):
+        """Save index config file.
+
+        Args:
+
+        Returns:
+            save to file with updated current_index in es
+        """
         self.index_config["current_index"] = self.current_global_index
         with open(os.path.join(self.resources_path, 'index_info.json'), 'w') as f:
             json.dump(self.index_config, f, indent=2)
@@ -186,4 +193,4 @@ class IndexBuilder(object):
         try:
             validate(description, self.index_schema)
         except:
-            raise ValueError("Invalid dataset description json according to index schema")
+            raise ValueError("Invalid dataset description json according to index json schema")

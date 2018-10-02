@@ -15,6 +15,11 @@ class QueryManager(object):
         else:
             self.es = Elasticsearch([{'host': self.index_config["es_host"], 'port': self.index_config["es_port"]}])
 
+    def check_exists(self, index):
+        if self.es.indices.exists(index=index):
+            return True
+        return False
+
     def create_index(self, **kwargs):
         self.es.indices.create(**kwargs)
 
@@ -38,10 +43,8 @@ class QueryManager(object):
 
     @staticmethod
     def get_dataset(metadata):
-        materializer_module = metadata["materialization"]["python_path"]
-        materializer = Utils.load_materializer(materializer_module)
-        data = materializer.get(metadata=metadata, variables=None, constrains=None)
-        return data
+        materializer = Utils.load_materializer(metadata["materialization"]["python_path"])
+        return materializer.get(metadata=metadata, variables=None, constrains=None)
 
     @staticmethod
     def make_documents(f, index):

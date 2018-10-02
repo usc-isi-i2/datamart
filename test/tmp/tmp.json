@@ -1,0 +1,67 @@
+{
+  "title": "ACMC",
+  "description": "Average cloudiness midnight to midnight from 30-second ceilometer data (percent)",
+  "url": "https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/readme.txt",
+  "keywords": [
+    "Average",
+    "cloudiness",
+    "midnight",
+    "to",
+    "midnight",
+    "from",
+    "30-second",
+    "ceilometer",
+    "data"
+  ],
+  "provenance": "noaa.org",
+  "materialization": {
+    "python_path": "nooa_materializer",
+    "arguments": {
+      "type": "ACMC",
+      "token": "QoCwZxSlvRuUHcKhflbujnBSOFhHvZoS"
+    }
+  },
+  "variables": [
+    {
+      "name": "date",
+      "description": "the date of data",
+      "semantic_type": [
+        "https://metadata.datadrivendiscovery.org/types/Time"
+      ],
+      "named_entity": false,
+      "temporal_coverage": {
+        "start": "1994-03-19T00:00:00",
+        "end": "1996-05-28T00:00:00",
+        "need_profile": false
+      }
+    },
+    {
+      "name": "stationId",
+      "description": "the id of station which has this data",
+      "semantic_type": [
+        "https://metadata.datadrivendiscovery.org/types/CategoricalData"
+      ],
+      "named_entity": false,
+      "temporal_coverage": {}
+    },
+    {
+      "name": "city",
+      "description": "the city data belongs to",
+      "semantic_type": [
+        "https://metadata.datadrivendiscovery.org/types/Location"
+      ],
+      "named_entity": true,
+      "temporal_coverage": {
+        "need_profile": false
+      }
+    },
+    {
+      "name": "ACMC",
+      "description": "Average cloudiness midnight to midnight from 30-second ceilometer data (percent)",
+      "semantic_type": [
+        "http://schema.org/Float"
+      ],
+      "named_entity": false
+    }
+  ]
+}
