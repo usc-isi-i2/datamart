@@ -3,13 +3,9 @@ import os
 import pandas as pd
 from datamart.metadata.global_metadata import GlobalMetadata
 from datamart.metadata.variable_metadata import VariableMetadata
-from datamart.materializers.materializer_base import MaterializerBase
+from datamart.utils import Utils
 import typing
-import importlib
 from jsonschema import validate
-
-import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 
 
 class IndexBuilder(object):
@@ -18,17 +14,18 @@ class IndexBuilder(object):
 
         """
 
-        resources_path = os.path.join(os.path.dirname(__file__), "resources")
-        self.index_info = json.load(open(os.path.join(resources_path, 'index_info.json'), 'r'))
-        self.current_global_index = self.index_info["current_index"]
+        self.resources_path = os.path.join(os.path.dirname(__file__), "resources")
+        self.index_config = json.load(open(os.path.join(self.resources_path, 'index_info.json'), 'r'))
+        self.current_global_index = self.index_config["current_index"]
         self.GLOBAL_INDEX_INTERVAL = 10000
-        self.index_schema = json.load(open(os.path.join(resources_path, 'index_schema.json'), 'r'))
+        self.index_schema = json.load(open(os.path.join(self.resources_path, 'index_schema.json'), 'r'))
 
     def indexing(self,
                  description_path: str,
                  data_path: str = None,
-                 query_data_for_indexing: bool = False
-                 ):
+                 query_data_for_indexing: bool = False,
+                 save_to_file: str = None
+                 ) -> dict:
         """API for the index builder.
 
         By providing description file, index builder should be able to process it and create metadata json for the
@@ -40,6 +37,10 @@ class IndexBuilder(object):
             query_data_for_indexing: Bool. If no data is presented, and query_data_for_indexing is False, will only
                 create metadata according to the description json. If query_data_for_indexing is True and no data is
                 presented, will use Materialize to query data for profiling and indexing
+            save_to_file: str, a path to the json line file
+
+        Returns:
+            metadata dictionary
 
         """
 
@@ -49,9 +50,11 @@ class IndexBuilder(object):
                 materializer_module = description["materialization"]["python_path"]
             except:
                 raise ValueError("No materialization method found")
-            materializer = self.load_materializer(materializer_module)
+            materializer = Utils.load_materializer(materializer_module)
             data = materializer.get(metadata=description)
         metadata = self.construct_global_metadata(description=description, data=data)
+        if save_to_file:
+            self.save_data(save_to_file=save_to_file, metadata=metadata)
         return metadata.value
 
     def read_data(self, description_path: str, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
@@ -74,33 +77,27 @@ class IndexBuilder(object):
         return description, data
 
     @staticmethod
-    def load_materializer(materializer_module: str) -> MaterializerBase:
-        """Given the python path to the materializer_module, return a materializer instance.
+    def save_data(save_to_file: str, metadata: GlobalMetadata):
+        """Save metadata json to file.
 
         Args:
-            materializer_module: Path to materializer_module file.
+            save_to_file: Path of the saving file.
+            metadata: metadata instance.
 
         Returns:
-            materializer instance
+            save to file with 2 lines for each metadata, first line is id, second line is metadata json
         """
 
-        module = importlib.import_module(materializer_module)
-        md = module.__dict__
-        lst = [
-            md[c] for c in md if (
-                isinstance(md[c], type) and
-                issubclass(md[c], MaterializerBase
-                           ) and
-                md[c].__module__ == module.__name__)
-        ]
-        try:
-            materializer_class = lst[0]
-        except:
-            raise ValueError("No materializer class found in {}".format(
-                os.path.join(os.path.dirname(__file__), 'materializers', materializer_module)))
+        with open(save_to_file, 'a+') as out:
+            out.write(str(metadata.datamart_id))
+            out.write("\n")
+            out.write(json.dumps(metadata.value))
+            out.write("\n")
 
-        materializer = materializer_class()
-        return materializer
+    def save_index_config(self):
+        self.index_config["current_index"] = self.current_global_index
+        with open(os.path.join(self.resources_path, 'index_info.json'), 'w') as f:
+            json.dump(self.index_config, f, indent=2)
 
     def construct_global_metadata(self, description: dict, data: pd.DataFrame = None) -> GlobalMetadata:
         """Construct global metadata.
@@ -161,9 +158,10 @@ class IndexBuilder(object):
         Returns:
             VariableMetadata instance
         """
-
         if variable_metadata.named_entity is True:
             variable_metadata.named_entity = self.profile_named_entity(column)
+        elif variable_metadata.named_entity is False:
+            variable_metadata.named_entity = []
 
         return variable_metadata
 
@@ -182,7 +180,7 @@ class IndexBuilder(object):
 
     @staticmethod
     def profile_named_entity(column: pd.Series):
-        return column.tolist()
+        return column.unique().tolist()
 
     def validate_schema(self, description):
         try:
