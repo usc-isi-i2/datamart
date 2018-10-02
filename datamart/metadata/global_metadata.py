@@ -18,15 +18,9 @@ class GlobalMetadata(MetadataBase):
         super().__init__()
 
         self._metadata["datamart_id"] = datamart_id
-        try:
-            self._metadata["title"] = description["title"]
-        except:
-            raise ValueError("No title found")
+        self._metadata["title"] = description["title"]
 
-        try:
-            self._metadata["description"] = description["description"]
-        except:
-            raise ValueError("No description found")
+        self._metadata["description"] = description["description"]
 
         self._metadata["url"] = description.get("url", None)
         self._metadata["keywords"] = description.get("keywords", None)
@@ -45,9 +39,14 @@ class GlobalMetadata(MetadataBase):
         try:
             self._metadata["materialization"] = description["materialization"]
         except:
-            raise ValueError("No materialization method found")
+            raise ValueError("No materialization found")
 
-        self._metadata["materialization_component"] = description.get("materialization_component", None)
+        if "python_path" not in self.materialization:
+            raise ValueError("No python path found in materialization")
+
+        if "arguments" not in self.materialization:
+            self._metadata["materialization"]["arguments"] = None
+
         self._metadata["variables"] = list()
         self._variables = list()
 
@@ -74,9 +73,17 @@ class GlobalMetadata(MetadataBase):
     def title(self):
         return self._metadata["title"]
 
+    @title.setter
+    def title(self, value):
+        self._metadata["title"] = value
+
     @property
     def description(self):
         return self._metadata["description"]
+
+    @description.setter
+    def description(self, value):
+        self._metadata["description"] = value
 
     @property
     def url(self):
@@ -117,10 +124,6 @@ class GlobalMetadata(MetadataBase):
     @property
     def materialization(self):
         return self._metadata["materialization"]
-
-    @property
-    def materialization_component(self):
-        return self._metadata["materialization_component"]
 
     @property
     def variables(self):

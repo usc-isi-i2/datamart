@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$id": "http://datamart.datadrivendiscovery.org/dataset.schema.json",
+  "definitions": {
+    "materialization": {
+      "description": "Method to retrieve the dataset or parts of the dataset",
+      "type": "object",
+      "properties": {
+        "python_path": {
+          "description": "The python class to materialize the dataset",
+          "type": "string"
+        },
+        "arguments": {
+          "description": "keyword arguments to the python __init__ method",
+          "type": "object"
+        }
+      },
+      "required": [
+        "python_path"
+      ]
+    },
+    "variable_metadata": {
+      "description": "Metadata describing a variable/column",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name given in the original dataset",
+          "type": "string"
+        },
+        "semantic_type": {
+          "description": "List of D3M semantic types",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "named_entities": {
+          "description": "List of named entities referenced in column values",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "temporal_coverage": {
+          "description": "Temporal extent",
+          "type": "object",
+          "properties": {
+            "need_profile": {
+              "description": "ask if need datamart profiling",
+              "type": "boolean"
+            },
+            "start": {
+              "description": "Start of temporal coverage",
+              "type": "string",
+              "format": "date-time"
+            },
+            "end": {
+              "description": "End of temporal coverage",
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "spatial_coverage": {
+          "description": "Spatial extent",
+          "type": "object"
+        },
+        "variable_materialization": {
+          "$ref": "#/definitions/materialization"
+        }
+      }
+    }
+  },
+  "title": "dataset",
+  "description": "Metadata describing an entire dataset",
+  "type": "object",
+  "properties": {
+    "title": {
+      "description": "A short description of the dataset",
+      "type": "string"
+    },
+    "description": {
+      "description": "A long description of the dataset",
+      "type": "string"
+    },
+    "url": {
+      "description": "A url on the web where users can find more info if applicable",
+      "type": "string",
+      "format": "uri"
+    },
+    "keywords": {
+      "description": "Any keywords or text useful for indexing and retrieval",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "date_published": {
+      "description": "Original publication date",
+      "type": "string",
+      "format": "date"
+    },
+    "date_updated": {
+      "description": "Last updated date",
+      "type": "string",
+      "format": "date"
+    },
+    "license": {
+      "description": "License under which the dataset is released (TBD)",
+      "type": "object"
+    },
+    "provenance": {
+      "description": "Provenance of the dataset (TBD)",
+      "type": "string"
+    },
+    "original_identifier": {
+      "description": "Original global unique id associate with the dataset if applicable, like id in wikidata",
+      "type": "string"
+    },
+    "variables": {
+      "description": "Description of each variable/column of the dataset",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/variable_metadata"
+      }
+    }
+  },
+  "required": [
+    "materialization"
+  ]
+}

@@ -32,14 +32,31 @@ class Utils:
         Returns:
             dict of temporal_coverage or True
         """
-
-        if "start" not in coverage or "end" not in coverage:
-            warnings.warn("Start time or end time not found in temporal coverage")
-            return True
-        try:
-            coverage['start'] = dateutil.parser.parse(coverage['start']).isoformat()
-            coverage['end'] = dateutil.parser.parse(coverage['end']).isoformat()
-        except:
-            warnings.warn("Can not parse start or end date in temporal coverage, set to True for datamart profiler")
-            return True
-        return coverage
+        if coverage.get("need_profile", None) is True:
+            return {
+                "need_profile": True,
+                "start": None,
+                "end": None
+            }
+        elif "start" in coverage or "end" in coverage:
+            try:
+                coverage['start'] = dateutil.parser.parse(coverage['start']).isoformat()
+                coverage['end'] = dateutil.parser.parse(coverage['end']).isoformat()
+            except:
+                warnings.warn("Can not parse start or end date in temporal coverage, set to True for datamart profiler")
+                return {
+                    "need_profile": True,
+                    "start": None,
+                    "end": None
+                }
+            return {
+                    "need_profile": False,
+                    "start": coverage['start'],
+                    "end": coverage['end']
+                }
+        else:
+            return {
+                "need_profile": False,
+                "start": None,
+                "end": None
+            }

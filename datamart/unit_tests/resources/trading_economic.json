@@ -7,7 +7,9 @@
       "balance-of-trade"
     ],
     "original_identifier": "TradingEconomics",
-    "materialization": "aaa",
+    "materialization": {
+      "python_path": "aaa"
+    },
     "date_published": "2000-10-01",
     "date_updated": "05-201-20",
     "variables": [
@@ -37,7 +39,8 @@
         "named_entity": false,
         "temporal_coverage": {
           "start": "1993-01-31T00:00:00",
-          "end": "2018-08-31T00:00:00"
+          "end": "2018-08-31T00:00:00",
+          "need_profile": false
         }
       },
       {
@@ -49,7 +52,8 @@
         "named_entity": false,
         "temporal_coverage": {
           "start": "1993-01-31T00:00:00",
-          "end": "2018-08-31T00:00:00"
+          "end": "2018-08-31T00:00:00",
+          "need_profile": false
         }
       },
       {
@@ -78,7 +82,8 @@
         "named_entity": false,
         "temporal_coverage": {
           "start": "1993-01-31T00:00:00",
-          "end": "2018-08-31T00:00:00"
+          "end": "2018-08-31T00:00:00",
+          "need_profile": false
         }
       }
     ]
@@ -95,8 +100,10 @@
     "date_updated": null,
     "provenance": null,
     "original_identifier": "TradingEconomics",
-    "materialization": "aaa",
-    "materialization_component": null,
+    "materialization": {
+      "python_path": "aaa",
+      "arguments": null
+    },
     "variables": [
       {
         "datamart_id": 1,
@@ -107,8 +114,7 @@
         ],
         "named_entity": true,
         "temporal_coverage": {},
-        "spatial_coverage": null,
-        "materialization_component": null
+        "spatial_coverage": null
       },
       {
         "datamart_id": 2,
@@ -120,8 +126,7 @@
         ],
         "named_entity": false,
         "temporal_coverage": {},
-        "spatial_coverage": null,
-        "materialization_component": null
+        "spatial_coverage": null
       },
       {
         "datamart_id": 3,
@@ -132,11 +137,11 @@
         ],
         "named_entity": false,
         "temporal_coverage": {
+          "need_profile": false,
           "start": "1993-01-31T00:00:00",
           "end": "2018-08-31T00:00:00"
         },
-        "spatial_coverage": null,
-        "materialization_component": null
+        "spatial_coverage": null
       },
       {
         "datamart_id": 4,
@@ -147,11 +152,11 @@
         ],
         "named_entity": false,
         "temporal_coverage": {
+          "need_profile": false,
           "start": "1993-01-31T00:00:00",
           "end": "2018-08-31T00:00:00"
         },
-        "spatial_coverage": null,
-        "materialization_component": null
+        "spatial_coverage": null
       },
       {
         "datamart_id": 5,
@@ -162,8 +167,7 @@
         ],
         "named_entity": false,
         "temporal_coverage": {},
-        "spatial_coverage": null,
-        "materialization_component": null
+        "spatial_coverage": null
       },
       {
         "datamart_id": 6,
@@ -175,8 +179,7 @@
         ],
         "named_entity": false,
         "temporal_coverage": {},
-        "spatial_coverage": null,
-        "materialization_component": null
+        "spatial_coverage": null
       },
       {
         "datamart_id": 7,
@@ -187,11 +190,11 @@
         ],
         "named_entity": false,
         "temporal_coverage": {
+          "need_profile": false,
           "start": "1993-01-31T00:00:00",
           "end": "2018-08-31T00:00:00"
         },
-        "spatial_coverage": null,
-        "materialization_component": null
+        "spatial_coverage": null
       }
     ],
     "license": null

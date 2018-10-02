@@ -18,15 +18,9 @@ class VariableMetadata(MetadataBase):
 
         self._metadata["datamart_id"] = datamart_id
 
-        try:
-            self._metadata["name"] = description["name"]
-        except:
-            raise ValueError("No title found")
+        self._metadata["name"] = description["name"]
 
-        try:
-            self._metadata["description"] = description["description"]
-        except:
-            raise ValueError("No description found")
+        self._metadata["description"] = description["description"]
 
         self._metadata["semantic_type"] = description.get("semantic_type", [])
         self._metadata["named_entity"] = description.get("named_entity", None)
@@ -36,7 +30,6 @@ class VariableMetadata(MetadataBase):
             self.temporal_coverage = Utils.temporal_coverage_validate(self.temporal_coverage)
 
         self._metadata["spatial_coverage"] = description.get("spatial_coverage", None)
-        self._metadata["materialization_component"] = description.get("materialization_component", None)
 
     @property
     def datamart_id(self):
@@ -46,9 +39,17 @@ class VariableMetadata(MetadataBase):
     def name(self):
         return self._metadata["name"]
 
+    @name.setter
+    def name(self, value):
+        self._metadata["name"] = value
+
     @property
     def description(self):
         return self._metadata["description"]
+
+    @description.setter
+    def description(self, value):
+        self._metadata["description"] = value
 
     @property
     def semantic_type(self):
@@ -81,7 +82,3 @@ class VariableMetadata(MetadataBase):
     @spatial_coverage.setter
     def spatial_coverage(self, value):
         self._metadata["spatial_coverage"] = value
-
-    @property
-    def materialization_component(self):
-        return self._metadata["materialization_component"]

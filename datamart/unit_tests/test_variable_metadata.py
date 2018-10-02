@@ -2,33 +2,33 @@ from datamart.metadata.variable_metadata import VariableMetadata
 import unittest, copy
 
 sample_variable_1 = {
-      "name": "DateTime",
-      "description": "DateTime of the current value",
-      "semantic_type": [
+    "name": "DateTime",
+    "description": "DateTime of the current value",
+    "semantic_type": [
         "https://metadata.datadrivendiscovery.org/types/Time"
-      ],
-      "named_entity": False,
-      "temporal_coverage": {
+    ],
+    "named_entity": False,
+    "temporal_coverage": {
         "start": "1993-01-31T00:00:00",
         "end": "2018-08-31"
-      }
     }
+}
 
 sample_variable_2 = {
-      "name": "FakeDate",
-      "description": "DateTime of the current value",
-      "semantic_type": [
+    "name": "FakeDate",
+    "description": "DateTime of the current value",
+    "semantic_type": [
         "https://metadata.datadrivendiscovery.org/types/Time",
         "https://metadata.datadrivendiscovery.org/types/CategoricalData"
-      ],
-      "named_entity": False,
-      "temporal_coverage": {
+    ],
+    "named_entity": False,
+    "temporal_coverage": {
         "start": "19sad",
         "end": "2018-08-31T00:00:00"
-      },
-      "spatial_coverage": "fake_spatial_coverage",
-      "materialization_component": "fake_materialization_component"
-    }
+    },
+    "spatial_coverage": "fake_spatial_coverage",
+    "materialization_component": "fake_materialization_component"
+}
 
 
 class TestVariableMetadata(unittest.TestCase):
@@ -65,9 +65,10 @@ class TestVariableMetadata(unittest.TestCase):
     def test_temporal_coverage(self):
         self.assertEqual(self.metadata_1.temporal_coverage, {
             "start": "1993-01-31T00:00:00",
-            "end": "2018-08-31T00:00:00"
+            "end": "2018-08-31T00:00:00",
+            "need_profile": False
         })
-        self.assertEqual(self.metadata_2.temporal_coverage, True)
+        self.assertEqual(self.metadata_2.temporal_coverage["need_profile"], True)
         self.metadata_2.temporal_coverage = {
             "start": "1993-01-31T00:00:00",
             "end": "2018-08-31T00:00:00"
@@ -81,13 +82,9 @@ class TestVariableMetadata(unittest.TestCase):
         self.assertEqual(self.metadata_1.spatial_coverage, None)
         self.assertEqual(self.metadata_2.spatial_coverage, sample_variable_2["spatial_coverage"])
 
-    def test_materialization_component(self):
-        self.assertEqual(self.metadata_1.materialization_component, None)
-        self.assertEqual(self.metadata_2.materialization_component, sample_variable_2["materialization_component"])
-
     def test_variable_metadata(self):
-        expected = {'datamart_id': 0, 'name': 'DateTime', 'description': 'DateTime of the current value',
-                    'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Time'], 'named_entity': False,
-                    'temporal_coverage': {'start': '1993-01-31T00:00:00', 'end': '2018-08-31T00:00:00'},
-                    'spatial_coverage': None, 'materialization_component': None}
+        expected = {"datamart_id": 0, "name": "DateTime", "description": "DateTime of the current value",
+                    "semantic_type": ["https://metadata.datadrivendiscovery.org/types/Time"], "named_entity": False,
+                    "temporal_coverage": {"need_profile": False, "start": "1993-01-31T00:00:00",
+                                          "end": "2018-08-31T00:00:00"}, "spatial_coverage": None}
         self.assertEqual(self.metadata_1.value, expected)
