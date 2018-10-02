@@ -45,10 +45,14 @@ class TestVariableMetadata(unittest.TestCase):
     def test_name(self):
         self.assertEqual(self.metadata_1.name, sample_variable_1["name"])
         self.assertEqual(self.metadata_2.name, sample_variable_2["name"])
+        self.metadata_2.name = "fake_name"
+        self.assertEqual(self.metadata_2.name, "fake_name")
 
     def test_description(self):
         self.assertEqual(self.metadata_1.description, sample_variable_1["description"])
         self.assertEqual(self.metadata_2.description, sample_variable_2["description"])
+        self.metadata_2.description = "fake_description"
+        self.assertEqual(self.metadata_2.description, "fake_description")
 
     def test_semantic_type(self):
         self.assertEqual(self.metadata_1.semantic_type, sample_variable_1["semantic_type"])

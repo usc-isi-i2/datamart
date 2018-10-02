@@ -16,9 +16,15 @@ class TestGlobalMetadata(unittest.TestCase):
 
     def test_title(self):
         self.assertEqual(self.metadata.title, sample_global_metadata_description["title"])
+        self.metadata.title = "fake_title"
+        self.assertEqual(self.metadata.title, "fake_title")
+        self.metadata.title = sample_global_metadata_description["title"]
 
     def test_description(self):
         self.assertEqual(self.metadata.description, sample_global_metadata_description["description"])
+        self.metadata.description = "fake_description"
+        self.assertEqual(self.metadata.description, "fake_description")
+        self.metadata.description = sample_global_metadata_description["description"]
 
     def test_url(self):
         self.assertEqual(self.metadata.url, sample_global_metadata_description["url"])
