@@ -51,8 +51,6 @@ class IndexBuilder(object):
                 raise ValueError("No materialization method found")
             materializer = self.load_materializer(materializer_module)
             data = materializer.get(metadata=description)
-            import pdb
-            pdb.set_trace()
         metadata = self.construct_global_metadata(description=description, data=data)
         return metadata.value
 
