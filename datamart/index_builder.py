@@ -6,6 +6,7 @@ from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.materializers.materializer_base import MaterializerBase
 import typing
 import importlib
+from jsonschema import validate
 
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
@@ -17,10 +18,11 @@ class IndexBuilder(object):
 
         """
 
-        self.index_info_path = os.path.join(os.path.dirname(__file__), 'utilities/index_info.json')
-        self.index_info = json.load(open(self.index_info_path, 'r'))
+        resources_path = os.path.join(os.path.dirname(__file__), "resources")
+        self.index_info = json.load(open(os.path.join(resources_path, 'index_info.json'), 'r'))
         self.current_global_index = self.index_info["current_index"]
         self.GLOBAL_INDEX_INTERVAL = 10000
+        self.index_schema = json.load(open(os.path.join(resources_path, 'index_schema.json'), 'r'))
 
     def indexing(self,
                  description_path: str,
@@ -48,12 +50,11 @@ class IndexBuilder(object):
             except:
                 raise ValueError("No materialization method found")
             materializer = self.load_materializer(materializer_module)
-            data = materializer.get()
+            data = materializer.get(metadata=description)
         metadata = self.construct_global_metadata(description=description, data=data)
-        metadata_json = metadata.value
+        return metadata.value
 
-    @staticmethod
-    def read_data(description_path: str, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
+    def read_data(self, description_path: str, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
         """Read dataset description json and dataset if present.
 
         Args:
@@ -65,6 +66,7 @@ class IndexBuilder(object):
         """
 
         description = json.load(open(description_path, 'r'))
+        self.validate_schema(description)
         if data_path:
             data = pd.read_csv(open(data_path), 'r')
         else:
@@ -181,3 +183,9 @@ class IndexBuilder(object):
     @staticmethod
     def profile_named_entity(column: pd.Series):
         return column.tolist()
+
+    def validate_schema(self, description):
+        try:
+            validate(description, self.index_schema)
+        except:
+            raise ValueError("Invalid dataset description json according to index schema")

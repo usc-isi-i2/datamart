@@ -16,9 +16,15 @@ class TestGlobalMetadata(unittest.TestCase):
 
     def test_title(self):
         self.assertEqual(self.metadata.title, sample_global_metadata_description["title"])
+        self.metadata.title = "fake_title"
+        self.assertEqual(self.metadata.title, "fake_title")
+        self.metadata.title = sample_global_metadata_description["title"]
 
     def test_description(self):
         self.assertEqual(self.metadata.description, sample_global_metadata_description["description"])
+        self.metadata.description = "fake_description"
+        self.assertEqual(self.metadata.description, "fake_description")
+        self.metadata.description = sample_global_metadata_description["description"]
 
     def test_url(self):
         self.assertEqual(self.metadata.url, sample_global_metadata_description["url"])
@@ -46,11 +52,9 @@ class TestGlobalMetadata(unittest.TestCase):
                          sample_global_metadata_description.get("original_identifier", None))
 
     def test_materialization(self):
-        self.assertEqual(self.metadata.materialization, sample_global_metadata_description["materialization"])
-
-    def test_materialization_component(self):
-        self.assertEqual(self.metadata.materialization_component,
-                         sample_global_metadata_description.get("materialization_component", None))
+        self.assertEqual(self.metadata.materialization["python_path"],
+                         sample_global_metadata_description["materialization"]["python_path"])
+        self.assertEqual(self.metadata.materialization["arguments"], None)
 
     def test_license(self):
         self.assertEqual(self.metadata.license, sample_global_metadata_description.get("license", None))

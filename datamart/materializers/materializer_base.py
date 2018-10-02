@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import pandas as pd
+import typing
 
 
 class MaterializerBase(ABC):
@@ -8,7 +9,7 @@ class MaterializerBase(ABC):
     """
 
     @abstractmethod
-    def get(self, *args, **kwargs) -> pd.DataFrame:
+    def get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame:
         """API for Materialize, every Materializer should implement `get` method, returns a pandas dataframe.
 
         """
