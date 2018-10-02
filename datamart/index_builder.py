@@ -46,11 +46,13 @@ class IndexBuilder(object):
         description, data = self.read_data(description_path, data_path)
         if not data and query_data_for_indexing:
             try:
-                materializer_module = description["materialization"]
+                materializer_module = description["materialization"]["python_path"]
             except:
                 raise ValueError("No materialization method found")
             materializer = self.load_materializer(materializer_module)
             data = materializer.get(metadata=description)
+            import pdb
+            pdb.set_trace()
         metadata = self.construct_global_metadata(description=description, data=data)
         return metadata.value
 
