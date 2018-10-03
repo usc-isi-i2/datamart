@@ -8,7 +8,7 @@ source activate datamart_env
 
 ## test example
 
-There is test example in `test` dir
+There is a test example in `test` dir
 
 `tmp` contains two sample json files I got from zhihao, the student who works on
 NOAA. 
@@ -16,7 +16,7 @@ NOAA.
 `test.py` is script running the whole workflow. 
 
 1. Create metadata json file, by reading the json description file and profile
-the original dataset (query to get it). 
+the original dataset (query to get original dataset, current profiler only record name_entity column). 
 
 2. Load to elasticsearch and index metadata (using default setting now).
 
