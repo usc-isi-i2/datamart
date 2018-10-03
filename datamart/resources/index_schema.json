@@ -46,10 +46,6 @@
           "description": "Temporal extent",
           "type": "object",
           "properties": {
-            "need_profile": {
-              "description": "ask if need datamart profiling",
-              "type": "boolean"
-            },
             "start": {
               "description": "Start of temporal coverage",
               "type": "string",

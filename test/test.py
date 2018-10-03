@@ -1,5 +1,5 @@
 import sys, os, json, time
-sys.path.append("../")
+sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 from datamart.index_builder import IndexBuilder
 from datamart.query_manager import QueryManager
 
@@ -8,7 +8,10 @@ if __name__ == '__main__':
 
     # create index
     es_index = "datamart_tmp"
+
     index_builder = IndexBuilder()
+    qm = QueryManager()
+
     tmp_description_dir = "./tmp"
 
     tmp_out = "./tmp/tmp_metadata.out"
@@ -20,15 +23,15 @@ if __name__ == '__main__':
                                                    data_path=None,
                                                    query_data_for_indexing=True,
                                                    save_to_file=tmp_out)
+            # qm.create_doc(index='datamart_tmp', doc_type='document', body=this_metadata)
+
     index_builder.save_index_config()
 
     # query index
-    qm = QueryManager()
     if qm.check_exists(index=es_index):
         qm.delete_index(index=[es_index])
     qm.create_index(index=es_index)
 
-    # qm.create_doc(index='datamart_tmp', doc_type='document', body=this_metadata)
     qm.create_doc_bulk(file=tmp_out, index=es_index)
 
     time.sleep(1)

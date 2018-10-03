@@ -7,8 +7,18 @@ conda env create -f environment.yml
 source activate datamart_env
 ```
 
+## Valid your schema
+You should validate your json against our schema by the following
+```commandline
+python scripts/validate_schema.py --validate_json {path_to_json}
+```
+eg.
+```commandline
+>> python scripts/validate_schema.py --validate_json test/tmp/tmp.json
+>> Valid json
+```
 
-## test example
+## Workflow example
 
 There is a test example in `test` dir
 

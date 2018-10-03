@@ -31,8 +31,7 @@
       "named_entity": false,
       "temporal_coverage": {
         "start": "1994-03-19T00:00:00",
-        "end": "1996-05-28T00:00:00",
-        "need_profile": false
+        "end": "1996-05-28T00:00:00"
       }
     },
     {
@@ -52,7 +51,6 @@
       ],
       "named_entity": true,
       "temporal_coverage": {
-        "need_profile": false
       }
     },
     {
