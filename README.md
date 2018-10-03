@@ -32,4 +32,4 @@ cd test
 python test.py
 ```
 
-Metadata json file will be in `tmp/tmp_metadata.out`
+Metadata file will be in `tmp/tmp_metadata.out`
