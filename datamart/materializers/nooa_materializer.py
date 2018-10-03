@@ -89,6 +89,8 @@ class NoaaMaterializer(MaterializerBase):
         """ check whether it needs next query(get next 1000 data)
 
         """
+        if 'metadata' not in data:
+            return
         resultset = data['metadata']['resultset']
         num = float(resultset['limit']) + float(resultset['offset']) - 1
         if num < float(resultset['count']):
@@ -100,5 +102,7 @@ class NoaaMaterializer(MaterializerBase):
         """ get the useful data from raw data and add them in the return dataframe
 
         """
+        if 'results' not in data:
+            return
         for row in data['results']:
             result.loc[len(result)] = [row['date'], row['station'], location, row['value']]

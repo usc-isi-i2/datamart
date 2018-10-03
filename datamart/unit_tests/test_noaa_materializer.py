@@ -30,6 +30,16 @@ class TestNoaaMaterializer(unittest.TestCase):
             orient="records")
         sample_result = json.load(open(os.path.join(resources_path, 'noaa_get_test.json'), "r"))
         self.assertEqual(result, sample_result)
+        fake_metadata_for_no_return = {
+            "materialization": {
+                "arguments": {
+                    "type": 'ACMC'
+                }
+            }
+        }
+        null = self.noaa_materializer.get(metadata=fake_metadata_for_no_return, constrains=fake_constrains).to_dict(
+            orient="records")
+        self.assertEqual(null, [])
 
     def test_next(self):
         fake_true_data = {
