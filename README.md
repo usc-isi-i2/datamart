@@ -3,8 +3,11 @@
 # datamart
 
 ```commandline
+cd datamart
 conda env create -f environment.yml
 source activate datamart_env
+
+python -W ignore -m unittest discover
 ```
 
 ## Valid your schema
