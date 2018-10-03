@@ -101,5 +101,6 @@ class Utils:
             open(os.path.join(os.path.join(os.path.dirname(__file__), "resources"), 'index_schema.json'), 'r'))
         try:
             validate(description, index_schema)
+            return True
         except:
             raise ValueError("Invalid dataset description json according to index json schema")

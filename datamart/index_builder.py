@@ -55,7 +55,8 @@ class IndexBuilder(object):
             self.save_data(save_to_file=save_to_file, metadata=metadata)
         return metadata.value
 
-    def read_data(self, description_path: str, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
+    @staticmethod
+    def read_data(description_path: str, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
         """Read dataset description json and dataset if present.
 
         Args:

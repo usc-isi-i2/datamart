@@ -19,7 +19,7 @@
         "semantic_type": [
           "http://schema.org/Text"
         ],
-        "named_entity": true
+        "named_entity": ["US", "UK"]
       },
       {
         "name": "Category",
@@ -28,7 +28,7 @@
           "http://schema.org/Text",
           "https://metadata.datadrivendiscovery.org/types/CategoricalData"
         ],
-        "named_entity": false
+        "named_entity": []
       },
       {
         "name": "DateTime",
@@ -36,11 +36,10 @@
         "semantic_type": [
           "https://metadata.datadrivendiscovery.org/types/Time"
         ],
-        "named_entity": false,
+        "named_entity": [],
         "temporal_coverage": {
           "start": "1993-01-31T00:00:00",
-          "end": "2018-08-31T00:00:00",
-          "need_profile": false
+          "end": "2018-08-31T00:00:00"
         }
       },
       {
@@ -49,11 +48,10 @@
         "semantic_type": [
           "https://metadata.datadrivendiscovery.org/types/Timeseries"
         ],
-        "named_entity": false,
+        "named_entity": [],
         "temporal_coverage": {
           "start": "1993-01-31T00:00:00",
-          "end": "2018-08-31T00:00:00",
-          "need_profile": false
+          "end": "2018-08-31T00:00:00"
         }
       },
       {
@@ -62,7 +60,7 @@
         "semantic_type": [
           "http://schema.org/Text"
         ],
-        "named_entity": false
+        "named_entity": []
       },
       {
         "name": "HistoricalDataSymbol",
@@ -71,7 +69,7 @@
           "http://schema.org/Text",
           "https://metadata.datadrivendiscovery.org/types/CategoricalData"
         ],
-        "named_entity": false
+        "named_entity": []
       },
       {
         "name": "LastUpdate",
@@ -79,11 +77,10 @@
         "semantic_type": [
           "https://metadata.datadrivendiscovery.org/types/Time"
         ],
-        "named_entity": false,
+        "named_entity": [],
         "temporal_coverage": {
           "start": "1993-01-31T00:00:00",
-          "end": "2018-08-31T00:00:00",
-          "need_profile": false
+          "end": "2018-08-31T00:00:00"
         }
       }
     ]
@@ -112,7 +109,7 @@
         "semantic_type": [
           "http://schema.org/Text"
         ],
-        "named_entity": true,
+        "named_entity": ["US", "UK"],
         "temporal_coverage": {},
         "spatial_coverage": null
       },
@@ -124,7 +121,7 @@
           "http://schema.org/Text",
           "https://metadata.datadrivendiscovery.org/types/CategoricalData"
         ],
-        "named_entity": false,
+        "named_entity": [],
         "temporal_coverage": {},
         "spatial_coverage": null
       },
@@ -135,9 +132,8 @@
         "semantic_type": [
           "https://metadata.datadrivendiscovery.org/types/Time"
         ],
-        "named_entity": false,
+        "named_entity": [],
         "temporal_coverage": {
-          "need_profile": false,
           "start": "1993-01-31T00:00:00",
           "end": "2018-08-31T00:00:00"
         },
@@ -150,9 +146,8 @@
         "semantic_type": [
           "https://metadata.datadrivendiscovery.org/types/Timeseries"
         ],
-        "named_entity": false,
+        "named_entity": [],
         "temporal_coverage": {
-          "need_profile": false,
           "start": "1993-01-31T00:00:00",
           "end": "2018-08-31T00:00:00"
         },
@@ -165,7 +160,7 @@
         "semantic_type": [
           "http://schema.org/Text"
         ],
-        "named_entity": false,
+        "named_entity": [],
         "temporal_coverage": {},
         "spatial_coverage": null
       },
@@ -177,7 +172,7 @@
           "http://schema.org/Text",
           "https://metadata.datadrivendiscovery.org/types/CategoricalData"
         ],
-        "named_entity": false,
+        "named_entity": [],
         "temporal_coverage": {},
         "spatial_coverage": null
       },
@@ -188,9 +183,8 @@
         "semantic_type": [
           "https://metadata.datadrivendiscovery.org/types/Time"
         ],
-        "named_entity": false,
+        "named_entity": [],
         "temporal_coverage": {
-          "need_profile": false,
           "start": "1993-01-31T00:00:00",
           "end": "2018-08-31T00:00:00"
         },

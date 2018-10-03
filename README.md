@@ -11,7 +11,7 @@ python -W ignore -m unittest discover
 ```
 
 ## Valid your schema
-You should validate your json against our schema by the following
+Dataset providers should validate their dataset schema against our json schema by the following
 ```commandline
 python scripts/validate_schema.py --validate_json {path_to_json}
 ```
