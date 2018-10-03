@@ -1,0 +1,212 @@
+[
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CALA0009",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CALA0010",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CALA0023",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CALA0036",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CALA0043",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CALA0044",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CALA0048",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CALA0054",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CALA0064",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CALA0068",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CALA0078",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CALA0081",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CAOR0021",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CAOR0031",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CAOR0042",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CAOR0061",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:US1CAOR0067",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USC00040192",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USC00041194",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USC00042214",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USC00046719",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USC00047776",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USC00047888",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USC00049152",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USC00049785",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USW00003122",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USW00003166",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USW00003167",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USW00023129",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USW00023130",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USW00023152",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USW00023174",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USW00093134",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USW00093184",
+    "city": "los angeles",
+    "PRCP": 0
+  },
+  {
+    "date": "2018-09-23T00:00:00",
+    "stationid": "GHCND:USW00093197",
+    "city": "los angeles",
+    "PRCP": 0
+  }
+]
