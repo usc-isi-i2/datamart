@@ -6,10 +6,15 @@ import requests
 import typing
 import os
 
-
 class NoaaMaterializer(MaterializerBase):
+    """NoaaMaterializer class extended from  Materializer class
+
+    """
 
     def __init__(self):
+        """ initialization and loading the city name to city id map
+
+        """
         MaterializerBase.__init__(self)
         self.headers = None
         resources_path = os.path.join(os.path.dirname(__file__), "../resources")
@@ -17,53 +22,46 @@ class NoaaMaterializer(MaterializerBase):
             reader = csv.reader(csv_file)
             self.city_to_id_map = dict(reader)
 
-    def get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame:
+    def get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = {}) -> pd.DataFrame:
         materialization_arguments = metadata["materialization"].get("arguments", {})
         if "token" in materialization_arguments:
             self.headers = {"token": "%s" % materialization_arguments["token"]}
         else:
             self.headers = {"token": "%s" % "QoCwZxSlvRuUHcKhflbujnBSOFhHvZoS"}
-        datatype = materialization_arguments.get("type", None)
-        return self.fetch_data(datatype=datatype)
+        date_range = constrains.get("date_range", {})
+        locations = constrains.get("locations", ['los angeles'])
+        data_type = constrains.get("type", 'TAVG')
+        dataset_id = constrains.get("dataset_id", "GHCND")
+        return self.fetch_data(date_range=date_range, locations=locations, data_type=data_type, dataset_id=dataset_id)
 
-    def fetch_data(self, data_range=None, location: str = 'los angeles', datatype: str = 'TAVG'):
+    def fetch_data(self, date_range: dict = None, locations: list = ['los angeles'], data_type: str = 'TAVG', dataset_id: str = 'GHCND'):
         """ fetch data using Noaa api and return the dataset
-            the date of the data is in the range of data range
-            location is the city name
+            the date of the data is in the range of date range
+            location is a list of city name
 
         Args:
-            data_range: data range constrain.
-            location: string of location
+            date_range: data range constrain.(format: %Y-%m-%d)
+            location: list of string of location
             datatype: string of data type for the query
 
 
         Returns:
-
+             result: A pd.DataFrame;
+             An example:
+                                        date          stationid           city TAVG
+                    0    2018-09-23T00:00:00  GHCND:USR0000CACT    los angeles  233
+                    1    2018-09-23T00:00:00  GHCND:USR0000CBEV    los angeles  206
         """
-        result = pd.DataFrame(columns=['date', 'stationid', 'city', datatype])
-        if data_range is None:
-            startdate = (datetime.datetime.now() - datetime.timedelta(days=10)).strftime('%Y-%m-%d')
-            enddate = datetime.datetime.today().strftime('%Y-%m-%d')
-            api = 'https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&datatypeid=TAVG&locationid=CITY:US060013&startdate=' \
-                  + startdate + "&enddate=" + enddate
-            response = requests.get(api, headers=self.headers)
-            data = response.json()
-            self.add_result(result, data, location)
-        else:
-            datatypeid = ''
-            locationid = ''
-            if len(data_range) == 1:
-                data_range.append(datetime.datetime.today().strftime('%Y-%m-%d'))
-            if location.startswith('zip') is False:
-                locationid += '&locationid=' + self.city_to_id_map[location.lower()]
-            else:
-                locationid += location
-            datatypeid += '&datatypeid='
-            datatypeid += datatype + ','
-            startdate = '&startdate=' + data_range[0]
-            enddate = '&enddate=' + data_range[1]
-            api = 'https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND' + datatypeid + locationid + \
-                  startdate + enddate + '&limit=1000&offset=1'
+        result = pd.DataFrame(columns=['date', 'stationid', 'city', data_type])
+        start_date = date_range.get("start_date", (datetime.datetime.now() - datetime.timedelta(days=10)).strftime('%Y-%m-%d'))
+        end_date = date_range.get("end_date", datetime.datetime.today().strftime('%Y-%m-%d'))
+        for location in locations:
+            location_id = self.city_to_id_map.get(location, None)
+            if location_id is None:
+                continue
+            api = 'https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=' + dataset_id + \
+                  '&datatypeid=' + data_type + '&locationid=' + location_id + \
+                    '&startdate=' + start_date + '&enddate=' + end_date + '&limit=1000&offset=1'
             response = requests.get(api, headers=self.headers)
             data = response.json()
             self.add_result(result, data, location)
@@ -94,3 +92,4 @@ class NoaaMaterializer(MaterializerBase):
         """
         for row in data['results']:
             result.loc[len(result)] = [row['date'], row['station'], location, row['value']]
+
