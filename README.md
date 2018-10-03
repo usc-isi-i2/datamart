@@ -1,3 +1,5 @@
+![MIT License](https://img.shields.io/badge/license-MIT-blue.svg) ![travis ci](https://travis-ci.org/usc-isi-i2/etk.svg?branch=master)
+
 # datamart
 
 ```commandline
