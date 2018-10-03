@@ -1,6 +1,11 @@
 import datetime
 import warnings
 import dateutil.parser
+from datamart.materializers.materializer_base import MaterializerBase
+import importlib
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 
 
 class Utils:
@@ -59,3 +64,32 @@ class Utils:
                 "start": None,
                 "end": None
             }
+
+    @staticmethod
+    def load_materializer(materializer_module: str) -> MaterializerBase:
+        """Given the python path to the materializer_module, return a materializer instance.
+
+        Args:
+            materializer_module: Path to materializer_module file.
+
+        Returns:
+            materializer instance
+        """
+
+        module = importlib.import_module(materializer_module)
+        md = module.__dict__
+        lst = [
+            md[c] for c in md if (
+                    isinstance(md[c], type) and
+                    issubclass(md[c], MaterializerBase
+                               ) and
+                    md[c].__module__ == module.__name__)
+        ]
+        try:
+            materializer_class = lst[0]
+        except:
+            raise ValueError("No materializer class found in {}".format(
+                os.path.join(os.path.dirname(__file__), 'materializers', materializer_module)))
+
+        materializer = materializer_class()
+        return materializer
