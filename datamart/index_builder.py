@@ -5,7 +5,6 @@ from datamart.metadata.global_metadata import GlobalMetadata
 from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.utils import Utils
 import typing
-from jsonschema import validate
 
 
 class IndexBuilder(object):
@@ -18,7 +17,6 @@ class IndexBuilder(object):
         self.index_config = json.load(open(os.path.join(self.resources_path, 'index_info.json'), 'r'))
         self.current_global_index = self.index_config["current_index"]
         self.GLOBAL_INDEX_INTERVAL = 10000
-        self.index_schema = json.load(open(os.path.join(self.resources_path, 'index_schema.json'), 'r'))
 
     def indexing(self,
                  description_path: str,
@@ -57,7 +55,8 @@ class IndexBuilder(object):
             self.save_data(save_to_file=save_to_file, metadata=metadata)
         return metadata.value
 
-    def read_data(self, description_path: str, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
+    @staticmethod
+    def read_data(description_path: str, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
         """Read dataset description json and dataset if present.
 
         Args:
@@ -69,7 +68,7 @@ class IndexBuilder(object):
         """
 
         description = json.load(open(description_path, 'r'))
-        self.validate_schema(description)
+        Utils.validate_schema(description)
         if data_path:
             data = pd.read_csv(open(data_path), 'r')
         else:
@@ -188,9 +187,3 @@ class IndexBuilder(object):
     @staticmethod
     def profile_named_entity(column: pd.Series):
         return column.unique().tolist()
-
-    def validate_schema(self, description):
-        try:
-            validate(description, self.index_schema)
-        except:
-            raise ValueError("Invalid dataset description json according to index json schema")

@@ -69,10 +69,8 @@ class TestVariableMetadata(unittest.TestCase):
     def test_temporal_coverage(self):
         self.assertEqual(self.metadata_1.temporal_coverage, {
             "start": "1993-01-31T00:00:00",
-            "end": "2018-08-31T00:00:00",
-            "need_profile": False
+            "end": "2018-08-31T00:00:00"
         })
-        self.assertEqual(self.metadata_2.temporal_coverage["need_profile"], True)
         self.metadata_2.temporal_coverage = {
             "start": "1993-01-31T00:00:00",
             "end": "2018-08-31T00:00:00"
@@ -89,6 +87,6 @@ class TestVariableMetadata(unittest.TestCase):
     def test_variable_metadata(self):
         expected = {"datamart_id": 0, "name": "DateTime", "description": "DateTime of the current value",
                     "semantic_type": ["https://metadata.datadrivendiscovery.org/types/Time"], "named_entity": False,
-                    "temporal_coverage": {"need_profile": False, "start": "1993-01-31T00:00:00",
-                                          "end": "2018-08-31T00:00:00"}, "spatial_coverage": None}
+                    "temporal_coverage": {"start": "1993-01-31T00:00:00", "end": "2018-08-31T00:00:00"},
+                    "spatial_coverage": None}
         self.assertEqual(self.metadata_1.value, expected)

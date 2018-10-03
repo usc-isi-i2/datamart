@@ -5,6 +5,9 @@ from datamart.materializers.materializer_base import MaterializerBase
 import importlib
 import os
 import sys
+import json
+from jsonschema import validate
+
 sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 
 
@@ -37,33 +40,24 @@ class Utils:
         Returns:
             dict of temporal_coverage or True
         """
-        if coverage.get("need_profile", None) is True:
-            return {
-                "need_profile": True,
-                "start": None,
-                "end": None
-            }
-        elif "start" in coverage or "end" in coverage:
-            coverage['need_profile'] = False
+
+        if "start" in coverage:
             try:
                 coverage['start'] = dateutil.parser.parse(coverage['start']).isoformat()
             except:
                 warnings.warn("Can not parse start date in temporal coverage")
                 coverage['start'] = None
-                coverage['need_profile'] = True
+        else:
+            coverage['start'] = None
+        if "end" in coverage:
             try:
                 coverage['end'] = dateutil.parser.parse(coverage['end']).isoformat()
             except:
                 warnings.warn("Can not parse end date in temporal coverage")
                 coverage['end'] = None
-                coverage['need_profile'] = True
-            return coverage
         else:
-            return {
-                "need_profile": False,
-                "start": None,
-                "end": None
-            }
+            coverage['end'] = None
+        return coverage
 
     @staticmethod
     def load_materializer(materializer_module: str) -> MaterializerBase:
@@ -93,3 +87,20 @@ class Utils:
 
         materializer = materializer_class()
         return materializer
+
+    @staticmethod
+    def validate_schema(description: dict):
+        """Validate dict against json schema.
+
+        Args:
+            description: description dict.
+
+        Returns:
+        """
+        index_schema = json.load(
+            open(os.path.join(os.path.join(os.path.dirname(__file__), "resources"), 'index_schema.json'), 'r'))
+        try:
+            validate(description, index_schema)
+            return True
+        except:
+            raise ValueError("Invalid dataset description json according to index json schema")
