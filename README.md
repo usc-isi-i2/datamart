@@ -6,6 +6,7 @@
 cd datamart
 conda env create -f environment.yml
 source activate datamart_env
+git update-index --assume-unchanged datamart/resources/index_info.json
 
 python -W ignore -m unittest discover
 ```
@@ -31,7 +32,7 @@ jupyter notebook test/demo.ipynb
 
 There is a test example in `test` dir
 
-`tmp` contains two sample json files I got from zhihao, the student who works on
+`tmp` contains one sample json files I got from zhihao, the student who works on
 NOAA. 
 
 `test.py` is script running the whole workflow. 
