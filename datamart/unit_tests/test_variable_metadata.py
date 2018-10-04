@@ -7,7 +7,6 @@ sample_variable_1 = {
     "semantic_type": [
         "https://metadata.datadrivendiscovery.org/types/Time"
     ],
-    "named_entity": False,
     "temporal_coverage": {
         "start": "1993-01-31T00:00:00",
         "end": "2018-08-31"
@@ -21,7 +20,6 @@ sample_variable_2 = {
         "https://metadata.datadrivendiscovery.org/types/Time",
         "https://metadata.datadrivendiscovery.org/types/CategoricalData"
     ],
-    "named_entity": False,
     "temporal_coverage": {
         "start": "19sad",
         "end": "2018-08-31T00:00:00"
@@ -61,8 +59,8 @@ class TestVariableMetadata(unittest.TestCase):
         self.assertEqual(self.metadata_2.semantic_type, ["https://metadata.datadrivendiscovery.org/types/Time"])
 
     def test_named_entity(self):
-        self.assertEqual(self.metadata_1.named_entity, sample_variable_1["named_entity"])
-        self.assertEqual(self.metadata_2.named_entity, sample_variable_2["named_entity"])
+        self.assertEqual(self.metadata_1.named_entity, False)
+        self.assertEqual(self.metadata_2.named_entity, False)
         self.metadata_2.semantic_type = ["fake_entity_1", "fake_entity_3", "fake_entity_2"]
         self.assertEqual(self.metadata_2.semantic_type, ["fake_entity_1", "fake_entity_3", "fake_entity_2"])
 
@@ -81,12 +79,11 @@ class TestVariableMetadata(unittest.TestCase):
         })
 
     def test_spatial_coverage(self):
-        self.assertEqual(self.metadata_1.spatial_coverage, None)
+        self.assertEqual(self.metadata_1.spatial_coverage, False)
         self.assertEqual(self.metadata_2.spatial_coverage, sample_variable_2["spatial_coverage"])
 
     def test_variable_metadata(self):
         expected = {"datamart_id": 0, "name": "DateTime", "description": "DateTime of the current value",
-                    "semantic_type": ["https://metadata.datadrivendiscovery.org/types/Time"], "named_entity": False,
-                    "temporal_coverage": {"start": "1993-01-31T00:00:00", "end": "2018-08-31T00:00:00"},
-                    "spatial_coverage": None}
+                    "semantic_type": ["https://metadata.datadrivendiscovery.org/types/Time"],
+                    "temporal_coverage": {"start": "1993-01-31T00:00:00", "end": "2018-08-31T00:00:00"}}
         self.assertEqual(self.metadata_1.value, expected)

@@ -23,7 +23,7 @@ class NoaaMaterializer(MaterializerBase):
             reader = csv.reader(csv_file)
             self.city_to_id_map = dict(reader)
 
-    def get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = {}) -> pd.DataFrame:
+    def get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame:
         """ API for get a dataframe.
 
             Args:
@@ -31,11 +31,14 @@ class NoaaMaterializer(MaterializerBase):
                 variables:
                 constrains: include some constrains like date_range, location and so on
         """
+        if not constrains:
+            constrains = dict()
+
         materialization_arguments = metadata["materialization"].get("arguments", {})
-        if "token" in materialization_arguments:
-            self.headers = {"token": "%s" % materialization_arguments["token"]}
+        if "token" in constrains:
+            self.headers = {"token": constrains["token"]}
         else:
-            self.headers = {"token": "%s" % "QoCwZxSlvRuUHcKhflbujnBSOFhHvZoS"}
+            self.headers = {"token": "QoCwZxSlvRuUHcKhflbujnBSOFhHvZoS"}
         date_range = constrains.get("date_range", {})
         locations = constrains.get("locations", ['los angeles'])
         data_type = materialization_arguments.get("type", 'TAVG')
@@ -50,8 +53,9 @@ class NoaaMaterializer(MaterializerBase):
 
         Args:
             date_range: data range constrain.(format: %Y-%m-%d)
-            location: list of string of location
-            datatype: string of data type for the query
+            locations: list of string of location
+            data_type: string of data type for the query
+            dataset_id
 
 
         Returns:

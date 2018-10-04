@@ -10,18 +10,21 @@ source activate datamart_env
 python -W ignore -m unittest discover
 ```
 
-## Valid your schema
+## Validate your schema
 Dataset providers should validate their dataset schema against our json schema by the following
 ```commandline
 python scripts/validate_schema.py --validate_json {path_to_json}
 ```
 eg.
 ```commandline
->> python scripts/validate_schema.py --validate_json test/tmp/tmp.json
->> Valid json
+$ python scripts/validate_schema.py --validate_json test/tmp/tmp.json
+$ Valid json
 ```
 
 ## Workflow example
+
+#### `demo.ipynb` contains a step by step demo.
+
 
 There is a test example in `test` dir
 

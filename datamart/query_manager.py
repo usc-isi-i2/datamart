@@ -42,9 +42,9 @@ class QueryManager(object):
             return [doc["_source"] for doc in result["hits"]["hits"]]
 
     @staticmethod
-    def get_dataset(metadata):
+    def get_dataset(metadata, variables=None, constrains=None):
         materializer = Utils.load_materializer(metadata["materialization"]["python_path"])
-        return materializer.get(metadata=metadata, variables=None, constrains=None)
+        return materializer.get(metadata=metadata, variables=variables, constrains=constrains)
 
     @staticmethod
     def make_documents(f, index):

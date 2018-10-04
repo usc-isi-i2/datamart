@@ -23,13 +23,18 @@ class VariableMetadata(MetadataBase):
         self._metadata["description"] = description["description"]
 
         self._metadata["semantic_type"] = description.get("semantic_type", [])
-        self._metadata["named_entity"] = description.get("named_entity", None)
 
-        self._metadata["temporal_coverage"] = description.get("temporal_coverage", {})
+        if "named_entity" in description:
+            self._metadata["named_entity"] = description["named_entity"]
+
+        if "temporal_coverage" in description:
+            self._metadata["temporal_coverage"] = description["temporal_coverage"]
+
         if self.temporal_coverage:
             self.temporal_coverage = Utils.temporal_coverage_validate(self.temporal_coverage)
 
-        self._metadata["spatial_coverage"] = description.get("spatial_coverage", None)
+        if "spatial_coverage" in description:
+            self._metadata["spatial_coverage"] = description["spatial_coverage"]
 
     @property
     def datamart_id(self):
@@ -61,7 +66,7 @@ class VariableMetadata(MetadataBase):
 
     @property
     def named_entity(self):
-        return self._metadata["named_entity"]
+        return self._metadata.get("named_entity", False)
 
     @named_entity.setter
     def named_entity(self, value):
@@ -69,7 +74,7 @@ class VariableMetadata(MetadataBase):
 
     @property
     def temporal_coverage(self):
-        return self._metadata["temporal_coverage"]
+        return self._metadata.get("temporal_coverage", False)
 
     @temporal_coverage.setter
     def temporal_coverage(self, value):
@@ -77,7 +82,7 @@ class VariableMetadata(MetadataBase):
 
     @property
     def spatial_coverage(self):
-        return self._metadata["spatial_coverage"]
+        return self._metadata.get("spatial_coverage", False)
 
     @spatial_coverage.setter
     def spatial_coverage(self, value):

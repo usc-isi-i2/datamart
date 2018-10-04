@@ -164,10 +164,8 @@ class IndexBuilder(object):
         Returns:
             VariableMetadata instance
         """
-        if variable_metadata.named_entity is True:
+        if variable_metadata.named_entity is None:
             variable_metadata.named_entity = self.profile_named_entity(column)
-        elif variable_metadata.named_entity is False:
-            variable_metadata.named_entity = []
 
         return variable_metadata
 
