@@ -24,6 +24,9 @@ $ Valid json
 ## Workflow example
 
 #### `demo.ipynb` contains a step by step demo.
+```commandline
+jupyter notebook test/demo.ipynb
+```
 
 
 There is a test example in `test` dir
