@@ -20,8 +20,8 @@
         "https://metadata.datadrivendiscovery.org/types/Time"
       ],
       "temporal_coverage": {
-        "start": "1994-03-19T00:00:00",
-        "end": "1996-05-28T00:00:00"
+        "start": "1874-10-13",
+        "end": "2018-10-01"
       }
     },
     {
