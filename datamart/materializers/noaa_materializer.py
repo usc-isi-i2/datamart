@@ -76,7 +76,6 @@ class NoaaMaterializer(MaterializerBase):
                     0    2018-09-23T00:00:00  GHCND:USR0000CACT    los angeles  233
                     1    2018-09-23T00:00:00  GHCND:USR0000CBEV    los angeles  206
         """
-        print(date_range, locations, data_type, dataset_id)
         result = pd.DataFrame(columns=['date', 'stationid', 'city', data_type])
         start_date = date_range.get("start_date",
                                     (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))
