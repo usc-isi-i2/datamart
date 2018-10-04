@@ -1,4 +1,4 @@
-from datamart.materializers.nooa_materializer import NoaaMaterializer
+from datamart.materializers.noaa_materializer import NoaaMaterializer
 import unittest, json, os
 import pandas as pd
 

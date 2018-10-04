@@ -7,7 +7,7 @@
   ],
   "provenance": "noaa.org",
   "materialization": {
-    "python_path": "nooa_materializer",
+    "python_path": "noaa_materializer",
     "arguments": {
       "type": "TAVG"
     }
