@@ -3,15 +3,7 @@
   "description": "Average temperature (tenths of degrees C)[Note that TAVG from source 'S' corresponds to an average for the period ending at 2400 UTC rather than local midnight]",
   "url": "https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/readme.txt",
   "keywords": [
-    "Average",
-    "cloudiness",
-    "midnight",
-    "to",
-    "midnight",
-    "from",
-    "30-second",
-    "ceilometer",
-    "data"
+    "Average Temperature."
   ],
   "provenance": "noaa.org",
   "materialization": {
