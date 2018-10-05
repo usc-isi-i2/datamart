@@ -36,6 +36,10 @@ class VariableMetadata(MetadataBase):
         if "spatial_coverage" in description:
             self._metadata["spatial_coverage"] = description["spatial_coverage"]
 
+    @classmethod
+    def construct_variable(cls, description, datamart_id):
+        return cls(description, datamart_id)
+
     @property
     def datamart_id(self):
         return self._metadata["datamart_id"]

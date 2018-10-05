@@ -52,6 +52,10 @@ class GlobalMetadata(MetadataBase):
 
         self._metadata["license"] = description.get("license", None)
 
+    @classmethod
+    def construct_global(cls, description, datamart_id):
+        return cls(description, datamart_id)
+
     def add_variable_metadata(self, variable_metadata: VariableMetadata):
         """Add a variable_metadata to this golbal metadata instance.
 
