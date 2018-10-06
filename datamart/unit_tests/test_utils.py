@@ -28,5 +28,5 @@ class TestUtils(unittest.TestCase):
                          {'end': '2018-10-10T00:00:00', 'start': None})
 
     def test_load_materializer(self):
-        materializer = Utils.load_materializer("nooa_materializer")
+        materializer = Utils.load_materializer("noaa_materializer")
         self.assertEqual(issubclass(type(materializer), MaterializerBase), True)

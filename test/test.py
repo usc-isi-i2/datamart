@@ -16,6 +16,10 @@ if __name__ == '__main__':
 
     tmp_out = "./tmp/tmp_metadata.out"
 
+    if qm.check_exists(index=es_index):
+        qm.delete_index(index=[es_index])
+    qm.create_index(index=es_index)
+
     for description in os.listdir(tmp_description_dir):
         if description.endswith('.json'):
             description_path = os.path.join(tmp_description_dir, description)
@@ -23,14 +27,11 @@ if __name__ == '__main__':
                                                    data_path=None,
                                                    query_data_for_indexing=True,
                                                    save_to_file=tmp_out)
-            # qm.create_doc(index='datamart_tmp', doc_type='document', body=this_metadata)
+            # qm.create_doc(index='datamart_tmp', doc_type='document', body=this_metadata, id=this_metadata['datamart_id'])
 
     index_builder.save_index_config()
 
     # query index
-    if qm.check_exists(index=es_index):
-        qm.delete_index(index=[es_index])
-    qm.create_index(index=es_index)
 
     qm.create_doc_bulk(file=tmp_out, index=es_index)
 
@@ -58,6 +59,6 @@ if __name__ == '__main__':
         print(metadata)
         print("\n\n")
         print("====== GET the dataset ======")
-        df = qm.get_dataset(metadata)
+        df = qm.get_dataset(metadata=metadata)
         print(df)
         print("\n\n")
