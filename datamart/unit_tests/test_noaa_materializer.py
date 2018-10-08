@@ -22,8 +22,8 @@ class TestNoaaMaterializer(unittest.TestCase):
         }
         fake_constrains = {
             "date_range": {
-                "start_date": "2018-09-23",
-                "end_date": "2018-09-23"
+                "start_date": "2016-09-23",
+                "end_date": "2016-09-23"
             },
             "locations": ["los angeles"]
         }
