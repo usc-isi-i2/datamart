@@ -4,6 +4,7 @@ import pandas as pd
 from datamart.metadata.global_metadata import GlobalMetadata
 from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.utils import Utils
+from datamart.profiler import Profiler
 import typing
 
 
@@ -17,6 +18,7 @@ class IndexBuilder(object):
         self.index_config = json.load(open(os.path.join(self.resources_path, 'index_info.json'), 'r'))
         self.current_global_index = self.index_config["current_index"]
         self.GLOBAL_INDEX_INTERVAL = 10000
+        self.profiler = Profiler
 
     def indexing(self,
                  description_path: str,
@@ -165,8 +167,18 @@ class IndexBuilder(object):
         Returns:
             VariableMetadata instance
         """
+        if not variable_metadata.name:
+            variable_metadata.name = column.name
+
+        if not variable_metadata.description:
+            variable_metadata.description = self.profiler.construct_variable_description(column)
+
         if variable_metadata.named_entity is None:
-            variable_metadata.named_entity = self.profile_named_entity(column)
+            variable_metadata.named_entity = self.profiler.profile_named_entity(column)
+
+        if not variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:
+            variable_metadata.temporal_coverage = self.profiler.profile_temporal_coverage(
+                variable_metadata.temporal_coverage, column)
 
         return variable_metadata
 
@@ -180,9 +192,13 @@ class IndexBuilder(object):
         Returns:
             GlobalMetadata instance
         """
+        if not global_metadata.title:
+            global_metadata.title = self.profiler.construct_global_title(data)
+
+        if not global_metadata.description:
+            global_metadata.description = self.profiler.construct_global_description(data)
+
+        if not global_metadata.keywords:
+            global_metadata.keywords = self.profiler.construct_global_keywords(data)
 
         return global_metadata
-
-    @staticmethod
-    def profile_named_entity(column: pd.Series):
-        return column.unique().tolist()
