@@ -6,6 +6,14 @@ import requests
 import typing
 import os
 
+DEFAULT_LOCATIONS = [
+    "new york",
+    "los angeles",
+    "chicago",
+    "Houston",
+    "Philadelphia"
+]
+
 
 class NoaaMaterializer(MaterializerBase):
     """NoaaMaterializer class extended from  Materializer class
@@ -40,12 +48,15 @@ class NoaaMaterializer(MaterializerBase):
         else:
             self.headers = {"token": "QoCwZxSlvRuUHcKhflbujnBSOFhHvZoS"}
         date_range = constrains.get("date_range", {})
-        locations = constrains.get("locations", ['los angeles'])
+        if "locations" in constrains:
+            locations = constrains["locations"]
+        else:
+            locations = DEFAULT_LOCATIONS
         data_type = materialization_arguments.get("type", 'TAVG')
         dataset_id = constrains.get("dataset_id", "GHCND")
         return self.fetch_data(date_range=date_range, locations=locations, data_type=data_type, dataset_id=dataset_id)
 
-    def fetch_data(self, date_range: dict = None, locations: list = ['los angeles'], data_type: str = 'TAVG',
+    def fetch_data(self, date_range: dict = None, locations: list = None, data_type: str = 'TAVG',
                    dataset_id: str = 'GHCND'):
         """ fetch data using Noaa api and return the dataset
             the date of the data is in the range of date range
@@ -67,10 +78,10 @@ class NoaaMaterializer(MaterializerBase):
         """
         result = pd.DataFrame(columns=['date', 'stationid', 'city', data_type])
         start_date = date_range.get("start_date",
-                                    (datetime.datetime.now() - datetime.timedelta(days=10)).strftime('%Y-%m-%d'))
+                                    (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))
         end_date = date_range.get("end_date", datetime.datetime.today().strftime('%Y-%m-%d'))
         for location in locations:
-            location_id = self.city_to_id_map.get(location, None)
+            location_id = self.city_to_id_map.get(location.lower(), None)
             if location_id is None:
                 continue
             api = 'https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=' + dataset_id + \

@@ -24,7 +24,8 @@ class TestNoaaMaterializer(unittest.TestCase):
             "date_range": {
                 "start_date": "2018-09-23",
                 "end_date": "2018-09-23"
-            }
+            },
+            "locations": ["los angeles"]
         }
         result = self.noaa_materializer.get(metadata=fake_metadata, constrains=fake_constrains).to_dict(
             orient="records")

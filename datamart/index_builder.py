@@ -118,7 +118,7 @@ class IndexBuilder(object):
 
         self.current_global_index += self.GLOBAL_INDEX_INTERVAL
 
-        global_metadata = GlobalMetadata(description, datamart_id=self.current_global_index)
+        global_metadata = GlobalMetadata.construct_global(description, datamart_id=self.current_global_index)
         for col_offset, variable_description in enumerate(description["variables"]):
             variable_metadata = self.construct_variable_metadata(variable_description,
                                                                  col_offset=col_offset,
@@ -147,7 +147,8 @@ class IndexBuilder(object):
             VariableMetadata instance
         """
 
-        variable_metadata = VariableMetadata(description, datamart_id=col_offset+self.current_global_index+1)
+        variable_metadata = VariableMetadata.construct_variable(description,
+                                                                datamart_id=col_offset + self.current_global_index + 1)
 
         if data is not None:
             variable_metadata = self.profiling_column(variable_metadata, data.iloc[:, col_offset])
