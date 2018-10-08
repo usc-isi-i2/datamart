@@ -18,9 +18,9 @@ class VariableMetadata(MetadataBase):
 
         self._metadata["datamart_id"] = datamart_id
 
-        self._metadata["name"] = description["name"]
+        self._metadata["name"] = description.get("name", None)
 
-        self._metadata["description"] = description["description"]
+        self._metadata["description"] = description.get("description", None)
 
         self._metadata["semantic_type"] = description.get("semantic_type", [])
 
