@@ -165,8 +165,9 @@ class IndexBuilder(object):
             column: the column to profile.
 
         Returns:
-            VariableMetadata instance
+            profiled VariableMetadata instance
         """
+
         if not variable_metadata.name:
             variable_metadata.name = column.name
 
@@ -190,8 +191,9 @@ class IndexBuilder(object):
             data: dataframe of data.
 
         Returns:
-            GlobalMetadata instance
+            profiled GlobalMetadata instance
         """
+
         if not global_metadata.title:
             global_metadata.title = self.profiler.construct_global_title(data)
 

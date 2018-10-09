@@ -51,9 +51,9 @@ class Profiler(object):
                 max_datetime = max(max_datetime, this_datetime)
 
         if not coverage['start']:
-            coverage['start'] = min_datetime
+            coverage['start'] = min_datetime.isoformat()
         if not coverage['end']:
-            coverage['end'] = max_datetime
+            coverage['end'] = max_datetime.isoformat()
         return coverage
 
     @staticmethod
