@@ -1,6 +1,8 @@
 from datamart.materializers.noaa_materializer import NoaaMaterializer
 import unittest, json, os
 import pandas as pd
+from termcolor import colored
+
 
 resources_path = os.path.join(os.path.dirname(__file__), "./resources")
 
@@ -10,9 +12,12 @@ class TestNoaaMaterializer(unittest.TestCase):
         self.noaa_materializer = NoaaMaterializer()
 
     def test_header(self):
+        print("[Test]{}/test_header".format(self.__class__.__name__))
         self.assertEqual(self.noaa_materializer.headers, None)
+        print(colored('.Done', 'red'))
 
     def test_get(self):
+        print("[Test]{}/test_get".format(self.__class__.__name__))
         fake_metadata = {
             "materialization": {
                 "arguments": {
@@ -41,8 +46,10 @@ class TestNoaaMaterializer(unittest.TestCase):
         null = self.noaa_materializer.get(metadata=fake_metadata_for_no_return, constrains=fake_constrains).to_dict(
             orient="records")
         self.assertEqual(null, [])
+        print(colored('.Done', 'red'))
 
     def test_next(self):
+        print("[Test]{}/test_next".format(self.__class__.__name__))
         fake_true_data = {
             "metadata": {
                 "resultset": {
@@ -63,8 +70,10 @@ class TestNoaaMaterializer(unittest.TestCase):
         }
         self.assertEqual(NoaaMaterializer.next(fake_true_data), True)
         self.assertEqual(NoaaMaterializer.next(fake_false_data), False)
+        print(colored('.Done', 'red'))
 
     def test_add_result(self):
+        print("[Test]{}/test_add_result".format(self.__class__.__name__))
         fake_result = pd.DataFrame(columns=['date', 'stationid', 'city', 'PRCP'])
         fake_data = {
             "results": [{
@@ -92,3 +101,4 @@ class TestNoaaMaterializer(unittest.TestCase):
             }
         ]
         self.assertEqual(fake_result.to_dict(orient="records"), excepted)
+        print(colored('.Done', 'red'))
