@@ -95,12 +95,12 @@
     "date_published": {
       "description": "Original publication date",
       "type": "string",
-      "format": "date"
+      "format": "date-time"
     },
     "date_updated": {
       "description": "Last updated date",
       "type": "string",
-      "format": "date"
+      "format": "date-time"
     },
     "license": {
       "description": "License under which the dataset is released (TBD)",

@@ -1,4 +1,3 @@
-import datetime
 import warnings
 import dateutil.parser
 from datamart.materializers.materializer_base import MaterializerBase
@@ -24,14 +23,14 @@ class Utils:
         """
 
         try:
-            datetime.datetime.strptime(date_text, '%Y-%m-%d')
+            this_datetime = dateutil.parser.parse(date_text)
         except ValueError:
-            warnings.warn("Incorrect data format, should be YYYY-MM-DD, set to None")
+            warnings.warn("Incorrect datatime format")
             return None
-        return date_text
+        return this_datetime.isoformat()
 
-    @staticmethod
-    def temporal_coverage_validate(coverage: dict):
+    @classmethod
+    def temporal_coverage_validate(cls, coverage: dict):
         """Validate if a string is a valid date.
 
         Args:
@@ -42,19 +41,11 @@ class Utils:
         """
 
         if "start" in coverage:
-            try:
-                coverage['start'] = dateutil.parser.parse(coverage['start']).isoformat()
-            except:
-                warnings.warn("Can not parse start date in temporal coverage")
-                coverage['start'] = None
+            coverage['start'] = cls.date_validate(coverage['start'])
         else:
             coverage['start'] = None
         if "end" in coverage:
-            try:
-                coverage['end'] = dateutil.parser.parse(coverage['end']).isoformat()
-            except:
-                warnings.warn("Can not parse end date in temporal coverage")
-                coverage['end'] = None
+            coverage['end'] = cls.date_validate(coverage['end'])
         else:
             coverage['end'] = None
         return coverage
