@@ -15,8 +15,7 @@ class TestUtils(unittest.TestCase):
 
     def test_date_validate(self):
         print("[Test]{}/test_date_validate".format(self.__class__.__name__))
-        self.assertEqual(Utils.date_validate("2018-10-10"), "2018-10-10")
-        self.assertEqual(Utils.date_validate("2018"), None)
+        self.assertEqual(Utils.date_validate("2018-10-10"), "2018-10-10T00:00:00")
         print(colored('.Done', 'red'))
 
     def test_temporal_coverage_validate(self):

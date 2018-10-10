@@ -47,7 +47,7 @@ class TestGlobalMetadata(unittest.TestCase):
 
     def test_date_published(self):
         print("[Test]{}/test_date_published".format(self.__class__.__name__))
-        self.assertEqual(self.metadata.date_published, sample_global_metadata_description["date_published"])
+        self.assertEqual(self.metadata.date_published, "2000-10-01T00:00:00")
         self.metadata.date_published = "2000-10-10"
         self.assertEqual(self.metadata.date_published, "2000-10-10")
         print(colored('.Done', 'red'))
