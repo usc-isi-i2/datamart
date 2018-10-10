@@ -22,7 +22,7 @@ def generate_json_schema(dst_path):
         materialiseFormat='csv'
         infoFormat='json'
         url="https://api.tradingeconomics.com/historical/country/all/indicator/"+path+"?c="+DEFAULT_KEY["KEY"]+"&format="+infoFormat
-        print(url)
+        print("Generating schema for Trading economics",indicator)
         res_indicator = requests.get(url)
         data = res_indicator.json()
         if len(data) > 2:
