@@ -1,6 +1,7 @@
 from datamart.utils import Utils
 import unittest, os, json
 from datamart.materializers.materializer_base import MaterializerBase
+from datamart.materializers.noaa_materializer import NoaaMaterializer
 
 
 class TestUtils(unittest.TestCase):
@@ -30,3 +31,4 @@ class TestUtils(unittest.TestCase):
     def test_load_materializer(self):
         materializer = Utils.load_materializer("noaa_materializer")
         self.assertEqual(issubclass(type(materializer), MaterializerBase), True)
+        self.assertIn(type(materializer).__name__, NoaaMaterializer.__name__)

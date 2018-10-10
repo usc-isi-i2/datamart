@@ -18,12 +18,12 @@ class GlobalMetadata(MetadataBase):
         super().__init__()
 
         self._metadata["datamart_id"] = datamart_id
-        self._metadata["title"] = description["title"]
+        self._metadata["title"] = description.get("title", None)
 
-        self._metadata["description"] = description["description"]
+        self._metadata["description"] = description.get("description", None)
 
         self._metadata["url"] = description.get("url", None)
-        self._metadata["keywords"] = description.get("keywords", None)
+        self._metadata["keywords"] = description.get("keywords", [])
 
         self._metadata["date_published"] = description.get("date_published", None)
         if self.date_published:
@@ -140,3 +140,7 @@ class GlobalMetadata(MetadataBase):
     @property
     def license(self):
         return self._metadata["license"]
+
+    @license.setter
+    def license(self, value):
+        self._metadata["license"] = value
