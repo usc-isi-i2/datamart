@@ -30,7 +30,7 @@ $ Valid json
 take a look at `datamart/materializers/noaa_materializer.py` for example.
 
 3. Have your dataset schema json pointed to the materialization method.
-Take a look at `test/tmp/tmp.json`.
+Take a look at [`test/tmp/tmp.json`](./test/tmp/tmp.json#L10).
 
 
 4. Try to create metadata and index it on Elasticsearch, following: [Indexing demo](./test/indexing.ipynb)
