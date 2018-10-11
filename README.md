@@ -22,9 +22,23 @@ $ python scripts/validate_schema.py --validate_json test/tmp/tmp.json
 $ Valid json
 ```
 
-## Workflow example
+## How to provide index for one dataset source
 
-#### `demo.ipynb` contains a step by step demo.
-```commandline
-jupyter notebook test/demo.ipynb
+1. Prepare your dataset schema and validate it with the previous step
+
+2. Create your materialization method and put in `datamart/materializers`,
+take a look at `datamart/materializers/noaa_materializer.py` for example.
+
+3. Have your dataset schema json pointed to the materialization method.
+Take a look at `test/tmp/tmp.json`.
+
+
+4. Try to create metadata and index it on Elasticsearch, following: [Indexing demo](./test/indexing.ipynb)
+
+5. Try some queries for testing you materialization method, following: [Query demo](./test/query.ipynb)
+
+
+Note: Launch notebook: 
+```
+jupyter notebook test/indexing.ipynb
 ```

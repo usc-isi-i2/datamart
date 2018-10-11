@@ -1,5 +1,6 @@
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
+import json
 
 
 class IndexManager(object):
@@ -91,11 +92,19 @@ class IndexManager(object):
             integer
         """
 
-        if self.check_exists(index=kwargs["index"]):
-            count = self.es.count(**kwargs)["count"]
-        else:
-            count = 0
-        return 10000 * (count-1)
+        max_idx_query = json.dumps({
+            "aggs": {
+                "max_id": {
+                    "max": {
+                        "field": "datamart_id"
+                    }
+                }
+            },
+            "size": 0
+        })
+        result = self.es.search(index=kwargs["index"], body=max_idx_query)
+        return result["aggregations"]["max_id"]["value"] if result["aggregations"]["max_id"][
+            "value"] else 0
 
     @staticmethod
     def make_documents(f, index: str):

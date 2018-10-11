@@ -48,13 +48,29 @@
           "properties": {
             "start": {
               "description": "Start of temporal coverage",
-              "type": "string",
-              "format": "date-time"
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "string",
+                  "format": "date"
+                }
+              ]
             },
             "end": {
               "description": "End of temporal coverage",
-              "type": "string",
-              "format": "date-time"
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "string",
+                  "format": "date"
+                }
+              ]
             }
           }
         },
@@ -94,13 +110,29 @@
     },
     "date_published": {
       "description": "Original publication date",
-      "type": "string",
-      "format": "date-time"
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "string",
+          "format": "date"
+        }
+      ]
     },
     "date_updated": {
       "description": "Last updated date",
-      "type": "string",
-      "format": "date-time"
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "string",
+          "format": "date"
+        }
+      ]
     },
     "license": {
       "description": "License under which the dataset is released (TBD)",
