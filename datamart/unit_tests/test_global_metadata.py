@@ -61,13 +61,13 @@ class TestGlobalMetadata(unittest.TestCase):
 
     def test_provenance(self):
         print("[Test]{}/test_provenance".format(self.__class__.__name__))
-        self.assertEqual(self.metadata.provenance, sample_global_metadata_description.get("provenance", None))
+        self.assertEqual(self.metadata.provenance, sample_global_metadata_description.get("provenance", False))
         print(colored('.Done', 'red'))
 
     def test_original_identifier(self):
         print("[Test]{}/test_original_identifier".format(self.__class__.__name__))
         self.assertEqual(self.metadata.original_identifier,
-                         sample_global_metadata_description.get("original_identifier", None))
+                         sample_global_metadata_description.get("original_identifier", False))
         print(colored('.Done', 'red'))
 
     def test_materialization(self):
@@ -79,7 +79,7 @@ class TestGlobalMetadata(unittest.TestCase):
 
     def test_license(self):
         print("[Test]{}/test_license".format(self.__class__.__name__))
-        self.assertEqual(self.metadata.license, sample_global_metadata_description.get("license", None))
+        self.assertEqual(self.metadata.license, sample_global_metadata_description.get("license", False))
         print(colored('.Done', 'red'))
 
     def test_add_variable(self):
