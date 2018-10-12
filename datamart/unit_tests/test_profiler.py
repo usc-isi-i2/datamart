@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 from datamart.profiler import Profiler
-from termcolor import colored
+from datamart.utils import Utils
 
 
 class TestProfiler(unittest.TestCase):
@@ -14,33 +14,29 @@ class TestProfiler(unittest.TestCase):
         self.df = pd.DataFrame(data)
         self.profiler = Profiler()
 
+    @Utils.test_print
     def test_construct_global_keywords(self):
-        print("[Test]{}/test_construct_global_keywords".format(self.__class__.__name__))
         self.assertListEqual(self.profiler.construct_global_keywords(self.df), ['Age', 'Date', 'Name'])
-        print(colored('.Done', 'red'))
 
+    @Utils.test_print
     def test_construct_global_description(self):
-        print("[Test]{}/test_construct_global_description".format(self.__class__.__name__))
         self.assertEqual(
             self.profiler.construct_global_description(self.df),
             "Age : int64, Date : object, Name : object"
         )
-        print(colored('.Done', 'red'))
 
+    @Utils.test_print
     def test_construct_global_title(self):
-        print("[Test]{}/test_construct_global_title".format(self.__class__.__name__))
         self.assertEqual(self.profiler.construct_global_title(self.df), "Age Date Name")
-        print(colored('.Done', 'red'))
 
+    @Utils.test_print
     def test_construct_variable_description(self):
-        print("[Test]{}/test_construct_variable_description".format(self.__class__.__name__))
         lst = ["column name: Age, dtype: int64", "column name: Date, dtype: object", "column name: Name, dtype: object"]
         for i in range(self.df.shape[1]):
             self.assertEqual(self.profiler.construct_variable_description(self.df.iloc[:, i]), lst[i])
-        print(colored('.Done', 'red'))
 
+    @Utils.test_print
     def test_profile_temporal_coverage(self):
-        print("[Test]{}/test_profile_temporal_coverage".format(self.__class__.__name__))
         date_col = self.df.iloc[:, 1]
         self.assertEqual(self.profiler.profile_temporal_coverage(
             coverage={
@@ -74,10 +70,8 @@ class TestProfiler(unittest.TestCase):
             "start": "2014-02-23T00:00:00",
             "end": "2022-09-23T00:10:00"
         })
-        print(colored('.Done', 'red'))
 
+    @Utils.test_print
     def test_profile_named_entity(self):
-        print("[Test]{}/test_profile_named_entity".format(self.__class__.__name__))
         named_entity_col = self.df.iloc[:, 2]
         self.assertListEqual(self.profiler.profile_named_entity(named_entity_col), ['Tom', 'Jack', 'Steve', 'Ricky'])
-        print(colored('.Done', 'red'))

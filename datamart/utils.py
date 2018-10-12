@@ -6,6 +6,7 @@ import os
 import sys
 import json
 from jsonschema import validate
+from termcolor import colored
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 
@@ -95,3 +96,12 @@ class Utils:
             return True
         except:
             raise ValueError("Invalid dataset description json according to index json schema")
+
+    @staticmethod
+    def test_print(func):
+        def __decorator(self):
+            print("[Test]{}/{}".format(self.__class__.__name__, func.__name__))
+            func(self)
+            print(colored('.Done', 'red'))
+
+        return __decorator
