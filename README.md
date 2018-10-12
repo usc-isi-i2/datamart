@@ -22,34 +22,44 @@ $ python scripts/validate_schema.py --validate_json test/tmp/tmp.json
 $ Valid json
 ```
 
-## Workflow example
+## How to provide index for one data source
 
-#### `demo.ipynb` contains a step by step demo.
-```commandline
-jupyter notebook test/demo.ipynb
+1. Prepare your dataset schema and validate it with the previous step
+
+2. Create your materialization method by creating a subclass of [`materializer_base.py`](./datamart/materializers/materializer_base.py).
+and put in `datamart/materializers`.
+
+    Implement `get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame` method,
+    
+    metadata is the metadata after processing your dataset schema (profiling and so on).
+    `materialization` field will not be changed, so put every arguments you need for materializing your dataset at `materialization.arguments`
+    
+    variables, default to None for now
+    
+    constrains, fake some constrains for your dataset for querying, eg. 
+    ```
+    constrains={
+        "locations": ["los angeles", "new york"],
+        "date_range": {
+            "start": "2018-09-23T00:00:00",
+            "end": "2018-10-01T00:00:00"
+        }
+    }
+    ```
+    
+    returns a dataframe
+   
+    take a look at [noaa_materializer.py](./datamart/materializers/noaa_materializer.py) for example.
+
+3. Have your dataset schema json `materialization.python_path` pointed to the materialization method. 
+Take a look at [tmp.json](./test/tmp/tmp.json#L10).
+
+4. Try to create metadata and index it on Elasticsearch, following: [Indexing demo](./test/indexing.ipynb)
+
+5. Try some queries for testing you materialization method, following: [Query demo](./test/query.ipynb)
+
+
+Note: Launch notebook: 
 ```
-
-
-There is a test example in `test` dir
-
-`tmp` contains one sample json files I got from zhihao, the student who works on
-NOAA. 
-
-`test.py` is script running the whole workflow. 
-
-1. Create metadata json file, by reading the json description file and profile
-the original dataset (query to get original dataset, current profiler only record name_entity column). 
-
-2. Load to elasticsearch and index metadata (using default setting now).
-
-3. Query the index with a simple query which try to find `los angeles` in 
-any `name_entity` column.
-
-4. Materialize data.
-
-```commandline
-cd test
-python test.py
+jupyter notebook test/indexing.ipynb
 ```
-
-Metadata file will be in `tmp/tmp_metadata.out`

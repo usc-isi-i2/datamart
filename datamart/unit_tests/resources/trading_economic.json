@@ -19,7 +19,10 @@
         "semantic_type": [
           "http://schema.org/Text"
         ],
-        "named_entity": ["US", "UK"]
+        "named_entity": [
+          "US",
+          "UK"
+        ]
       },
       {
         "name": "Category",
@@ -87,9 +90,8 @@
     "keywords": [
       "balance-of-trade"
     ],
-    "date_published": "2000-10-01",
+    "date_published": "2000-10-01T00:00:00",
     "date_updated": null,
-    "provenance": null,
     "original_identifier": "TradingEconomics",
     "materialization": {
       "python_path": "aaa",
@@ -103,7 +105,10 @@
         "semantic_type": [
           "http://schema.org/Text"
         ],
-        "named_entity": ["US", "UK"]
+        "named_entity": [
+          "US",
+          "UK"
+        ]
       },
       {
         "datamart_id": 2,
@@ -167,7 +172,6 @@
           "end": "2018-08-31T00:00:00"
         }
       }
-    ],
-    "license": null
+    ]
   }
 }

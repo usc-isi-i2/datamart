@@ -18,9 +18,11 @@ class VariableMetadata(MetadataBase):
 
         self._metadata["datamart_id"] = datamart_id
 
-        self._metadata["name"] = description["name"]
+        if "name" in description:
+            self._metadata["name"] = description["name"]
 
-        self._metadata["description"] = description["description"]
+        if "description" in description:
+            self._metadata["description"] = description["description"]
 
         self._metadata["semantic_type"] = description.get("semantic_type", [])
 
@@ -36,13 +38,17 @@ class VariableMetadata(MetadataBase):
         if "spatial_coverage" in description:
             self._metadata["spatial_coverage"] = description["spatial_coverage"]
 
+    @classmethod
+    def construct_variable(cls, description, datamart_id):
+        return cls(description, datamart_id)
+
     @property
     def datamart_id(self):
         return self._metadata["datamart_id"]
 
     @property
     def name(self):
-        return self._metadata["name"]
+        return self._metadata.get("name", False)
 
     @name.setter
     def name(self, value):
@@ -50,7 +56,7 @@ class VariableMetadata(MetadataBase):
 
     @property
     def description(self):
-        return self._metadata["description"]
+        return self._metadata.get("description", False)
 
     @description.setter
     def description(self, value):
