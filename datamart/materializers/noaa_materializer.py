@@ -14,6 +14,9 @@ DEFAULT_LOCATIONS = [
     "Philadelphia"
 ]
 
+LIMIT_NUMBER = 1000
+OFFSET_INTERVAL = 8
+
 
 class NoaaMaterializer(MaterializerBase):
     """NoaaMaterializer class extended from  Materializer class
@@ -86,14 +89,14 @@ class NoaaMaterializer(MaterializerBase):
                 continue
             api = 'https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=' + dataset_id + \
                   '&datatypeid=' + data_type + '&locationid=' + location_id + \
-                  '&startdate=' + start_date + '&enddate=' + end_date + '&limit=1000&offset=1'
+                  '&startdate=' + start_date + '&enddate=' + end_date + '&limit=' + str(LIMIT_NUMBER) + '&offset=1'
             response = requests.get(api, headers=self.headers)
             data = response.json()
             self.add_result(result, data, location)
             while self.next(data):
                 index = api.rfind('&')
-                next_offset = int(api[index + 8:]) + 1000
-                api = api[:index + 8] + str(next_offset)
+                next_offset = int(api[index + OFFSET_INTERVAL:]) + LIMIT_NUMBER
+                api = api[:index + OFFSET_INTERVAL] + str(next_offset)
                 response = requests.get(api, headers=self.headers)
                 data = response.json()
                 self.add_result(result, data, location)
