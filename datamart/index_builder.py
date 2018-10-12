@@ -78,6 +78,47 @@ class IndexBuilder(object):
 
         return metadata.value
 
+    def bulk_indexing(self,
+                      description_dir: str,
+                      es_index: str,
+                      data_dir: str = None,
+                      query_data_for_indexing: bool = False,
+                      save_to_file: str = None,
+                      save_to_file_mode: str = "a+",
+                      delete_old_es_index: bool = False
+                      ):
+        """Bulk indexing many dataset by providing a path
+
+        Args:
+            description_dir: dir of description json files.
+            es_index: str, es index for this dataset
+            data_dir: dir of data csv files.
+            query_data_for_indexing: Bool. If no data is presented, and query_data_for_indexing is False, will only
+                create metadata according to the description json. If query_data_for_indexing is True and no data is
+                presented, will use Materialize to query data for profiling and indexing
+            save_to_file: str, a path to the json line file
+            save_to_file_mode: str, mode for saving, default "a+"
+            delete_old_es_index: bool, boolean if delete original es index if it exist
+
+        Returns:
+
+        """
+
+        self.check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
+        for description in os.listdir(description_dir):
+            if description.endswith('.json'):
+                description_path = os.path.join(description_dir, description)
+                data_path = None
+                if data_dir:
+                    data_path = os.path.join(data_dir, description.replace("_description.json", ".csv"))
+                print("==== Creating metadata and indexing for " + description)
+                self.indexing(description_path=description_path,
+                              es_index=es_index,
+                              data_path=data_path,
+                              query_data_for_indexing=query_data_for_indexing,
+                              save_to_file=save_to_file,
+                              save_to_file_mode=save_to_file_mode)
+
     def check_es_index(self, es_index: str, delete_old_es_index: bool):
         """Check es index, delete or create if necessary
 
@@ -232,48 +273,6 @@ class IndexBuilder(object):
             global_metadata.keywords = self.profiler.construct_global_keywords(data)
 
         return global_metadata
-
-    def bulk_indexing(self,
-                      description_dir: str,
-                      es_index: str,
-                      data_dir: str = None,
-                      query_data_for_indexing: bool = False,
-                      save_to_file: str = None,
-                      save_to_file_mode: str = "a+",
-                      delete_old_es_index: bool = False
-                      ):
-        """Bulk indexing many dataset by providing a path
-
-        Args:
-            description_dir: dir of description json files.
-            es_index: str, es index for this dataset
-            data_dir: dir of data csv files.
-            query_data_for_indexing: Bool. If no data is presented, and query_data_for_indexing is False, will only
-                create metadata according to the description json. If query_data_for_indexing is True and no data is
-                presented, will use Materialize to query data for profiling and indexing
-            save_to_file: str, a path to the json line file
-            save_to_file_mode: str, mode for saving, default "a+"
-            delete_old_es_index: bool, boolean if delete original es index if it exist
-
-        Returns:
-
-        """
-
-        self.check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
-        for description in os.listdir(description_dir):
-            if description.endswith('.json'):
-                description_path = os.path.join(description_dir, description)
-                data_path = None
-                if data_dir:
-                    data_path = os.path.join(data_dir, description.replace("_description.json", ".csv"))
-                print("==== Creating metadata and indexing for " + description)
-                self.indexing(description_path=description_path,
-                              es_index=es_index,
-                              data_path=data_path,
-                              query_data_for_indexing=query_data_for_indexing,
-                              save_to_file=save_to_file,
-                              save_to_file_mode=save_to_file_mode,
-                              delete_old_es_index=False)
 
     def bulk_load_metadata(self,
                            metadata_out_file: str,
