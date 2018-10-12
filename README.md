@@ -22,7 +22,7 @@ $ python scripts/validate_schema.py --validate_json test/tmp/tmp.json
 $ Valid json
 ```
 
-## How to provide index for one dataset source
+## How to provide index for one data source
 
 1. Prepare your dataset schema and validate it with the previous step
 
@@ -46,6 +46,8 @@ and put in `datamart/materializers`.
         }
     }
     ```
+    
+    returns a dataframe
    
     take a look at [noaa_materializer.py](./datamart/materializers/noaa_materializer.py) for example.
 
