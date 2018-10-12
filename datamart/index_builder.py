@@ -89,10 +89,10 @@ class IndexBuilder(object):
 
         """
 
-        if not self.im.check_exists(index=es_index):
-            self.im.create_index(index=es_index)
-        elif delete_old_es_index:
+        if delete_old_es_index:
             self.im.delete_index(index=[es_index])
+            self.im.create_index(index=es_index)
+        elif not self.im.check_exists(index=es_index):
             self.im.create_index(index=es_index)
 
     @staticmethod
