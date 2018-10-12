@@ -77,9 +77,9 @@ class NoaaMaterializer(MaterializerBase):
                     1    2018-09-23T00:00:00  GHCND:USR0000CBEV    los angeles  206
         """
         result = pd.DataFrame(columns=['date', 'stationid', 'city', data_type])
-        start_date = date_range.get("start_date",
+        start_date = date_range.get("start",
                                     (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))
-        end_date = date_range.get("end_date", datetime.datetime.today().strftime('%Y-%m-%d'))
+        end_date = date_range.get("end", datetime.datetime.today().strftime('%Y-%m-%d'))
         for location in locations:
             location_id = self.city_to_id_map.get(location.lower(), None)
             if location_id is None:

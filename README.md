@@ -26,12 +26,31 @@ $ Valid json
 
 1. Prepare your dataset schema and validate it with the previous step
 
-2. Create your materialization method and put in `datamart/materializers`,
-take a look at `datamart/materializers/noaa_materializer.py` for example.
+2. Create your materialization method by creating a subclass of [`materializer_base.py`](./datamart/materializers/materializer_base.py).
+and put in `datamart/materializers`.
 
-3. Have your dataset schema json pointed to the materialization method.
-Take a look at [`test/tmp/tmp.json`](./test/tmp/tmp.json#L10).
+    Implement `get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame` method,
+    
+    metadata is the metadata after processing your dataset schema (profiling and so on).
+    `materialization` field will not be changed, so put every arguments you need for materializing your dataset at `materialization.arguments`
+    
+    variables, default to None for now
+    
+    constrains, fake some constrains for your dataset for querying, eg. 
+    ```
+    constrains={
+        "locations": ["los angeles", "new york"],
+        "date_range": {
+            "start": "2018-09-23T00:00:00",
+            "end": "2018-10-01T00:00:00"
+        }
+    }
+    ```
+   
+    take a look at [noaa_materializer.py](./datamart/materializers/noaa_materializer.py) for example.
 
+3. Have your dataset schema json `materialization.python_path` pointed to the materialization method. 
+Take a look at [tmp.json](./test/tmp/tmp.json#L10).
 
 4. Try to create metadata and index it on Elasticsearch, following: [Indexing demo](./test/indexing.ipynb)
 
