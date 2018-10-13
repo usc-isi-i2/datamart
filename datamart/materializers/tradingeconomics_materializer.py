@@ -4,13 +4,11 @@ import pandas as pd
 import typing
 import os
 import sys
-from config import config
 import traceback
 
 import shutil
-dig_data_downloader_path = config['dig_data_downloader_path']
-sys.path.append(os.path.join(dig_data_downloader_path, 'downloader'))
-from file_downloader import FileDownloader
+from datamart.materializers.tradingeconomics_downloader.file_downloader import FileDownloader
+
 
 class TradingEconomicsMaterializer(MaterializerBase):
     """TradingEconomicsMaterializer class extended from  Materializer class
@@ -24,7 +22,6 @@ class TradingEconomicsMaterializer(MaterializerBase):
         MaterializerBase.__init__(self)
         self.key = None
 
-
     def get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame:
         """ API for get a dataframe.
 
@@ -37,7 +34,7 @@ class TradingEconomicsMaterializer(MaterializerBase):
             constrains = dict()
 
         materialization_arguments = metadata["materialization"].get("arguments", {})
-        getUrl=metadata['url']
+        getUrl = metadata['url']
         if "key" in constrains:
             self.key = {"key": constrains["key"]}
         else:
@@ -56,14 +53,14 @@ class TradingEconomicsMaterializer(MaterializerBase):
                 "file_type": "csv",
                 "template": metadata['url'],
                 "replication": {
-                    },
-                "identifier": metadata['title'].replace(' ','_')
+                },
+                "identifier": metadata['title'].replace(' ', '_')
             },
         }
 
-        return self.fetch_data(getUrl,datasetConfig,date_range=date_range, locations=locations, dataset_id=dataset_id)
+        return self.fetch_data(getUrl, datasetConfig, date_range=date_range, locations=locations, dataset_id=dataset_id)
 
-    def fetch_data(self, getUrl,datasetConfig,date_range: dict = None, locations: list = None,
+    def fetch_data(self, getUrl, datasetConfig, date_range: dict = None, locations: list = None,
                    dataset_id: str = 'TE'):
         """
 
@@ -77,10 +74,13 @@ class TradingEconomicsMaterializer(MaterializerBase):
         Returns:
              result: A pd.DataFrame;
         """
-        #ignoring constrain for now.
+        # ignoring constrain for now.
         # #data downloader json
+
+        tmp_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../../test/tmp")
+
         try:
-            dst_dataset_path = os.path.join('tmp/', datasetConfig["where_to_download"]["identifier"])
+            dst_dataset_path = os.path.join(tmp_dir, datasetConfig["where_to_download"]["identifier"])
 
             if os.path.exists(dst_dataset_path):
                 shutil.rmtree(dst_dataset_path)
@@ -88,7 +88,9 @@ class TradingEconomicsMaterializer(MaterializerBase):
             # download
             fs = FileDownloader(dst_dataset_path)
             fs.process(datasetConfig, force=True, current_datetime=None)
-            filename = datasetConfig["where_to_download"]["identifier"] + "." + datasetConfig["where_to_download"]["file_type"]
+            filename = datasetConfig["where_to_download"]["identifier"] + "." + datasetConfig["where_to_download"][
+                "file_type"]
+
             data = pd.read_csv(dst_dataset_path + "/" + filename)
             return data
         except Exception as e:
@@ -96,4 +98,3 @@ class TradingEconomicsMaterializer(MaterializerBase):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
             print(''.join(lines))
-

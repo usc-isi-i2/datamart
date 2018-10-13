@@ -6,42 +6,47 @@ from argparse import ArgumentParser
 DEFAULT_KEY = {
     "KEY": 'guest:guest'
 }
+
+
 def getAllIndicatorList(indicatorUrlPath):
-    url = indicatorUrlPath+'?c='+DEFAULT_KEY["KEY"]
+    url = indicatorUrlPath + '?c=' + DEFAULT_KEY["KEY"]
     res = requests.get(url)
     data = res.json()
-    url_list = list(((object['URL'].split('/'))[-1],object['Category']) for object in data)
+    url_list = list(((object['URL'].split('/'))[-1], object['Category']) for object in data)
     unique_urls_str = list(set(url_list))
     return unique_urls_str
 
+
 def generate_json_schema(dst_path):
     indicatorUrlPath = "https://api.tradingeconomics.com/indicators/descriptions"
-    unique_urls_str=getAllIndicatorList(indicatorUrlPath)
+    unique_urls_str = getAllIndicatorList(indicatorUrlPath)
     for path, indicator in unique_urls_str:
-        path=path.replace('-','%20')
-        materialiseFormat='csv'
-        infoFormat='json'
-        url="https://api.tradingeconomics.com/historical/country/all/indicator/"+path+"?c="+DEFAULT_KEY["KEY"]+"&format="+infoFormat
-        print("Generating schema for Trading economics",indicator)
+        path = path.replace('-', '%20')
+        materialiseFormat = 'csv'
+        infoFormat = 'json'
+        url = "https://api.tradingeconomics.com/historical/country/all/indicator/" + path + "?c=" + DEFAULT_KEY[
+            "KEY"] + "&format=" + infoFormat
+        print("Generating schema for Trading economics", indicator)
         res_indicator = requests.get(url)
         data = res_indicator.json()
         if len(data) > 2:
             schema = dict()
             schema['title'] = data[0]['Category']
-            schema['description']  = data[0]['Category'] +" of all country."
-            schema['url'] = "https://api.tradingeconomics.com/historical/country/all/indicator/"+path+"?c="+DEFAULT_KEY["KEY"]+"&format="+materialiseFormat
+            schema['description'] = data[0]['Category'] + " of all country."
+            schema['url'] = "https://api.tradingeconomics.com/historical/country/all/indicator/" + path + "?c=" + \
+                            DEFAULT_KEY["KEY"] + "&format=" + materialiseFormat
             schema['date_updated'] = data[-1]['LastUpdate']
             schema['provenance'] = 'tradingeconomics.com'
             schema['materialization'] = {
-                    "python_path": 'tradingeconomics_materializer',
-                    "arguments": {}
-                }
+                "python_path": 'tradingeconomics_materializer',
+                "arguments": {}
+            }
             schema['variables'] = []
             first_col = {
-                'name':'Country',
-                'description':'Name of the country',
+                'name': 'Country',
+                'description': 'Name of the country',
                 'semantic_type': ["http://schema.org/Text"],
-                'named_entity' : None
+                'named_entity': None
             }
             second_col = {
                 'name': 'Category',
@@ -53,13 +58,13 @@ def generate_json_schema(dst_path):
                 'description': 'DateTime of the current value',
                 'semantic_type': ["https://metadata.datadrivendiscovery.org/types/Time"],
                 "temporal_coverage": {
-                        "start": data[0]['DateTime'],
-                        "end": data[-1]['DateTime'],
-                    }
+                    "start": data[0]['DateTime'],
+                    "end": data[-1]['DateTime'],
+                }
             }
             fourth_col = {
                 'name': 'Value',
-                'description': data[0]['Category']+' value of given DateTime',
+                'description': data[0]['Category'] + ' value of given DateTime',
                 'semantic_type': ["http://schema.org/Float"]
             }
             fifth_col = {
@@ -79,12 +84,14 @@ def generate_json_schema(dst_path):
             schema['variables'].append(fifth_col)
             schema['variables'].append(sixth_col)
             if dst_path:
-                os.makedirs(dst_path+'/tradingecomonics_json', exist_ok=True)
+                os.makedirs(dst_path + '/tradingecomonics_schema', exist_ok=True)
 
-                file=os.path.join(dst_path,'tradingecomonics_json', "{}_description.json".format(data[0]['Category'].replace(' ','_')))
+                file = os.path.join(dst_path, 'tradingecomonics_schema',
+                                    "{}_description.json".format(data[0]['Category'].replace(' ', '_')))
             else:
-                os.makedirs('tradingecomonics_json', exist_ok=True)
-                file=os.path.join('tradingecomonics_json', "{}_description.json".format(data[0]['Category'].replace(' ','_')))
+                os.makedirs('tradingecomonics_schema', exist_ok=True)
+                file = os.path.join('tradingecomonics_schema',
+                                    "{}_description.json".format(data[0]['Category'].replace(' ', '_')))
 
             with open(file, "w") as fp:
                 json.dump(schema, fp, indent=2)
@@ -92,9 +99,10 @@ def generate_json_schema(dst_path):
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument("-k", "--key", action="store", help='Provide your api key for trading economics', type=str, dest="api_key")
+    parser.add_argument("-k", "--key", action="store", help='Provide your api key for trading economics', type=str,
+                        dest="api_key")
     parser.add_argument("-o", "--dst", action="store", type=str, dest="dst_path")
     args, _ = parser.parse_known_args()
     if args.api_key:
-        DEFAULT_KEY["KEY"]=args.api_key
+        DEFAULT_KEY["KEY"] = args.api_key
     generate_json_schema(args.dst_path)
