@@ -6,14 +6,16 @@ from datamart.materializers.noaa_materializer import NoaaMaterializer
 
 class TestUtils(unittest.TestCase):
 
+    @Utils.test_print
     def test_validate_schema(self):
         description = json.load(open(os.path.join(os.path.dirname(__file__), "resources/trading_economic.json"), "r"))
         self.assertEqual(Utils.validate_schema(description["description"]), True)
 
+    @Utils.test_print
     def test_date_validate(self):
-        self.assertEqual(Utils.date_validate("2018-10-10"), "2018-10-10")
-        self.assertEqual(Utils.date_validate("2018"), None)
+        self.assertEqual(Utils.date_validate("2018-10-10"), "2018-10-10T00:00:00")
 
+    @Utils.test_print
     def test_temporal_coverage_validate(self):
         coverage = {}
         self.assertEqual(Utils.temporal_coverage_validate(coverage), {"start": None, "end": None})
@@ -28,6 +30,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(Utils.temporal_coverage_validate(coverage),
                          {'end': '2018-10-10T00:00:00', 'start': None})
 
+    @Utils.test_print
     def test_load_materializer(self):
         materializer = Utils.load_materializer("noaa_materializer")
         self.assertEqual(issubclass(type(materializer), MaterializerBase), True)

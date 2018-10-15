@@ -1,37 +1,11 @@
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk
 from datamart.utils import Utils
-import os
-import json
 
 
 class QueryManager(object):
 
     def __init__(self, es_host="dsbox02.isi.edu", es_port=9200):
-        resources_path = os.path.join(os.path.dirname(__file__), "resources")
-        self.index_config = json.load(open(os.path.join(resources_path, 'index_info.json'), 'r'))
-        if es_host and es_port:
-            self.es = Elasticsearch([{'host': es_host, 'port': es_port}])
-        else:
-            self.es = Elasticsearch([{'host': self.index_config["es_host"], 'port': self.index_config["es_port"]}])
-
-    def check_exists(self, index):
-        if self.es.indices.exists(index=index):
-            return True
-        return False
-
-    def create_index(self, **kwargs):
-        self.es.indices.create(**kwargs)
-
-    def delete_index(self, **kwargs):
-        self.es.indices.delete(**kwargs)
-
-    def create_doc(self, **kwargs):
-        self.es.create(**kwargs)
-
-    def create_doc_bulk(self, file, index):
-        with open(file, "r") as f:
-            bulk(self.es, self.make_documents(f, index))
+        self.es = Elasticsearch([{'host': es_host, 'port': es_port}])
 
     def search(self, index, body):
         result = self.es.search(index=index, body=body)
@@ -45,20 +19,3 @@ class QueryManager(object):
     def get_dataset(metadata, variables=None, constrains=None):
         materializer = Utils.load_materializer(metadata["materialization"]["python_path"])
         return materializer.get(metadata=metadata, variables=variables, constrains=constrains)
-
-    @staticmethod
-    def make_documents(f, index):
-        while True:
-            line = f.readline()
-            if not line:
-                break
-            idx = int(line.strip())
-            line = f.readline()
-            doc = {
-                '_op_type': 'create',
-                '_index': index,
-                '_type': "document",
-                '_source': line.strip(),
-                '_id': idx,
-            }
-            yield doc

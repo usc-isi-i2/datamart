@@ -1,11 +1,15 @@
 import json
 import os
 import pandas as pd
+import warnings
 from datamart.metadata.global_metadata import GlobalMetadata
 from datamart.metadata.variable_metadata import VariableMetadata
+from datamart.index_manager import IndexManager
 from datamart.utils import Utils
 from datamart.profiler import Profiler
 import typing
+
+GLOBAL_INDEX_INTERVAL = 10000
 
 
 class IndexBuilder(object):
@@ -16,15 +20,19 @@ class IndexBuilder(object):
 
         self.resources_path = os.path.join(os.path.dirname(__file__), "resources")
         self.index_config = json.load(open(os.path.join(self.resources_path, 'index_info.json'), 'r'))
-        self.current_global_index = self.index_config["current_index"]
-        self.GLOBAL_INDEX_INTERVAL = 10000
+        self.current_global_index = None
+        self.GLOBAL_INDEX_INTERVAL = GLOBAL_INDEX_INTERVAL
         self.profiler = Profiler
+        self.im = IndexManager(es_host=self.index_config["es_host"], es_port=self.index_config["es_port"])
 
     def indexing(self,
                  description_path: str,
+                 es_index: str,
                  data_path: str = None,
                  query_data_for_indexing: bool = False,
-                 save_to_file: str = None
+                 save_to_file: str = None,
+                 save_to_file_mode: str = "a+",
+                 delete_old_es_index: bool = False
                  ) -> dict:
         """API for the index builder.
 
@@ -33,29 +41,101 @@ class IndexBuilder(object):
 
         Args:
             description_path: Path to description json file.
+            es_index: str, es index for this dataset
             data_path: Path to data csv file.
             query_data_for_indexing: Bool. If no data is presented, and query_data_for_indexing is False, will only
                 create metadata according to the description json. If query_data_for_indexing is True and no data is
                 presented, will use Materialize to query data for profiling and indexing
             save_to_file: str, a path to the json line file
+            save_to_file_mode: str, mode for saving, default "a+"
+            delete_old_es_index: bool, boolean if delete original es index if it exist
 
         Returns:
             metadata dictionary
 
         """
 
+        self.check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
+
+        if not self.current_global_index or delete_old_es_index:
+            self.current_global_index = self.im.current_global_datamart_id(index=es_index)
+
         description, data = self.read_data(description_path, data_path)
         if not data and query_data_for_indexing:
             try:
                 materializer_module = description["materialization"]["python_path"]
+                materializer = Utils.load_materializer(materializer_module)
+                data = materializer.get(metadata=description)
             except:
-                raise ValueError("No materialization method found")
-            materializer = Utils.load_materializer(materializer_module)
-            data = materializer.get(metadata=description)
+                warnings.warn("Materialization Failed, index based on schema json only")
+        print(data)
         metadata = self.construct_global_metadata(description=description, data=data)
+        Utils.validate_schema(metadata.value)
+
         if save_to_file:
-            self.save_data(save_to_file=save_to_file, metadata=metadata)
+            self.save_data(save_to_file=save_to_file, save_mode=save_to_file_mode, metadata=metadata)
+
+        self.im.create_doc(index=es_index, doc_type='document', body=metadata.value, id=metadata.value['datamart_id'])
+
         return metadata.value
+
+    def bulk_indexing(self,
+                      description_dir: str,
+                      es_index: str,
+                      data_dir: str = None,
+                      query_data_for_indexing: bool = False,
+                      save_to_file: str = None,
+                      save_to_file_mode: str = "a+",
+                      delete_old_es_index: bool = False
+                      ):
+        """Bulk indexing many dataset by providing a path
+
+        Args:
+            description_dir: dir of description json files.
+            es_index: str, es index for this dataset
+            data_dir: dir of data csv files.
+            query_data_for_indexing: Bool. If no data is presented, and query_data_for_indexing is False, will only
+                create metadata according to the description json. If query_data_for_indexing is True and no data is
+                presented, will use Materialize to query data for profiling and indexing
+            save_to_file: str, a path to the json line file
+            save_to_file_mode: str, mode for saving, default "a+"
+            delete_old_es_index: bool, boolean if delete original es index if it exist
+
+        Returns:
+
+        """
+
+        self.check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
+        for description in os.listdir(description_dir):
+            if description.endswith('.json'):
+                description_path = os.path.join(description_dir, description)
+                data_path = None
+                if data_dir:
+                    data_path = os.path.join(data_dir, description.replace("_description.json", ".csv"))
+                print("==== Creating metadata and indexing for " + description)
+                self.indexing(description_path=description_path,
+                              es_index=es_index,
+                              data_path=data_path,
+                              query_data_for_indexing=query_data_for_indexing,
+                              save_to_file=save_to_file,
+                              save_to_file_mode=save_to_file_mode)
+
+    def check_es_index(self, es_index: str, delete_old_es_index: bool):
+        """Check es index, delete or create if necessary
+
+        Args:
+            es_index: str, es index for this dataset
+            delete_old_es_index: bool, boolean if delete original es index if it exist
+
+        Returns:
+
+        """
+
+        if delete_old_es_index:
+            self.im.delete_index(index=[es_index])
+            self.im.create_index(index=es_index)
+        elif not self.im.check_exists(index=es_index):
+            self.im.create_index(index=es_index)
 
     @staticmethod
     def read_data(description_path: str, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
@@ -78,34 +158,23 @@ class IndexBuilder(object):
         return description, data
 
     @staticmethod
-    def save_data(save_to_file: str, metadata: GlobalMetadata):
+    def save_data(save_to_file: str, save_mode: str, metadata: GlobalMetadata):
         """Save metadata json to file.
 
         Args:
             save_to_file: Path of the saving file.
+            save_mode: save mode
             metadata: metadata instance.
 
         Returns:
             save to file with 2 lines for each metadata, first line is id, second line is metadata json
         """
 
-        with open(save_to_file, 'a+') as out:
+        with open(save_to_file, mode=save_mode) as out:
             out.write(str(metadata.datamart_id))
             out.write("\n")
             out.write(json.dumps(metadata.value))
             out.write("\n")
-
-    def save_index_config(self):
-        """Save index config file.
-
-        Args:
-
-        Returns:
-            save to file with updated current_index in es
-        """
-        self.index_config["current_index"] = self.current_global_index
-        with open(os.path.join(self.resources_path, 'index_info.json'), 'w') as f:
-            json.dump(self.index_config, f, indent=2)
 
     def construct_global_metadata(self, description: dict, data: pd.DataFrame = None) -> GlobalMetadata:
         """Construct global metadata.
@@ -177,9 +246,10 @@ class IndexBuilder(object):
         if variable_metadata.named_entity is None:
             variable_metadata.named_entity = self.profiler.profile_named_entity(column)
 
-        if not variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:
-            variable_metadata.temporal_coverage = self.profiler.profile_temporal_coverage(
-                variable_metadata.temporal_coverage, column)
+        if variable_metadata.temporal_coverage:
+            if variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:
+                variable_metadata.temporal_coverage = self.profiler.profile_temporal_coverage(
+                    variable_metadata.temporal_coverage, column)
 
         return variable_metadata
 
@@ -204,3 +274,8 @@ class IndexBuilder(object):
             global_metadata.keywords = self.profiler.construct_global_keywords(data)
 
         return global_metadata
+
+    def bulk_load_metadata(self,
+                           metadata_out_file: str,
+                           es_index:str):
+        self.im.create_doc_bulk(file=metadata_out_file, index=es_index)

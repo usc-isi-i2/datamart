@@ -90,9 +90,8 @@
     "keywords": [
       "balance-of-trade"
     ],
-    "date_published": "2000-10-01",
+    "date_published": "2000-10-01T00:00:00",
     "date_updated": null,
-    "provenance": null,
     "original_identifier": "TradingEconomics",
     "materialization": {
       "python_path": "aaa",
@@ -173,7 +172,6 @@
           "end": "2018-08-31T00:00:00"
         }
       }
-    ],
-    "license": null
+    ]
   }
 }
