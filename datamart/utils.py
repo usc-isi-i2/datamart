@@ -12,6 +12,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 
 
 class Utils:
+    INDEX_SCHEMA = json.load(
+        open(os.path.join(os.path.join(os.path.dirname(__file__), "resources"), 'index_schema.json'), 'r'))
+
     @staticmethod
     def date_validate(date_text: str):
         """Validate if a string is a valid date.
@@ -89,10 +92,8 @@ class Utils:
 
         Returns:
         """
-        index_schema = json.load(
-            open(os.path.join(os.path.join(os.path.dirname(__file__), "resources"), 'index_schema.json'), 'r'))
         try:
-            validate(description, index_schema)
+            validate(description, Utils.INDEX_SCHEMA)
             return True
         except:
             raise ValueError("Invalid dataset description json according to index json schema")

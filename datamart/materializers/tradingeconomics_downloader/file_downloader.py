@@ -29,8 +29,6 @@ class FileDownloader():
 
         urls = self.generate_url_list(data, current_datetime)
 
-        print(urls)
-
         self.downloadHelper(urls, data, force, current_datetime)
 
     @staticmethod

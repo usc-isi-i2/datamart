@@ -91,7 +91,7 @@ class TradingEconomicsMaterializer(MaterializerBase):
             filename = datasetConfig["where_to_download"]["identifier"] + "." + datasetConfig["where_to_download"][
                 "file_type"]
 
-            data = pd.read_csv(dst_dataset_path + "/" + filename)
+            data = pd.read_csv(dst_dataset_path + "/" + filename, encoding='utf-16')
             return data
         except Exception as e:
             print('exception in run', e)
