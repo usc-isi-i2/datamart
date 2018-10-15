@@ -68,7 +68,6 @@ class IndexBuilder(object):
                 data = materializer.get(metadata=description)
             except:
                 warnings.warn("Materialization Failed, index based on schema json only")
-        print(data)
         metadata = self.construct_global_metadata(description=description, data=data)
         Utils.validate_schema(metadata.value)
 
