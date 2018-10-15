@@ -32,7 +32,7 @@ class VariableMetadata(MetadataBase):
         if "temporal_coverage" in description:
             self._metadata["temporal_coverage"] = description["temporal_coverage"]
 
-        if self.temporal_coverage:
+        if self.temporal_coverage is not False:
             self.temporal_coverage = Utils.temporal_coverage_validate(self.temporal_coverage)
 
         if "spatial_coverage" in description:

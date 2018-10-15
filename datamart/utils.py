@@ -43,7 +43,11 @@ class Utils:
         Returns:
             dict of temporal_coverage or True
         """
-
+        if not coverage:
+            return {
+                'start': None,
+                'end': None
+            }
         if "start" in coverage and coverage["start"]:
             coverage['start'] = cls.date_validate(coverage['start'])
         else:

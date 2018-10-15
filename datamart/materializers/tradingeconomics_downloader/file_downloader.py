@@ -25,11 +25,14 @@ class FileDownloader():
             os.makedirs(self.dst_path)
         except OSError:
             pass
+        cwd = os.getcwd()
         os.chdir(self.dst_path)
 
         urls = self.generate_url_list(data, current_datetime)
 
         self.downloadHelper(urls, data, force, current_datetime)
+
+        os.chdir(cwd)
 
     @staticmethod
     def generate_url_list(data, current_datetime=None):
