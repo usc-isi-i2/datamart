@@ -18,9 +18,11 @@ class VariableMetadata(MetadataBase):
 
         self._metadata["datamart_id"] = datamart_id
 
-        self._metadata["name"] = description["name"]
+        if "name" in description:
+            self._metadata["name"] = description["name"]
 
-        self._metadata["description"] = description["description"]
+        if "description" in description:
+            self._metadata["description"] = description["description"]
 
         self._metadata["semantic_type"] = description.get("semantic_type", [])
 
@@ -30,7 +32,7 @@ class VariableMetadata(MetadataBase):
         if "temporal_coverage" in description:
             self._metadata["temporal_coverage"] = description["temporal_coverage"]
 
-        if self.temporal_coverage:
+        if self.temporal_coverage is not False:
             self.temporal_coverage = Utils.temporal_coverage_validate(self.temporal_coverage)
 
         if "spatial_coverage" in description:
@@ -46,7 +48,7 @@ class VariableMetadata(MetadataBase):
 
     @property
     def name(self):
-        return self._metadata["name"]
+        return self._metadata.get("name", False)
 
     @name.setter
     def name(self, value):
@@ -54,7 +56,7 @@ class VariableMetadata(MetadataBase):
 
     @property
     def description(self):
-        return self._metadata["description"]
+        return self._metadata.get("description", False)
 
     @description.setter
     def description(self, value):

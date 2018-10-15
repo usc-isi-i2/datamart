@@ -1,6 +1,8 @@
 from datamart.materializers.noaa_materializer import NoaaMaterializer
 import unittest, json, os
 import pandas as pd
+from datamart.utils import Utils
+
 
 resources_path = os.path.join(os.path.dirname(__file__), "./resources")
 
@@ -9,9 +11,11 @@ class TestNoaaMaterializer(unittest.TestCase):
     def setUp(self):
         self.noaa_materializer = NoaaMaterializer()
 
+    @Utils.test_print
     def test_header(self):
         self.assertEqual(self.noaa_materializer.headers, None)
 
+    @Utils.test_print
     def test_get(self):
         fake_metadata = {
             "materialization": {
@@ -22,8 +26,8 @@ class TestNoaaMaterializer(unittest.TestCase):
         }
         fake_constrains = {
             "date_range": {
-                "start_date": "2016-09-23",
-                "end_date": "2016-09-23"
+                "start": "2016-09-23",
+                "end": "2016-09-23"
             },
             "locations": ["los angeles"]
         }
@@ -42,6 +46,7 @@ class TestNoaaMaterializer(unittest.TestCase):
             orient="records")
         self.assertEqual(null, [])
 
+    @Utils.test_print
     def test_next(self):
         fake_true_data = {
             "metadata": {
@@ -64,6 +69,7 @@ class TestNoaaMaterializer(unittest.TestCase):
         self.assertEqual(NoaaMaterializer.next(fake_true_data), True)
         self.assertEqual(NoaaMaterializer.next(fake_false_data), False)
 
+    @Utils.test_print
     def test_add_result(self):
         fake_result = pd.DataFrame(columns=['date', 'stationid', 'city', 'PRCP'])
         fake_data = {
