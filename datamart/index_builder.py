@@ -130,10 +130,10 @@ class IndexBuilder(object):
 
         """
 
-        if delete_old_es_index:
-            self.im.delete_index(index=[es_index])
+        if not self.im.check_exists(index=es_index):
             self.im.create_index(index=es_index)
-        elif not self.im.check_exists(index=es_index):
+        elif delete_old_es_index:
+            self.im.delete_index(index=[es_index])
             self.im.create_index(index=es_index)
 
     @staticmethod
@@ -276,5 +276,5 @@ class IndexBuilder(object):
 
     def bulk_load_metadata(self,
                            metadata_out_file: str,
-                           es_index:str):
+                           es_index: str):
         self.im.create_doc_bulk(file=metadata_out_file, index=es_index)
