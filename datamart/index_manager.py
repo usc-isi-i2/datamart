@@ -1,11 +1,12 @@
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import json
+import typing
 
 
 class IndexManager(object):
 
-    def __init__(self, es_host: str, es_port: int):
+    def __init__(self, es_host: str, es_port: int) -> None:
         """Init method for index manager
 
         Args:
@@ -32,7 +33,7 @@ class IndexManager(object):
             return True
         return False
 
-    def create_index(self, **kwargs):
+    def create_index(self, **kwargs) -> None:
         """create index
 
         Args:
@@ -44,7 +45,7 @@ class IndexManager(object):
 
         self.es.indices.create(**kwargs)
 
-    def delete_index(self, **kwargs):
+    def delete_index(self, **kwargs) -> None:
         """delete index
 
         Args:
@@ -56,7 +57,7 @@ class IndexManager(object):
 
         self.es.indices.delete(**kwargs)
 
-    def create_doc(self, **kwargs):
+    def create_doc(self, **kwargs) -> None:
         """create doc
 
         Args:
@@ -68,7 +69,7 @@ class IndexManager(object):
 
         self.es.create(**kwargs)
 
-    def create_doc_bulk(self, file: str, index: str):
+    def create_doc_bulk(self, file: str, index: str) -> None:
         """bulk create doc by taking the metadata.out file produced by index builder
 
         Args:
@@ -107,7 +108,7 @@ class IndexManager(object):
             "value"] else 0
 
     @staticmethod
-    def make_documents(f, index: str):
+    def make_documents(f, index: str) -> typing.Iterator[dict]:
         """make documents for bulk load to es
 
         Args:

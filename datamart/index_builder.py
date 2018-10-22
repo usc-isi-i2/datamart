@@ -13,7 +13,7 @@ GLOBAL_INDEX_INTERVAL = 10000
 
 
 class IndexBuilder(object):
-    def __init__(self):
+    def __init__(self) -> None:
         """Init method of IndexBuilder.
 
         """
@@ -55,12 +55,12 @@ class IndexBuilder(object):
 
         """
 
-        self.check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
+        self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
 
         if not self.current_global_index or delete_old_es_index:
             self.current_global_index = self.im.current_global_datamart_id(index=es_index)
 
-        description, data = self.read_data(description_path, data_path)
+        description, data = self._read_data(description_path, data_path)
         if not data and query_data_for_indexing:
             try:
                 materializer_module = description["materialization"]["python_path"]
@@ -72,7 +72,7 @@ class IndexBuilder(object):
         Utils.validate_schema(metadata.value)
 
         if save_to_file:
-            self.save_data(save_to_file=save_to_file, save_mode=save_to_file_mode, metadata=metadata)
+            self._save_data(save_to_file=save_to_file, save_mode=save_to_file_mode, metadata=metadata)
 
         self.im.create_doc(index=es_index, doc_type='document', body=metadata.value, id=metadata.value['datamart_id'])
 
@@ -86,7 +86,7 @@ class IndexBuilder(object):
                       save_to_file: str = None,
                       save_to_file_mode: str = "a+",
                       delete_old_es_index: bool = False
-                      ):
+                      ) -> None:
         """Bulk indexing many dataset by providing a path
 
         Args:
@@ -104,7 +104,7 @@ class IndexBuilder(object):
 
         """
 
-        self.check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
+        self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
         for description in os.listdir(description_dir):
             if description.endswith('.json'):
                 description_path = os.path.join(description_dir, description)
@@ -119,7 +119,7 @@ class IndexBuilder(object):
                               save_to_file=save_to_file,
                               save_to_file_mode=save_to_file_mode)
 
-    def check_es_index(self, es_index: str, delete_old_es_index: bool):
+    def _check_es_index(self, es_index: str, delete_old_es_index: bool) -> None:
         """Check es index, delete or create if necessary
 
         Args:
@@ -137,7 +137,7 @@ class IndexBuilder(object):
             self.im.create_index(index=es_index)
 
     @staticmethod
-    def read_data(description_path: str, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
+    def _read_data(description_path: str, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
         """Read dataset description json and dataset if present.
 
         Args:
@@ -157,7 +157,7 @@ class IndexBuilder(object):
         return description, data
 
     @staticmethod
-    def save_data(save_to_file: str, save_mode: str, metadata: GlobalMetadata):
+    def _save_data(save_to_file: str, save_mode: str, metadata: GlobalMetadata) -> None:
         """Save metadata json to file.
 
         Args:
@@ -196,7 +196,7 @@ class IndexBuilder(object):
             global_metadata.add_variable_metadata(variable_metadata)
 
         if data is not None:
-            global_metadata = self.profiling_entire(global_metadata, data)
+            global_metadata = self._profiling_entire(global_metadata, data)
 
         return global_metadata
 
@@ -221,11 +221,11 @@ class IndexBuilder(object):
                                                                 datamart_id=col_offset + self.current_global_index + 1)
 
         if data is not None:
-            variable_metadata = self.profiling_column(variable_metadata, data.iloc[:, col_offset])
+            variable_metadata = self._profiling_column(variable_metadata, data.iloc[:, col_offset])
 
         return variable_metadata
 
-    def profiling_column(self, variable_metadata: VariableMetadata, column: pd.Series) -> VariableMetadata:
+    def _profiling_column(self, variable_metadata: VariableMetadata, column: pd.Series) -> VariableMetadata:
         """Profiling single column for necessary fields of metadata, if data is present .
 
         Args:
@@ -252,7 +252,7 @@ class IndexBuilder(object):
 
         return variable_metadata
 
-    def profiling_entire(self, global_metadata: GlobalMetadata, data: pd.DataFrame) -> GlobalMetadata:
+    def _profiling_entire(self, global_metadata: GlobalMetadata, data: pd.DataFrame) -> GlobalMetadata:
         """Profiling entire dataset for necessary fields of metadata, if data is present .
 
         Args:
@@ -274,7 +274,17 @@ class IndexBuilder(object):
 
         return global_metadata
 
-    def bulk_load_metadata(self,
-                           metadata_out_file: str,
-                           es_index: str):
+    def _bulk_load_metadata(self,
+                            metadata_out_file: str,
+                            es_index: str) -> None:
+        """Internal method for bulk loading documents to elasticsearch.
+
+        Args:
+            metadata_out_file: file of metadata output file produced by index builder
+            es_index: str of es index
+
+        Returns:
+
+        """
+
         self.im.create_doc_bulk(file=metadata_out_file, index=es_index)

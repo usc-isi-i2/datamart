@@ -3,7 +3,7 @@ from datamart.utils import Utils
 
 
 class VariableMetadata(MetadataBase):
-    def __init__(self, description: dict, datamart_id: int):
+    def __init__(self, description: dict, datamart_id: int) -> None:
         """Init method of VariableMetadata.
 
         Args:
@@ -39,7 +39,7 @@ class VariableMetadata(MetadataBase):
             self._metadata["spatial_coverage"] = description["spatial_coverage"]
 
     @classmethod
-    def construct_variable(cls, description, datamart_id):
+    def construct_variable(cls, description, datamart_id) -> 'VariableMetadata':
         return cls(description, datamart_id)
 
     @property

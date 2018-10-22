@@ -7,6 +7,7 @@ import sys
 import json
 from jsonschema import validate
 from termcolor import colored
+import typing
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 
@@ -16,7 +17,7 @@ class Utils:
         open(os.path.join(os.path.join(os.path.dirname(__file__), "resources"), 'index_schema.json'), 'r'))
 
     @staticmethod
-    def date_validate(date_text: str):
+    def date_validate(date_text: str) -> typing.Optional[str]:
         """Validate if a string is a valid date.
 
         Args:
@@ -34,7 +35,7 @@ class Utils:
         return this_datetime.isoformat()
 
     @classmethod
-    def temporal_coverage_validate(cls, coverage: dict):
+    def temporal_coverage_validate(cls, coverage: dict) -> dict:
         """Validate if a string is a valid date.
 
         Args:
@@ -88,13 +89,14 @@ class Utils:
         return materializer
 
     @staticmethod
-    def validate_schema(description: dict):
+    def validate_schema(description: dict) -> bool:
         """Validate dict against json schema.
 
         Args:
             description: description dict.
 
         Returns:
+            boolean
         """
         try:
             validate(description, Utils.INDEX_SCHEMA)
@@ -103,7 +105,7 @@ class Utils:
             raise ValueError("Invalid dataset description json according to index json schema")
 
     @staticmethod
-    def test_print(func):
+    def test_print(func) -> typing.Callable:
         def __decorator(self):
             print("[Test]{}/{}".format(self.__class__.__name__, func.__name__))
             func(self)

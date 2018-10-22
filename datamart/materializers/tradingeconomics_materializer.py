@@ -22,7 +22,11 @@ class TradingEconomicsMaterializer(MaterializerBase):
         MaterializerBase.__init__(self)
         self.key = None
 
-    def get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame:
+    def get(self,
+            metadata: dict = None,
+            variables: typing.List[int] = None,
+            constrains: dict = None
+            ) -> typing.Optional[pd.DataFrame]:
         """ API for get a dataframe.
 
             Args:
