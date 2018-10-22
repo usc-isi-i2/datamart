@@ -121,7 +121,7 @@ class IndexBuilder(object):
         Utils.validate_schema(metadata.value)
 
         self.im.update_doc(index=es_index, doc_type='document', body={"doc": metadata.value},
-                           id=str(metadata.value['datamart_id']))
+                           id=metadata.value['datamart_id'])
 
         return metadata.value
 
