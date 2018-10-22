@@ -68,6 +68,7 @@ class IndexBuilder(object):
                 data = materializer.get(metadata=description)
             except:
                 warnings.warn("Materialization Failed, index based on schema json only")
+
         metadata = self.construct_global_metadata(description=description, data=data)
         Utils.validate_schema(metadata.value)
 
@@ -115,10 +116,12 @@ class IndexBuilder(object):
                 data = materializer.get(metadata=description)
             except:
                 warnings.warn("Materialization Failed, index based on schema json only")
+
         metadata = self.construct_global_metadata(description=description, data=data, overwrite_datamart_id=document_id)
         Utils.validate_schema(metadata.value)
 
-        self.im.update_doc(index=es_index, doc_type='document', body=metadata.value, id=metadata.value['datamart_id'])
+        self.im.update_doc(index=es_index, doc_type='document', body={"doc": metadata.value},
+                           id=str(metadata.value['datamart_id']))
 
         return metadata.value
 
@@ -235,16 +238,18 @@ class IndexBuilder(object):
         Returns:
             GlobalMetadata instance
         """
+        if not overwrite_datamart_id:
+            self.current_global_index += self.GLOBAL_INDEX_INTERVAL
+            datamart_id = self.current_global_index
+        else:
+            datamart_id = overwrite_datamart_id
 
-        self.current_global_index += self.GLOBAL_INDEX_INTERVAL
-
-        global_metadata = GlobalMetadata.construct_global(description, datamart_id=self.current_global_index)
-        global_metadata.datamart_id = overwrite_datamart_id
+        global_metadata = GlobalMetadata.construct_global(description, datamart_id=datamart_id)
         for col_offset, variable_description in enumerate(description["variables"]):
             variable_metadata = self.construct_variable_metadata(variable_description,
+                                                                 global_datamart_id=datamart_id,
                                                                  col_offset=col_offset,
                                                                  data=data)
-            variable_metadata.datamart_id = overwrite_datamart_id + col_offset + 1
             global_metadata.add_variable_metadata(variable_metadata)
 
         if data is not None:
@@ -254,6 +259,7 @@ class IndexBuilder(object):
 
     def construct_variable_metadata(self,
                                     description: dict,
+                                    global_datamart_id: int,
                                     col_offset: int,
                                     data: pd.DataFrame = None
                                     ) -> VariableMetadata:
@@ -262,6 +268,7 @@ class IndexBuilder(object):
 
         Args:
             description: description dict.
+            global_datamart_id: integer of datamart id.
             col_offset: integer, the column index.
             data: dataframe of data.
 
@@ -270,7 +277,7 @@ class IndexBuilder(object):
         """
 
         variable_metadata = VariableMetadata.construct_variable(description,
-                                                                datamart_id=col_offset + self.current_global_index + 1)
+                                                                datamart_id=col_offset + global_datamart_id + 1)
 
         if data is not None:
             variable_metadata = self._profiling_column(variable_metadata, data.iloc[:, col_offset])

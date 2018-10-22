@@ -79,7 +79,7 @@ class IndexManager(object):
 
         """
 
-        self.es.index(**kwargs)
+        self.es.update(**kwargs)
 
     def create_doc_bulk(self, file: str, index: str) -> None:
         """bulk create doc by taking the metadata.out file produced by index builder
