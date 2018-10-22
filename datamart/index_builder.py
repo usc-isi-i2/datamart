@@ -78,6 +78,50 @@ class IndexBuilder(object):
 
         return metadata.value
 
+    def updating(self,
+                 description_path: str,
+                 es_index: str,
+                 document_id: int,
+                 data_path: str = None,
+                 query_data_for_updating: bool = False
+                 ) -> dict:
+
+        """Update document in elastic search.
+
+        By providing description file, index builder should be able to process it and create metadata json for the
+        dataset, update document in elastic search
+
+        Args:
+            description_path: Path to description json file.
+            es_index: str, es index for this dataset
+            document_id: int, document id of document which need to be updated
+            data_path: Path to data csv file.
+            query_data_for_updating: Bool. If no data is presented, and query_data_for_updating is False, will only
+                create metadata according to the description json. If query_data_for_updating is True and no data is
+                presented, will use Materialize to query data for profiling and indexing
+
+        Returns:
+            metadata dictionary
+
+        """
+
+        self._check_es_index(es_index=es_index)
+
+        description, data = self._read_data(description_path, data_path)
+        if not data and query_data_for_updating:
+            try:
+                materializer_module = description["materialization"]["python_path"]
+                materializer = Utils.load_materializer(materializer_module)
+                data = materializer.get(metadata=description)
+            except:
+                warnings.warn("Materialization Failed, index based on schema json only")
+        metadata = self.construct_global_metadata(description=description, data=data, overwrite_datamart_id=document_id)
+        Utils.validate_schema(metadata.value)
+
+        self.im.update_doc(index=es_index, doc_type='document', body=metadata.value, id=metadata.value['datamart_id'])
+
+        return metadata.value
+
     def bulk_indexing(self,
                       description_dir: str,
                       es_index: str,
@@ -119,7 +163,7 @@ class IndexBuilder(object):
                               save_to_file=save_to_file,
                               save_to_file_mode=save_to_file_mode)
 
-    def _check_es_index(self, es_index: str, delete_old_es_index: bool) -> None:
+    def _check_es_index(self, es_index: str, delete_old_es_index: bool = False) -> None:
         """Check es index, delete or create if necessary
 
         Args:
@@ -175,12 +219,18 @@ class IndexBuilder(object):
             out.write(json.dumps(metadata.value))
             out.write("\n")
 
-    def construct_global_metadata(self, description: dict, data: pd.DataFrame = None) -> GlobalMetadata:
+    def construct_global_metadata(self,
+                                  description: dict,
+                                  data: pd.DataFrame = None,
+                                  overwrite_datamart_id: int = None
+                                  ) -> GlobalMetadata:
+
         """Construct global metadata.
 
         Args:
             description: description dict.
             data: dataframe of data.
+            overwrite_datamart_id: integer id for over writing original one
 
         Returns:
             GlobalMetadata instance
@@ -189,10 +239,12 @@ class IndexBuilder(object):
         self.current_global_index += self.GLOBAL_INDEX_INTERVAL
 
         global_metadata = GlobalMetadata.construct_global(description, datamart_id=self.current_global_index)
+        global_metadata.datamart_id = overwrite_datamart_id
         for col_offset, variable_description in enumerate(description["variables"]):
             variable_metadata = self.construct_variable_metadata(variable_description,
                                                                  col_offset=col_offset,
                                                                  data=data)
+            variable_metadata.datamart_id = overwrite_datamart_id + col_offset + 1
             global_metadata.add_variable_metadata(variable_metadata)
 
         if data is not None:
@@ -276,7 +328,8 @@ class IndexBuilder(object):
 
     def _bulk_load_metadata(self,
                             metadata_out_file: str,
-                            es_index: str) -> None:
+                            es_index: str
+                            ) -> None:
         """Internal method for bulk loading documents to elasticsearch.
 
         Args:

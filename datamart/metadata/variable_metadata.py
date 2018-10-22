@@ -46,6 +46,10 @@ class VariableMetadata(MetadataBase):
     def datamart_id(self):
         return self._metadata["datamart_id"]
 
+    @datamart_id.setter
+    def datamart_id(self, value):
+        self._metadata["datamart_id"] = value
+
     @property
     def name(self):
         return self._metadata.get("name", False)

@@ -84,6 +84,10 @@ class GlobalMetadata(MetadataBase):
     def datamart_id(self):
         return self._metadata["datamart_id"]
 
+    @datamart_id.setter
+    def datamart_id(self, value):
+        self._metadata["datamart_id"] = value
+
     @property
     def title(self):
         return self._metadata.get("title", False)

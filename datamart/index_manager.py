@@ -69,6 +69,18 @@ class IndexManager(object):
 
         self.es.create(**kwargs)
 
+    def update_doc(self, **kwargs) -> None:
+        """create doc
+
+        Args:
+            kwargs
+
+        Returns:
+
+        """
+
+        self.es.index(**kwargs)
+
     def create_doc_bulk(self, file: str, index: str) -> None:
         """bulk create doc by taking the metadata.out file produced by index builder
 
@@ -93,16 +105,18 @@ class IndexManager(object):
             integer
         """
 
-        max_idx_query = json.dumps({
-            "aggs": {
-                "max_id": {
-                    "max": {
-                        "field": "datamart_id"
+        max_idx_query = json.dumps(
+            {
+                "aggs": {
+                    "max_id": {
+                        "max": {
+                            "field": "datamart_id"
+                        }
                     }
-                }
-            },
-            "size": 0
-        })
+                },
+                "size": 0
+            }
+        )
         result = self.es.search(index=kwargs["index"], body=max_idx_query)
         return result["aggregations"]["max_id"]["value"] if result["aggregations"]["max_id"][
             "value"] else 0
@@ -126,7 +140,6 @@ class IndexManager(object):
             idx = int(line.strip())
             line = f.readline()
             doc = {
-                '_op_type': 'create',
                 '_index': index,
                 '_type': "document",
                 '_source': line.strip(),
