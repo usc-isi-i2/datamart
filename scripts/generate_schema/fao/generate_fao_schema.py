@@ -9,7 +9,7 @@ USER = 'postgres'
 PASSWORD = '123123'
 HOST = 'dsbox02.isi.edu'
 JSONDESCRIPTION = "http://fenixservices.fao.org/faostat/static/bulkdownloads/datasets_E.json"
-
+SPECIAL_URL = "http://fenixservices.fao.org/faostat/static/bulkdownloads/Environment_LivestockManure_E_All_Data_(Normalized).zip"
 
 def generate_json_schema():
     conn = None
@@ -22,7 +22,7 @@ def generate_json_schema():
         tmp = url.split("/")
         words = tmp[len(tmp) - 1].split(".")[0].split("_")
         name = ""
-        if url == "http://fenixservices.fao.org/faostat/static/bulkdownloads/Environment_LivestockManure_E_All_Data_(Normalized).zip":
+        if url == SPECIAL_URL:
             name = "environment_manure_e_all_data"
         else:
             for word in words:
@@ -31,7 +31,7 @@ def generate_json_schema():
             name = name[:-1].lower().replace("-", "_")
 
         description[name] = data["DatasetDescription"]
-        keyword[name] = data["Topic"]
+        keyword[name] = [data["Topic"]]
     try:
         # read connection parameters
         params = dict()
@@ -43,7 +43,6 @@ def generate_json_schema():
         # connect to the PostgreSQL server
         print('Connecting to the PostgreSQL database...')
         conn = psycopg2.connect(**params)
-        i = 0
         # create a cursor
         cur = conn.cursor()
         cur.execute("""SELECT table_name FROM information_schema.tables
@@ -51,8 +50,6 @@ def generate_json_schema():
 
         for table in cur.fetchall():
             name = str(table)[2: -3]
-
-            print(name)
             cur.execute("Select * FROM {0} limit 1".format(name))
             colnames = [desc[0] for desc in cur.description]
             for col in colnames:
@@ -60,7 +57,6 @@ def generate_json_schema():
                     cur.execute('DROP TABLE "{0}";'.format(name))
                     conn.commit()
 
-            print(colnames)
             schema = dict()
             schema['title'] = name
             schema['description'] = description[name]
@@ -79,7 +75,7 @@ def generate_json_schema():
             first_col['name'] = colnames[0]
             first_col['description'] = 'the area of data'
             first_col['semantic_type'] = ["https://metadata.datadrivendiscovery.org/types/Location"]
-            first_col['temporal_coverage'] = dict()
+            first_col['named_entity'] = None
 
             sec_col = dict()
             sec_col['name'] = colnames[1]
@@ -90,7 +86,6 @@ def generate_json_schema():
             third_col['name'] = colnames[2]
             third_col['description'] = colnames[2]
             third_col['semantic_type'] = ["http://schema.org/Text"]
-            # third_col['named_entity'] = CITYLIST
 
             fourth_col = dict()
             fourth_col['name'] = colnames[3]
@@ -101,7 +96,6 @@ def generate_json_schema():
             fif_col['name'] = colnames[4]
             fif_col['description'] = 'the value of this type of data'
             fif_col['semantic_type'] = ["http://schema.org/Float"]
-            # fif_col['temporal_coverage'] = dict()
 
             schema['variables'].append(first_col)
             schema['variables'].append(sec_col)
