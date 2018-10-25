@@ -1,7 +1,7 @@
 from datamart.es_managers.query_manager import QueryManager
 import pandas as pd
 import typing
-import math
+from datamart.utils import Utils
 
 
 class QuerySystem(object):
@@ -18,39 +18,106 @@ class QuerySystem(object):
 
         """
 
-        self.qm = QueryManager(es_host=es_host, es_port=es_port)
-        self.es_index = es_index
+        self.qm = QueryManager(es_host=es_host, es_port=es_port, es_index=es_index)
 
-    def query_by_column(self, col: pd.Series) -> typing.Optional[typing.List[dict]]:
-        """Query by a pandas Dataframe column
+    def query_by_column(self, col: pd.Series, minimum_should_match: int=None) -> typing.Optional[typing.List[dict]]:
+        """Query metadata by a pandas Dataframe column
 
         Args:
             col: pandas Dataframe column.
+            minimum_should_match: An integer ranges from 0 to length of unique value in col.
+            Represent the minimum number of terms should match.
 
         Returns:
-            matching documents
+            matching docs of metadata
         """
 
-        body = {
-            "query": {
-                "bool": {
-                    "should": [
-                    ],
-                    "minimum_should_match": 1
-                }
-            }
-        }
+        return self.qm.match_some_terms_from_array(terms=col.unique().tolist(),
+                                                   minimum_should_match=minimum_should_match)
 
-        for term in col.unique().tolist():
-            body["query"]["bool"]["should"].append(
-                {
-                    "term": {
-                        "variables.named_entity.keyword": term.lower()
-                    }
-                }
-            )
+    def query_by_named_entities(self,
+                                named_entities: list,
+                                minimum_should_match: int = None
+                                ) -> typing.Optional[typing.List[dict]]:
+        """Query metadata by a pandas Dataframe column
 
-        body["query"]["bool"]["minimum_should_match"] = math.ceil(len(col.unique().tolist())/2)
+        Args:
+            named_entities: list of named entities
+            minimum_should_match: An integer ranges from 0 to length of named entities list.
+            Represent the minimum number of terms should match.
 
-        result = self.qm.search(index=self.es_index, body=body)
-        return result
+        Returns:
+            matching docs of metadata
+        """
+
+        return self.qm.match_some_terms_from_array(
+            terms=named_entities,
+            key="variables.named_entity.keyword",
+            minimum_should_match=minimum_should_match)
+
+    def query_by_datamart_id(self, datamart_id: int) -> typing.Optional[typing.List[dict]]:
+        """Query metadata by datamart id
+
+        Args:
+            datamart_id: int
+
+        Returns:
+            matching docs of metadata
+        """
+
+        return self.qm.match_datamart_id(datamart_id=datamart_id)
+
+    def query_by_key_value_pairs(self, key_value_pairs: typing.List[tuple]) -> typing.Optional[typing.List[dict]]:
+        """Query metadata by datamart id
+
+        Args:
+            key_value_pairs: list of key value tuple
+
+        Returns:
+            matching docs of metadata
+        """
+
+        return self.qm.match_key_value_pairs(key_value_pairs=key_value_pairs)
+
+    def query_by_es_query(self, body, **kwargs) -> typing.Optional[typing.List[dict]]:
+        """Query metadata by an elastic search query
+
+        Args:
+            body: query body
+            kwargs: key value args
+
+        Returns:
+            matching docs of metadata
+        """
+        return self.qm.search(body=body, **kwargs)
+
+    @staticmethod
+    def get_dataset(metadata: dict, variables: list = None, constrains: dict = None) -> typing.Optional[pd.DataFrame]:
+        """Get the dataset with materializer.
+
+       Args:
+           metadata: metadata dict.
+           variables:
+           constrains:
+
+       Returns:
+            pandas dataframe
+       """
+
+        materializer = Utils.load_materializer(metadata["materialization"]["python_path"])
+        df = materializer.get(metadata=metadata, variables=variables, constrains=constrains)
+        return df
+
+    def join_datasets(self,
+                     old_df: pd.DataFrame,
+                     new_df: pd.DataFrame,
+                     old_col: typing.Union[int, str],
+                     new_col: typing.Union[int, str, None] = None,
+                     aggerate = None
+                     ) -> pd.DataFrame:
+        if not new_col:
+            new_col = old_col
+
+        import pdb
+        pdb.set_trace()
+        new_df.groupby([new_col]).groups.keys()
