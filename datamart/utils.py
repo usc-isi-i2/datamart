@@ -8,6 +8,7 @@ import json
 from jsonschema import validate
 from termcolor import colored
 import typing
+from pandas import DataFrame
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 
@@ -87,6 +88,25 @@ class Utils:
 
         materializer = materializer_class()
         return materializer
+
+    @classmethod
+    def materialize(cls,
+                    metadata: dict,
+                    variables: list = None,
+                    constrains: dict = None) -> typing.Optional[DataFrame]:
+        """Get the dataset with materializer.
+
+       Args:
+           metadata: metadata dict.
+           variables:
+           constrains:
+
+       Returns:
+            pandas dataframe
+       """
+        materializer = cls.load_materializer(materializer_module=metadata["materialization"]["python_path"])
+        df = materializer.get(metadata=metadata, variables=variables, constrains=constrains)
+        return df.infer_objects()
 
     @staticmethod
     def validate_schema(description: dict) -> bool:

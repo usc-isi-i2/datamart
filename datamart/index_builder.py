@@ -63,9 +63,7 @@ class IndexBuilder(object):
         description, data = self._read_data(description_path, data_path)
         if not data and query_data_for_indexing:
             try:
-                materializer_module = description["materialization"]["python_path"]
-                materializer = Utils.load_materializer(materializer_module)
-                data = materializer.get(metadata=description)
+                data = Utils.materialize(metadata=description)
             except:
                 warnings.warn("Materialization Failed, index based on schema json only")
 

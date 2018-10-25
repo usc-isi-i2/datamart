@@ -4,9 +4,9 @@ import typing
 from datamart.utils import Utils
 
 
-class QuerySystem(object):
+class Augment(object):
 
-    def __init__(self, es_index: str, es_host: str="dsbox02.isi.edu", es_port: int=9200) -> None:
+    def __init__(self, es_index: str, es_host: str = "dsbox02.isi.edu", es_port: int = 9200) -> None:
         """Init method of QuerySystem, set up connection to elastic search.
 
         Args:
@@ -20,7 +20,7 @@ class QuerySystem(object):
 
         self.qm = QueryManager(es_host=es_host, es_port=es_port, es_index=es_index)
 
-    def query_by_column(self, col: pd.Series, minimum_should_match: int=None) -> typing.Optional[typing.List[dict]]:
+    def query_by_column(self, col: pd.Series, minimum_should_match: int = None) -> typing.Optional[typing.List[dict]]:
         """Query metadata by a pandas Dataframe column
 
         Args:
@@ -104,20 +104,4 @@ class QuerySystem(object):
             pandas dataframe
        """
 
-        materializer = Utils.load_materializer(metadata["materialization"]["python_path"])
-        df = materializer.get(metadata=metadata, variables=variables, constrains=constrains)
-        return df
-
-    def join_datasets(self,
-                     old_df: pd.DataFrame,
-                     new_df: pd.DataFrame,
-                     old_col: typing.Union[int, str],
-                     new_col: typing.Union[int, str, None] = None,
-                     aggerate = None
-                     ) -> pd.DataFrame:
-        if not new_col:
-            new_col = old_col
-
-        import pdb
-        pdb.set_trace()
-        new_df.groupby([new_col]).groups.keys()
+        return Utils.materialize(metadata=metadata, variables=variables, constrains=constrains)
