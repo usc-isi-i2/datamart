@@ -4,7 +4,7 @@ import pandas as pd
 import warnings
 from datamart.metadata.global_metadata import GlobalMetadata
 from datamart.metadata.variable_metadata import VariableMetadata
-from datamart.index_manager import IndexManager
+from datamart.es_managers.index_manager import IndexManager
 from datamart.utils import Utils
 from datamart.profiler import Profiler
 import typing

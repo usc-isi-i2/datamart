@@ -1,12 +1,12 @@
-from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import json
 import typing
+from datamart.es_managers.es_manager import ESManager
 
 
-class IndexManager(object):
+class IndexManager(ESManager):
 
-    def __init__(self, es_host: str, es_port: int) -> None:
+    def __init__(self, es_host: str = "dsbox02.isi.edu", es_port: int = 9200) -> None:
         """Init method for index manager
 
         Args:
@@ -16,8 +16,7 @@ class IndexManager(object):
         Returns:
 
         """
-
-        self.es = Elasticsearch([{'host': es_host, 'port': es_port}])
+        super().__init__(es_host=es_host, es_port=es_port)
 
     def check_exists(self, index: str) -> bool:
         """check if index exist
