@@ -87,7 +87,7 @@ class QueryManager(ESManager):
 
         for key, value in key_value_pairs:
             if isinstance(value, list):
-                body["query"]["bool"]["should"].append(
+                body["query"]["bool"]["must"].append(
                     {
                         "terms": {
                             key: value
@@ -95,14 +95,13 @@ class QueryManager(ESManager):
                     }
                 )
             else:
-                body["query"]["bool"]["should"].append(
+                body["query"]["bool"]["must"].append(
                     {
                         "term": {
                             key: value
                         }
                     }
                 )
-
         return self.search(body=json.dumps(body))
 
     def match_all(self):
