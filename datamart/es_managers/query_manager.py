@@ -90,7 +90,7 @@ class QueryManager(ESManager):
         return json.dumps(body)
 
     @classmethod
-    def match_temporal_coverage(cls, start: str=None, end: str=None) -> str:
+    def match_temporal_coverage(cls, start: str = None, end: str = None) -> str:
         """Generate query body for query by temporal_coverage.
 
         Args:
@@ -236,6 +236,26 @@ class QueryManager(ESManager):
                         }
                     }
                 )
+        return json.dumps(body)
+
+    @staticmethod
+    def match_any(query_string: str) -> str:
+        """Generate query body for query all fields of doc contains query_string.
+
+        Args:
+            query_string: string if query.
+
+        Returns:
+            string of query body
+        """
+
+        body = {
+            "query": {
+                "query_string": {
+                    "query": query_string
+                }
+            }
+        }
         return json.dumps(body)
 
     @staticmethod

@@ -105,6 +105,19 @@ class Augment(object):
         body = self.qm.match_key_value_pairs(key_value_pairs=key_value_pairs)
         return self.qm.search(body=body, **kwargs)
 
+    def query_any_field_with_string(self, query_string, **kwargs) -> typing.Optional[typing.List[dict]]:
+        """Query any field of matadata with query_string
+
+        Args:
+            key_value_pairs: list of key value tuple
+
+        Returns:
+            matching docs of metadata
+        """
+
+        body = self.qm.match_any(query_string=query_string)
+        return self.qm.search(body=body, **kwargs)
+
     def query_by_es_query(self, body: str, **kwargs) -> typing.Optional[typing.List[dict]]:
         """Query metadata by an elastic search query
 
