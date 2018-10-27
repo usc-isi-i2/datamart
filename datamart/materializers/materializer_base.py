@@ -13,7 +13,7 @@ class MaterializerBase(ABC):
             metadata: dict = None,
             variables: typing.List[int] = None,
             constrains: dict = None
-            )-> typing.Optional[DataFrame]:
+            ) -> typing.Optional[DataFrame]:
         """API for Materialize, every Materializer should implement `get` method, returns a pandas dataframe.
 
         """
