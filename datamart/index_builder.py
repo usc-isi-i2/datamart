@@ -19,7 +19,8 @@ class IndexBuilder(object):
         """
 
         self.resources_path = os.path.join(os.path.dirname(__file__), "resources")
-        self.index_config = json.load(open(os.path.join(self.resources_path, 'index_info.json'), 'r'))
+        with open(os.path.join(self.resources_path, 'index_info.json'), 'r') as index_info_f:
+            self.index_config = json.load(index_info_f)
         self.current_global_index = None
         self.GLOBAL_INDEX_INTERVAL = GLOBAL_INDEX_INTERVAL
         self.profiler = Profiler
@@ -303,7 +304,7 @@ class IndexBuilder(object):
             variable_metadata.named_entity = self.profiler.profile_named_entity(column)
 
         if variable_metadata.temporal_coverage:
-            if variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:
+            if not variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:
                 variable_metadata.temporal_coverage = self.profiler.profile_temporal_coverage(
                     variable_metadata.temporal_coverage, column)
 

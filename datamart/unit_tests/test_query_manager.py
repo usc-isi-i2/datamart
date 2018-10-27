@@ -16,7 +16,8 @@ class TestQueryManager(unittest.TestCase):
                     "should": [
                         {"term": {"variables.named_entity": "los angeles"}},
                         {"term": {"variables.named_entity": "new york"}},
-                        {"term": {"variables.named_entity": "akba"}}],
+                        {"term": {"variables.named_entity": "akba"}}
+                    ],
                     "minimum_should_match": 2
                 }
             }
@@ -154,7 +155,8 @@ class TestQueryManager(unittest.TestCase):
                     "must": [
                         {"terms": {"description": ["average", "temperature"]}},
                         {"term": {"title.keyword": "TAVG"}},
-                        {"term": {"variables.datamart_id": 0}}]
+                        {"term": {"variables.datamart_id": 0}}
+                    ]
                 }
             }
         }
