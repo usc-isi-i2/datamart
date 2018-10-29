@@ -248,7 +248,7 @@ class IndexBuilder(object):
         if data is not None:
             global_metadata = self._profiling_entire(global_metadata, data)
 
-        if description["variables"]:
+        if description.get("variables", []):
             for col_offset, variable_description in enumerate(description["variables"]):
                 variable_metadata = self.construct_variable_metadata(description=variable_description,
                                                                      global_datamart_id=datamart_id,
@@ -265,7 +265,8 @@ class IndexBuilder(object):
                 global_metadata.add_variable_metadata(variable_metadata)
 
         else:
-            warnings.warn("No data to profile for variable metadata and no variable description")
+            warnings.warn(
+                "No data to profile for variable metadata and no variable description. Leave empty for variable metadata")
 
         return global_metadata
 
