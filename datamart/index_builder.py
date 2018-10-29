@@ -293,14 +293,19 @@ class IndexBuilder(object):
                                                                 datamart_id=col_offset + global_datamart_id + 1)
 
         if data is not None:
-            variable_metadata = self._profiling_column(variable_metadata, data.iloc[:, col_offset])
+            variable_metadata = self._profiling_column(description, variable_metadata, data.iloc[:, col_offset])
 
         return variable_metadata
 
-    def _profiling_column(self, variable_metadata: VariableMetadata, column: pd.Series) -> VariableMetadata:
+    def _profiling_column(self,
+                          description: dict,
+                          variable_metadata: VariableMetadata,
+                          column: pd.Series
+                          ) -> VariableMetadata:
         """Profiling single column for necessary fields of metadata, if data is present .
 
         Args:
+            description: description dict about the column.
             variable_metadata: the original VariableMetadata instance.
             column: the column to profile.
 
@@ -316,11 +321,19 @@ class IndexBuilder(object):
 
         if variable_metadata.named_entity is None:
             variable_metadata.named_entity = self.profiler.profile_named_entity(column)
+        elif not description:
+            named_entities = self.profiler.named_entity_recognize(column)
+            if named_entities:
+                variable_metadata.named_entity = named_entities
 
         if variable_metadata.temporal_coverage:
             if not variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:
                 variable_metadata.temporal_coverage = self.profiler.profile_temporal_coverage(
-                    variable_metadata.temporal_coverage, column)
+                    column=column, coverage=variable_metadata.temporal_coverage)
+        elif not description:
+            temporal_coverage = self.profiler.profile_temporal_coverage(column=column)
+            if temporal_coverage:
+                variable_metadata.temporal_coverage = temporal_coverage
 
         return variable_metadata
 

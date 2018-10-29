@@ -22,7 +22,7 @@ class Profiler(object):
         return column.unique().tolist()
 
     @staticmethod
-    def profile_temporal_coverage(coverage: dict, column: pd.Series) -> dict:
+    def profile_temporal_coverage(column: pd.Series, coverage: dict = None) -> typing.Union[dict, bool]:
         """Profiling this temporal column .
 
         Args:
@@ -35,20 +35,26 @@ class Profiler(object):
 
         min_datetime = None
         max_datetime = None
-        this_datetime = None
         for element in column:
             try:
                 this_datetime = dateutil.parser.parse(element)
-            except:
-                warnings.warn("Cannot parse string as date")
-                pass
-            if this_datetime:
                 if not min_datetime:
                     min_datetime = this_datetime
                 min_datetime = min(min_datetime, this_datetime)
                 if not max_datetime:
                     max_datetime = this_datetime
                 max_datetime = max(max_datetime, this_datetime)
+            except:
+                pass
+
+        if not min_datetime and not max_datetime:
+            return False
+
+        if not coverage:
+            coverage = {
+                "start": None,
+                "end": None
+            }
 
         if not coverage['start']:
             coverage['start'] = min_datetime.isoformat()
@@ -110,3 +116,18 @@ class Profiler(object):
         """
 
         return data.columns.tolist()
+
+    @staticmethod
+    def named_entity_recognize(column: pd.Series) -> typing.Union[typing.List[str], bool]:
+        """Ideally run a NER on the column and profile.
+
+        Args:
+            column: pandas Series column.
+
+        Returns:
+            list of unique named entities strings in this column if contains named entity
+            False if not named entity column
+        """
+
+        "TODO"
+        return False
