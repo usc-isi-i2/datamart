@@ -244,15 +244,28 @@ class IndexBuilder(object):
             datamart_id = overwrite_datamart_id
 
         global_metadata = GlobalMetadata.construct_global(description, datamart_id=datamart_id)
-        for col_offset, variable_description in enumerate(description["variables"]):
-            variable_metadata = self.construct_variable_metadata(variable_description,
-                                                                 global_datamart_id=datamart_id,
-                                                                 col_offset=col_offset,
-                                                                 data=data)
-            global_metadata.add_variable_metadata(variable_metadata)
 
         if data is not None:
             global_metadata = self._profiling_entire(global_metadata, data)
+
+        if description["variables"]:
+            for col_offset, variable_description in enumerate(description["variables"]):
+                variable_metadata = self.construct_variable_metadata(description=variable_description,
+                                                                     global_datamart_id=datamart_id,
+                                                                     col_offset=col_offset,
+                                                                     data=data)
+                global_metadata.add_variable_metadata(variable_metadata)
+
+        elif data is not None:
+            for col_offset in range(data.shape[1]):
+                variable_metadata = self.construct_variable_metadata(description={},
+                                                                     global_datamart_id=datamart_id,
+                                                                     col_offset=col_offset,
+                                                                     data=data)
+                global_metadata.add_variable_metadata(variable_metadata)
+
+        else:
+            warnings.warn("No data to profile for variable metadata and no variable description")
 
         return global_metadata
 
