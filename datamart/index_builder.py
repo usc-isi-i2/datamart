@@ -4,7 +4,7 @@ import pandas as pd
 import warnings
 from datamart.metadata.global_metadata import GlobalMetadata
 from datamart.metadata.variable_metadata import VariableMetadata
-from datamart.index_manager import IndexManager
+from datamart.es_managers.index_manager import IndexManager
 from datamart.utils import Utils
 from datamart.profiler import Profiler
 import typing
@@ -19,7 +19,8 @@ class IndexBuilder(object):
         """
 
         self.resources_path = os.path.join(os.path.dirname(__file__), "resources")
-        self.index_config = json.load(open(os.path.join(self.resources_path, 'index_info.json'), 'r'))
+        with open(os.path.join(self.resources_path, 'index_info.json'), 'r') as index_info_f:
+            self.index_config = json.load(index_info_f)
         self.current_global_index = None
         self.GLOBAL_INDEX_INTERVAL = GLOBAL_INDEX_INTERVAL
         self.profiler = Profiler
@@ -63,9 +64,7 @@ class IndexBuilder(object):
         description, data = self._read_data(description_path, data_path)
         if not data and query_data_for_indexing:
             try:
-                materializer_module = description["materialization"]["python_path"]
-                materializer = Utils.load_materializer(materializer_module)
-                data = materializer.get(metadata=description)
+                data = Utils.materialize(metadata=description)
             except:
                 warnings.warn("Materialization Failed, index based on schema json only")
 
@@ -305,7 +304,7 @@ class IndexBuilder(object):
             variable_metadata.named_entity = self.profiler.profile_named_entity(column)
 
         if variable_metadata.temporal_coverage:
-            if variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:
+            if not variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:
                 variable_metadata.temporal_coverage = self.profiler.profile_temporal_coverage(
                     variable_metadata.temporal_coverage, column)
 
