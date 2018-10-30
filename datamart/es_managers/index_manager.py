@@ -1,11 +1,12 @@
-from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import json
+import typing
+from datamart.es_managers.es_manager import ESManager
 
 
-class IndexManager(object):
+class IndexManager(ESManager):
 
-    def __init__(self, es_host: str, es_port: int):
+    def __init__(self, es_host: str = "dsbox02.isi.edu", es_port: int = 9200) -> None:
         """Init method for index manager
 
         Args:
@@ -15,8 +16,7 @@ class IndexManager(object):
         Returns:
 
         """
-
-        self.es = Elasticsearch([{'host': es_host, 'port': es_port}])
+        super().__init__(es_host=es_host, es_port=es_port)
 
     def check_exists(self, index: str) -> bool:
         """check if index exist
@@ -32,7 +32,7 @@ class IndexManager(object):
             return True
         return False
 
-    def create_index(self, **kwargs):
+    def create_index(self, **kwargs) -> None:
         """create index
 
         Args:
@@ -44,7 +44,7 @@ class IndexManager(object):
 
         self.es.indices.create(**kwargs)
 
-    def delete_index(self, **kwargs):
+    def delete_index(self, **kwargs) -> None:
         """delete index
 
         Args:
@@ -56,7 +56,7 @@ class IndexManager(object):
 
         self.es.indices.delete(**kwargs)
 
-    def create_doc(self, **kwargs):
+    def create_doc(self, **kwargs) -> None:
         """create doc
 
         Args:
@@ -68,7 +68,19 @@ class IndexManager(object):
 
         self.es.create(**kwargs)
 
-    def create_doc_bulk(self, file: str, index: str):
+    def update_doc(self, **kwargs) -> None:
+        """create doc
+
+        Args:
+            kwargs
+
+        Returns:
+
+        """
+
+        self.es.update(**kwargs)
+
+    def create_doc_bulk(self, file: str, index: str) -> None:
         """bulk create doc by taking the metadata.out file produced by index builder
 
         Args:
@@ -92,22 +104,24 @@ class IndexManager(object):
             integer
         """
 
-        max_idx_query = json.dumps({
-            "aggs": {
-                "max_id": {
-                    "max": {
-                        "field": "datamart_id"
+        max_idx_query = json.dumps(
+            {
+                "aggs": {
+                    "max_id": {
+                        "max": {
+                            "field": "datamart_id"
+                        }
                     }
-                }
-            },
-            "size": 0
-        })
+                },
+                "size": 0
+            }
+        )
         result = self.es.search(index=kwargs["index"], body=max_idx_query)
         return result["aggregations"]["max_id"]["value"] if result["aggregations"]["max_id"][
             "value"] else 0
 
     @staticmethod
-    def make_documents(f, index: str):
+    def make_documents(f, index: str) -> typing.Iterator[dict]:
         """make documents for bulk load to es
 
         Args:
@@ -125,7 +139,6 @@ class IndexManager(object):
             idx = int(line.strip())
             line = f.readline()
             doc = {
-                '_op_type': 'create',
                 '_index': index,
                 '_type': "document",
                 '_source': line.strip(),
