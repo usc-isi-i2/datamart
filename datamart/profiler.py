@@ -9,7 +9,7 @@ class Profiler(object):
 
     @staticmethod
     def profile_named_entity(column: pd.Series) -> typing.List[str]:
-        """Profiling this named entities column .
+        """Profiling this named entities column, use when this column is marked as a named entities column.
 
         Args:
             column: pandas Series column.
@@ -21,6 +21,21 @@ class Profiler(object):
         return column.unique().tolist()
 
     @staticmethod
+    def named_entity_recognize(column: pd.Series) -> typing.Union[typing.List[str], bool]:
+        """Ideally run a NER on the column and profile.
+
+        Args:
+            column: pandas Series column.
+
+        Returns:
+            list of unique named entities strings in this column if contains named entity
+            False if not a named entity column
+        """
+
+        "TODO"
+        return False
+
+    @staticmethod
     def profile_temporal_coverage(column: pd.Series, coverage: dict = None) -> typing.Union[dict, bool]:
         """Profiling this temporal column .
 
@@ -30,13 +45,16 @@ class Profiler(object):
 
         Returns:
             temporal coverage dict
+            False if there is no temporal related element detected
         """
 
+        temporal_count = 0
         min_datetime = None
         max_datetime = None
         for element in column:
             try:
                 this_datetime = dateutil.parser.parse(element)
+                temporal_count += 1
                 if not min_datetime:
                     min_datetime = this_datetime
                 min_datetime = min(min_datetime, this_datetime)
@@ -47,6 +65,9 @@ class Profiler(object):
                 pass
 
         if not min_datetime and not max_datetime:
+            return False
+
+        if temporal_count < len(column)//2:
             return False
 
         if not coverage:
@@ -115,18 +136,3 @@ class Profiler(object):
         """
 
         return data.columns.tolist()
-
-    @staticmethod
-    def named_entity_recognize(column: pd.Series) -> typing.Union[typing.List[str], bool]:
-        """Ideally run a NER on the column and profile.
-
-        Args:
-            column: pandas Series column.
-
-        Returns:
-            list of unique named entities strings in this column if contains named entity
-            False if not named entity column
-        """
-
-        "TODO"
-        return False

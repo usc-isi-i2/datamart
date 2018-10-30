@@ -266,7 +266,7 @@ class IndexBuilder(object):
 
         else:
             warnings.warn(
-                "No data to profile for variable metadata and no variable description. Leave empty for variable metadata")
+                "No data to profile for variable metadata. No variable description. Leave empty for variable metadata")
 
         return global_metadata
 
