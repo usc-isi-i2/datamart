@@ -3,7 +3,7 @@ from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.utils import Utils
 import unittest, copy, json
 
-gt = json.load(open('datamart/unit_tests/resources/trading_economic.json', "r"))
+gt = json.load(open('datamart/unit_tests/resources/sample_schema.json', "r"))
 sample_global_metadata_description = gt["description"]
 
 
