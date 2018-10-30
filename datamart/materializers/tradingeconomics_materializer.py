@@ -33,6 +33,8 @@ class TradingEconomicsMaterializer(MaterializerBase):
                 metadata: json schema for data_type
                 variables:
                 constrains: include some constrains like date_range, location and so on
+
+                Assuming date is in the format %Y-%m-%d
         """
         if not constrains:
             constrains = dict()
@@ -44,11 +46,16 @@ class TradingEconomicsMaterializer(MaterializerBase):
         else:
             self.headers = {"key": "guest:guest"}
         date_range = constrains.get("date_range", {})
+        datestr=""
+        if date_range["start"]:
+            datestr += date_range["start"]
+        if date_range["end"]:
+            datestr += '/'+date_range["end"]
+        path1, path2=getUrl.split("?c=")
+        getUrl=path1+"/"+datestr+"?c="+path2
         if "locations" in constrains:
             locations = constrains["locations"]
-        else:
-            locations = ['all']
-        dataset_id = constrains.get("dataset_id", "TE")
+            getUrl=getUrl.replace("all",",".join(locations))
 
         datasetConfig = {
             "where_to_download": {
@@ -62,40 +69,15 @@ class TradingEconomicsMaterializer(MaterializerBase):
             },
         }
 
-        return self.fetch_data(getUrl, datasetConfig, date_range=date_range, locations=locations, dataset_id=dataset_id)
+        return self.fetch_data(getUrl, datasetConfig)
 
-    def fetch_data(self, getUrl, datasetConfig, date_range: dict = None, locations: list = None,
-                   dataset_id: str = 'TE'):
+    def fetch_data(self, getUrl, datasetConfig):
         """
-
-        Args:
-            date_range: data range constrain.(format: %Y-%m-%d)
-            locations: list of string of location
-            data_type: string of data type for the query
-            dataset_id
-
-
         Returns:
              result: A pd.DataFrame;
         """
-        # ignoring constrain for now.
-        # #data downloader json
-
-        tmp_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../../test/tmp")
-
         try:
-            dst_dataset_path = os.path.join(tmp_dir, datasetConfig["where_to_download"]["identifier"])
-
-            if os.path.exists(dst_dataset_path):
-                shutil.rmtree(dst_dataset_path)
-
-            # download
-            fs = FileDownloader(dst_dataset_path)
-            fs.process(datasetConfig, force=True, current_datetime=None)
-            filename = datasetConfig["where_to_download"]["identifier"] + "." + datasetConfig["where_to_download"][
-                "file_type"]
-
-            data = pd.read_csv(dst_dataset_path + "/" + filename, encoding='utf-16')
+            data = pd.read_csv(getUrl, encoding='utf-16')
             return data
         except Exception as e:
             print('exception in run', e)
