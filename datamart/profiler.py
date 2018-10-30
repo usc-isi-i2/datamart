@@ -1,7 +1,6 @@
 import pandas as pd
 import dateutil.parser
 import typing
-import warnings
 
 
 class Profiler(object):
