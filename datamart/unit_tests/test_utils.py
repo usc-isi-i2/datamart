@@ -4,6 +4,7 @@ from datamart.materializers.materializer_base import MaterializerBase
 from datamart.materializers.noaa_materializer import NoaaMaterializer
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
+import copy
 
 
 class TestUtils(unittest.TestCase):
@@ -94,9 +95,9 @@ class TestUtils(unittest.TestCase):
             }
         ]
 
-        for idx, _ in enumerate(materializers):
+        for idx, _ in enumerate(metadatas):
             with open(metadatas[idx], "r") as f:
                 metadata = json.load(f)
             for constrains in multiple_constrains:
-                result = Utils.materialize(metadata=metadata, constrains=constrains)
+                result = Utils.materialize(metadata=metadata, constrains=copy.deepcopy(constrains))
                 self.assertEqual(result is not None, True)

@@ -57,10 +57,10 @@ class FaoMaterializer(MaterializerBase):
         date_range = dict()
         if "date_range" in constrains:
             date_range = constrains.get("date_range")
-            date_range["start"] = parse(date_range["start"]).year
-            date_range["end"] = parse(date_range["end"]).year
+            date_range_start = parse(date_range["start"]).year
+            date_range_end = parse(date_range["end"]).year
         else:
-            date_range = {"start": DEFAULT_YEAR, "end": DEFAULT_YEAR}
+            date_range_start, date_range_end = DEFAULT_YEAR, DEFAULT_YEAR
         locations = constrains.get("locations", DEFAULT_LOCATIONS)
         data_type = materialization_arguments.get("type", DEFAULT_DATA_TYPE)
 
@@ -72,9 +72,9 @@ class FaoMaterializer(MaterializerBase):
             colnames = [desc[0] for desc in cur.description]
 
             constrains_for_query = "({0} >= {1} AND {2} <= {3}) AND (".format(colnames[3],
-                                                                              date_range["start"],
+                                                                              date_range_start,
                                                                               colnames[3],
-                                                                              date_range["end"])
+                                                                              date_range_end)
 
             for lo in locations:
                 constrains_for_query += "{0} = '{1}' OR ".format(colnames[0], lo)

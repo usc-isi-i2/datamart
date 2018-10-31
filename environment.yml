@@ -52,6 +52,7 @@ dependencies:
     - prometheus-client==0.4.0
     - prompt-toolkit==2.0.5
     - psycopg2==2.7.5
+    - psycopg2-binary==2.7.5
     - ptyprocess==0.6.0
     - pygments==2.2.0
     - python-dateutil==2.7.3

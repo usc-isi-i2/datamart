@@ -124,6 +124,7 @@ class Utils:
             validate(description, Utils.INDEX_SCHEMA)
             return True
         except:
+            print("[INVALID SCHEMA] title: {}".format(description.get("title")))
             raise ValueError("Invalid dataset description json according to index json schema")
 
     @staticmethod
