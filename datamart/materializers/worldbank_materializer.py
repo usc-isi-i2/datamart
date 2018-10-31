@@ -26,7 +26,7 @@ class WorldBankMaterializer(MaterializerBase):
             self.DEFAULT_LOCATIONS = []
             for i in countrynames:
                 self.DEFAULT_LOCATIONS.append(i)
-            print (self.DEFAULT_LOCATIONS)
+            #print (self.DEFAULT_LOCATIONS)
 
     def get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame:
         if not constrains:
