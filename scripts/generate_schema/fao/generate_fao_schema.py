@@ -3,6 +3,7 @@ import requests
 import json
 import os
 import sys
+import json
 
 DBNAME = 'faostat'
 USER = 'postgres'
@@ -41,7 +42,6 @@ def generate_json_schema():
         params["host"] = HOST
 
         # connect to the PostgreSQL server
-        print('Connecting to the PostgreSQL database...')
         conn = psycopg2.connect(**params)
         # create a cursor
         cur = conn.cursor()
@@ -69,13 +69,14 @@ def generate_json_schema():
                     "type": name
                 }
             }
-
+            resources_path = os.path.join(os.path.dirname(__file__),"UN's_region_for_FAO.json")
             schema['variables'] = []
             first_col = dict()
             first_col['name'] = colnames[0]
             first_col['description'] = 'the area of data'
             first_col['semantic_type'] = ["https://metadata.datadrivendiscovery.org/types/Location"]
-            first_col['named_entity'] = None
+            with open(resources_path) as f:
+                first_col['named_entity'] = json.load(f)["countries"]
 
             sec_col = dict()
             sec_col['name'] = colnames[1]
@@ -114,7 +115,6 @@ def generate_json_schema():
     finally:
         if conn is not None:
             conn.close()
-            print('Database connection closed.')
 
 
 if __name__ == '__main__':
