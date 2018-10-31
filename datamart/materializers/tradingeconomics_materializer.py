@@ -7,7 +7,6 @@ import sys
 import traceback
 import datetime
 import shutil
-from datamart.materializers.tradingeconomics_downloader.file_downloader import FileDownloader
 
 
 class TradingEconomicsMaterializer(MaterializerBase):
