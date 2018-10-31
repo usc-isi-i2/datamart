@@ -89,10 +89,3 @@ class FaoMaterializer(MaterializerBase):
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
             return None
-
-
-if __name__ == '__main__':
-    metadata = dict()
-    metadata['materialization'] = {}
-    m = FaoMaterializer()
-    print(m.get(metadata=metadata))

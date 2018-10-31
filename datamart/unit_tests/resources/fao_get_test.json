@@ -1,0 +1,891 @@
+[
+  {
+    "area": "China",
+    "item": "Animals live nes",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 22188.0
+  },
+  {
+    "area": "China",
+    "item": "Animals live nes",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 4447.0
+  },
+  {
+    "area": "China",
+    "item": "Animals, live, non-food",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 79961.0
+  },
+  {
+    "area": "China",
+    "item": "Animals, live, non-food",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 56953.0
+  },
+  {
+    "area": "China",
+    "item": "Asses",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 1602.0
+  },
+  {
+    "area": "China",
+    "item": "Asses",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 255.0
+  },
+  {
+    "area": "China",
+    "item": "Camels",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 100.0
+  },
+  {
+    "area": "China",
+    "item": "Camels",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 1337.0
+  },
+  {
+    "area": "China",
+    "item": "Cattle",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 144441.0
+  },
+  {
+    "area": "China",
+    "item": "Cattle",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 291504.0
+  },
+  {
+    "area": "China",
+    "item": "Cattle",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 37474.0
+  },
+  {
+    "area": "China",
+    "item": "Cattle",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 61067.0
+  },
+  {
+    "area": "China",
+    "item": "Chickens",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 6000.0
+  },
+  {
+    "area": "China",
+    "item": "Chickens",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 51188.0
+  },
+  {
+    "area": "China",
+    "item": "Chickens",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 4200.0
+  },
+  {
+    "area": "China",
+    "item": "Chickens",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 15320.0
+  },
+  {
+    "area": "China",
+    "item": "Ducks",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 4.0
+  },
+  {
+    "area": "China",
+    "item": "Ducks",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 26.0
+  },
+  {
+    "area": "China",
+    "item": "Goats",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 3461.0
+  },
+  {
+    "area": "China",
+    "item": "Goats",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 858.0
+  },
+  {
+    "area": "China",
+    "item": "Goats",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 5183.0
+  },
+  {
+    "area": "China",
+    "item": "Goats",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 925.0
+  },
+  {
+    "area": "China",
+    "item": "Horses",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 7879.0
+  },
+  {
+    "area": "China",
+    "item": "Horses",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 131942.0
+  },
+  {
+    "area": "China",
+    "item": "Horses",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 266.0
+  },
+  {
+    "area": "China",
+    "item": "Horses",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 102.0
+  },
+  {
+    "area": "China",
+    "item": "Pigeons, other birds",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 36.0
+  },
+  {
+    "area": "China",
+    "item": "Pigeons, other birds",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 815.0
+  },
+  {
+    "area": "China",
+    "item": "Pigeons, other birds",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 0.0
+  },
+  {
+    "area": "China",
+    "item": "Pigeons, other birds",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 9.0
+  },
+  {
+    "area": "China",
+    "item": "Pigs",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 1815170.0
+  },
+  {
+    "area": "China",
+    "item": "Pigs",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 474099.0
+  },
+  {
+    "area": "China",
+    "item": "Pigs",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 2830590.0
+  },
+  {
+    "area": "China",
+    "item": "Pigs",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 514581.0
+  },
+  {
+    "area": "China",
+    "item": "Rabbits and hares",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 2254.0
+  },
+  {
+    "area": "China",
+    "item": "Rabbits and hares",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 442.0
+  },
+  {
+    "area": "China",
+    "item": "Rabbits and hares",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 59.0
+  },
+  {
+    "area": "China",
+    "item": "Rabbits and hares",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 330.0
+  },
+  {
+    "area": "China",
+    "item": "Sheep",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 10790.0
+  },
+  {
+    "area": "China",
+    "item": "Sheep",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 8075.0
+  },
+  {
+    "area": "China",
+    "item": "Turkeys",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 40.0
+  },
+  {
+    "area": "China",
+    "item": "Turkeys",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 123.0
+  },
+  {
+    "area": "China",
+    "item": "Agricult.Products,Total",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 138223000.0
+  },
+  {
+    "area": "China",
+    "item": "Agricult.Products,Total",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 64257000.0
+  },
+  {
+    "area": "China",
+    "item": "Bovine, Animals",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 144441.0
+  },
+  {
+    "area": "China",
+    "item": "Bovine, Animals",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 291504.0
+  },
+  {
+    "area": "China",
+    "item": "Bovine, Animals",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 37474.0
+  },
+  {
+    "area": "China",
+    "item": "Bovine, Animals",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 61067.0
+  },
+  {
+    "area": "China",
+    "item": "Food Excl Fish",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 106217000.0
+  },
+  {
+    "area": "China",
+    "item": "Food Excl Fish",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 45543000.0
+  },
+  {
+    "area": "China",
+    "item": "Live Animals",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 982853.0
+  },
+  {
+    "area": "China",
+    "item": "Live Animals",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 596781.0
+  },
+  {
+    "area": "China",
+    "item": "Sheep and Goats",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 14251.0
+  },
+  {
+    "area": "China",
+    "item": "Sheep and Goats",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 8933.0
+  },
+  {
+    "area": "China",
+    "item": "Sheep and Goats",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 5183.0
+  },
+  {
+    "area": "China",
+    "item": "Sheep and Goats",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 925.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Animals live nes",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 541.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Animals, live, non-food",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 166590.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Animals, live, non-food",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 80435.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Asses",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 9.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Asses",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 13.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Asses",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 12533.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Asses",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 2840.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Buffaloes",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 22992.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Buffaloes",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 54326.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Buffaloes",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 349.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Buffaloes",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 318.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Camels",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 12.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Camels",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 24.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Camels",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 40.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Camels",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 18.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Cattle",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 1708170.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Cattle",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 1623590.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Cattle",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 69559.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Cattle",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 77399.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Chickens",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 5580.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Chickens",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 11275.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Chickens",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 68995.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Chickens",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 158963.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Ducks",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 3763.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Ducks",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 4751.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Ducks",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 758.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Ducks",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 1149.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Goats",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 6951.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Goats",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 420.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Goats",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 7335.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Goats",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 443.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Horses",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 17631.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Horses",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 589555.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Horses",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 149731.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Horses",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 417196.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Mules",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 4372.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Mules",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 4811.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Pigeons, other birds",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 85.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Pigeons, other birds",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 1135.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Pigeons, other birds",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 260.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Pigeons, other birds",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 2331.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Pigs",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 5656010.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Pigs",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 313157.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Pigs",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 48227.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Pigs",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 13697.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Rabbits and hares",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 73.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Rabbits and hares",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 2038.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Rabbits and hares",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 41.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Rabbits and hares",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 1125.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Sheep",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 14272.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Sheep",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 1222.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Sheep",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 51767.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Sheep",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 3008.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Turkeys",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 9780.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Turkeys",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 35105.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Turkeys",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 11859.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Turkeys",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 12859.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Agricult.Products,Total",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 123582000.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Agricult.Products,Total",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 137751000.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Bovine, Animals",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 1731170.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Bovine, Animals",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 1677920.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Bovine, Animals",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 69908.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Bovine, Animals",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 77717.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Food Excl Fish",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 81435800.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Food Excl Fish",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 108092000.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Live Animals",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 2636770.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Live Animals",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 696722.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Sheep and Goats",
+    "element": "Import Quantity",
+    "year": 2016,
+    "value": 21223.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Sheep and Goats",
+    "element": "Import Value",
+    "year": 2016,
+    "value": 1641.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Sheep and Goats",
+    "element": "Export Quantity",
+    "year": 2016,
+    "value": 59102.0
+  },
+  {
+    "area": "United States of America",
+    "item": "Sheep and Goats",
+    "element": "Export Value",
+    "year": 2016,
+    "value": 3451.0
+  }
+]
