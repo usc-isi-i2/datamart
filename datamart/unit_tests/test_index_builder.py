@@ -9,6 +9,32 @@ class TestIndexBuilder(unittest.TestCase):
     def setUp(self):
         self.ib = IndexBuilder()
         self.global_datamart_id = 10000
+        self.df_for_global = pd.DataFrame({
+            "city": ["abu dhabi", "ajman", "dubai", "sharjah"],
+            'date': ["2018-10-05", "2014-02-23", "2020-09-23T00:10:00", "2023213"]
+        })
+
+        self.df_for_variable = pd.DataFrame({
+            'date': ["2018-10-05", "2014-02-23", "2020-09-23T00:10:00", "2023213"]
+        })
+
+    @Utils.test_print
+    def test_construct_variable_metadata_with_empty_variable(self):
+        variable_metadata = self.ib.construct_variable_metadata(
+            description={},
+            global_datamart_id=self.global_datamart_id,
+            col_offset=0,
+            data=self.df_for_variable
+        )
+        expected = {
+            'datamart_id': 10001,
+            'semantic_type': [],
+            'name': 'date',
+            'description': 'column name: date, dtype: object',
+            'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2020-09-23T00:10:00'}
+        }
+
+        self.assertEqual(variable_metadata.value, expected)
 
     @Utils.test_print
     def test_construct_variable_metadata_1(self):
@@ -43,10 +69,6 @@ class TestIndexBuilder(unittest.TestCase):
 
     @Utils.test_print
     def test_construct_variable_metadata_1_with_data(self):
-        data = {
-            'date': ["2018-10-05", "2014-02-23", "2020-09-23T00:10:00", "2023213"]
-        }
-        df = pd.DataFrame(data)
         variable_description = {
             "description": "the date of data",
             "semantic_type": [
@@ -61,7 +83,7 @@ class TestIndexBuilder(unittest.TestCase):
             description=variable_description,
             global_datamart_id=self.global_datamart_id,
             col_offset=0,
-            data=df
+            data=self.df_for_variable
         )
         expected = {
             'datamart_id': 10001,
@@ -234,11 +256,6 @@ class TestIndexBuilder(unittest.TestCase):
 
     @Utils.test_print
     def test_construct_global_metadata_with_data(self):
-        data = {
-            "city": ["abu dhabi", "ajman", "dubai", "sharjah"],
-            'date': ["2018-10-05", "2014-02-23", "2020-09-23T00:10:00", "2023213"]
-        }
-        df = pd.DataFrame(data)
         self.ib.current_global_index = 10000
         description = {
             "url": "https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/readme.txt",
@@ -274,7 +291,7 @@ class TestIndexBuilder(unittest.TestCase):
         }
         global_metadata = self.ib.construct_global_metadata(
             description=description,
-            data=df
+            data=self.df_for_global
         )
 
         expected = {
@@ -302,6 +319,44 @@ class TestIndexBuilder(unittest.TestCase):
                     'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2020-09-23T00:10:00'}
                 }
             ]
+        }
+
+        self.assertEqual(global_metadata.value, expected)
+
+    @Utils.test_print
+    def test_construct_global_metadata_with_basic_fields(self):
+        self.ib.current_global_index = 10000
+        description = {
+            "materialization": {
+                "python_path": "noaa_materializer"
+            }
+        }
+        global_metadata = self.ib.construct_global_metadata(
+            description=description,
+            data=self.df_for_global
+        )
+
+        expected = {
+            'datamart_id': 20000,
+            'materialization': {'python_path': 'noaa_materializer', 'arguments': None},
+            'variables': [
+                {
+                    'datamart_id': 20001,
+                    'semantic_type': [],
+                    'name': 'city',
+                    'description': 'column name: city, dtype: object'
+                },
+                {
+                    'datamart_id': 20002,
+                    'semantic_type': [],
+                    'name': 'date',
+                    'description': 'column name: date, dtype: object',
+                    'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2020-09-23T00:10:00'}
+                }
+            ],
+            'title': 'city date',
+            'description': 'city : object, date : object',
+            'keywords': ['city', 'date']
         }
 
         self.assertEqual(global_metadata.value, expected)
