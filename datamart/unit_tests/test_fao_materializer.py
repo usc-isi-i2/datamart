@@ -1,6 +1,5 @@
 from datamart.materializers.fao_materializer import FaoMaterializer
-import unittest, json, os
-import pandas as pd
+import unittest, os
 from datamart.utils import Utils
 import json
 

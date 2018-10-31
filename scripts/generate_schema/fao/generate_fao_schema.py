@@ -32,7 +32,10 @@ def generate_json_schema():
             name = name[:-1].lower().replace("-", "_")
 
         description[name] = data["DatasetDescription"]
-        keyword[name] = [data["Topic"]]
+        if data["Topic"] is None:
+            keyword[name] = None
+        else:
+            keyword[name] = [data["Topic"]]
     try:
         # read connection parameters
         params = dict()
