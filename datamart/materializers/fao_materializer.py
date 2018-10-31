@@ -9,7 +9,8 @@ USER = 'postgres'
 PASSWORD = '123123'
 HOST = 'dsbox02.isi.edu'
 DEFAULT_LOCATIONS = ['United States of America']
-DEFAULT_YEAR = '2000'
+DEFAULT_START_YEAR = '0'
+DEFAULT_END_YEAR = '2018'
 DEFAULT_DATA_TYPE = 'trade_liveanimals_e_all_data'
 
 
@@ -54,13 +55,13 @@ class FaoMaterializer(MaterializerBase):
             constrains = dict()
 
         materialization_arguments = metadata["materialization"].get("arguments", {})
-        date_range = dict()
+        date_range_start, date_range_end = DEFAULT_START_YEAR, DEFAULT_END_YEAR
         if "date_range" in constrains:
             date_range = constrains.get("date_range")
-            date_range_start = parse(date_range["start"]).year
-            date_range_end = parse(date_range["end"]).year
-        else:
-            date_range_start, date_range_end = DEFAULT_YEAR, DEFAULT_YEAR
+            if "start" in date_range:
+                date_range_start = parse(date_range["start"]).year
+            if "end" in date_range:
+                date_range_end = parse(date_range["end"]).year
         locations = constrains.get("locations", DEFAULT_LOCATIONS)
         data_type = materialization_arguments.get("type", DEFAULT_DATA_TYPE)
 

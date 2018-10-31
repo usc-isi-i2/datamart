@@ -12,6 +12,7 @@ HOST = 'dsbox02.isi.edu'
 JSONDESCRIPTION = "http://fenixservices.fao.org/faostat/static/bulkdownloads/datasets_E.json"
 SPECIAL_URL = "http://fenixservices.fao.org/faostat/static/bulkdownloads/Environment_LivestockManure_E_All_Data_(Normalized).zip"
 
+
 def generate_json_schema():
     conn = None
     response = json.loads(requests.get(JSONDESCRIPTION).text)
@@ -72,7 +73,7 @@ def generate_json_schema():
                     "type": name
                 }
             }
-            resources_path = os.path.join(os.path.dirname(__file__),"UN's_region_for_FAO.json")
+            resources_path = os.path.join(os.path.dirname(__file__), "UN's_region_for_FAO.json")
             schema['variables'] = []
             first_col = dict()
             first_col['name'] = colnames[0]
@@ -95,6 +96,7 @@ def generate_json_schema():
             fourth_col['name'] = colnames[3]
             fourth_col['description'] = 'the year of data'
             fourth_col['semantic_type'] = ["http://schema.org/Integer"]
+            fourth_col['temporal_coverage'] = None
 
             fif_col = dict()
             fif_col['name'] = colnames[4]
