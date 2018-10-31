@@ -97,7 +97,7 @@ def generate_json_schema():
             schema['description'] = result['name']
         schema['url'] = 'https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/readme.txt'
         schema['keywords'] = [result['name']]
-        schema['provenance'] = 'noaa.org'
+        schema['provenance'] = {'source': 'noaa.org'}
         schema['materialization'] = {
             "python_path": 'noaa_materializer',
             "arguments": {

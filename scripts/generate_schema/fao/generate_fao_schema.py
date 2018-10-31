@@ -66,7 +66,7 @@ def generate_json_schema():
             schema['description'] = description[name]
             schema['url'] = 'http://fenixservices.fao.org/faostat/static/bulkdownloads/datasets_E.json'
             schema['keywords'] = keyword[name]
-            schema['provenance'] = 'fao.org'
+            schema['provenance'] = {'source': 'fao.org'}
             schema['materialization'] = {
                 "python_path": 'fao_materializer',
                 "arguments": {
