@@ -106,7 +106,9 @@ class Utils:
        """
         materializer = cls.load_materializer(materializer_module=metadata["materialization"]["python_path"])
         df = materializer.get(metadata=metadata, variables=variables, constrains=constrains)
-        return df.infer_objects()
+        if isinstance(df, DataFrame):
+            return df.infer_objects()
+        return None
 
     @staticmethod
     def validate_schema(description: dict) -> bool:
@@ -122,6 +124,7 @@ class Utils:
             validate(description, Utils.INDEX_SCHEMA)
             return True
         except:
+            print("[INVALID SCHEMA] title: {}".format(description.get("title")))
             raise ValueError("Invalid dataset description json according to index json schema")
 
     @staticmethod

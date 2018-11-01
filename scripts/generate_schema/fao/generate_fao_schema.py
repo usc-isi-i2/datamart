@@ -3,6 +3,7 @@ import requests
 import json
 import os
 import sys
+import json
 
 DBNAME = 'faostat'
 USER = 'postgres'
@@ -10,6 +11,7 @@ PASSWORD = '123123'
 HOST = 'dsbox02.isi.edu'
 JSONDESCRIPTION = "http://fenixservices.fao.org/faostat/static/bulkdownloads/datasets_E.json"
 SPECIAL_URL = "http://fenixservices.fao.org/faostat/static/bulkdownloads/Environment_LivestockManure_E_All_Data_(Normalized).zip"
+
 
 def generate_json_schema():
     conn = None
@@ -31,7 +33,10 @@ def generate_json_schema():
             name = name[:-1].lower().replace("-", "_")
 
         description[name] = data["DatasetDescription"]
-        keyword[name] = [data["Topic"]]
+        if data["Topic"] is None:
+            keyword[name] = None
+        else:
+            keyword[name] = [data["Topic"]]
     try:
         # read connection parameters
         params = dict()
@@ -41,7 +46,6 @@ def generate_json_schema():
         params["host"] = HOST
 
         # connect to the PostgreSQL server
-        print('Connecting to the PostgreSQL database...')
         conn = psycopg2.connect(**params)
         # create a cursor
         cur = conn.cursor()
@@ -62,20 +66,21 @@ def generate_json_schema():
             schema['description'] = description[name]
             schema['url'] = 'http://fenixservices.fao.org/faostat/static/bulkdownloads/datasets_E.json'
             schema['keywords'] = keyword[name]
-            schema['provenance'] = 'fao.org'
+            schema['provenance'] = {'source': 'fao.org'}
             schema['materialization'] = {
                 "python_path": 'fao_materializer',
                 "arguments": {
                     "type": name
                 }
             }
-
+            resources_path = os.path.join(os.path.dirname(__file__), "UN's_region_for_FAO.json")
             schema['variables'] = []
             first_col = dict()
             first_col['name'] = colnames[0]
             first_col['description'] = 'the area of data'
             first_col['semantic_type'] = ["https://metadata.datadrivendiscovery.org/types/Location"]
-            first_col['named_entity'] = None
+            with open(resources_path) as f:
+                first_col['named_entity'] = json.load(f)["countries"]
 
             sec_col = dict()
             sec_col['name'] = colnames[1]
@@ -91,6 +96,7 @@ def generate_json_schema():
             fourth_col['name'] = colnames[3]
             fourth_col['description'] = 'the year of data'
             fourth_col['semantic_type'] = ["http://schema.org/Integer"]
+            fourth_col['temporal_coverage'] = None
 
             fif_col = dict()
             fif_col['name'] = colnames[4]
@@ -114,7 +120,6 @@ def generate_json_schema():
     finally:
         if conn is not None:
             conn.close()
-            print('Database connection closed.')
 
 
 if __name__ == '__main__':

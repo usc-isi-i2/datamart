@@ -5,9 +5,8 @@ import typing
 import os
 import sys
 import traceback
-
+import datetime
 import shutil
-from datamart.materializers.tradingeconomics_downloader.file_downloader import FileDownloader
 
 
 class TradingEconomicsMaterializer(MaterializerBase):
@@ -47,15 +46,21 @@ class TradingEconomicsMaterializer(MaterializerBase):
             self.headers = {"key": "guest:guest"}
         date_range = constrains.get("date_range", {})
         datestr=""
-        if date_range["start"]:
+        now = datetime.datetime.now()
+
+        if "start" in date_range and date_range["start"]:
             datestr += date_range["start"]
-        if date_range["end"]:
+        else:
+            datestr += "{}-{}-{}".format(now.year-1, "01", "01")
+        if "end" in date_range and date_range["end"]:
             datestr += '/'+date_range["end"]
+        else:
+            datestr += '/' + "{}-{}-{}".format(now.year, "01", "01")
         path1, path2=getUrl.split("?c=")
         getUrl=path1+"/"+datestr+"?c="+path2
         if "locations" in constrains:
             locations = constrains["locations"]
-            getUrl=getUrl.replace("all",",".join(locations))
+            getUrl=getUrl.replace("all",",".join([x.replace(' ', '%20') for x in locations]))
 
         datasetConfig = {
             "where_to_download": {

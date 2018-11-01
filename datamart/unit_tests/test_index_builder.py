@@ -184,7 +184,7 @@ class TestIndexBuilder(unittest.TestCase):
             "keywords": [
                 "Average Temperature."
             ],
-            "provenance": "noaa.org",
+            "provenance": {"resource": "noaa.org"},
             "materialization": {
                 "python_path": "noaa_materializer",
                 "arguments": {
@@ -229,7 +229,7 @@ class TestIndexBuilder(unittest.TestCase):
             'url': 'https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/readme.txt',
             'keywords': ['Average Temperature.'],
             'date_updated': '2018-09-28T00:00:00',
-            'provenance': 'noaa.org',
+            'provenance': {"resource": "noaa.org"},
             'materialization': {
                 'python_path': 'noaa_materializer',
                 'arguments': {'type': 'TAVG'}
@@ -262,7 +262,7 @@ class TestIndexBuilder(unittest.TestCase):
             "keywords": [
                 "Average Temperature."
             ],
-            "provenance": "noaa.org",
+            "provenance": {"resource": "noaa.org"},
             "materialization": {
                 "python_path": "noaa_materializer",
                 "arguments": {
@@ -301,7 +301,7 @@ class TestIndexBuilder(unittest.TestCase):
             'url': 'https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/readme.txt',
             'keywords': ['Average Temperature.'],
             'date_updated': '2018-09-28T00:00:00',
-            'provenance': 'noaa.org',
+            'provenance': {"resource": "noaa.org"},
             'materialization': {'python_path': 'noaa_materializer', 'arguments': {'type': 'TAVG'}},
             'variables': [
                 {

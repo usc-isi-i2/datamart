@@ -152,7 +152,7 @@
     },
     "provenance": {
       "description": "Provenance of the dataset (TBD)",
-      "type": ["string", "null"]
+      "type": ["null", "object"]
     },
     "original_identifier": {
       "description": "Original global unique id associate with the dataset if applicable, like id in wikidata",

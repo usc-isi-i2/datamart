@@ -17,6 +17,9 @@ class GlobalMetadata(MetadataBase):
 
         super().__init__()
 
+        if not isinstance(datamart_id, int):
+            raise ValueError("datamart id must be integer")
+
         self._metadata["datamart_id"] = datamart_id
         if "title" in description:
             self._metadata["title"] = description["title"]
