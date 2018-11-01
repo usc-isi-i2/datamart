@@ -18,16 +18,13 @@ def getAllIndicatorList(UrlPath):
 
 
 def generate_json_schema(dst_path):
-    # urlType={
-    #     "commoditiesUrlPath" : "https://api.tradingeconomics.com/markets/commodities",
-    #     "currencyUrlPath" : "https://api.tradingeconomics.com/markets/currency",
-    #     "indexUrlPath" : "https://api.tradingeconomics.com/markets/index",
-    #     "bondUrlPath" : "https://api.tradingeconomics.com/markets/bond"
-    # }
-    urlType = {
-
-        "indexUrlPath": "https://api.tradingeconomics.com/markets/index"
+    urlType={
+        "commoditiesUrlPath" : "https://api.tradingeconomics.com/markets/commodities",
+        "currencyUrlPath" : "https://api.tradingeconomics.com/markets/currency",
+        "indexUrlPath" : "https://api.tradingeconomics.com/markets/index",
+        "bondUrlPath" : "https://api.tradingeconomics.com/markets/bond"
     }
+
     for type in urlType:
         unique_urls_str = getAllIndicatorList(urlType[type])
         for path, name, country in unique_urls_str:
