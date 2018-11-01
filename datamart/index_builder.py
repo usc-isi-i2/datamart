@@ -326,11 +326,12 @@ class IndexBuilder(object):
             if named_entities:
                 variable_metadata.named_entity = named_entities
 
-        if variable_metadata.temporal_coverage is None:
+        if variable_metadata.temporal_coverage is not False:
             if not variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:
                 variable_metadata.temporal_coverage = self.profiler.profile_temporal_coverage(
                     column=column, coverage=variable_metadata.temporal_coverage)
-        elif variable_metadata.temporal_coverage is False and not description:
+
+        elif not description:
             temporal_coverage = self.profiler.profile_temporal_coverage(column=column)
             if temporal_coverage:
                 variable_metadata.temporal_coverage = temporal_coverage
