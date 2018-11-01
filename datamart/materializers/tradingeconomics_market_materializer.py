@@ -2,14 +2,11 @@ from datamart.materializers.materializer_base import MaterializerBase
 
 import pandas as pd
 import typing
-import os
 import sys
 import traceback
 import datetime
-import shutil
 
-
-class TradingEconomicsMaterializer(MaterializerBase):
+class TradingEconomicsMarketMaterializer(MaterializerBase):
     """TradingEconomicsMaterializer class extended from  Materializer class
 
     """
@@ -44,35 +41,34 @@ class TradingEconomicsMaterializer(MaterializerBase):
         else:
             self.headers = {"key": "guest:guest"}
         date_range = constrains.get("date_range", {})
+        d1=""
         datestr=""
 
         if date_range.get("start", None) and date_range.get("end", None):
-            datestr += date_range["start"]
-            datestr += '/' + date_range["end"]
-        elif not date_range.get("start", None) and not date_range.get("end", None):
-            now = datetime.datetime.now()
-            datestr += "{}-{}-{}".format(now.year - 1, now.month, now.day)
-            datestr += '/' + "{}-{}-{}".format(now.year, now.month, now.day)
+            datestr += "d1=" + date_range["start"]
+            datestr += '&d2=' + date_range["end"]
         elif date_range.get("start", None):
+            datestr += "d1=" + date_range["start"]
             now = datetime.datetime.now()
-            datestr += date_range["start"]
-            datestr += '/' + "{}-{}-{}".format(now.year, now.month, now.day)
+            datestr += '&d2=' + "{}-{}-{}".format(now.year, now.month, now.day)
+        elif date_range.get("end", None):
+            datestr += "d1=" + "{}-{}-{}".format("1800", "01", "01")
+            datestr += '&d2=' + date_range["end"]
         else:
-            datestr += "{}-{}-{}".format("1900", "01", "01")
-            datestr += '/' + date_range["end"]
+            now = datetime.datetime.now()
+            datestr += "d1=" + "{}-{}-{}".format("1800", "01", "01")
+            datestr += '&d2=' + "{}-{}-{}".format(now.year, now.month, now.day)
 
-        path1, path2=getUrl.split("?c=")
-        getUrl=path1+"/"+datestr+"?c="+path2
-        if "locations" in constrains:
-            locations = constrains["locations"]
-            getUrl=getUrl.replace("all",",".join([x.replace(' ', '%20') for x in locations]))
+        path = getUrl.split("&")
+        path[1] = datestr
+        getUrl = "&".join(path)
 
         datasetConfig = {
             "where_to_download": {
                 "frequency": "quarterly",
                 "method": "get",
                 "file_type": "csv",
-                "template": metadata['url'],
+                "template": getUrl,
                 "replication": {
                 },
                 "identifier": metadata['title'].replace(' ', '_')

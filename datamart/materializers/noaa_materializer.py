@@ -38,7 +38,11 @@ class NoaaMaterializer(MaterializerBase):
             reader = csv.reader(csv_file)
             self.city_to_id_map = dict(reader)
 
-    def get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame:
+    def get(self,
+            metadata: dict = None,
+            variables: typing.List[int] = None,
+            constrains: dict = None
+            ) -> typing.Optional[pd.DataFrame]:
         """ API for get a dataframe.
 
             Args:

@@ -4,7 +4,7 @@ from datamart.utils import Utils
 
 
 class GlobalMetadata(MetadataBase):
-    def __init__(self, description: dict, datamart_id: int):
+    def __init__(self, description: dict, datamart_id: int) -> None:
         """Init method of GlobalMetadata.
 
         Args:
@@ -16,6 +16,9 @@ class GlobalMetadata(MetadataBase):
         """
 
         super().__init__()
+
+        if not isinstance(datamart_id, int):
+            raise ValueError("datamart id must be integer")
 
         self._metadata["datamart_id"] = datamart_id
         if "title" in description:
@@ -64,10 +67,10 @@ class GlobalMetadata(MetadataBase):
             self._metadata["license"] = description["license"]
 
     @classmethod
-    def construct_global(cls, description, datamart_id):
+    def construct_global(cls, description, datamart_id) -> 'GlobalMetadata':
         return cls(description, datamart_id)
 
-    def add_variable_metadata(self, variable_metadata: VariableMetadata):
+    def add_variable_metadata(self, variable_metadata: VariableMetadata) -> None:
         """Add a variable_metadata to this golbal metadata instance.
 
         Args:
@@ -83,6 +86,10 @@ class GlobalMetadata(MetadataBase):
     @property
     def datamart_id(self):
         return self._metadata["datamart_id"]
+
+    @datamart_id.setter
+    def datamart_id(self, value):
+        self._metadata["datamart_id"] = value
 
     @property
     def title(self):

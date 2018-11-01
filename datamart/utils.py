@@ -7,6 +7,8 @@ import sys
 import json
 from jsonschema import validate
 from termcolor import colored
+import typing
+from pandas import DataFrame
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 
@@ -16,7 +18,7 @@ class Utils:
         open(os.path.join(os.path.join(os.path.dirname(__file__), "resources"), 'index_schema.json'), 'r'))
 
     @staticmethod
-    def date_validate(date_text: str):
+    def date_validate(date_text: str) -> typing.Optional[str]:
         """Validate if a string is a valid date.
 
         Args:
@@ -34,7 +36,7 @@ class Utils:
         return this_datetime.isoformat()
 
     @classmethod
-    def temporal_coverage_validate(cls, coverage: dict):
+    def temporal_coverage_validate(cls, coverage: dict) -> dict:
         """Validate if a string is a valid date.
 
         Args:
@@ -87,23 +89,46 @@ class Utils:
         materializer = materializer_class()
         return materializer
 
+    @classmethod
+    def materialize(cls,
+                    metadata: dict,
+                    variables: list = None,
+                    constrains: dict = None) -> typing.Optional[DataFrame]:
+        """Get the dataset with materializer.
+
+       Args:
+           metadata: metadata dict.
+           variables:
+           constrains:
+
+       Returns:
+            pandas dataframe
+       """
+        materializer = cls.load_materializer(materializer_module=metadata["materialization"]["python_path"])
+        df = materializer.get(metadata=metadata, variables=variables, constrains=constrains)
+        if isinstance(df, DataFrame):
+            return df.infer_objects()
+        return None
+
     @staticmethod
-    def validate_schema(description: dict):
+    def validate_schema(description: dict) -> bool:
         """Validate dict against json schema.
 
         Args:
             description: description dict.
 
         Returns:
+            boolean
         """
         try:
             validate(description, Utils.INDEX_SCHEMA)
             return True
         except:
+            print("[INVALID SCHEMA] title: {}".format(description.get("title")))
             raise ValueError("Invalid dataset description json according to index json schema")
 
     @staticmethod
-    def test_print(func):
+    def test_print(func) -> typing.Callable:
         def __decorator(self):
             print("[Test]{}/{}".format(self.__class__.__name__, func.__name__))
             func(self)
