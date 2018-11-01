@@ -4,6 +4,7 @@ import os
 import hashlib
 import itertools
 from dateutil.relativedelta import relativedelta
+import pandas as pd
 
 import requests
 import wget
@@ -29,6 +30,7 @@ class FileDownloader():
         os.chdir(self.dst_path)
 
         urls = self.generate_url_list(data, current_datetime)
+        return urls
 
         self.downloadHelper(urls, data, force, current_datetime)
 
@@ -88,9 +90,6 @@ class FileDownloader():
         if self.checkDateMatch(frequency, current_datetime) or force:
             for url in urls:
                 status_code, timestamp, fname = self.downloadFile(url, param, method, identifier, file_type)
-                if status_code == 200:
-                    self.addMetaData(url, timestamp, fname, identifier)
-
     # check if the file is scheduled to be downloaded for the current date
     def checkDateMatch(self, file_date, current_datetime):
         if len(file_date) == 0 or file_date == "never":
@@ -121,6 +120,7 @@ class FileDownloader():
             # print link, local_filename
             try:
                 wget.download(link, out=local_filename, bar=None)
+                print(local_filename)
                 return 200, ts, local_filename
             except Exception as e:
                 print('ftp download error', e)
@@ -133,7 +133,7 @@ class FileDownloader():
             # POST request
             elif method == "post":
                 r = requests.post(url=link, params=parameters, stream=True)
-
+            print(pd.read_csv(link,encoding='utf-16'))
             # if status is not okay
             if r.status_code != 200:
                 print('http download error', r.status_code)
@@ -161,3 +161,20 @@ class FileDownloader():
         with open(config['metadata_file_name'], 'a') as f:
             # append JSONLINE at the end of metadata.jl
             f.write(json.dumps(dict) + '\n')
+
+if __name__ == "__main__":
+    updater = FileDownloader("download/")
+    #https://api.tradingeconomics.com/historical/country/all/indicator/Inflation%20Rate/{date_start}/{date_end}?c=guest:guest&format=csv
+    datasetconfig = {
+        "where_to_download": {
+            "frequency": "quarterly",
+            "method": "get",
+            "file_type": "csv",
+            "template": "https://api.tradingeconomics.com/historical/country/all/indicator/Inflation%20Rate?c=guest:guest&format=csv",
+            "replication": {
+            },
+            "identifier": "inflation_rate"
+        },
+        "how_to_process": "Event"
+    }
+    updater.process(datasetconfig, True, False)

@@ -18,11 +18,15 @@ def getAllIndicatorList(UrlPath):
 
 
 def generate_json_schema(dst_path):
-    urlType={
-        "commoditiesUrlPath" : "https://api.tradingeconomics.com/markets/commodities",
-        "currencyUrlPath" : "https://api.tradingeconomics.com/markets/currency",
-        "indexUrlPath" : "https://api.tradingeconomics.com/markets/index",
-        "bondUrlPath" : "https://api.tradingeconomics.com/markets/bond"
+    # urlType={
+    #     "commoditiesUrlPath" : "https://api.tradingeconomics.com/markets/commodities",
+    #     "currencyUrlPath" : "https://api.tradingeconomics.com/markets/currency",
+    #     "indexUrlPath" : "https://api.tradingeconomics.com/markets/index",
+    #     "bondUrlPath" : "https://api.tradingeconomics.com/markets/bond"
+    # }
+    urlType = {
+
+        "indexUrlPath": "https://api.tradingeconomics.com/markets/index"
     }
     for type in urlType:
         unique_urls_str = getAllIndicatorList(urlType[type])
@@ -42,7 +46,7 @@ def generate_json_schema(dst_path):
                 schema['date_updated'] = data[0]['Date']
                 schema['provenance'] = {'source':'tradingeconomics.com'}
                 schema['materialization'] = {
-                    "python_path": 'tradingeconomics_materializer',
+                    "python_path": 'tradingeconomics_market_materializer',
                     "arguments": {}
                 }
                 schema['variables'] = []
