@@ -92,11 +92,11 @@ def generate_json_schema(dst_path):
                     os.makedirs(dst_path + '/tradingecomonics_market_schema', exist_ok=True)
 
                     file = os.path.join(dst_path, 'tradingecomonics_market_schema',
-                                        "{}_description.json".format(path.lower().replace(":", "_")))
+                                        "{}_description.json".format(path.lower().replace(":", "_").replace(" ", "_")))
                 else:
                     os.makedirs('tradingecomonics_schema', exist_ok=True)
                     file = os.path.join('tradingecomonics_schema',
-                                         "{}_description.json".format(path.lower().replace(":", "_")))
+                                         "{}_description.json".format(path.lower().replace(":", "_").replace(" ", "_")))
 
                 with open(file, "w") as fp:
                     json.dump(schema, fp, indent=2)
