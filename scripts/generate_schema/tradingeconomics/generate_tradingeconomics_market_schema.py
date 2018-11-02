@@ -50,8 +50,7 @@ def generate_json_schema(dst_path):
                 first_col = {
                     'name': 'Symbol',
                     'description': 'Symbol of the market',
-                    'semantic_type': ["http://schema.org/Text"],
-                    'named_entity': None
+                    'semantic_type': ["http://schema.org/Text"]
                 }
                 second_col = {
                     'name': 'Date',
