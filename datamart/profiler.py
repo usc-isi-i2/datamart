@@ -51,6 +51,12 @@ class Profiler(object):
         temporal_count = 0
         min_datetime = None
         max_datetime = None
+        if len(column) == 0:
+            return {
+                "start": None,
+                "end": None
+            }
+
         for element in column:
             try:
                 if isinstance(element, str):
