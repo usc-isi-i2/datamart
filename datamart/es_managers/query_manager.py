@@ -40,14 +40,14 @@ class QueryManager(ESManager):
             print("Nothing found")
             return None
         else:
-            return [doc["_source"] for doc in result["hits"]["hits"]]
+            return result["hits"]["hits"]
 
     @classmethod
-    def match_some_terms_from_array(cls,
-                                    terms: list,
-                                    key: str = "variables.named_entity.keyword",
-                                    minimum_should_match=None
-                                    ) -> str:
+    def match_some_terms_from_variables_array(cls,
+                                              terms: list,
+                                              key: str = "variables.named_entity",
+                                              minimum_should_match=None
+                                              ) -> str:
         """Generate query body for query that matches some terms from an array.
 
         Args:
@@ -65,27 +65,37 @@ class QueryManager(ESManager):
 
         body = {
             "query": {
-                "bool": {
-                    "should": [
-                    ],
-                    "minimum_should_match": 1
+                "nested": {
+                    "path": key.split(".")[0],
+                    "inner_hits": {
+                        "_source": [
+                            key.split(".")[1]
+                        ]
+                    },
+                    "query": {
+                        "bool": {
+                            "should": [
+                            ],
+                            "minimum_should_match": 1
+                        }
+                    }
                 }
             }
         }
 
         for term in terms:
-            body["query"]["bool"]["should"].append(
+            body["query"]["nested"]["query"]["bool"]["should"].append(
                 {
-                    "term": {
+                    "match": {
                         key: term.lower()
                     }
                 }
             )
 
         if minimum_should_match:
-            body["query"]["bool"]["minimum_should_match"] = minimum_should_match
+            body["query"]["nested"]["query"]["bool"]["minimum_should_match"] = minimum_should_match
         else:
-            body["query"]["bool"]["minimum_should_match"] = math.ceil(len(terms) / 2)
+            body["query"]["nested"]["query"]["bool"]["minimum_should_match"] = math.ceil(len(terms) / 2)
 
         return json.dumps(body)
 
@@ -108,15 +118,25 @@ class QueryManager(ESManager):
 
         body = {
             "query": {
-                "bool": {
-                    "must": [
-                    ]
+                "nested": {
+                    "path": "variables",
+                    "inner_hits": {
+                        "_source": [
+                            "temporal_coverage"
+                        ]
+                    },
+                    "query": {
+                        "bool": {
+                            "must": [
+                            ]
+                        }
+                    }
                 }
             }
         }
 
         if start:
-            body["query"]["bool"]["must"].append(
+            body["query"]["nested"]["query"]["bool"]["must"].append(
                 {
                     "range": {
                         "variables.temporal_coverage.start": {
@@ -128,7 +148,7 @@ class QueryManager(ESManager):
             )
 
         if end:
-            body["query"]["bool"]["must"].append(
+            body["query"]["nested"]["query"]["bool"]["must"].append(
                 {
                     "range": {
                         "variables.temporal_coverage.end": {
@@ -181,14 +201,24 @@ class QueryManager(ESManager):
 
         body = {
             "query": {
-                "bool": {
-                    "must": [
-                        {
-                            "term": {
-                                "variables.datamart_id": datamart_id
-                            }
+                "nested": {
+                    "path": "variables",
+                    "inner_hits": {
+                        "_source": [
+                            "datamart_id"
+                        ]
+                    },
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "term": {
+                                        "variables.datamart_id": datamart_id
+                                    }
+                                }
+                            ]
                         }
-                    ]
+                    }
                 }
             }
         }
@@ -196,7 +226,7 @@ class QueryManager(ESManager):
         return json.dumps(body)
 
     @classmethod
-    def match_key_value_pairs(cls, key_value_pairs: typing.List[tuple]) -> str:
+    def match_global_key_value_pairs(cls, key_value_pairs: typing.List[tuple]) -> str:
         """Generate query body for query by multiple key value pairs.
 
         Args:

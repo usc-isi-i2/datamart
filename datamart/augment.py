@@ -36,8 +36,8 @@ class Augment(object):
             matching docs of metadata
         """
 
-        body = self.qm.match_some_terms_from_array(terms=col.unique().tolist(),
-                                                   minimum_should_match=minimum_should_match)
+        body = self.qm.match_some_terms_from_variables_array(terms=col.unique().tolist(),
+                                                             minimum_should_match=minimum_should_match)
         return self.qm.search(body=body, **kwargs)
 
     def query_by_named_entities(self,
@@ -56,9 +56,9 @@ class Augment(object):
             matching docs of metadata
         """
 
-        body = self.qm.match_some_terms_from_array(terms=named_entities,
-                                                   key="variables.named_entity.keyword",
-                                                   minimum_should_match=minimum_should_match)
+        body = self.qm.match_some_terms_from_variables_array(terms=named_entities,
+                                                             key="variables.named_entity",
+                                                             minimum_should_match=minimum_should_match)
         return self.qm.search(body=body, **kwargs)
 
     def query_by_temporal_coverage(self, start=None, end=None, **kwargs) -> typing.Optional[typing.List[dict]]:
@@ -89,7 +89,7 @@ class Augment(object):
         variable_body = self.qm.match_variable_datamart_id(datamart_id=datamart_id)
         return self.qm.search(body=global_body, **kwargs) or self.qm.search(body=variable_body, **kwargs)
 
-    def query_by_key_value_pairs(self,
+    def query_by_global_key_value_pairs(self,
                                  key_value_pairs: typing.List[tuple],
                                  **kwargs
                                  ) -> typing.Optional[typing.List[dict]]:
@@ -102,7 +102,7 @@ class Augment(object):
             matching docs of metadata
         """
 
-        body = self.qm.match_key_value_pairs(key_value_pairs=key_value_pairs)
+        body = self.qm.match_global_key_value_pairs(key_value_pairs=key_value_pairs)
         return self.qm.search(body=body, **kwargs)
 
     def query_any_field_with_string(self, query_string, **kwargs) -> typing.Optional[typing.List[dict]]:

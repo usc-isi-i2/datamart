@@ -74,7 +74,7 @@ class IndexBuilder(object):
         if save_to_file:
             self._save_data(save_to_file=save_to_file, save_mode=save_to_file_mode, metadata=metadata)
 
-        self.im.create_doc(index=es_index, doc_type='document', body=metadata.value, id=metadata.value['datamart_id'])
+        self.im.create_doc(index=es_index, doc_type='_doc', body=metadata.value, id=metadata.value['datamart_id'])
 
         return metadata.value
 
