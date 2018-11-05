@@ -4,7 +4,7 @@ import pandas as pd
 import typing
 import sys
 import traceback
-
+import datetime
 
 class TradingEconomicsMarketMaterializer(MaterializerBase):
     """TradingEconomicsMaterializer class extended from  Materializer class
@@ -35,7 +35,6 @@ class TradingEconomicsMarketMaterializer(MaterializerBase):
         if not constrains:
             constrains = dict()
 
-        materialization_arguments = metadata["materialization"].get("arguments", {})
         getUrl = metadata['url']
         if "key" in constrains:
             self.key = {"key": constrains["key"]}
@@ -44,14 +43,25 @@ class TradingEconomicsMarketMaterializer(MaterializerBase):
         date_range = constrains.get("date_range", {})
         d1=""
         datestr=""
-        if date_range["start"]:
-            datestr+="d1="+ date_range["start"]
-        if date_range["end"]:
-            datestr += '&d2='+date_range["end"]
-        if date_range["start"]:
-            path=getUrl.split("&")
-            path[1]=datestr
-            getUrl="&".join(path)
+
+        if date_range.get("start", None) and date_range.get("end", None):
+            datestr += "d1=" + date_range["start"]
+            datestr += '&d2=' + date_range["end"]
+        elif date_range.get("start", None):
+            datestr += "d1=" + date_range["start"]
+            now = datetime.datetime.now()
+            datestr += '&d2=' + "{}-{}-{}".format(now.year, now.month, now.day)
+        elif date_range.get("end", None):
+            datestr += "d1=" + "{}-{}-{}".format("1800", "01", "01")
+            datestr += '&d2=' + date_range["end"]
+        else:
+            now = datetime.datetime.now()
+            datestr += "d1=" + "{}-{}-{}".format("1800", "01", "01")
+            datestr += '&d2=' + "{}-{}-{}".format(now.year, now.month, now.day)
+
+        path = getUrl.split("&")
+        path[1] = datestr
+        getUrl = "&".join(path)
 
         datasetConfig = {
             "where_to_download": {

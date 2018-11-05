@@ -38,7 +38,6 @@ class TradingEconomicsMaterializer(MaterializerBase):
         if not constrains:
             constrains = dict()
 
-        materialization_arguments = metadata["materialization"].get("arguments", {})
         getUrl = metadata['url']
         if "key" in constrains:
             self.key = {"key": constrains["key"]}
@@ -46,16 +45,22 @@ class TradingEconomicsMaterializer(MaterializerBase):
             self.headers = {"key": "guest:guest"}
         date_range = constrains.get("date_range", {})
         datestr=""
-        now = datetime.datetime.now()
 
-        if "start" in date_range and date_range["start"]:
+        if date_range.get("start", None) and date_range.get("end", None):
             datestr += date_range["start"]
+            datestr += '/' + date_range["end"]
+        elif not date_range.get("start", None) and not date_range.get("end", None):
+            now = datetime.datetime.now()
+            datestr += "{}-{}-{}".format(now.year - 1, now.month, now.day)
+            datestr += '/' + "{}-{}-{}".format(now.year, now.month, now.day)
+        elif date_range.get("start", None):
+            now = datetime.datetime.now()
+            datestr += date_range["start"]
+            datestr += '/' + "{}-{}-{}".format(now.year, now.month, now.day)
         else:
-            datestr += "{}-{}-{}".format(now.year-1, "01", "01")
-        if "end" in date_range and date_range["end"]:
-            datestr += '/'+date_range["end"]
-        else:
-            datestr += '/' + "{}-{}-{}".format(now.year, "01", "01")
+            datestr += "{}-{}-{}".format("1900", "01", "01")
+            datestr += '/' + date_range["end"]
+
         path1, path2=getUrl.split("?c=")
         getUrl=path1+"/"+datestr+"?c="+path2
         if "locations" in constrains:

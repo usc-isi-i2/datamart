@@ -50,8 +50,7 @@ def generate_json_schema(dst_path):
                 first_col = {
                     'name': 'Symbol',
                     'description': 'Symbol of the market',
-                    'semantic_type': ["http://schema.org/Text"],
-                    'named_entity': None
+                    'semantic_type': ["http://schema.org/Text"]
                 }
                 second_col = {
                     'name': 'Date',
@@ -92,11 +91,11 @@ def generate_json_schema(dst_path):
                     os.makedirs(dst_path + '/tradingecomonics_market_schema', exist_ok=True)
 
                     file = os.path.join(dst_path, 'tradingecomonics_market_schema',
-                                        "{}_description.json".format(path.lower().replace(":", "_")))
+                                        "{}_description.json".format(path.lower().replace(":", "_").replace(" ", "_")))
                 else:
                     os.makedirs('tradingecomonics_schema', exist_ok=True)
                     file = os.path.join('tradingecomonics_schema',
-                                         "{}_description.json".format(path.lower().replace(":", "_")))
+                                         "{}_description.json".format(path.lower().replace(":", "_").replace(" ", "_")))
 
                 with open(file, "w") as fp:
                     json.dump(schema, fp, indent=2)

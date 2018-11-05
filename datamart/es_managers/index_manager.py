@@ -66,7 +66,7 @@ class IndexManager(ESManager):
 
         """
 
-        self.es.create(**kwargs)
+        self.es.create(**kwargs, ignore=[400, 404])
 
     def update_doc(self, **kwargs) -> None:
         """create doc
