@@ -135,3 +135,15 @@ class Utils:
             print(colored('.Done', 'red'))
 
         return __decorator
+
+    @staticmethod
+    def get_highlight_match_from_metadata(metadata: dict, fields: list):
+        highlights = metadata.get("highlight", {})
+        return {field: highlights[field] for field in fields if field in highlights}
+
+    @staticmethod
+    def get_matched_queries_and_offset_from_variable_metadata(metadata: dict):
+        matched_queries_lst = metadata.get("inner_hits", {}).get("variables", {}).get("hits", {}).get("hits", [])
+        if not matched_queries_lst:
+            return None, None
+        return matched_queries_lst[0]["_nested"]["offset"], matched_queries_lst[0]["matched_queries"]

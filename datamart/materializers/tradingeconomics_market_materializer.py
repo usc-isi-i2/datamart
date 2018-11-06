@@ -6,6 +6,7 @@ import sys
 import traceback
 import datetime
 
+
 class TradingEconomicsMarketMaterializer(MaterializerBase):
     """TradingEconomicsMaterializer class extended from  Materializer class
 

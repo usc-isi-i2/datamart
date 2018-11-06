@@ -63,8 +63,8 @@ class TradingEconomicsMaterializer(MaterializerBase):
 
         path1, path2=getUrl.split("?c=")
         getUrl=path1+"/"+datestr+"?c="+path2
-        if "locations" in constrains:
-            locations = constrains["locations"]
+        if "named_entity" in constrains:
+            locations = constrains["named_entity"]
             getUrl=getUrl.replace("all",",".join([x.replace(' ', '%20') for x in locations]))
 
         datasetConfig = {

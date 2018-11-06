@@ -27,7 +27,7 @@ class WorldBankMaterializer(MaterializerBase):
             "start": (datetime.datetime.today() - datetime.timedelta(days=1 * 365)).strftime('%Y'),
             "end": datetime.datetime.today().strftime('%Y')})
 
-        locations = constrains.get("locations", None)
+        locations = constrains.get("named_entity", None)
         dataset_id = constrains.get("dataset_id", 'NY.GDP.MKTP.CD')
         return self.fetch_data(date_range=date_range, locations=locations, dataset_id=dataset_id)
 
