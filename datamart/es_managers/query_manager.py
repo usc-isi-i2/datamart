@@ -80,14 +80,29 @@ class QueryManager(ESManager):
                         }
                     }
                 }
+            },
+            "highlight": {
+                "fields": {
+                    key: {
+                        "pre_tags": [
+                            ""
+                        ],
+                        "post_tags": [
+                            ""
+                        ]
+                    }
+                }
             }
         }
 
         for term in terms:
             body["query"]["nested"]["query"]["bool"]["should"].append(
                 {
-                    "match": {
-                        key: term.lower()
+                    "match_phrase": {
+                        key: {
+                            "query": term.lower(),
+                            "_name": term.lower()
+                        }
                     }
                 }
             )
