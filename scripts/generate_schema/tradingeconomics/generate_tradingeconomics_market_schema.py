@@ -43,13 +43,9 @@ def generate_json_schema(dst_path):
             infoFormat = 'json'
             url = "https://api.tradingeconomics.com/markets/historical/" + path.lower() + "?c=" + DEFAULT_KEY[
                 "KEY"] + "&format=" + infoFormat
-            try:
-                res_indicator = requests.get(url)
-                data = res_indicator.json()
-            except Exception as e:
-                print("Invalid Url for ",path,url)
-                continue
             print("Generating schema for Trading economics", path,name,country)
+            res_indicator = requests.get(url)
+            data = res_indicator.json()
             if len(data) > 2:
                 schema = dict()
                 schema['title'] = data[0]['Symbol']
