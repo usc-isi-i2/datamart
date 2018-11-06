@@ -1,4 +1,4 @@
-from utils import *
+from datamart.materializers.wikitables_materializer.utils import *
 
 SELECTOR_ROOT = '#content table:not(.infobox):not(.navbox):not(.navbox-inner):not(.navbox-subgroup):not(.sistersitebox)'
 FUNCTIONS = {-1: 'empty', 0: 'data', 1: 'header'}
