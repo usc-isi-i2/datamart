@@ -17,7 +17,8 @@ class SearchMetadata(object):
     def default_search_by_csv(self, request):
 
         query_string = request.args.get("query_string", None)
-        minimum_should_match_for_column = request.args.get("minimum_should_match_for_column", None)
+        minimum_should_match_for_column = int(request.args.get(
+            "minimum_should_match_for_column")) if "minimum_should_match_for_column" in request.args else None
 
         df = pd.read_csv(request.files['file']).infer_objects()
         if df is None or df.empty:
@@ -68,4 +69,4 @@ class SearchMetadata(object):
                                                              min(SearchMetadata.MAX_DISPLAY_NAMED_ENTITY,
                                                                  len(variable["named_entity"])))
 
-        return metadata_lst
+        return metadata_lst[:SearchMetadata.MAX_MATCH]

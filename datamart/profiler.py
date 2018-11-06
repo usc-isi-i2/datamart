@@ -1,6 +1,7 @@
 import pandas as pd
 import dateutil.parser
 import typing
+from pandas.api.types import is_string_dtype
 
 
 class Profiler(object):
@@ -32,7 +33,8 @@ class Profiler(object):
             False if not a named entity column
         """
 
-        "TODO"
+        if is_string_dtype(column):
+            return column.unique().tolist()
         return False
 
     @staticmethod
