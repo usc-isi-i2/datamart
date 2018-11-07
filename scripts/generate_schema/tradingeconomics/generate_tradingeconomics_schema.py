@@ -36,7 +36,7 @@ def generate_json_schema(dst_path):
             schema['url'] = "https://api.tradingeconomics.com/historical/country/all/indicator/" + path + "?c=" + \
                             DEFAULT_KEY["KEY"] + "&format=" + materialiseFormat
             schema['date_updated'] = data[-1]['LastUpdate']
-            schema['provenance'] = 'tradingeconomics.com'
+            schema['provenance'] =  {'source':'tradingeconomics.com'}
             schema['materialization'] = {
                 "python_path": 'tradingeconomics_materializer',
                 "arguments": {}

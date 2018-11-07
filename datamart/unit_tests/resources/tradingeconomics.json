@@ -1,0 +1,57 @@
+{
+  "title": "2 Year Note Yield",
+  "description": "2 Year Note Yield of all country.",
+  "url": "https://api.tradingeconomics.com/historical/country/all/indicator/2%20year%20note%20yield?c=h5gsaw1lfiaezah:hmee4m9qqhrbh62&format=csv",
+  "date_updated": "2018-10-12T20:00:00",
+  "provenance": "tradingeconomics.com",
+  "materialization": {
+    "python_path": "tradingeconomics_materializer",
+    "arguments": {}
+  },
+  "variables": [
+    {
+      "name": "Country",
+      "description": "Name of the country",
+      "semantic_type": [
+        "http://schema.org/Text"
+      ],
+      "named_entity": null
+    },
+    {
+      "name": "Category",
+      "description": "Indicator name",
+      "semantic_type": [
+        "http://schema.org/Text"
+      ]
+    },
+    {
+      "name": "DateTime",
+      "description": "DateTime of the current value",
+      "semantic_type": [
+        "https://metadata.datadrivendiscovery.org/types/Time"
+      ],
+      "temporal_coverage": null
+    },
+    {
+      "name": "Value",
+      "description": "2 Year Note Yield value of given DateTime",
+      "semantic_type": [
+        "http://schema.org/Float"
+      ]
+    },
+    {
+      "name": "Frequency",
+      "description": "Data frequency",
+      "semantic_type": [
+        "http://schema.org/Text"
+      ]
+    },
+    {
+      "name": "LastUpdate",
+      "description": "date when data was last updated",
+      "semantic_type": [
+        "https://metadata.datadrivendiscovery.org/types/Time"
+      ]
+    }
+  ]
+}

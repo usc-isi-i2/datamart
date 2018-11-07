@@ -66,7 +66,7 @@ class IndexManager(ESManager):
 
         """
 
-        self.es.create(**kwargs)
+        self.es.create(**kwargs, ignore=[400, 404])
 
     def update_doc(self, **kwargs) -> None:
         """create doc
@@ -117,7 +117,7 @@ class IndexManager(ESManager):
             }
         )
         result = self.es.search(index=kwargs["index"], body=max_idx_query)
-        return result["aggregations"]["max_id"]["value"] if result["aggregations"]["max_id"][
+        return int(result["aggregations"]["max_id"]["value"]) if result["aggregations"]["max_id"][
             "value"] else 0
 
     @staticmethod

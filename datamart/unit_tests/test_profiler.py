@@ -72,6 +72,21 @@ class TestProfiler(unittest.TestCase):
         })
 
     @Utils.test_print
+    def test_profile_temporal_without_coverage(self):
+        self.assertEqual(self.profiler.profile_temporal_coverage(
+            column=self.df.iloc[:, 0]),
+            False
+        )
+
+        self.assertEqual(self.profiler.profile_temporal_coverage(
+            column=self.df.iloc[:, 1]),
+            {
+                "start": "2014-02-23T00:00:00",
+                "end": "2020-09-23T00:10:00"
+            }
+        )
+
+    @Utils.test_print
     def test_profile_named_entity(self):
         named_entity_col = self.df.iloc[:, 2]
         self.assertListEqual(self.profiler.profile_named_entity(named_entity_col), ['Tom', 'Jack', 'Steve', 'Ricky'])
