@@ -145,6 +145,23 @@ class Augment(object):
         return Utils.materialize(metadata=metadata, variables=variables, constrains=constrains)
 
     @staticmethod
-    def get_metadata_intersection(*metadata_lst):
-        metadata_sets = [{x["_source"]["datamart_id"] for x in lst} for lst in metadata_lst]
-        return metadata_sets[0].intersection(*metadata_sets[1:])
+    def get_metadata_intersection(*metadata_lst) -> list:
+        """Get the intersect metadata list.
+
+       Args:
+           metadata_lst: all metadata list returned by multiple queries
+
+       Returns:
+            list of intersect metadata
+       """
+
+        metadata_dict = dict()
+        metadata_sets = []
+        for lst in metadata_lst:
+            this_set = set()
+            for x in lst:
+                if x["_source"]["datamart_id"] not in metadata_dict:
+                    metadata_dict[x["_source"]["datamart_id"]] = x["_source"]
+                this_set.add(x["_source"]["datamart_id"])
+            metadata_sets.append(this_set)
+        return [metadata_dict[datamart_id] for datamart_id in metadata_sets[0].intersection(*metadata_sets[1:])]
