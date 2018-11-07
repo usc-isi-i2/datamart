@@ -20,7 +20,7 @@ class JoinDatasets(object):
         highlight_match = Utils.get_highlight_match_from_metadata(metadata=selected_metadata,
                                                                   fields=["variables.named_entity"])
 
-        offset, matched_queries = Utils.get_matched_queries_and_offset_from_variable_metadata(
+        offset, matched_queries = Utils.get_offset_and_matched_queries_from_variable_metadata(
             metadata=selected_metadata)
 
         if "constrains" in request.args:
