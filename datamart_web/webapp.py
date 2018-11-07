@@ -41,8 +41,7 @@ class WebApp(Flask):
 
         @self.route('/search/default_search', methods=['POST'])
         def default_search():
-            return json.dumps(self.search_metadata.default_search_by_csv(request=request)
-            )
+            return json.dumps(self.search_metadata.default_search_by_csv(request=request))
 
         @self.route('/augment/default_join', methods=['POST'])
         def default_join():

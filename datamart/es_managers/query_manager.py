@@ -241,7 +241,7 @@ class QueryManager(ESManager):
         return json.dumps(body)
 
     @classmethod
-    def match_global_key_value_pairs(cls, key_value_pairs: typing.List[tuple]) -> str:
+    def match_key_value_pairs(cls, key_value_pairs: typing.List[tuple]) -> str:
         """Generate query body for query by multiple key value pairs.
 
         Args:
@@ -264,23 +264,65 @@ class QueryManager(ESManager):
             }
         }
 
+        nested = {
+            "nested": {
+                "path": "variables",
+                "inner_hits": {
+                    "_source": [
+                    ]
+                },
+                "query": {
+                    "bool": {
+                        "must": [
+                        ]
+                    }
+                }
+            }
+        }
+
         for key, value in key_value_pairs:
-            if isinstance(value, list):
-                body["query"]["bool"]["must"].append(
-                    {
-                        "terms": {
-                            key: value
+            if not key.startswith("variables"):
+                if isinstance(value, list):
+                    for v in value:
+                        body["query"]["bool"]["must"].append(
+                            {
+                                "match": {
+                                    key: v
+                                }
+                            }
+                        )
+                else:
+                    body["query"]["bool"]["must"].append(
+                        {
+                            "match": {
+                                key: value
+                            }
                         }
-                    }
-                )
+                    )
             else:
-                body["query"]["bool"]["must"].append(
-                    {
-                        "term": {
-                            key: value
+                nested["nested"]["inner_hits"]["_source"].append(key.split(".")[1])
+                if key.split(".")[1] == "named_entity":
+                    match_method = "match_phrase"
+                else:
+                    match_method = "match"
+                if isinstance(value, list):
+                    for v in value:
+                        nested["nested"]["query"]["bool"]["must"].append(
+                            {
+                                match_method: {
+                                    key: v
+                                }
+                            }
+                        )
+                else:
+                    nested["nested"]["query"]["bool"]["must"].append(
+                        {
+                            match_method: {
+                                key: value
+                            }
                         }
-                    }
-                )
+                    )
+        body["query"]["bool"]["must"].append(nested)
         return json.dumps(body)
 
     @staticmethod

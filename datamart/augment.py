@@ -89,7 +89,7 @@ class Augment(object):
         variable_body = self.qm.match_variable_datamart_id(datamart_id=datamart_id)
         return self.qm.search(body=global_body, **kwargs) or self.qm.search(body=variable_body, **kwargs)
 
-    def query_by_global_key_value_pairs(self,
+    def query_by_key_value_pairs(self,
                                  key_value_pairs: typing.List[tuple],
                                  **kwargs
                                  ) -> typing.Optional[typing.List[dict]]:
@@ -102,7 +102,7 @@ class Augment(object):
             matching docs of metadata
         """
 
-        body = self.qm.match_global_key_value_pairs(key_value_pairs=key_value_pairs)
+        body = self.qm.match_key_value_pairs(key_value_pairs=key_value_pairs)
         return self.qm.search(body=body, **kwargs)
 
     def query_any_field_with_string(self, query_string, **kwargs) -> typing.Optional[typing.List[dict]]:
@@ -143,3 +143,8 @@ class Augment(object):
        """
 
         return Utils.materialize(metadata=metadata, variables=variables, constrains=constrains)
+
+    @staticmethod
+    def get_metadata_intersection(*metadata_lst):
+        metadata_sets = [{x["_source"]["datamart_id"] for x in lst} for lst in metadata_lst]
+        return metadata_sets[0].intersection(*metadata_sets[1:])

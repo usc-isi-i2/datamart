@@ -183,7 +183,7 @@ class TestQueryManager(unittest.TestCase):
 
     @Utils.test_print
     def test_match_key_value_pairs(self):
-        query = QueryManager.match_global_key_value_pairs(key_value_pairs=[
+        query = QueryManager.match_key_value_pairs(key_value_pairs=[
             ("description", "average"),
             ("title.keyword", "TAVG"),
             ("datamart_id", 0)
@@ -192,9 +192,14 @@ class TestQueryManager(unittest.TestCase):
             "query": {
                 "bool": {
                     "must": [
-                        {"term": {"description": "average"}},
-                        {"term": {"title.keyword": "TAVG"}},
-                        {"term": {"datamart_id": 0}}
+                        {"match": {"description": "average"}},
+                        {"match": {"title.keyword": "TAVG"}},
+                        {"match": {"datamart_id": 0}},
+                        {"nested": {
+                            "path": "variables",
+                            "inner_hits": {"_source": []},
+                            "query": {"bool": {"must": []}}}
+                        }
                     ]
                 }
             }
@@ -204,7 +209,7 @@ class TestQueryManager(unittest.TestCase):
 
     @Utils.test_print
     def test_match_key_value_pairs_list(self):
-        query = QueryManager.match_global_key_value_pairs(key_value_pairs=[
+        query = QueryManager.match_key_value_pairs(key_value_pairs=[
             ("description", ["average", "temperature"]),
             ("title.keyword", "TAVG"),
             ("datamart_id", 0)
@@ -212,15 +217,19 @@ class TestQueryManager(unittest.TestCase):
         expected = {
             "query": {
                 "bool": {
-                    "must": [
-                        {"terms": {"description": ["average", "temperature"]}},
-                        {"term": {"title.keyword": "TAVG"}},
-                        {"term": {"datamart_id": 0}}
-                    ]
+                    "must": [{"match": {"description": "average"}},
+                             {"match": {"description": "temperature"}},
+                             {"match": {"title.keyword": "TAVG"}},
+                             {"match": {"datamart_id": 0}},
+                             {"nested": {
+                                 "path": "variables",
+                                 "inner_hits": {"_source": []},
+                                 "query": {"bool": {"must": []}}}
+                             }
+                             ]
                 }
             }
         }
-
         self.assertEqual(json.dumps(expected), query)
 
     @Utils.test_print
