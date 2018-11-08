@@ -161,7 +161,7 @@ class Augment(object):
             this_set = set()
             for x in lst:
                 if x["_source"]["datamart_id"] not in metadata_dict:
-                    metadata_dict[x["_source"]["datamart_id"]] = x["_source"]
+                    metadata_dict[x["_source"]["datamart_id"]] = x
                 this_set.add(x["_source"]["datamart_id"])
             metadata_sets.append(this_set)
         return [metadata_dict[datamart_id] for datamart_id in metadata_sets[0].intersection(*metadata_sets[1:])]

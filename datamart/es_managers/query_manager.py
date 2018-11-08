@@ -23,7 +23,7 @@ class QueryManager(ESManager):
         super().__init__(es_host=es_host, es_port=es_port)
         self.es_index = es_index
 
-    def search(self, body: str, size: int = 1000, from_index: int = 0, **kwargs) -> typing.Optional[typing.List[dict]]:
+    def search(self, body: str, size: int = 10000, from_index: int = 0, **kwargs) -> typing.Optional[typing.List[dict]]:
         """Entry point for querying.
 
         Args:
@@ -35,12 +35,38 @@ class QueryManager(ESManager):
 
         """
 
-        result = self.es.search(index=self.es_index, body=body, size=size, from_=from_index, **kwargs)
-        if result["hits"]["total"] <= 0:
+        count = self.es.count(index=self.es_index, body=body)["count"]
+        if count <= 0:
             print("Nothing found")
             return None
-        else:
+        if count <= size:
+            result = self.es.search(index=self.es_index, body=body, size=size, from_=from_index, **kwargs)
             return result["hits"]["hits"]
+        return self.scroll_search(body=body, size=size, count=count)
+
+    def scroll_search(self, body: str, size: int, count: int, scroll: str='1m', **kwargs) -> typing.List[dict]:
+        """Scroll search for the case that the result from es is too long.
+
+        Args:
+            body: query body.
+            size: query return size.
+            count: total count of doc hitted.
+            scroll: how long a scroll id should remain
+
+        Returns:
+
+        """
+
+        result = self.es.search(index=self.es_index, body=body, size=size, scroll=scroll, **kwargs)
+        ret = result["hits"]["hits"]
+        scroll_id = result["_scroll_id"]
+        from_index = size
+        while from_index <= count:
+            result = self.es.scroll(scroll_id=scroll_id, scroll=scroll)
+            scroll_id = result["_scroll_id"]
+            ret += result["hits"]["hits"]
+            from_index += size
+        return ret
 
     @classmethod
     def match_some_terms_from_variables_array(cls,
