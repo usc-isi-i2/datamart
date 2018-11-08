@@ -23,7 +23,7 @@ class QueryManager(ESManager):
         super().__init__(es_host=es_host, es_port=es_port)
         self.es_index = es_index
 
-    def search(self, body: str, size: int = 10000, from_index: int = 0, **kwargs) -> typing.Optional[typing.List[dict]]:
+    def search(self, body: str, size: int = 5000, from_index: int = 0, **kwargs) -> typing.Optional[typing.List[dict]]:
         """Entry point for querying.
 
         Args:
@@ -35,12 +35,12 @@ class QueryManager(ESManager):
 
         """
 
-        count = self.es.count(index=self.es_index, body=body)["count"]
+        result = self.es.search(index=self.es_index, body=body, size=size, from_=from_index, **kwargs)
+        count = result["hits"]["total"]
         if count <= 0:
             print("Nothing found")
             return None
         if count <= size:
-            result = self.es.search(index=self.es_index, body=body, size=size, from_=from_index, **kwargs)
             return result["hits"]["hits"]
         return self.scroll_search(body=body, size=size, count=count)
 
