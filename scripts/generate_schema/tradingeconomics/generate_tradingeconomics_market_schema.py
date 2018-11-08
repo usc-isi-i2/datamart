@@ -2,6 +2,8 @@ import requests
 import os
 import json
 from argparse import ArgumentParser
+import csv
+
 
 DEFAULT_KEY = {
     "KEY": 'guest:guest'
@@ -16,6 +18,14 @@ def getAllIndicatorList(UrlPath):
     unique_urls_str = list(set(url_list))
     return unique_urls_str
 
+def getStockPathList():
+    stockCSV="All_Stocks_Symbols_with_Historical_Data-Updated 2018-11-02.csv"
+    paths=[]
+    with open(stockCSV) as csvfile:
+        readCSV = csv.reader(csvfile, delimiter=',')
+        for row in readCSV:
+            paths.append((row[0],"",""))
+    return paths
 
 def generate_json_schema(dst_path):
     urlType={
@@ -24,16 +34,22 @@ def generate_json_schema(dst_path):
         "indexUrlPath" : "https://api.tradingeconomics.com/markets/index",
         "bondUrlPath" : "https://api.tradingeconomics.com/markets/bond"
     }
+
     for type in urlType:
         unique_urls_str = getAllIndicatorList(urlType[type])
-        for path, name, country in unique_urls_str:
+        stockPath=getStockPathList()
+        for path, name, country in unique_urls_str+stockPath:
             materialiseFormat = 'csv'
             infoFormat = 'json'
             url = "https://api.tradingeconomics.com/markets/historical/" + path.lower() + "?c=" + DEFAULT_KEY[
                 "KEY"] + "&format=" + infoFormat
+            try:
+                res_indicator = requests.get(url)
+                data = res_indicator.json()
+            except Exception as e:
+                print("Invalid Url for ",path,url)
+                continue
             print("Generating schema for Trading economics", path,name,country)
-            res_indicator = requests.get(url)
-            data = res_indicator.json()
             if len(data) > 2:
                 schema = dict()
                 schema['title'] = data[0]['Symbol']
@@ -42,15 +58,14 @@ def generate_json_schema(dst_path):
                 schema['date_updated'] = data[0]['Date']
                 schema['provenance'] = {'source':'tradingeconomics.com'}
                 schema['materialization'] = {
-                    "python_path": 'tradingeconomics_materializer',
+                    "python_path": 'tradingeconomics_market_materializer',
                     "arguments": {}
                 }
                 schema['variables'] = []
                 first_col = {
                     'name': 'Symbol',
                     'description': 'Symbol of the market',
-                    'semantic_type': ["http://schema.org/Text"],
-                    'named_entity': None
+                    'semantic_type': ["http://schema.org/Text"]
                 }
                 second_col = {
                     'name': 'Date',
@@ -91,11 +106,11 @@ def generate_json_schema(dst_path):
                     os.makedirs(dst_path + '/tradingecomonics_market_schema', exist_ok=True)
 
                     file = os.path.join(dst_path, 'tradingecomonics_market_schema',
-                                        "{}_description.json".format(path.lower().replace(":", "_")))
+                                        "{}_description.json".format(path.lower().replace(":", "_").replace(" ", "_")))
                 else:
                     os.makedirs('tradingecomonics_schema', exist_ok=True)
                     file = os.path.join('tradingecomonics_schema',
-                                         "{}_description.json".format(path.lower().replace(":", "_")))
+                                         "{}_description.json".format(path.lower().replace(":", "_").replace(" ", "_")))
 
                 with open(file, "w") as fp:
                     json.dump(schema, fp, indent=2)

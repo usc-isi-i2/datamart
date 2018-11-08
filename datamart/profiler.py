@@ -51,9 +51,21 @@ class Profiler(object):
         temporal_count = 0
         min_datetime = None
         max_datetime = None
+        if len(column) == 0:
+            return {
+                "start": None,
+                "end": None
+            }
+
         for element in column:
             try:
-                this_datetime = dateutil.parser.parse(element)
+                if isinstance(element, str):
+                    this_datetime = dateutil.parser.parse(element)
+                else:
+                    if len(str(element)) == 4:
+                        this_datetime = dateutil.parser.parse(str(element))
+                    else:
+                        break
                 temporal_count += 1
                 if not min_datetime:
                     min_datetime = this_datetime
