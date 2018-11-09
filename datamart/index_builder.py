@@ -8,6 +8,7 @@ from datamart.es_managers.index_manager import IndexManager
 from datamart.utils import Utils
 from datamart.profilers.basic_profiler import BasicProfiler
 import typing
+import traceback
 
 GLOBAL_INDEX_INTERVAL = 10000
 
@@ -66,6 +67,7 @@ class IndexBuilder(object):
             try:
                 data = Utils.materialize(metadata=description)
             except:
+                traceback.print_exc()
                 warnings.warn("Materialization Failed, index based on schema json only")
 
         metadata = self.construct_global_metadata(description=description, data=data)
