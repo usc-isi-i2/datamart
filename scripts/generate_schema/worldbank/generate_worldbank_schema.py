@@ -3,29 +3,24 @@ from argparse import ArgumentParser
 import requests
 import json
 
-DEFAULT_KEY = {
-
-}
-
 
 def getAllIndicatorList():
-    url = "https://api.worldbank.org/v2/indicators?format=json&page=1&per_page=2"
+    url = "https://api.worldbank.org/v2/indicators?format=json&page=1"
     res = requests.get(url)
     data = res.json()
-    return data[1]
+    total = data[0]['total']
+    url2 = "https://api.worldbank.org/v2/indicators?format=json&page=1&per_page=" + str(total)
+    res2 = requests.get(url)
+    data2 = res.json()
+    return data2[1]
 
 
 def generate_json_schema(dst_path):
     unique_urls_str = getAllIndicatorList()
-    # print(unique_urls_str)
     for commondata in unique_urls_str:
-        # print('here',commondata)
-        # commondata=data[0]
-        # print(commondata['id'])
-        urldata = "https://api.worldbank.org/v2/countries/br/indicators/" + commondata['id'] + "?format=json"
+        urldata = "https://api.worldbank.org/v2/countries/indicators/" + commondata['id'] + "?format=json"
         resdata = requests.get(urldata)
         data_ind = resdata.json()
-        # print(data_ind)
         materialiseFormat = 'csv'
         infoFormat = 'json'
         print("Generating schema for Trading economics", commondata['name'])
