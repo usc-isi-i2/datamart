@@ -2,9 +2,14 @@ from datamart.es_managers.query_manager import QueryManager
 import pandas as pd
 import typing
 from datamart.utils import Utils
+from datamart.joiners.joiner_base import JoinerPrepare
+import warnings
+from datetime import datetime
 
 
 class Augment(object):
+
+    DEFAULT_START_DATE = "1900-01-01T00:00:00"
 
     def __init__(self, es_index: str, es_host: str = "dsbox02.isi.edu", es_port: int = 9200) -> None:
         """Init method of QuerySystem, set up connection to elastic search.
@@ -19,6 +24,7 @@ class Augment(object):
         """
 
         self.qm = QueryManager(es_host=es_host, es_port=es_port, es_index=es_index)
+        self.joiners = dict()
 
     def query_by_column(self,
                         col: pd.Series,
@@ -141,7 +147,11 @@ class Augment(object):
        Returns:
             pandas dataframe
        """
-
+        if "date_range" in constrains:
+            if not constrains["date_range"].get("start", None):
+                constrains["date_range"]["start"] = Augment.DEFAULT_START_DATE
+            if not constrains["date_range"].get("end", None):
+                constrains["date_range"]["end"] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
         return Utils.materialize(metadata=metadata, variables=variables, constrains=constrains)
 
     @staticmethod
@@ -165,3 +175,33 @@ class Augment(object):
                 this_set.add(x["_source"]["datamart_id"])
             metadata_sets.append(this_set)
         return [metadata_dict[datamart_id] for datamart_id in metadata_sets[0].intersection(*metadata_sets[1:])]
+
+    def join(self,
+             left_df: pd.DataFrame,
+             right_df: pd.DataFrame,
+             left_columns: typing.List[int],
+             right_columns: typing.List[int],
+             joiner: str = "default"
+             ) -> typing.Optional[pd.DataFrame]:
+
+        """Join two dataframes based on different joiner.
+
+          Args:
+              left_df: pandas Dataframe
+              right_df: pandas Dataframe
+              left_columns: list of integers from left df for join
+              right_columns: list of integers from right df for join
+              joiner: string of joiner, default to be "default"
+
+          Returns:
+               Dataframe
+          """
+
+        if joiner not in self.joiners:
+            self.joiners[joiner] = JoinerPrepare.prepare_joiner(joiner=joiner)
+
+        if not self.joiners[joiner]:
+            warnings.warn("No suitable joiner, return original dataframe")
+            return left_df
+
+        return self.joiners[joiner].join(left_df, right_df, left_columns, right_columns)
