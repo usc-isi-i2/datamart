@@ -23,18 +23,16 @@ class WorldBankMaterializer(MaterializerBase):
     def get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame:
         if not constrains:
             constrains = dict()
-        date_range = constrains.get("date_range", {
-            "start": (datetime.datetime.today() - datetime.timedelta(days=1 * 365)).strftime('%Y'),
-            "end": datetime.datetime.today().strftime('%Y')})
-
+        date_range = constrains.get("date_range", None)
         locations = constrains.get("locations", None)
-        dataset_id = constrains.get("dataset_id", 'NY.GDP.MKTP.CD')
+        dataset_url = metadata['materialization']['arguments']['url']
+        dataset_id = dataset_url.split('/')[5].split('?')[0]
         return self.fetch_data(date_range=date_range, locations=locations, dataset_id=dataset_id)
 
-    def fetch_data(self, date_range: dict = None, locations: list = None, dataset_id: str = 'NY.GDP.MKTP.CD'):
-
-        start_date = date_range.get("start", None)
-        end_date = date_range.get("end", None)
+    def fetch_data(self, date_range: dict = None, locations: list = None, dataset_id: str = None):
+        if date_range!=None:
+            start_date = date_range.get("start", None)
+            end_date = date_range.get("end", None)
         if not locations:
             locations = self.DEFAULT_LOCATIONS
 
@@ -44,7 +42,10 @@ class WorldBankMaterializer(MaterializerBase):
             location_id = self.country_to_id_map.get(location, None)
             if location_id is None:
                 continue
-            URL_ind = 'https://api.worldbank.org/v2/countries/' + location_id + '/indicators/' + dataset_id + '?format=json&date=' + start_date + ':' + end_date
+            if date_range==None:
+                URL_ind = 'https://api.worldbank.org/v2/countries/' + location_id + '/indicators/' + dataset_id + '?format=json'
+            else:
+                URL_ind = 'https://api.worldbank.org/v2/countries/' + location_id + '/indicators/' + dataset_id + '?format=json&date=' + start_date + ':' + end_date
             response_ind = requests.get(url=URL_ind)
             json_respose_ind = json.loads(response_ind.content)
 
@@ -65,6 +66,7 @@ class WorldBankMaterializer(MaterializerBase):
             df['sourceNote'] = sourceNote
             df['sourceOrganization'] = sourceOrganization
             appended_data.append(df)
-            # globaldf.append(df)
         appended_data = pd.concat(appended_data, axis=0, sort=False)
         return appended_data
+
+
