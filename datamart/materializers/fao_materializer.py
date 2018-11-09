@@ -62,7 +62,7 @@ class FaoMaterializer(MaterializerBase):
                 date_range_start = parse(date_range["start"]).year
             if "end" in date_range:
                 date_range_end = parse(date_range["end"]).year
-        locations = constrains.get("locations", DEFAULT_LOCATIONS)
+        locations = constrains.get("named_entity", DEFAULT_LOCATIONS)
         data_type = materialization_arguments.get("type", DEFAULT_DATA_TYPE)
 
         try:

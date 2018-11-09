@@ -29,7 +29,7 @@ class TestNoaaMaterializer(unittest.TestCase):
                 "start": "2016-09-23",
                 "end": "2016-09-23"
             },
-            "locations": ["los angeles"]
+            "named_entity": ["los angeles"]
         }
         result = self.noaa_materializer.get(metadata=fake_metadata, constrains=fake_constrains).to_dict(
             orient="records")

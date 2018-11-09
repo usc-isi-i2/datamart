@@ -59,7 +59,7 @@ class TestUtils(unittest.TestCase):
                 "start": "2016-09-23",
                 "end": "2016-09-23"
             },
-            "locations": ["los angeles"]
+            "named_entity": ["los angeles"]
         }
         result = Utils.materialize(metadata=fake_metadata, constrains=fake_constrains)
         expepcted = pd.read_csv(os.path.join(os.path.dirname(__file__), "resources/noaa_result.csv"))
@@ -91,7 +91,7 @@ class TestUtils(unittest.TestCase):
                 }
             },
             {
-                "locations": ["los angeles", "Australia", "asia"]
+                "named_entity": ["los angeles", "Australia", "asia"]
             }
         ]
 

@@ -23,6 +23,7 @@ class WorldBankMaterializer(MaterializerBase):
     def get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame:
         if not constrains:
             constrains = dict()
+
         date_range = constrains.get("date_range", None)
         locations = constrains.get("locations", None)
         dataset_url = metadata['materialization']['arguments']['url']

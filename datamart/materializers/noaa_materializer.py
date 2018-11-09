@@ -58,7 +58,7 @@ class NoaaMaterializer(MaterializerBase):
         self.headers = {"token" : constrains.get("token", DEFAULT_TOKEN)}
 
         date_range = constrains.get("date_range", {})
-        locations = constrains.get("locations", DEFAULT_LOCATIONS)
+        locations = constrains.get("named_entity", DEFAULT_LOCATIONS)
         data_type = materialization_arguments.get("type", DEFAULT_DATA_TYPE)
         dataset_id = constrains.get("dataset_id", DEFAULT_DATASET_ID)
 
