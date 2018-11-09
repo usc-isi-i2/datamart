@@ -10,8 +10,8 @@ def getAllIndicatorList():
     data = res.json()
     total = data[0]['total']
     url2 = "https://api.worldbank.org/v2/indicators?format=json&page=1&per_page=" + str(total)
-    res2 = requests.get(url)
-    data2 = res.json()
+    res2 = requests.get(url2)
+    data2 = res2.json()
     return data2[1]
 
 
