@@ -3,7 +3,7 @@ import dateutil.parser
 import typing
 
 
-class Profiler(object):
+class BasicProfiler(object):
     def __init__(self):
         pass
 
