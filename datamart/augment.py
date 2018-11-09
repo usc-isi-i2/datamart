@@ -8,7 +8,6 @@ from datetime import datetime
 
 
 class Augment(object):
-
     DEFAULT_START_DATE = "1900-01-01T00:00:00"
 
     def __init__(self, es_index: str, es_host: str = "dsbox02.isi.edu", es_port: int = 9200) -> None:

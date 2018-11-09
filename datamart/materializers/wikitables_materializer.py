@@ -1,6 +1,7 @@
 from datamart.materializers.materializer_base import MaterializerBase
 from datamart.materializers.wikitables_materializer.wikitables import tables
 
+
 class WikitablesMaterializer(MaterializerBase):
     """ WikitablesMaterializer class extended from  Materializer class """
 

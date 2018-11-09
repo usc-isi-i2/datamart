@@ -79,7 +79,7 @@ class BasicProfiler(object):
         if not min_datetime and not max_datetime:
             return False
 
-        if temporal_count < len(column)//2:
+        if temporal_count < len(column) // 2:
             return False
 
         if not coverage:

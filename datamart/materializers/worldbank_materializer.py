@@ -25,13 +25,13 @@ class WorldBankMaterializer(MaterializerBase):
             constrains = dict()
 
         date_range = constrains.get("date_range", None)
-        locations = constrains.get("locations", None)
+        locations = constrains.get("named_entity", None)
         dataset_url = metadata['materialization']['arguments']['url']
         dataset_id = dataset_url.split('/')[5].split('?')[0]
         return self.fetch_data(date_range=date_range, locations=locations, dataset_id=dataset_id)
 
     def fetch_data(self, date_range: dict = None, locations: list = None, dataset_id: str = None):
-        if date_range!=None:
+        if date_range:
             start_date = date_range.get("start", None)
             end_date = date_range.get("end", None)
         if not locations:
@@ -43,7 +43,7 @@ class WorldBankMaterializer(MaterializerBase):
             location_id = self.country_to_id_map.get(location, None)
             if location_id is None:
                 continue
-            if date_range==None:
+            if not date_range:
                 URL_ind = 'https://api.worldbank.org/v2/countries/' + location_id + '/indicators/' + dataset_id + '?format=json'
             else:
                 URL_ind = 'https://api.worldbank.org/v2/countries/' + location_id + '/indicators/' + dataset_id + '?format=json&date=' + start_date + ':' + end_date
@@ -69,5 +69,3 @@ class WorldBankMaterializer(MaterializerBase):
             appended_data.append(df)
         appended_data = pd.concat(appended_data, axis=0, sort=False)
         return appended_data
-
-

@@ -29,7 +29,6 @@ class DefaultJoiner(JoinerBase):
 
     @staticmethod
     def join(left_df, right_df, left_columns, right_columns) -> pd.DataFrame:
-
         if len(left_columns) != len(right_columns):
             raise ValueError("Default join need length of left_columns equals to right_columns")
 

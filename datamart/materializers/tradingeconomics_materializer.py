@@ -44,7 +44,7 @@ class TradingEconomicsMaterializer(MaterializerBase):
         else:
             self.headers = {"key": "guest:guest"}
         date_range = constrains.get("date_range", {})
-        datestr=""
+        datestr = ""
 
         if date_range.get("start", None) and date_range.get("end", None):
             datestr += date_range["start"]
@@ -61,11 +61,11 @@ class TradingEconomicsMaterializer(MaterializerBase):
             datestr += "{}-{}-{}".format("1900", "01", "01")
             datestr += '/' + date_range["end"]
 
-        path1, path2=getUrl.split("?c=")
-        getUrl=path1+"/"+datestr+"?c="+path2
+        path1, path2 = getUrl.split("?c=")
+        getUrl = path1 + "/" + datestr + "?c=" + path2
         if "named_entity" in constrains:
             locations = constrains["named_entity"]
-            getUrl=getUrl.replace("all",",".join([x.replace(' ', '%20') for x in locations]))
+            getUrl = getUrl.replace("all", ",".join([x.replace(' ', '%20') for x in locations]))
 
         datasetConfig = {
             "where_to_download": {

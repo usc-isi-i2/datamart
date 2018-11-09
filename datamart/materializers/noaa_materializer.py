@@ -55,7 +55,7 @@ class NoaaMaterializer(MaterializerBase):
 
         materialization_arguments = metadata["materialization"].get("arguments", {})
 
-        self.headers = {"token" : constrains.get("token", DEFAULT_TOKEN)}
+        self.headers = {"token": constrains.get("token", DEFAULT_TOKEN)}
 
         date_range = constrains.get("date_range", {})
         locations = constrains.get("named_entity", DEFAULT_LOCATIONS)
@@ -96,13 +96,13 @@ class NoaaMaterializer(MaterializerBase):
             api = 'https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid={dataset_id}' \
                   '&datatypeid={data_type}&locationid={location_id}&startdate={start_date}' \
                   '&enddate={end_date}&limit={limit_number}&offset=1'.format(
-                    dataset_id=dataset_id,
-                    data_type=data_type,
-                    location_id=location_id,
-                    start_date=start_date,
-                    end_date=end_date,
-                    limit_number=LIMIT_NUMBER
-                  )
+                dataset_id=dataset_id,
+                data_type=data_type,
+                location_id=location_id,
+                start_date=start_date,
+                end_date=end_date,
+                limit_number=LIMIT_NUMBER
+            )
 
             response = requests.get(api, headers=self.headers)
             data = response.json()

@@ -29,7 +29,7 @@ def generate_json_schema(dst_path):
         schema["description"] = commondata['sourceNote']
         schema["url"] = "https://api.worldbank.org/v2/indicators/" + commondata['id'] + "?format=json"
         schema["keywords"] = [i for i in commondata['name'].split()]
-        schema["date_updated"] = data_ind[0]["lastupdated"]
+        schema["date_updated"] = data_ind[0]["lastupdated"] if data_ind else None
         schema["license"] = None
         schema["provenance"] = "http://worldbank.org"
         schema["original_identifier"] = commondata['id']
@@ -42,13 +42,13 @@ def generate_json_schema(dst_path):
         }
         schema['variables'] = []
         first_col = {
-            "name": "indicator.id",
+            "name": "indicator_id",
 
             "description": "id is identifier of an indicator in worldbank datasets",
             "semantic_type": ["https://metadata.datadrivendiscovery.org/types/CategoricalData"]
         }
         second_col = {
-            "name": "indicator.value",
+            "name": "indicator_value",
 
             "description": "name of an indicator in worldbank datasets",
             "semantic_type": ["http://schema.org/Text"]
@@ -72,7 +72,7 @@ def generate_json_schema(dst_path):
             "semantic_type": ["http://schema.org/Text"]
         }
         sixth_col = {
-            "name": "country.value",
+            "name": "country_value",
 
             "description": "Country for which idicator value is returned",
             "semantic_type": ["https://metadata.datadrivendiscovery.org/types/Location"],
@@ -101,13 +101,13 @@ def generate_json_schema(dst_path):
         schema['variables'].append(seventh_col)
         schema['variables'].append(eighth_col)
         if dst_path:
-            os.makedirs(dst_path + '/WorldBank_schema', exist_ok=True)
+            os.makedirs(dst_path + '/worldbank_schema', exist_ok=True)
 
-            file = os.path.join(dst_path, 'WorldBank_schema',
+            file = os.path.join(dst_path, 'worldbank_schema',
                                 "{}_description.json".format(commondata['id']))
         else:
             os.makedirs('WorldBank_schema', exist_ok=True)
-            file = os.path.join('WorldBank_schema',
+            file = os.path.join('worldbank_schema',
                                 "{}_description.json".format(commondata['id']))
 
         with open(file, "w") as fp:
