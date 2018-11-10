@@ -151,7 +151,10 @@ class Augment(object):
                 constrains["date_range"]["start"] = Augment.DEFAULT_START_DATE
             if not constrains["date_range"].get("end", None):
                 constrains["date_range"]["end"] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-        return Utils.materialize(metadata=metadata, variables=variables, constrains=constrains)
+        df = Utils.materialize(metadata=metadata, constrains=constrains)
+        if variables:
+            return df.iloc[:, variables]
+        return df
 
     @staticmethod
     def get_metadata_intersection(*metadata_lst) -> list:
@@ -180,6 +183,8 @@ class Augment(object):
              right_df: pd.DataFrame,
              left_columns: typing.List[int],
              right_columns: typing.List[int],
+             left_metadata: dict = None,
+             right_metadata: dict = None,
              joiner: str = "default"
              ) -> typing.Optional[pd.DataFrame]:
 
@@ -188,6 +193,8 @@ class Augment(object):
           Args:
               left_df: pandas Dataframe
               right_df: pandas Dataframe
+              left_metadata: metadata of left dataframe
+              right_metadata: metadata of right dataframe
               left_columns: list of integers from left df for join
               right_columns: list of integers from right df for join
               joiner: string of joiner, default to be "default"
@@ -203,4 +210,10 @@ class Augment(object):
             warnings.warn("No suitable joiner, return original dataframe")
             return left_df
 
-        return self.joiners[joiner].join(left_df, right_df, left_columns, right_columns)
+        return self.joiners[joiner].join(left_df=left_df,
+                                         right_df=right_df,
+                                         left_columns=left_columns,
+                                         right_columns=right_columns,
+                                         left_metadata=left_metadata,
+                                         right_metadata=right_metadata,
+                                         )

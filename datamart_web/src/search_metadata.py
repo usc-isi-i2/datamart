@@ -2,7 +2,6 @@ from datamart.augment import Augment
 import pandas as pd
 from pandas.api.types import is_object_dtype
 import json
-import random
 
 
 class SearchMetadata(object):
@@ -11,7 +10,7 @@ class SearchMetadata(object):
 
     MAX_DISPLAY_NAMED_ENTITY = 10
 
-    def __init__(self, es_index="datamart"):
+    def __init__(self, es_index="datamart_all"):
         self.augument = Augment(es_index=es_index)
 
     def default_search_by_csv(self, request):
@@ -47,26 +46,12 @@ class SearchMetadata(object):
                     if not query_string_result:
                         ret["result"].append({
                             "column_idx": idx,
-                            "datasets_metadata": self.trim_named_entity_for_display([x for x in this_column_result])
+                            "datasets_metadata": this_column_result[:10]
                         })
                     else:
                         ret["result"].append({
                             "column_idx": idx,
-                            "datasets_metadata": self.trim_named_entity_for_display(
-                                [x for x in this_column_result if
-                                 x["_source"]["datamart_id"] in query_string_result_ids])
+                            "datasets_metadata": [x for x in this_column_result if
+                                 x["_source"]["datamart_id"] in query_string_result_ids][:10]
                         })
         return ret
-
-    @staticmethod
-    def trim_named_entity_for_display(metadata_lst):
-        for hitted in metadata_lst[:SearchMetadata.MAX_MATCH]:
-            displayed_metadata = hitted["_source"]
-
-            for variable in displayed_metadata["variables"]:
-                if variable.get("named_entity", None):
-                    variable["named_entity"] = random.sample(variable["named_entity"],
-                                                             min(SearchMetadata.MAX_DISPLAY_NAMED_ENTITY,
-                                                                 len(variable["named_entity"])))
-
-        return metadata_lst[:SearchMetadata.MAX_MATCH]
