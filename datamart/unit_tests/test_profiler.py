@@ -1,6 +1,6 @@
 import unittest
 import pandas as pd
-from datamart.profiler import Profiler
+from datamart.profilers.basic_profiler import BasicProfiler
 from datamart.utils import Utils
 
 
@@ -12,7 +12,7 @@ class TestProfiler(unittest.TestCase):
             'Date': ["2018-10-05", "2014-02-23", "2020-09-23T00:10:00", "2023213"]
         }
         self.df = pd.DataFrame(data)
-        self.profiler = Profiler()
+        self.profiler = BasicProfiler
 
     @Utils.test_print
     def test_construct_global_keywords(self):

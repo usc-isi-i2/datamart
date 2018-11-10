@@ -23,7 +23,7 @@ class QueryManager(ESManager):
         super().__init__(es_host=es_host, es_port=es_port)
         self.es_index = es_index
 
-    def search(self, body: str, size: int = 1000, from_index: int = 0, **kwargs) -> typing.Optional[typing.List[dict]]:
+    def search(self, body: str, size: int = 5000, from_index: int = 0, **kwargs) -> typing.Optional[typing.List[dict]]:
         """Entry point for querying.
 
         Args:
@@ -36,18 +36,44 @@ class QueryManager(ESManager):
         """
 
         result = self.es.search(index=self.es_index, body=body, size=size, from_=from_index, **kwargs)
-        if result["hits"]["total"] <= 0:
+        count = result["hits"]["total"]
+        if count <= 0:
             print("Nothing found")
             return None
-        else:
-            return [doc["_source"] for doc in result["hits"]["hits"]]
+        if count <= size:
+            return result["hits"]["hits"]
+        return self.scroll_search(body=body, size=size, count=count)
+
+    def scroll_search(self, body: str, size: int, count: int, scroll: str = '1m', **kwargs) -> typing.List[dict]:
+        """Scroll search for the case that the result from es is too long.
+
+        Args:
+            body: query body.
+            size: query return size.
+            count: total count of doc hitted.
+            scroll: how long a scroll id should remain
+
+        Returns:
+
+        """
+
+        result = self.es.search(index=self.es_index, body=body, size=size, scroll=scroll, **kwargs)
+        ret = result["hits"]["hits"]
+        scroll_id = result["_scroll_id"]
+        from_index = size
+        while from_index <= count:
+            result = self.es.scroll(scroll_id=scroll_id, scroll=scroll)
+            scroll_id = result["_scroll_id"]
+            ret += result["hits"]["hits"]
+            from_index += size
+        return ret
 
     @classmethod
-    def match_some_terms_from_array(cls,
-                                    terms: list,
-                                    key: str = "variables.named_entity.keyword",
-                                    minimum_should_match=None
-                                    ) -> str:
+    def match_some_terms_from_variables_array(cls,
+                                              terms: list,
+                                              key: str = "variables.named_entity",
+                                              minimum_should_match=None
+                                              ) -> str:
         """Generate query body for query that matches some terms from an array.
 
         Args:
@@ -65,27 +91,52 @@ class QueryManager(ESManager):
 
         body = {
             "query": {
-                "bool": {
-                    "should": [
-                    ],
-                    "minimum_should_match": 1
+                "nested": {
+                    "path": key.split(".")[0],
+                    "inner_hits": {
+                        "_source": [
+                            key.split(".")[1]
+                        ]
+                    },
+                    "query": {
+                        "bool": {
+                            "should": [
+                            ],
+                            "minimum_should_match": 1
+                        }
+                    }
+                }
+            },
+            "highlight": {
+                "fields": {
+                    key: {
+                        "pre_tags": [
+                            ""
+                        ],
+                        "post_tags": [
+                            ""
+                        ]
+                    }
                 }
             }
         }
 
         for term in terms:
-            body["query"]["bool"]["should"].append(
+            body["query"]["nested"]["query"]["bool"]["should"].append(
                 {
-                    "term": {
-                        key: term.lower()
+                    "match_phrase": {
+                        key: {
+                            "query": term.lower(),
+                            "_name": term.lower()
+                        }
                     }
                 }
             )
 
         if minimum_should_match:
-            body["query"]["bool"]["minimum_should_match"] = minimum_should_match
+            body["query"]["nested"]["query"]["bool"]["minimum_should_match"] = minimum_should_match
         else:
-            body["query"]["bool"]["minimum_should_match"] = math.ceil(len(terms) / 2)
+            body["query"]["nested"]["query"]["bool"]["minimum_should_match"] = math.ceil(len(terms) / 2)
 
         return json.dumps(body)
 
@@ -108,15 +159,25 @@ class QueryManager(ESManager):
 
         body = {
             "query": {
-                "bool": {
-                    "must": [
-                    ]
+                "nested": {
+                    "path": "variables",
+                    "inner_hits": {
+                        "_source": [
+                            "temporal_coverage"
+                        ]
+                    },
+                    "query": {
+                        "bool": {
+                            "must": [
+                            ]
+                        }
+                    }
                 }
             }
         }
 
         if start:
-            body["query"]["bool"]["must"].append(
+            body["query"]["nested"]["query"]["bool"]["must"].append(
                 {
                     "range": {
                         "variables.temporal_coverage.start": {
@@ -128,7 +189,7 @@ class QueryManager(ESManager):
             )
 
         if end:
-            body["query"]["bool"]["must"].append(
+            body["query"]["nested"]["query"]["bool"]["must"].append(
                 {
                     "range": {
                         "variables.temporal_coverage.end": {
@@ -181,14 +242,24 @@ class QueryManager(ESManager):
 
         body = {
             "query": {
-                "bool": {
-                    "must": [
-                        {
-                            "term": {
-                                "variables.datamart_id": datamart_id
-                            }
+                "nested": {
+                    "path": "variables",
+                    "inner_hits": {
+                        "_source": [
+                            "datamart_id"
+                        ]
+                    },
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "term": {
+                                        "variables.datamart_id": datamart_id
+                                    }
+                                }
+                            ]
                         }
-                    ]
+                    }
                 }
             }
         }
@@ -219,23 +290,65 @@ class QueryManager(ESManager):
             }
         }
 
+        nested = {
+            "nested": {
+                "path": "variables",
+                "inner_hits": {
+                    "_source": [
+                    ]
+                },
+                "query": {
+                    "bool": {
+                        "must": [
+                        ]
+                    }
+                }
+            }
+        }
+
         for key, value in key_value_pairs:
-            if isinstance(value, list):
-                body["query"]["bool"]["must"].append(
-                    {
-                        "terms": {
-                            key: value
+            if not key.startswith("variables"):
+                if isinstance(value, list):
+                    for v in value:
+                        body["query"]["bool"]["must"].append(
+                            {
+                                "match": {
+                                    key: v
+                                }
+                            }
+                        )
+                else:
+                    body["query"]["bool"]["must"].append(
+                        {
+                            "match": {
+                                key: value
+                            }
                         }
-                    }
-                )
+                    )
             else:
-                body["query"]["bool"]["must"].append(
-                    {
-                        "term": {
-                            key: value
+                nested["nested"]["inner_hits"]["_source"].append(key.split(".")[1])
+                if key.split(".")[1] == "named_entity":
+                    match_method = "match_phrase"
+                else:
+                    match_method = "match"
+                if isinstance(value, list):
+                    for v in value:
+                        nested["nested"]["query"]["bool"]["must"].append(
+                            {
+                                match_method: {
+                                    key: v
+                                }
+                            }
+                        )
+                else:
+                    nested["nested"]["query"]["bool"]["must"].append(
+                        {
+                            match_method: {
+                                key: value
+                            }
                         }
-                    }
-                )
+                    )
+        body["query"]["bool"]["must"].append(nested)
         return json.dumps(body)
 
     @staticmethod

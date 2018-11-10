@@ -6,8 +6,9 @@ from datamart.metadata.global_metadata import GlobalMetadata
 from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.es_managers.index_manager import IndexManager
 from datamart.utils import Utils
-from datamart.profiler import Profiler
+from datamart.profilers.basic_profiler import BasicProfiler
 import typing
+import traceback
 
 GLOBAL_INDEX_INTERVAL = 10000
 
@@ -23,7 +24,7 @@ class IndexBuilder(object):
             self.index_config = json.load(index_info_f)
         self.current_global_index = None
         self.GLOBAL_INDEX_INTERVAL = GLOBAL_INDEX_INTERVAL
-        self.profiler = Profiler
+        self.basic_profiler = BasicProfiler
         self.im = IndexManager(es_host=self.index_config["es_host"], es_port=self.index_config["es_port"])
 
     def indexing(self,
@@ -66,6 +67,7 @@ class IndexBuilder(object):
             try:
                 data = Utils.materialize(metadata=description)
             except:
+                traceback.print_exc()
                 warnings.warn("Materialization Failed, index based on schema json only")
 
         metadata = self.construct_global_metadata(description=description, data=data)
@@ -74,7 +76,7 @@ class IndexBuilder(object):
         if save_to_file:
             self._save_data(save_to_file=save_to_file, save_mode=save_to_file_mode, metadata=metadata)
 
-        self.im.create_doc(index=es_index, doc_type='document', body=metadata.value, id=metadata.value['datamart_id'])
+        self.im.create_doc(index=es_index, doc_type='_doc', body=metadata.value, id=metadata.value['datamart_id'])
 
         return metadata.value
 
@@ -317,22 +319,22 @@ class IndexBuilder(object):
             variable_metadata.name = column.name
 
         if not variable_metadata.description:
-            variable_metadata.description = self.profiler.construct_variable_description(column)
+            variable_metadata.description = self.basic_profiler.construct_variable_description(column)
 
         if variable_metadata.named_entity is None:
-            variable_metadata.named_entity = self.profiler.profile_named_entity(column)
+            variable_metadata.named_entity = self.basic_profiler.profile_named_entity(column)
         elif variable_metadata.named_entity is False and not description:
-            named_entities = self.profiler.named_entity_recognize(column)
+            named_entities = self.basic_profiler.named_entity_recognize(column)
             if named_entities:
                 variable_metadata.named_entity = named_entities
 
         if variable_metadata.temporal_coverage is not False:
             if not variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:
-                variable_metadata.temporal_coverage = self.profiler.profile_temporal_coverage(
+                variable_metadata.temporal_coverage = self.basic_profiler.profile_temporal_coverage(
                     column=column, coverage=variable_metadata.temporal_coverage)
 
         elif not description:
-            temporal_coverage = self.profiler.profile_temporal_coverage(column=column)
+            temporal_coverage = self.basic_profiler.profile_temporal_coverage(column=column)
             if temporal_coverage:
                 variable_metadata.temporal_coverage = temporal_coverage
 
@@ -350,13 +352,13 @@ class IndexBuilder(object):
         """
 
         if not global_metadata.title:
-            global_metadata.title = self.profiler.construct_global_title(data)
+            global_metadata.title = self.basic_profiler.construct_global_title(data)
 
         if not global_metadata.description:
-            global_metadata.description = self.profiler.construct_global_description(data)
+            global_metadata.description = self.basic_profiler.construct_global_description(data)
 
         if not global_metadata.keywords:
-            global_metadata.keywords = self.profiler.construct_global_keywords(data)
+            global_metadata.keywords = self.basic_profiler.construct_global_keywords(data)
 
         return global_metadata
 
