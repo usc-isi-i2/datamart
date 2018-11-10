@@ -24,7 +24,6 @@ class WikidataMaterializer(MaterializerBase):
 
     def get(self,
             metadata: dict = None,
-            variables: typing.List[int] = None,
             constrains: dict = None
             ) -> typing.Optional[DataFrame]:
 

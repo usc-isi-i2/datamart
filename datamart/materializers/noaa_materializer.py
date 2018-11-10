@@ -20,6 +20,7 @@ DEFAULT_TOKEN = "QoCwZxSlvRuUHcKhflbujnBSOFhHvZoS"
 
 LIMIT_NUMBER = 1000
 OFFSET_INTERVAL = 8
+CITY_COLUMN_INDEX = 2
 
 
 class NoaaMaterializer(MaterializerBase):
@@ -40,14 +41,12 @@ class NoaaMaterializer(MaterializerBase):
 
     def get(self,
             metadata: dict = None,
-            variables: typing.List[int] = None,
             constrains: dict = None
             ) -> typing.Optional[pd.DataFrame]:
         """ API for get a dataframe.
 
             Args:
                 metadata: json schema for data_type
-                variables:
                 constrains: include some constrains like date_range, location and so on
         """
         if not constrains:
@@ -58,7 +57,9 @@ class NoaaMaterializer(MaterializerBase):
         self.headers = {"token": constrains.get("token", DEFAULT_TOKEN)}
 
         date_range = constrains.get("date_range", {})
-        locations = constrains.get("named_entity", DEFAULT_LOCATIONS)
+
+        locations = constrains.get("named_entity", {}).get(CITY_COLUMN_INDEX, DEFAULT_LOCATIONS)
+
         data_type = materialization_arguments.get("type", DEFAULT_DATA_TYPE)
         dataset_id = constrains.get("dataset_id", DEFAULT_DATASET_ID)
 

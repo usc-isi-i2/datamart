@@ -2,6 +2,7 @@ import os
 from argparse import ArgumentParser
 import requests
 import json
+import traceback
 
 
 def getAllIndicatorList():
@@ -114,6 +115,7 @@ def generate_json_schema(dst_path):
             with open(file, "w") as fp:
                 json.dump(schema, fp, indent=2)
     except:
+        traceback.print_exc()
         pass
 
 

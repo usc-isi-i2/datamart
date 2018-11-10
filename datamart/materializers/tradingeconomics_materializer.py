@@ -8,6 +8,8 @@ import traceback
 import datetime
 import shutil
 
+LOCATION_COLUMN_INDEX = 0
+
 
 class TradingEconomicsMaterializer(MaterializerBase):
     """TradingEconomicsMaterializer class extended from  Materializer class
@@ -23,7 +25,6 @@ class TradingEconomicsMaterializer(MaterializerBase):
 
     def get(self,
             metadata: dict = None,
-            variables: typing.List[int] = None,
             constrains: dict = None
             ) -> typing.Optional[pd.DataFrame]:
         """ API for get a dataframe.
@@ -63,8 +64,9 @@ class TradingEconomicsMaterializer(MaterializerBase):
 
         path1, path2 = getUrl.split("?c=")
         getUrl = path1 + "/" + datestr + "?c=" + path2
-        if "named_entity" in constrains:
-            locations = constrains["named_entity"]
+        if "named_entity" in constrains and LOCATION_COLUMN_INDEX in constrains["named_entity"] and \
+                constrains["named_entity"][LOCATION_COLUMN_INDEX]:
+            locations = constrains["named_entity"][LOCATION_COLUMN_INDEX]
             getUrl = getUrl.replace("all", ",".join([x.replace(' ', '%20') for x in locations]))
 
         datasetConfig = {

@@ -21,7 +21,6 @@ class TradingEconomicsMarketMaterializer(MaterializerBase):
 
     def get(self,
             metadata: dict = None,
-            variables: typing.List[int] = None,
             constrains: dict = None
             ) -> typing.Optional[pd.DataFrame]:
         """ API for get a dataframe.
