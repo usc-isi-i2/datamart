@@ -12,12 +12,40 @@
         },
         "arguments": {
           "description": "keyword arguments to the python __init__ method",
-          "type": ["object", "null"]
+          "type": [
+            "object",
+            "null"
+          ]
         }
       },
       "required": [
         "python_path"
       ]
+    },
+    "implicit_variable": {
+      "description": "implicit variables about the whole dataset, like the time coverage and entity coverage of the entire dataset. eg. A dataset from trading economics is about certain stocktickers, cannot be known from the dataset, should put it here",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "name of the variable",
+          "type": "string"
+        },
+        "value": {
+          "description": "value of the variable",
+          "type": "string"
+        },
+        "semantic_type": {
+          "description": "List of D3M semantic types",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
     },
     "variable_metadata": {
       "description": "Metadata describing a variable/column",
@@ -25,11 +53,17 @@
       "properties": {
         "name": {
           "description": "The name given in the original dataset",
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "semantic_type": {
           "description": "List of D3M semantic types",
-          "type": ["array", "null"],
+          "type": [
+            "array",
+            "null"
+          ],
           "items": {
             "type": "string",
             "format": "uri"
@@ -37,14 +71,20 @@
         },
         "named_entities": {
           "description": "List of named entities referenced in column values",
-          "type": ["array", "null"],
+          "type": [
+            "array",
+            "null"
+          ],
           "items": {
             "type": "string"
           }
         },
         "temporal_coverage": {
           "description": "Temporal extent",
-          "type": ["object", "null"],
+          "type": [
+            "object",
+            "null"
+          ],
           "properties": {
             "start": {
               "description": "Start of temporal coverage",
@@ -82,7 +122,10 @@
         },
         "spatial_coverage": {
           "description": "Spatial extent",
-          "type": ["object", "null"]
+          "type": [
+            "object",
+            "null"
+          ]
         },
         "variable_materialization": {
           "$ref": "#/definitions/materialization"
@@ -96,20 +139,32 @@
   "properties": {
     "title": {
       "description": "A short description of the dataset",
-      "type": ["string", "null"]
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "description": {
       "description": "A long description of the dataset",
-      "type": ["string", "null"]
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "url": {
       "description": "A url on the web where users can find more info if applicable",
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "format": "uri"
     },
     "keywords": {
       "description": "Any keywords or text useful for indexing and retrieval",
-      "type": ["array", "null"],
+      "type": [
+        "array",
+        "null"
+      ],
       "items": {
         "type": "string"
       }
@@ -148,15 +203,31 @@
     },
     "license": {
       "description": "License under which the dataset is released (TBD)",
-      "type": ["object", "null"]
+      "type": [
+        "object",
+        "null"
+      ]
     },
     "provenance": {
       "description": "Provenance of the dataset (TBD)",
-      "type": ["null", "object"]
+      "type": [
+        "null",
+        "object"
+      ]
     },
     "original_identifier": {
       "description": "Original global unique id associate with the dataset if applicable, like id in wikidata",
-      "type": ["string", "null"]
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "implicit_variables": {
+      "description": "Description of each implicit variable of the dataset",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/implicit_variable"
+      }
     },
     "variables": {
       "description": "Description of each variable/column of the dataset",

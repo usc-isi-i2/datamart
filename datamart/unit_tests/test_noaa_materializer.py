@@ -3,7 +3,6 @@ import unittest, json, os
 import pandas as pd
 from datamart.utils import Utils
 
-
 resources_path = os.path.join(os.path.dirname(__file__), "./resources")
 
 
@@ -29,7 +28,7 @@ class TestNoaaMaterializer(unittest.TestCase):
                 "start": "2016-09-23",
                 "end": "2016-09-23"
             },
-            "named_entity": ["los angeles"]
+            "named_entity": {2: ["los angeles"]}
         }
         result = self.noaa_materializer.get(metadata=fake_metadata, constrains=fake_constrains).to_dict(
             orient="records")

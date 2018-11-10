@@ -3,47 +3,53 @@ from datamart.utils import Utils
 import pandas as pd
 import json
 
+"""
+This is not well implemented.
+Join is difficult, we are not able to fully automate it currently, implement some simple join 
+"""
+
 
 class JoinDatasets(object):
-
-    SEMANTIC_TYPES_MAPPING = {
-        "https://metadata.datadrivendiscovery.org/types/Location": "locations"
-    }
 
     def __init__(self, es_index="datamart"):
         self.augument = Augment(es_index=es_index)
 
     def default_join(self, request):
 
-        selected_metadata = json.load(request.files["selected_metadata"])
+        # print(request.form, request.files)
+        query_data = json.loads(request.form['data'])
+        selected_metadata = query_data["selected_metadata"]
 
-        highlight_match = Utils.get_highlight_match_from_metadata(metadata=selected_metadata,
-                                                                  fields=["variables.named_entity"])
+        old_df = pd.read_csv(request.files['file']).infer_objects()
 
-        offset, matched_queries = Utils.get_offset_and_matched_queries_from_variable_metadata(
+        offset_and_matched_queries = Utils.get_offset_and_matched_queries_from_variable_metadata(
             metadata=selected_metadata)
 
-        if "constrains" in request.args:
+        if not offset_and_matched_queries:
+            return old_df.to_csv()
+
+        if "constrains" in query_data:
             try:
-                constrains = json.loads(request.args["constrains"].encode("utf-8"))
+                constrains = query_data["constrains"]
             except:
                 constrains = None
         else:
             constrains = {}
 
-        old_df = pd.read_csv(request.files['file']).infer_objects()
-
-        constrains["named_entity"] = highlight_match["variables.named_entity"]
+        constrains["named_entity"] = {}
+        for offset, matched_queries in offset_and_matched_queries:
+            constrains["named_entity"][offset] = matched_queries
 
         new_df = self.augument.get_dataset(
             metadata=selected_metadata["_source"],
             constrains=constrains
         )
 
-        df = pd.merge(left=old_df,
-                      right=new_df,
-                      left_on=old_df.columns[int(request.args["old_df_column_id"])],
-                      right_on=new_df.columns[offset],
-                      how='outer')
+        df = self.augument.join(
+            left_df=old_df,
+            right_df=new_df,
+            left_columns=[int(x) for x in query_data["old_df_column_ids"]],
+            right_columns=[offset for offset, _ in offset_and_matched_queries]
+        )
 
         return df.to_csv()

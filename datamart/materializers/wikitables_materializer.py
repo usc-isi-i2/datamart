@@ -1,12 +1,12 @@
 from datamart.materializers.materializer_base import MaterializerBase
 from datamart.materializers.wikitables_materializer.wikitables import tables
 
+
 class WikitablesMaterializer(MaterializerBase):
     """ WikitablesMaterializer class extended from  Materializer class """
 
     def get(self,
             metadata: dict = None,
-            variables: typing.List[int] = None,
             constrains: dict = None
             ) -> typing.Optional[pd.DataFrame]:
         """ API for get a dataframe.

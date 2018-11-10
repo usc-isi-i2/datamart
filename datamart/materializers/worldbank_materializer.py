@@ -7,6 +7,8 @@ import json
 import pandas as pd
 from pandas.io.json import json_normalize
 
+LOCATION_COLUMN_INDEX = 5
+
 
 class WorldBankMaterializer(MaterializerBase):
 
@@ -20,18 +22,19 @@ class WorldBankMaterializer(MaterializerBase):
             countrynames = self.country_to_id_map.keys()
             self.DEFAULT_LOCATIONS = list(countrynames)
 
-    def get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame:
+    def get(self, metadata: dict = None, constrains: dict = None) -> pd.DataFrame:
         if not constrains:
             constrains = dict()
 
         date_range = constrains.get("date_range", None)
-        locations = constrains.get("locations", None)
+
+        locations = constrains.get("named_entity", {}).get(LOCATION_COLUMN_INDEX, None)
         dataset_url = metadata['materialization']['arguments']['url']
         dataset_id = dataset_url.split('/')[5].split('?')[0]
         return self.fetch_data(date_range=date_range, locations=locations, dataset_id=dataset_id)
 
     def fetch_data(self, date_range: dict = None, locations: list = None, dataset_id: str = None):
-        if date_range!=None:
+        if date_range:
             start_date = date_range.get("start", None)
             end_date = date_range.get("end", None)
         if not locations:
@@ -43,7 +46,7 @@ class WorldBankMaterializer(MaterializerBase):
             location_id = self.country_to_id_map.get(location, None)
             if location_id is None:
                 continue
-            if date_range==None:
+            if not date_range:
                 URL_ind = 'https://api.worldbank.org/v2/countries/' + location_id + '/indicators/' + dataset_id + '?format=json'
             else:
                 URL_ind = 'https://api.worldbank.org/v2/countries/' + location_id + '/indicators/' + dataset_id + '?format=json&date=' + start_date + ':' + end_date
@@ -69,5 +72,3 @@ class WorldBankMaterializer(MaterializerBase):
             appended_data.append(df)
         appended_data = pd.concat(appended_data, axis=0, sort=False)
         return appended_data
-
-

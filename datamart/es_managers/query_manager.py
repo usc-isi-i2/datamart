@@ -44,7 +44,7 @@ class QueryManager(ESManager):
             return result["hits"]["hits"]
         return self.scroll_search(body=body, size=size, count=count)
 
-    def scroll_search(self, body: str, size: int, count: int, scroll: str='1m', **kwargs) -> typing.List[dict]:
+    def scroll_search(self, body: str, size: int, count: int, scroll: str = '1m', **kwargs) -> typing.List[dict]:
         """Scroll search for the case that the result from es is too long.
 
         Args:

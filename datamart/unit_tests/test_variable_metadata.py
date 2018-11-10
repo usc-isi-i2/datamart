@@ -2,7 +2,6 @@ from datamart.metadata.variable_metadata import VariableMetadata
 import unittest, copy
 from datamart.utils import Utils
 
-
 sample_variable_1 = {
     "name": "DateTime",
     "description": "DateTime of the current value",
