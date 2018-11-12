@@ -49,6 +49,12 @@ class GlobalMetadata(MetadataBase):
         if "original_identifier" in description:
             self._metadata["original_identifier"] = description["original_identifier"]
 
+        if "implicit_variables" in description:
+            self._metadata["implicit_variables"] = description["implicit_variables"]
+
+        if "additional_info" in description:
+            self._metadata["additional_info"] = description["additional_info"]
+
         try:
             self._metadata["materialization"] = description["materialization"]
         except:
@@ -142,6 +148,22 @@ class GlobalMetadata(MetadataBase):
     @property
     def original_identifier(self):
         return self._metadata.get("original_identifier", False)
+
+    @property
+    def implicit_variables(self):
+        return self._metadata.get("implicit_variables", False)
+
+    @implicit_variables.setter
+    def implicit_variables(self, value):
+        self._metadata["implicit_variables"] = value
+
+    @property
+    def additional_info(self):
+        return self._metadata.get("additional_info", False)
+
+    @additional_info.setter
+    def additional_info(self, value):
+        self._metadata["additional_info"] = value
 
     @property
     def materialization(self):

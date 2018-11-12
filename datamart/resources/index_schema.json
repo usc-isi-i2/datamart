@@ -224,21 +224,38 @@
     },
     "implicit_variables": {
       "description": "Description of each implicit variable of the dataset",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/implicit_variable"
-      }
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/implicit_variable"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "variables": {
       "description": "Description of each variable/column of the dataset",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/variable_metadata"
-      }
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/variable_metadata"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "additional_info": {
       "description": "Any other information which is useful",
-      "type": "object"
+      "type": [
+        "object",
+        "null"
+      ]
     }
   },
   "required": [
