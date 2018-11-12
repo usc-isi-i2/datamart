@@ -235,6 +235,10 @@
       "items": {
         "$ref": "#/definitions/variable_metadata"
       }
+    },
+    "additional_info": {
+      "description": "Any other information which is useful",
+      "type": "object"
     }
   },
   "required": [
