@@ -46,24 +46,20 @@ class TradingEconomicsMaterializer(MaterializerBase):
             self.headers = {"key": "guest:guest"}
         date_range = constrains.get("date_range", {})
         datestr = ""
+        if date_range.get("start", None) or date_range.get("end", None):
+            if date_range.get("start", None) and date_range.get("end", None):
+                datestr += date_range["start"]
+                datestr += '/' + date_range["end"]
+            elif date_range.get("start", None):
+                now = datetime.datetime.now()
+                datestr += date_range["start"]
+                datestr += '/' + "{}-{}-{}".format(now.year, now.month, now.day)
+            else:
+                datestr += "{}-{}-{}".format("1900", "01", "01")
+                datestr += '/' + date_range["end"]
 
-        if date_range.get("start", None) and date_range.get("end", None):
-            datestr += date_range["start"]
-            datestr += '/' + date_range["end"]
-        elif not date_range.get("start", None) and not date_range.get("end", None):
-            now = datetime.datetime.now()
-            datestr += "{}-{}-{}".format(now.year - 1, now.month, now.day)
-            datestr += '/' + "{}-{}-{}".format(now.year, now.month, now.day)
-        elif date_range.get("start", None):
-            now = datetime.datetime.now()
-            datestr += date_range["start"]
-            datestr += '/' + "{}-{}-{}".format(now.year, now.month, now.day)
-        else:
-            datestr += "{}-{}-{}".format("1900", "01", "01")
-            datestr += '/' + date_range["end"]
-
-        path1, path2 = getUrl.split("?c=")
-        getUrl = path1 + "/" + datestr + "?c=" + path2
+            path1, path2 = getUrl.split("?c=")
+            getUrl = path1 + "/" + datestr + "?c=" + path2
         if "named_entity" in constrains and LOCATION_COLUMN_INDEX in constrains["named_entity"] and \
                 constrains["named_entity"][LOCATION_COLUMN_INDEX]:
             locations = constrains["named_entity"][LOCATION_COLUMN_INDEX]
