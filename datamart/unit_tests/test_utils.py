@@ -59,45 +59,8 @@ class TestUtils(unittest.TestCase):
                 "start": "2016-09-23",
                 "end": "2016-09-23"
             },
-            "locations": ["los angeles"]
+            "named_entity": {2: ["los angeles"]}
         }
         result = Utils.materialize(metadata=fake_metadata, constrains=fake_constrains)
         expepcted = pd.read_csv(os.path.join(os.path.dirname(__file__), "resources/noaa_result.csv"))
         assert_frame_equal(result, expepcted)
-
-    @Utils.test_print
-    def test_all_materializers(self):
-
-        materializers = [
-            x.replace(".py", "")
-            for x in os.listdir(self.materializers_path) if
-            os.path.isfile(os.path.join(self.materializers_path, x))
-            and x.endswith(".py") and x != "materializer_base.py"
-        ]
-
-        metadatas = [
-            os.path.join(self.resources_path, materializers[i].replace("_materializer", "") + ".json")
-            for i in range(len(materializers)) if
-            materializers[i].replace("_materializer", "") + ".json" in os.listdir(self.resources_path)
-        ]
-
-        multiple_constrains = [
-            {
-            },
-            {
-                "date_range": {
-                    "start": "2016-09-20",
-                    "end": "2016-09-23"
-                }
-            },
-            {
-                "locations": ["los angeles", "Australia", "asia"]
-            }
-        ]
-
-        for idx, _ in enumerate(metadatas):
-            with open(metadatas[idx], "r") as f:
-                metadata = json.load(f)
-            for constrains in multiple_constrains:
-                result = Utils.materialize(metadata=metadata, constrains=copy.deepcopy(constrains))
-                self.assertEqual(result is not None, True)

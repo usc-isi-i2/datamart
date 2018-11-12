@@ -3,7 +3,7 @@ import dateutil.parser
 import typing
 
 
-class Profiler(object):
+class BasicProfiler(object):
     def __init__(self):
         pass
 
@@ -79,7 +79,7 @@ class Profiler(object):
         if not min_datetime and not max_datetime:
             return False
 
-        if temporal_count < len(column)//2:
+        if temporal_count < len(column) // 2:
             return False
 
         if not coverage:

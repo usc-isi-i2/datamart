@@ -92,7 +92,6 @@ class Utils:
     @classmethod
     def materialize(cls,
                     metadata: dict,
-                    variables: list = None,
                     constrains: dict = None) -> typing.Optional[DataFrame]:
         """Get the dataset with materializer.
 
@@ -105,7 +104,7 @@ class Utils:
             pandas dataframe
        """
         materializer = cls.load_materializer(materializer_module=metadata["materialization"]["python_path"])
-        df = materializer.get(metadata=metadata, variables=variables, constrains=constrains)
+        df = materializer.get(metadata=metadata, constrains=constrains)
         if isinstance(df, DataFrame):
             return df.infer_objects()
         return None
@@ -135,3 +134,35 @@ class Utils:
             print(colored('.Done', 'red'))
 
         return __decorator
+
+    @staticmethod
+    def get_highlight_match_from_metadata(metadata: dict, fields: list) -> dict:
+        """Get highlight match, highlight match is the string in some fields of doc which is matched by this query.
+
+        Args:
+            metadata: hitted result returned by es query
+            fields: list of fields
+
+        Returns:
+            boolean
+        """
+
+        highlights = metadata.get("highlight", {})
+        return {field: highlights[field] for field in fields if field in highlights}
+
+    @staticmethod
+    def get_offset_and_matched_queries_from_variable_metadata(metadata: dict) -> typing.Optional[typing.List[tuple]]:
+        """Get offset of nested object got matched and which query string in matched.
+
+        Args:
+            metadata: hitted result returned by es query
+
+        Returns:
+            boolean
+        """
+
+        matched_queries_lst = metadata.get("inner_hits", {}).get("variables", {}).get("hits", {}).get("hits", [])
+        if not matched_queries_lst:
+            return None
+        return [(matched_queries_lst[idx]["_nested"]["offset"], matched_queries_lst[idx]["matched_queries"])
+                for idx in range(len(matched_queries_lst))]

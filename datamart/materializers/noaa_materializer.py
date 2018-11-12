@@ -20,6 +20,7 @@ DEFAULT_TOKEN = "QoCwZxSlvRuUHcKhflbujnBSOFhHvZoS"
 
 LIMIT_NUMBER = 1000
 OFFSET_INTERVAL = 8
+CITY_COLUMN_INDEX = 2
 
 
 class NoaaMaterializer(MaterializerBase):
@@ -40,14 +41,12 @@ class NoaaMaterializer(MaterializerBase):
 
     def get(self,
             metadata: dict = None,
-            variables: typing.List[int] = None,
             constrains: dict = None
             ) -> typing.Optional[pd.DataFrame]:
         """ API for get a dataframe.
 
             Args:
                 metadata: json schema for data_type
-                variables:
                 constrains: include some constrains like date_range, location and so on
         """
         if not constrains:
@@ -55,10 +54,12 @@ class NoaaMaterializer(MaterializerBase):
 
         materialization_arguments = metadata["materialization"].get("arguments", {})
 
-        self.headers = {"token" : constrains.get("token", DEFAULT_TOKEN)}
+        self.headers = {"token": constrains.get("token", DEFAULT_TOKEN)}
 
         date_range = constrains.get("date_range", {})
-        locations = constrains.get("locations", DEFAULT_LOCATIONS)
+
+        locations = constrains.get("named_entity", {}).get(CITY_COLUMN_INDEX, DEFAULT_LOCATIONS)
+
         data_type = materialization_arguments.get("type", DEFAULT_DATA_TYPE)
         dataset_id = constrains.get("dataset_id", DEFAULT_DATASET_ID)
 
@@ -96,13 +97,13 @@ class NoaaMaterializer(MaterializerBase):
             api = 'https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid={dataset_id}' \
                   '&datatypeid={data_type}&locationid={location_id}&startdate={start_date}' \
                   '&enddate={end_date}&limit={limit_number}&offset=1'.format(
-                    dataset_id=dataset_id,
-                    data_type=data_type,
-                    location_id=location_id,
-                    start_date=start_date,
-                    end_date=end_date,
-                    limit_number=LIMIT_NUMBER
-                  )
+                dataset_id=dataset_id,
+                data_type=data_type,
+                location_id=location_id,
+                start_date=start_date,
+                end_date=end_date,
+                limit_number=LIMIT_NUMBER
+            )
 
             response = requests.get(api, headers=self.headers)
             data = response.json()
