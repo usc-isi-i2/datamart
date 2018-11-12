@@ -134,8 +134,7 @@ class Augment(object):
         """
         return self.qm.search(body=body, **kwargs)
 
-    @staticmethod
-    def get_dataset(metadata: dict, variables: list = None, constrains: dict = None) -> typing.Optional[pd.DataFrame]:
+    def get_dataset(self, metadata: dict, variables: list = None, constrains: dict = None) -> typing.Optional[pd.DataFrame]:
         """Get the dataset with materializer.
 
        Args:
@@ -146,14 +145,20 @@ class Augment(object):
        Returns:
             pandas dataframe
        """
+
         if "date_range" in constrains:
             if not constrains["date_range"].get("start", None):
                 constrains["date_range"]["start"] = Augment.DEFAULT_START_DATE
             if not constrains["date_range"].get("end", None):
                 constrains["date_range"]["end"] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
         df = Utils.materialize(metadata=metadata, constrains=constrains)
+
         if variables:
-            return df.iloc[:, variables]
+            df = df.iloc[:, variables]
+
+        if metadata.get("implicit_variables", None):
+            df = self.append_columns_for_implicit_variables(metadata["implicit_variables"], df)
+
         return df
 
     @staticmethod
@@ -217,3 +222,19 @@ class Augment(object):
                                          left_metadata=left_metadata,
                                          right_metadata=right_metadata,
                                          )
+
+    @staticmethod
+    def append_columns_for_implicit_variables(implicit_variables: typing.List[dict], df: pd.DataFrame) -> pd.DataFrame:
+        """Append implicit_variables as new column with same value across all rows of the dataframe
+
+         Args:
+             implicit_variables: list of implicit_variables in metadata
+             df: Dataframe that implicit_variables will be appended on
+
+         Returns:
+              Dataframe with appended implicit_variables columns
+         """
+
+        for implicit_variable in implicit_variables:
+            df[implicit_variable["name"]] = implicit_variable["value"]
+        return df
