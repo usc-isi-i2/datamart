@@ -65,7 +65,7 @@ class IndexBuilder(object):
         description, data = self._read_data(description_path, data_path)
         if not data and query_data_for_indexing:
             try:
-                data = Utils.materialize(metadata=description)
+                data = Utils.materialize(metadata=description).infer_objects()
             except:
                 traceback.print_exc()
                 warnings.warn("Materialization Failed, index based on schema json only")

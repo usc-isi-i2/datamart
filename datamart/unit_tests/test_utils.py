@@ -61,6 +61,6 @@ class TestUtils(unittest.TestCase):
             },
             "named_entity": {2: ["los angeles"]}
         }
-        result = Utils.materialize(metadata=fake_metadata, constrains=fake_constrains)
+        result = Utils.materialize(metadata=fake_metadata, constrains=fake_constrains).infer_objects()
         expepcted = pd.read_csv(os.path.join(os.path.dirname(__file__), "resources/noaa_result.csv"))
         assert_frame_equal(result, expepcted)

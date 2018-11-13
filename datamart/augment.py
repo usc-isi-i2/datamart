@@ -159,7 +159,7 @@ class Augment(object):
         if metadata.get("implicit_variables", None):
             df = self.append_columns_for_implicit_variables(metadata["implicit_variables"], df)
 
-        return df
+        return df.infer_objects()
 
     @staticmethod
     def get_metadata_intersection(*metadata_lst) -> list:

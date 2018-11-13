@@ -106,7 +106,7 @@ class Utils:
         materializer = cls.load_materializer(materializer_module=metadata["materialization"]["python_path"])
         df = materializer.get(metadata=metadata, constrains=constrains)
         if isinstance(df, DataFrame):
-            return df.infer_objects()
+            return df
         return None
 
     @staticmethod
