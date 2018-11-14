@@ -22,6 +22,7 @@ jupyter==1.0.0
 jupyter-client==5.2.3
 jupyter-console==6.0.0
 jupyter-core==4.4.0
+langdetect==1.0.7
 MarkupSafe==1.0
 mistune==0.8.3
 nbconvert==5.4.0
@@ -59,3 +60,4 @@ webencodings==0.5.1
 Werkzeug==0.14.1
 wget==3.2
 widgetsnbextension==3.4.2
+xlrd==1.1.0
