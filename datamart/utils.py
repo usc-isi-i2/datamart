@@ -9,6 +9,7 @@ from jsonschema import validate
 from termcolor import colored
 import typing
 from pandas import DataFrame
+import tempfile
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 
@@ -16,6 +17,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 class Utils:
     INDEX_SCHEMA = json.load(
         open(os.path.join(os.path.join(os.path.dirname(__file__), "resources"), 'index_schema.json'), 'r'))
+
+    TMP_FILE_DIR = tempfile.gettempdir()
 
     @staticmethod
     def date_validate(date_text: str) -> typing.Optional[str]:
@@ -86,7 +89,7 @@ class Utils:
             raise ValueError("No materializer class found in {}".format(
                 os.path.join(os.path.dirname(__file__), 'materializers', materializer_module)))
 
-        materializer = materializer_class()
+        materializer = materializer_class(tmp_file_dir=Utils.TMP_FILE_DIR)
         return materializer
 
     @classmethod

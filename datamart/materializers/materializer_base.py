@@ -9,6 +9,10 @@ class MaterializerBase(ABC):
     """
 
     @abstractmethod
+    def __init__(self, **kwargs):
+        pass
+
+    @abstractmethod
     def get(self,
             metadata: dict = None,
             constrains: dict = None

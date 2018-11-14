@@ -4,7 +4,8 @@ import typing
 import requests
 import os
 
-from materializer_base import MaterializerBase
+from datamart.materializers.materializer_base import MaterializerBase
+
 
 class FbiMaterializer(MaterializerBase):
     """
@@ -12,27 +13,31 @@ class FbiMaterializer(MaterializerBase):
     Currently only supports table 8.
     """
 
-    def __init__(self):
+    TMP_FILE_DIR = "./"
+
+    def __init__(self, tmp_file_dir=None):
         MaterializerBase.__init__(self)
-        self.tmp_file_path = "tmp_fbi_file.xls"
-    
+        tmp_file_dir = tmp_file_dir if tmp_file_dir else FbiMaterializer.TMP_FILE_DIR
+
+        self.tmp_file_path = os.path.join(tmp_file_dir, "fbi_materializer_tmp")
+
     def get(self,
-        metadata: dict = None,
-        constrains: dict = None
-        ) -> typing.Optional[pd.DataFrame]:
+            metadata: dict = None,
+            constrains: dict = None
+            ) -> typing.Optional[pd.DataFrame]:
         """
         Fetches the data and returns dataframe
         """
 
         materialization_arguments = metadata["materialization"].get("arguments", {})
-        self.url = materialization_arguments.get("url","")
+        self.url = materialization_arguments.get("url", "")
 
         try:
             self._get_excel_file(self.url)
         except Exception as e:
             print("Exception occured while fetching file. More details: \n{}".format(e))
             return pd.DataFrame()
-            
+
         metadata, start_row, skipfooter = self._parse_metadata()
         df = self._parse_file(start_row, skipfooter)
 
@@ -52,7 +57,7 @@ class FbiMaterializer(MaterializerBase):
         """
         r = requests.get(url)
         if r.status_code == 200:
-            with open(self.tmp_file_path,'wb') as f:
+            with open(self.tmp_file_path, 'wb') as f:
                 f.write(r.content)
         else:
             raise Exception('File not found. Status code: {}'.format(r.status_code))
@@ -67,17 +72,17 @@ class FbiMaterializer(MaterializerBase):
             - skipfooter: (int) index of data starting from the end of table
 
         """
-        df = pd.read_excel(self.tmp_file_path,index_col=None, header=None)
-        df = df.replace(' ',np.nan)
-        df = df.dropna(how='all',axis=1)
+        df = pd.read_excel(self.tmp_file_path, index_col=None, header=None)
+        df = df.replace(' ', np.nan)
+        df = df.dropna(how='all', axis=1)
         rows, cols = df.shape
         metadata = []
         start_row = 0
         # start from beginning
         # find starting metadata
         for row in range(rows):
-            if df.iloc[row].isnull().sum() > cols/2:
-                #is metadata
+            if df.iloc[row].isnull().sum() > cols / 2:
+                # is metadata
                 metadata.append(df.iloc[row][0])
             else:
                 start_row = row
@@ -85,15 +90,15 @@ class FbiMaterializer(MaterializerBase):
         # start from end
         # find footer metadata
         footer = []
-        for row in range(rows-1,-1,-1):
-            if df.iloc[row].isnull().sum() > cols/2:
-                #is metadata
+        for row in range(rows - 1, -1, -1):
+            if df.iloc[row].isnull().sum() > cols / 2:
+                # is metadata
                 footer.append(df.iloc[row][0])
             else:
                 end_row = row
                 break
         metadata.extend(footer[::-1])
-        skipfooter = rows-end_row
+        skipfooter = rows - end_row
         return metadata, start_row, skipfooter
 
     def _parse_file(self, start_row, skipfooter):
@@ -104,12 +109,7 @@ class FbiMaterializer(MaterializerBase):
             - df: (pd.DataFrame) extracted table
 
         """
-        df = pd.read_excel(self.tmp_file_path,header=start_row, index_col=[0,1], skipfooter=skipfooter)
-        df = df.replace('\s+',np.nan,regex=True)
-        df = df.dropna(how='all',axis=1)
+        df = pd.read_excel(self.tmp_file_path, header=start_row, index_col=[0, 1], skipfooter=skipfooter)
+        df = df.replace('\s+', np.nan, regex=True)
+        df = df.dropna(how='all', axis=1)
         return df.dropna(how='all')
-    
-    
-
-        
-    

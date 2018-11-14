@@ -7,7 +7,6 @@ from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.es_managers.index_manager import IndexManager
 from datamart.utils import Utils
 from datamart.profilers.basic_profiler import BasicProfiler
-from datamart.profilers.dsbox_profiler import DSboxProfiler
 import typing
 import traceback
 
@@ -320,6 +319,7 @@ class IndexBuilder(object):
         Examples:
 
             # dsbox profiler
+            from datamart.profilers.dsbox_profiler import DSboxProfiler
             dsbox_profiler = DSboxProfiler()
             return dsbox_profiler.produce(inputs=data, metadata=metadata)
         """
