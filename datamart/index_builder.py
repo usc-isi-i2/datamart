@@ -7,6 +7,7 @@ from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.es_managers.index_manager import IndexManager
 from datamart.utils import Utils
 from datamart.profilers.basic_profiler import BasicProfiler
+from datamart.profilers.dsbox_profiler import DSboxProfiler
 import typing
 import traceback
 
@@ -71,14 +72,18 @@ class IndexBuilder(object):
                 warnings.warn("Materialization Failed, index based on schema json only")
 
         metadata = self.construct_global_metadata(description=description, data=data)
-        Utils.validate_schema(metadata.value)
+
+        if data is not None:
+            metadata = self.profile(data=data, metadata=metadata)
+
+        Utils.validate_schema(metadata)
 
         if save_to_file:
             self._save_data(save_to_file=save_to_file, save_mode=save_to_file_mode, metadata=metadata)
 
-        self.im.create_doc(index=es_index, doc_type='_doc', body=metadata.value, id=metadata.value['datamart_id'])
+        self.im.create_doc(index=es_index, doc_type='_doc', body=metadata, id=metadata['datamart_id'])
 
-        return metadata.value
+        return metadata
 
     def updating(self,
                  description_path: str,
@@ -119,12 +124,12 @@ class IndexBuilder(object):
                 warnings.warn("Materialization Failed, index based on schema json only")
 
         metadata = self.construct_global_metadata(description=description, data=data, overwrite_datamart_id=document_id)
-        Utils.validate_schema(metadata.value)
+        Utils.validate_schema(metadata)
 
-        self.im.update_doc(index=es_index, doc_type='document', body={"doc": metadata.value},
-                           id=metadata.value['datamart_id'])
+        self.im.update_doc(index=es_index, doc_type='document', body={"doc": metadata},
+                           id=metadata['datamart_id'])
 
-        return metadata.value
+        return metadata
 
     def bulk_indexing(self,
                       description_dir: str,
@@ -205,29 +210,29 @@ class IndexBuilder(object):
         return description, data
 
     @staticmethod
-    def _save_data(save_to_file: str, save_mode: str, metadata: GlobalMetadata) -> None:
+    def _save_data(save_to_file: str, save_mode: str, metadata: dict) -> None:
         """Save metadata json to file.
 
         Args:
             save_to_file: Path of the saving file.
             save_mode: save mode
-            metadata: metadata instance.
+            metadata: metadata dict.
 
         Returns:
             save to file with 2 lines for each metadata, first line is id, second line is metadata json
         """
 
         with open(save_to_file, mode=save_mode) as out:
-            out.write(str(metadata.datamart_id))
+            out.write(str(metadata["datamart_id"]))
             out.write("\n")
-            out.write(json.dumps(metadata.value))
+            out.write(json.dumps(metadata))
             out.write("\n")
 
     def construct_global_metadata(self,
                                   description: dict,
                                   data: pd.DataFrame = None,
                                   overwrite_datamart_id: int = None
-                                  ) -> GlobalMetadata:
+                                  ) -> dict:
 
         """Construct global metadata.
 
@@ -237,7 +242,7 @@ class IndexBuilder(object):
             overwrite_datamart_id: integer id for over writing original one
 
         Returns:
-            GlobalMetadata instance
+            metadata dict
         """
         if not overwrite_datamart_id:
             self.current_global_index += self.GLOBAL_INDEX_INTERVAL
@@ -246,9 +251,6 @@ class IndexBuilder(object):
             datamart_id = overwrite_datamart_id
 
         global_metadata = GlobalMetadata.construct_global(description, datamart_id=datamart_id)
-
-        if data is not None:
-            global_metadata = self._profiling_entire(global_metadata, data)
 
         if description.get("variables", []):
             for col_offset, variable_description in enumerate(description["variables"]):
@@ -270,7 +272,10 @@ class IndexBuilder(object):
             warnings.warn(
                 "No data to profile for variable metadata. No variable description. Leave empty for variable metadata")
 
-        return global_metadata
+        if data is not None:
+            global_metadata = self.basic_profiler.basic_profiling_entire(global_metadata=global_metadata, data=data)
+
+        return global_metadata.value
 
     def construct_variable_metadata(self,
                                     description: dict,
@@ -295,72 +300,31 @@ class IndexBuilder(object):
                                                                 datamart_id=col_offset + global_datamart_id + 1)
 
         if data is not None:
-            variable_metadata = self._profiling_column(description, variable_metadata, data.iloc[:, col_offset])
+            variable_metadata = self.basic_profiler.basic_profiling_column(description=description,
+                                                                           variable_metadata=variable_metadata,
+                                                                           column=data.iloc[:, col_offset])
 
         return variable_metadata
 
-    def _profiling_column(self,
-                          description: dict,
-                          variable_metadata: VariableMetadata,
-                          column: pd.Series
-                          ) -> VariableMetadata:
-        """Profiling single column for necessary fields of metadata, if data is present .
+    @staticmethod
+    def profile(data: pd.DataFrame, metadata: dict) -> dict:
+        """Any profiler needed should be called here.
 
         Args:
-            description: description dict about the column.
-            variable_metadata: the original VariableMetadata instance.
-            column: the column to profile.
+            data: dataset
+            metadata: dict
 
         Returns:
-            profiled VariableMetadata instance
+            metadata dictionary
+
+        Examples:
+
+            # dsbox profiler
+            dsbox_profiler = DSboxProfiler()
+            return dsbox_profiler.produce(inputs=data, metadata=metadata)
         """
 
-        if not variable_metadata.name:
-            variable_metadata.name = column.name
-
-        if not variable_metadata.description:
-            variable_metadata.description = self.basic_profiler.construct_variable_description(column)
-
-        if variable_metadata.named_entity is None:
-            variable_metadata.named_entity = self.basic_profiler.profile_named_entity(column)
-        elif variable_metadata.named_entity is False and not description:
-            named_entities = self.basic_profiler.named_entity_recognize(column)
-            if named_entities:
-                variable_metadata.named_entity = named_entities
-
-        if variable_metadata.temporal_coverage is not False:
-            if not variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:
-                variable_metadata.temporal_coverage = self.basic_profiler.profile_temporal_coverage(
-                    column=column, coverage=variable_metadata.temporal_coverage)
-
-        elif not description:
-            temporal_coverage = self.basic_profiler.profile_temporal_coverage(column=column)
-            if temporal_coverage:
-                variable_metadata.temporal_coverage = temporal_coverage
-
-        return variable_metadata
-
-    def _profiling_entire(self, global_metadata: GlobalMetadata, data: pd.DataFrame) -> GlobalMetadata:
-        """Profiling entire dataset for necessary fields of metadata, if data is present .
-
-        Args:
-            global_metadata: the original GlobalMetadata instance.
-            data: dataframe of data.
-
-        Returns:
-            profiled GlobalMetadata instance
-        """
-
-        if not global_metadata.title:
-            global_metadata.title = self.basic_profiler.construct_global_title(data)
-
-        if not global_metadata.description:
-            global_metadata.description = self.basic_profiler.construct_global_description(data)
-
-        if not global_metadata.keywords:
-            global_metadata.keywords = self.basic_profiler.construct_global_keywords(data)
-
-        return global_metadata
+        return metadata
 
     def _bulk_load_metadata(self,
                             metadata_out_file: str,
