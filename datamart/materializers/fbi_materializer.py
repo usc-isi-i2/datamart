@@ -15,8 +15,8 @@ class FbiMaterializer(MaterializerBase):
 
     TMP_FILE_DIR = "./"
 
-    def __init__(self, tmp_file_dir=None):
-        MaterializerBase.__init__(self)
+    def __init__(self, tmp_file_dir=None, **kwargs):
+        MaterializerBase.__init__(self,  **kwargs)
         tmp_file_dir = tmp_file_dir if tmp_file_dir else FbiMaterializer.TMP_FILE_DIR
 
         self.tmp_file_path = os.path.join(tmp_file_dir, "fbi_materializer_tmp")
@@ -42,6 +42,7 @@ class FbiMaterializer(MaterializerBase):
         df = self._parse_file(start_row, skipfooter)
 
         os.remove(self.tmp_file_path)
+        df.reset_index(inplace=True)
 
         return df
 

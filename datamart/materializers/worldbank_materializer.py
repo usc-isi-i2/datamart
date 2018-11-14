@@ -12,8 +12,8 @@ LOCATION_COLUMN_INDEX = 5
 
 class WorldBankMaterializer(MaterializerBase):
 
-    def __init__(self):
-        MaterializerBase.__init__(self)
+    def __init__(self, **kwargs):
+        MaterializerBase.__init__(self, **kwargs)
         self.headers = None
         resources_path = os.path.join(os.path.dirname(__file__), "../resources")
         with open(os.path.join(resources_path, 'country_to_id.json'), 'r') as json_file:
