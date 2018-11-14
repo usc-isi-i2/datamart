@@ -2,7 +2,7 @@
 
 1. Create a subclass of [MaterializerBase](./materializer_base.py)
 
-2. Implement `get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame` method,
+2. Implement `get(self, metadata: dict = None, constrains: dict = None) -> pd.DataFrame` method,
     
     metadata is the metadata after processing your dataset schema (profiling and so on).
     
