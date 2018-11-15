@@ -1,4 +1,5 @@
 from datamart.es_managers.query_manager import QueryManager
+from datamart.profiler import Profiler
 import pandas as pd
 import typing
 from datamart.utils import Utils
@@ -24,6 +25,7 @@ class Augment(object):
 
         self.qm = QueryManager(es_host=es_host, es_port=es_port, es_index=es_index)
         self.joiners = dict()
+        self.profiler = Profiler()
 
     def query_by_column(self,
                         col: pd.Series,
@@ -134,8 +136,11 @@ class Augment(object):
         """
         return self.qm.search(body=body, **kwargs)
 
-    @staticmethod
-    def get_dataset(metadata: dict, variables: list = None, constrains: dict = None) -> typing.Optional[pd.DataFrame]:
+    def get_dataset(self,
+                    metadata: dict,
+                    variables: list = None,
+                    constrains: dict = None
+                    ) -> typing.Optional[pd.DataFrame]:
         """Get the dataset with materializer.
 
        Args:
@@ -146,15 +151,23 @@ class Augment(object):
        Returns:
             pandas dataframe
        """
-        if "date_range" in constrains:
-            if not constrains["date_range"].get("start", None):
-                constrains["date_range"]["start"] = Augment.DEFAULT_START_DATE
-            if not constrains["date_range"].get("end", None):
-                constrains["date_range"]["end"] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+
+        if not constrains:
+            constrains = {"date_range": {}}
+
+        if not constrains.get("date_range", {}).get("start", None):
+            constrains["date_range"]["start"] = Augment.DEFAULT_START_DATE
+        if not constrains.get("date_range", {}).get("end", None):
+            constrains["date_range"]["end"] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
         df = Utils.materialize(metadata=metadata, constrains=constrains)
+
         if variables:
-            return df.iloc[:, variables]
-        return df
+            df = df.iloc[:, variables]
+
+        if metadata.get("implicit_variables", None):
+            df = self.append_columns_for_implicit_variables(metadata["implicit_variables"], df)
+
+        return df.infer_objects()
 
     @staticmethod
     def get_metadata_intersection(*metadata_lst) -> list:
@@ -210,6 +223,14 @@ class Augment(object):
             warnings.warn("No suitable joiner, return original dataframe")
             return left_df
 
+        if not left_metadata:
+            # Left df is the user provided one.
+            # We will generate metadata just based on the data itself, profiling and so on
+            left_metadata = Utils.generate_metadata_from_dataframe(data=left_df)
+
+        left_metadata = self.calculate_dsbox_features(data=left_df, metadata=left_metadata)
+        right_metadata = self.calculate_dsbox_features(data=right_df, metadata=right_metadata)
+
         return self.joiners[joiner].join(left_df=left_df,
                                          right_df=right_df,
                                          left_columns=left_columns,
@@ -217,3 +238,24 @@ class Augment(object):
                                          left_metadata=left_metadata,
                                          right_metadata=right_metadata,
                                          )
+
+    @staticmethod
+    def append_columns_for_implicit_variables(implicit_variables: typing.List[dict], df: pd.DataFrame) -> pd.DataFrame:
+        """Append implicit_variables as new column with same value across all rows of the dataframe
+
+         Args:
+             implicit_variables: list of implicit_variables in metadata
+             df: Dataframe that implicit_variables will be appended on
+
+         Returns:
+              Dataframe with appended implicit_variables columns
+         """
+
+        for implicit_variable in implicit_variables:
+            df[implicit_variable["name"]] = implicit_variable["value"]
+        return df
+
+    def calculate_dsbox_features(self, data, metadata):
+        if not metadata:
+            return metadata
+        return self.profiler.dsbox_profiler.profile(inputs=data, metadata=metadata)

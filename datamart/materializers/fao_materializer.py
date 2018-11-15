@@ -16,11 +16,11 @@ LOCATION_COLUMN_INDEX = 0
 
 
 class FaoMaterializer(MaterializerBase):
-    def __init__(self):
+    def __init__(self, **kwargs):
         """ initialization and loading the city name to city id map
 
         """
-        MaterializerBase.__init__(self)
+        MaterializerBase.__init__(self, **kwargs)
         self.conn = None
         try:
             # read connection parameters

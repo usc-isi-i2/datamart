@@ -49,7 +49,9 @@ class JoinDatasets(object):
             left_df=old_df,
             right_df=new_df,
             left_columns=[int(x) for x in query_data["old_df_column_ids"]],
-            right_columns=[offset for offset, _ in offset_and_matched_queries]
+            right_columns=[offset for offset, _ in offset_and_matched_queries],
+            left_metadata=None,
+            right_metadata=selected_metadata["_source"]
         )
 
         return df.to_csv()

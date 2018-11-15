@@ -9,6 +9,7 @@ from jsonschema import validate
 from termcolor import colored
 import typing
 from pandas import DataFrame
+import tempfile
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 
@@ -16,6 +17,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 class Utils:
     INDEX_SCHEMA = json.load(
         open(os.path.join(os.path.join(os.path.dirname(__file__), "resources"), 'index_schema.json'), 'r'))
+
+    TMP_FILE_DIR = tempfile.gettempdir()
+
+    DEFAULT_DESCRIPTION = {
+        "materialization": {
+            "python_path": "default_materializer"
+        },
+        "variables": []
+    }
 
     @staticmethod
     def date_validate(date_text: str) -> typing.Optional[str]:
@@ -86,7 +96,7 @@ class Utils:
             raise ValueError("No materializer class found in {}".format(
                 os.path.join(os.path.dirname(__file__), 'materializers', materializer_module)))
 
-        materializer = materializer_class()
+        materializer = materializer_class(tmp_file_dir=Utils.TMP_FILE_DIR)
         return materializer
 
     @classmethod
@@ -106,7 +116,7 @@ class Utils:
         materializer = cls.load_materializer(materializer_module=metadata["materialization"]["python_path"])
         df = materializer.get(metadata=metadata, constrains=constrains)
         if isinstance(df, DataFrame):
-            return df.infer_objects()
+            return df
         return None
 
     @staticmethod
@@ -166,3 +176,32 @@ class Utils:
             return None
         return [(matched_queries_lst[idx]["_nested"]["offset"], matched_queries_lst[idx]["matched_queries"])
                 for idx in range(len(matched_queries_lst))]
+
+    @staticmethod
+    def generate_metadata_from_dataframe(data: DataFrame) -> dict:
+        """Generate a default metadata just from the data, without the dataset schema
+
+         Args:
+             data: pandas Dataframe
+
+         Returns:
+              metadata dict
+         """
+
+        from datamart.profiler import Profiler
+        from datamart.metadata.global_metadata import GlobalMetadata
+        from datamart.metadata.variable_metadata import VariableMetadata
+
+        profiler = Profiler()
+
+        global_metadata = GlobalMetadata.construct_global(description=Utils.DEFAULT_DESCRIPTION)
+        for col_offset in range(data.shape[1]):
+            variable_metadata = profiler.basic_profiler.basic_profiling_column(
+                description={},
+                variable_metadata=VariableMetadata.construct_variable(description={}),
+                column=data.iloc[:, col_offset]
+            )
+            global_metadata.add_variable_metadata(variable_metadata)
+        global_metadata = profiler.basic_profiler.basic_profiling_entire(global_metadata=global_metadata, data=data)
+
+        return global_metadata.value
