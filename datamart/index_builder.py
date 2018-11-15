@@ -272,7 +272,8 @@ class IndexBuilder(object):
                 "No data to profile for variable metadata. No variable description. Leave empty for variable metadata")
 
         if data is not None:
-            global_metadata = self.profiler.basic_profiler.basic_profiling_entire(global_metadata=global_metadata, data=data)
+            global_metadata = self.profiler.basic_profiler.basic_profiling_entire(global_metadata=global_metadata,
+                                                                                  data=data)
 
         return global_metadata.value
 
@@ -300,8 +301,8 @@ class IndexBuilder(object):
 
         if data is not None:
             variable_metadata = self.profiler.basic_profiler.basic_profiling_column(description=description,
-                                                                           variable_metadata=variable_metadata,
-                                                                           column=data.iloc[:, col_offset])
+                                                                                    variable_metadata=variable_metadata,
+                                                                                    column=data.iloc[:, col_offset])
 
         return variable_metadata
 

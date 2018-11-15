@@ -1,4 +1,5 @@
 from datamart.es_managers.query_manager import QueryManager
+from datamart.profiler import Profiler
 import pandas as pd
 import typing
 from datamart.utils import Utils
@@ -24,6 +25,7 @@ class Augment(object):
 
         self.qm = QueryManager(es_host=es_host, es_port=es_port, es_index=es_index)
         self.joiners = dict()
+        self.profiler = Profiler()
 
     def query_by_column(self,
                         col: pd.Series,
@@ -134,7 +136,11 @@ class Augment(object):
         """
         return self.qm.search(body=body, **kwargs)
 
-    def get_dataset(self, metadata: dict, variables: list = None, constrains: dict = None) -> typing.Optional[pd.DataFrame]:
+    def get_dataset(self,
+                    metadata: dict,
+                    variables: list = None,
+                    constrains: dict = None
+                    ) -> typing.Optional[pd.DataFrame]:
         """Get the dataset with materializer.
 
        Args:
@@ -217,6 +223,14 @@ class Augment(object):
             warnings.warn("No suitable joiner, return original dataframe")
             return left_df
 
+        if not left_metadata:
+            # Left df is the user provided one.
+            # We will generate metadata just based on the data itself, profiling and so on
+            left_metadata = Utils.generate_metadata_from_dataframe(data=left_df)
+
+        left_metadata = self.calculate_dsbox_features(data=left_df, metadata=left_metadata)
+        right_metadata = self.calculate_dsbox_features(data=right_df, metadata=right_metadata)
+
         return self.joiners[joiner].join(left_df=left_df,
                                          right_df=right_df,
                                          left_columns=left_columns,
@@ -240,3 +254,8 @@ class Augment(object):
         for implicit_variable in implicit_variables:
             df[implicit_variable["name"]] = implicit_variable["value"]
         return df
+
+    def calculate_dsbox_features(self, data, metadata):
+        if not metadata:
+            return metadata
+        return self.profiler.dsbox_profiler.profile(inputs=data, metadata=metadata)
