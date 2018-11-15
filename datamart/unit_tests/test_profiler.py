@@ -98,7 +98,7 @@ class TestProfiler(unittest.TestCase):
         for i in range(self.df.shape[1]):
             self.fake_matadata["variables"].append({})
         dsbox_profiler = DSboxProfiler()
-        metadata = dsbox_profiler.produce(inputs=self.df, metadata=self.fake_matadata)
+        metadata = dsbox_profiler.profile(inputs=self.df, metadata=self.fake_matadata)
         expected = {
             'variables': [
                 {

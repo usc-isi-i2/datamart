@@ -1,9 +1,10 @@
 from datamart.metadata.metadata_base import MetadataBase
 from datamart.utils import Utils
+import typing
 
 
 class VariableMetadata(MetadataBase):
-    def __init__(self, description: dict, datamart_id: int) -> None:
+    def __init__(self, description: dict, datamart_id: typing.Union[int, None] = None) -> None:
         """Init method of VariableMetadata.
 
         Args:
@@ -39,7 +40,7 @@ class VariableMetadata(MetadataBase):
             self._metadata["spatial_coverage"] = description["spatial_coverage"]
 
     @classmethod
-    def construct_variable(cls, description, datamart_id) -> 'VariableMetadata':
+    def construct_variable(cls, description, datamart_id=None) -> 'VariableMetadata':
         return cls(description, datamart_id)
 
     @property
