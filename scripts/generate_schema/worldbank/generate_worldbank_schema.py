@@ -18,8 +18,8 @@ def getAllIndicatorList():
 
 def generate_json_schema(dst_path):
     unique_urls_str = getAllIndicatorList()
-    try:
-        for commondata in unique_urls_str:
+    for commondata in unique_urls_str:
+        try:
             urldata = "https://api.worldbank.org/v2/countries/indicators/" + commondata['id'] + "?format=json"
             resdata = requests.get(urldata)
             data_ind = resdata.json()
@@ -114,9 +114,9 @@ def generate_json_schema(dst_path):
 
             with open(file, "w") as fp:
                 json.dump(schema, fp, indent=2)
-    except:
-        traceback.print_exc()
-        pass
+        except:
+            traceback.print_exc()
+            pass
 
 
 if __name__ == '__main__':
