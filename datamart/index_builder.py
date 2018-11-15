@@ -6,7 +6,7 @@ from datamart.metadata.global_metadata import GlobalMetadata
 from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.es_managers.index_manager import IndexManager
 from datamart.utils import Utils
-from datamart.profilers.basic_profiler import BasicProfiler
+from datamart.profiler import Profiler
 import typing
 import traceback
 
@@ -24,7 +24,7 @@ class IndexBuilder(object):
             self.index_config = json.load(index_info_f)
         self.current_global_index = None
         self.GLOBAL_INDEX_INTERVAL = GLOBAL_INDEX_INTERVAL
-        self.basic_profiler = BasicProfiler
+        self.profiler = Profiler()
         self.im = IndexManager(es_host=self.index_config["es_host"], es_port=self.index_config["es_port"])
 
     def indexing(self,
@@ -272,7 +272,7 @@ class IndexBuilder(object):
                 "No data to profile for variable metadata. No variable description. Leave empty for variable metadata")
 
         if data is not None:
-            global_metadata = self.basic_profiler.basic_profiling_entire(global_metadata=global_metadata, data=data)
+            global_metadata = self.profiler.basic_profiler.basic_profiling_entire(global_metadata=global_metadata, data=data)
 
         return global_metadata.value
 
@@ -299,14 +299,13 @@ class IndexBuilder(object):
                                                                 datamart_id=col_offset + global_datamart_id + 1)
 
         if data is not None:
-            variable_metadata = self.basic_profiler.basic_profiling_column(description=description,
+            variable_metadata = self.profiler.basic_profiler.basic_profiling_column(description=description,
                                                                            variable_metadata=variable_metadata,
                                                                            column=data.iloc[:, col_offset])
 
         return variable_metadata
 
-    @staticmethod
-    def profile(data: pd.DataFrame, metadata: dict) -> dict:
+    def profile(self, data: pd.DataFrame, metadata: dict) -> dict:
         """Any profiler needed should be called here.
 
         Args:
@@ -319,9 +318,8 @@ class IndexBuilder(object):
         Examples:
 
             # dsbox profiler
-            from datamart.profilers.dsbox_profiler import DSboxProfiler
-            dsbox_profiler = DSboxProfiler()
-            return dsbox_profiler.produce(inputs=data, metadata=metadata)
+            metadata = self.profiler.dsbox_profiler.profile(inputs=data, metadata=metadata)
+            return metadata
         """
 
         return metadata

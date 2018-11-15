@@ -61,7 +61,7 @@ class DSboxProfiler(object):
         # list of specified features to compute
         self._specified_features = compute_features if compute_features else default_metafeatures
 
-    def produce(self, inputs: pd.DataFrame, metadata: dict) -> dict:
+    def profile(self, inputs: pd.DataFrame, metadata: dict) -> dict:
         """Save metadata json to file.
 
         Args:
