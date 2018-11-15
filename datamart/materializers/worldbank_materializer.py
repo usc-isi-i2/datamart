@@ -70,5 +70,5 @@ class WorldBankMaterializer(MaterializerBase):
             df['sourceNote'] = sourceNote
             df['sourceOrganization'] = sourceOrganization
             appended_data.append(df)
-        appended_data = pd.concat(appended_data, axis=0, sort=False)
+        appended_data = pd.concat(appended_data, axis=0, ignore_index=True)
         return appended_data
