@@ -66,6 +66,8 @@ class IndexBuilder(object):
         if not data and query_data_for_indexing:
             try:
                 data = Utils.materialize(metadata=description).infer_objects()
+                import pdb
+                pdb.set_trace()
             except:
                 traceback.print_exc()
                 warnings.warn("Materialization Failed, index based on schema json only")

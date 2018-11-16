@@ -11,9 +11,31 @@ import typing
 from pandas import DataFrame
 import tempfile
 import signal
-import traceback
+import errno
+from functools import wraps
+
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
+MATERIALIZATION_TIME_OUT = 60
+
+
+def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
+    def decorator(func):
+        def _handle_timeout(signum, frame):
+            raise Exception(colored(error_message, 'red'))
+
+        def wrapper(*args, **kwargs):
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.alarm(seconds)
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+
+        return wraps(func)(wrapper)
+
+    return decorator
 
 
 class Utils:
@@ -29,7 +51,6 @@ class Utils:
         "variables": []
     }
 
-    MATERIALIZATION_TIME_OUT = 120
 
     @staticmethod
     def date_validate(date_text: str) -> typing.Optional[str]:
@@ -104,6 +125,7 @@ class Utils:
         return materializer
 
     @classmethod
+    @timeout(seconds=MATERIALIZATION_TIME_OUT, error_message="Materialization times out")
     def materialize(cls,
                     metadata: dict,
                     constrains: dict = None) -> typing.Optional[DataFrame]:
@@ -118,13 +140,7 @@ class Utils:
             pandas dataframe
        """
         materializer = cls.load_materializer(materializer_module=metadata["materialization"]["python_path"])
-        signal.signal(signal.SIGALRM, cls.materialize_time_out_handler)
-        signal.alarm(cls.MATERIALIZATION_TIME_OUT)
-        try:
-            df = materializer.get(metadata=metadata, constrains=constrains)
-        except:
-            traceback.print_exc()
-            return None
+        df = materializer.get(metadata=metadata, constrains=constrains)
         if isinstance(df, DataFrame):
             return df
         return None

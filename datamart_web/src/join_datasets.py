@@ -51,7 +51,8 @@ class JoinDatasets(object):
             left_columns=[int(x) for x in query_data["old_df_column_ids"]],
             right_columns=[offset for offset, _ in offset_and_matched_queries],
             left_metadata=None,
-            right_metadata=selected_metadata["_source"]
+            right_metadata=selected_metadata["_source"],
+            joiner="default"
         )
 
         return df.to_csv()

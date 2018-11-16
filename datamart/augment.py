@@ -145,7 +145,7 @@ class Augment(object):
 
        Args:
            metadata: metadata dict.
-           variables:
+           variables: list of integers
            constrains:
 
        Returns:
