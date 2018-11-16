@@ -50,7 +50,8 @@ class WorldBankMaterializer(MaterializerBase):
             if not date_range:
                 URL_ind = 'https://api.worldbank.org/v2/countries/' + "ALL" + '/indicators/' + dataset_id + '?format=json'
             else:
-                URL_ind = 'https://api.worldbank.org/v2/countries/' + "ALL" + '/indicators/' + dataset_id + '?format=json&date=' + str(start_year) + ':' + str(end_year)
+                URL_ind = 'https://api.worldbank.org/v2/countries/' + "ALL" + '/indicators/' + dataset_id + '?format=json&date=' + str(
+                    start_year) + ':' + str(end_year)
             response_ind = requests.get(url=URL_ind)
             json_respose_ind = json.loads(response_ind.content)
 
@@ -74,7 +75,8 @@ class WorldBankMaterializer(MaterializerBase):
             if not date_range:
                 URL_ind = 'https://api.worldbank.org/v2/countries/' + location_id + '/indicators/' + dataset_id + '?format=json'
             else:
-                URL_ind = 'https://api.worldbank.org/v2/countries/' + location_id + '/indicators/' + dataset_id + '?format=json&date=' + str(start_year) + ':' + str(end_year)
+                URL_ind = 'https://api.worldbank.org/v2/countries/' + location_id + '/indicators/' + dataset_id + '?format=json&date=' + str(
+                    start_year) + ':' + str(end_year)
             response_ind = requests.get(url=URL_ind)
             json_respose_ind = json.loads(response_ind.content)
 

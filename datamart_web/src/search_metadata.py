@@ -5,7 +5,6 @@ import json
 
 
 class SearchMetadata(object):
-
     MAX_MATCH = 10
 
     MAX_DISPLAY_NAMED_ENTITY = 10
@@ -52,6 +51,6 @@ class SearchMetadata(object):
                         ret["result"].append({
                             "column_idx": idx,
                             "datasets_metadata": [x for x in this_column_result if
-                                 x["_source"]["datamart_id"] in query_string_result_ids][:10]
+                                                  x["_source"]["datamart_id"] in query_string_result_ids][:10]
                         })
         return ret

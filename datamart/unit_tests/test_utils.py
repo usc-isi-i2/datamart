@@ -87,11 +87,11 @@ class TestUtils(unittest.TestCase):
                 },
                 {
                     'datamart_id': None,
-                     'semantic_type': [],
-                     'name': 'Date',
-                     'description': 'column name: Date, dtype: object',
-                     'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2020-09-23T00:10:00'}
-                 },
+                    'semantic_type': [],
+                    'name': 'Date',
+                    'description': 'column name: Date, dtype: object',
+                    'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2020-09-23T00:10:00'}
+                },
                 {
                     'datamart_id': None,
                     'semantic_type': [],

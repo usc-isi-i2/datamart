@@ -14,7 +14,6 @@ import signal
 import errno
 from functools import wraps
 
-
 sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 MATERIALIZATION_TIME_OUT = 60
 
@@ -50,7 +49,6 @@ class Utils:
         },
         "variables": []
     }
-
 
     @staticmethod
     def date_validate(date_text: str) -> typing.Optional[str]:

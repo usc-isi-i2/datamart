@@ -16,7 +16,7 @@ class FbiMaterializer(MaterializerBase):
     TMP_FILE_DIR = "./"
 
     def __init__(self, tmp_file_dir=None, **kwargs):
-        MaterializerBase.__init__(self,  **kwargs)
+        MaterializerBase.__init__(self, **kwargs)
         tmp_file_dir = tmp_file_dir if tmp_file_dir else FbiMaterializer.TMP_FILE_DIR
 
         self.tmp_file_path = os.path.join(tmp_file_dir, "fbi_materializer_tmp")
