@@ -4,7 +4,6 @@ from datamart.materializers.materializer_base import MaterializerBase
 from datamart.materializers.noaa_materializer import NoaaMaterializer
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
-import copy
 
 
 class TestUtils(unittest.TestCase):
@@ -12,6 +11,7 @@ class TestUtils(unittest.TestCase):
     def setUp(self):
         self.materializers_path = os.path.join(os.path.dirname(__file__), "../materializers")
         self.resources_path = os.path.join(os.path.dirname(__file__), "resources")
+        self.dataframe_equal = assert_frame_equal
 
     @Utils.test_print
     def test_validate_schema(self):
@@ -63,4 +63,44 @@ class TestUtils(unittest.TestCase):
         }
         result = Utils.materialize(metadata=fake_metadata, constrains=fake_constrains).infer_objects()
         expepcted = pd.read_csv(os.path.join(os.path.dirname(__file__), "resources/noaa_result.csv"))
-        assert_frame_equal(result, expepcted)
+        self.dataframe_equal(result, expepcted)
+
+    @Utils.test_print
+    def test_generate_metadata_from_dataframe(self):
+        data = {
+            'Name': ['Tom', 'Jack', 'Steve', 'Ricky'],
+            'Age': [28, 34, 29, 42],
+            'Date': ["2018-10-05", "2014-02-23", "2020-09-23T00:10:00", "2023213"]
+        }
+        df = pd.DataFrame(data)
+        expected = {
+            'datamart_id': None,
+            'materialization': {
+                'python_path': 'default_materializer', 'arguments': None
+            },
+            'variables': [
+                {
+                    'datamart_id': None,
+                    'semantic_type': [],
+                    'name': 'Age',
+                    'description': 'column name: Age, dtype: int64'
+                },
+                {
+                    'datamart_id': None,
+                     'semantic_type': [],
+                     'name': 'Date',
+                     'description': 'column name: Date, dtype: object',
+                     'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2020-09-23T00:10:00'}
+                 },
+                {
+                    'datamart_id': None,
+                    'semantic_type': [],
+                    'name': 'Name',
+                    'description': 'column name: Name, dtype: object'
+                }
+            ],
+            'title': 'Age Date Name',
+            'description': 'Age : int64, Date : object, Name : object',
+            'keywords': ['Age', 'Date', 'Name']
+        }
+        self.assertEqual(Utils.generate_metadata_from_dataframe(data=df), expected)

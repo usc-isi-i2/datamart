@@ -110,16 +110,18 @@ class IndexBuilder(object):
             metadata dictionary
 
         """
+        """
+        Not keep up to date for a while, may not work well. But updating is not very useful as well.
+        """
 
         self._check_es_index(es_index=es_index)
 
         description, data = self._read_data(description_path, data_path)
         if not data and query_data_for_updating:
             try:
-                materializer_module = description["materialization"]["python_path"]
-                materializer = Utils.load_materializer(materializer_module)
-                data = materializer.get(metadata=description)
+                data = Utils.materialize(metadata=description).infer_objects()
             except:
+                traceback.print_exc()
                 warnings.warn("Materialization Failed, index based on schema json only")
 
         metadata = self.construct_global_metadata(description=description, data=data, overwrite_datamart_id=document_id)

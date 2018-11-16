@@ -255,7 +255,17 @@ class Augment(object):
             df[implicit_variable["name"]] = implicit_variable["value"]
         return df
 
-    def calculate_dsbox_features(self, data, metadata):
+    def calculate_dsbox_features(self, data: pd.DataFrame, metadata: typing.Union[dict, None]) -> dict:
+        """Calculate dsbox features, add to metadata dictionary
+
+         Args:
+             data: dataset as a pandas dataframe
+             metadata: metadata dict
+
+         Returns:
+              updated metadata dict
+         """
+
         if not metadata:
             return metadata
         return self.profiler.dsbox_profiler.profile(inputs=data, metadata=metadata)

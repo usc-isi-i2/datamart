@@ -10,6 +10,8 @@ from termcolor import colored
 import typing
 from pandas import DataFrame
 import tempfile
+import signal
+import traceback
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'materializers'))
 
@@ -26,6 +28,8 @@ class Utils:
         },
         "variables": []
     }
+
+    MATERIALIZATION_TIME_OUT = 120
 
     @staticmethod
     def date_validate(date_text: str) -> typing.Optional[str]:
@@ -70,8 +74,8 @@ class Utils:
             coverage['end'] = None
         return coverage
 
-    @staticmethod
-    def load_materializer(materializer_module: str) -> MaterializerBase:
+    @classmethod
+    def load_materializer(cls, materializer_module: str) -> MaterializerBase:
         """Given the python path to the materializer_module, return a materializer instance.
 
         Args:
@@ -93,10 +97,10 @@ class Utils:
         try:
             materializer_class = lst[0]
         except:
-            raise ValueError("No materializer class found in {}".format(
-                os.path.join(os.path.dirname(__file__), 'materializers', materializer_module)))
+            raise ValueError(colored("No materializer class found in {}".format(
+                os.path.join(os.path.dirname(__file__), 'materializers', materializer_module))), 'red')
 
-        materializer = materializer_class(tmp_file_dir=Utils.TMP_FILE_DIR)
+        materializer = materializer_class(tmp_file_dir=cls.TMP_FILE_DIR)
         return materializer
 
     @classmethod
@@ -114,13 +118,19 @@ class Utils:
             pandas dataframe
        """
         materializer = cls.load_materializer(materializer_module=metadata["materialization"]["python_path"])
-        df = materializer.get(metadata=metadata, constrains=constrains)
+        signal.signal(signal.SIGALRM, cls.materialize_time_out_handler)
+        signal.alarm(cls.MATERIALIZATION_TIME_OUT)
+        try:
+            df = materializer.get(metadata=metadata, constrains=constrains)
+        except:
+            traceback.print_exc()
+            return None
         if isinstance(df, DataFrame):
             return df
         return None
 
-    @staticmethod
-    def validate_schema(description: dict) -> bool:
+    @classmethod
+    def validate_schema(cls, description: dict) -> bool:
         """Validate dict against json schema.
 
         Args:
@@ -130,10 +140,10 @@ class Utils:
             boolean
         """
         try:
-            validate(description, Utils.INDEX_SCHEMA)
+            validate(description, cls.INDEX_SCHEMA)
             return True
         except:
-            print("[INVALID SCHEMA] title: {}".format(description.get("title")))
+            print(colored("[INVALID SCHEMA] title: {}".format(description.get("title"))), 'red')
             raise ValueError("Invalid dataset description json according to index json schema")
 
     @staticmethod
@@ -177,8 +187,8 @@ class Utils:
         return [(matched_queries_lst[idx]["_nested"]["offset"], matched_queries_lst[idx]["matched_queries"])
                 for idx in range(len(matched_queries_lst))]
 
-    @staticmethod
-    def generate_metadata_from_dataframe(data: DataFrame) -> dict:
+    @classmethod
+    def generate_metadata_from_dataframe(cls, data: DataFrame) -> dict:
         """Generate a default metadata just from the data, without the dataset schema
 
          Args:
@@ -194,7 +204,7 @@ class Utils:
 
         profiler = Profiler()
 
-        global_metadata = GlobalMetadata.construct_global(description=Utils.DEFAULT_DESCRIPTION)
+        global_metadata = GlobalMetadata.construct_global(description=cls.DEFAULT_DESCRIPTION)
         for col_offset in range(data.shape[1]):
             variable_metadata = profiler.basic_profiler.basic_profiling_column(
                 description={},
@@ -205,3 +215,17 @@ class Utils:
         global_metadata = profiler.basic_profiler.basic_profiling_entire(global_metadata=global_metadata, data=data)
 
         return global_metadata.value
+
+    @staticmethod
+    def materialize_time_out_handler(signum, frame):
+        """Materialization times out handler
+
+         Args:
+             signum
+             frame
+
+         Returns:
+
+         """
+
+        raise Exception(colored("Materialization times out", 'red'))
