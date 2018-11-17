@@ -1,5 +1,5 @@
 from datamart.augment import Augment
-from utilities.utils import Utils
+from datamart.utilities.utils import Utils
 import pandas as pd
 import json
 
