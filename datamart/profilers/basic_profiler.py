@@ -1,6 +1,8 @@
 import pandas as pd
 import dateutil.parser
 import typing
+from datamart.metadata.variable_metadata import VariableMetadata
+from datamart.metadata.global_metadata import GlobalMetadata
 
 
 class BasicProfiler(object):
@@ -148,3 +150,69 @@ class BasicProfiler(object):
         """
 
         return data.columns.tolist()
+
+    @classmethod
+    def basic_profiling_column(cls,
+                               description: dict,
+                               variable_metadata: VariableMetadata,
+                               column: pd.Series
+                               ) -> VariableMetadata:
+        """Profiling single column for necessary fields of metadata, if data is present .
+
+        Args:
+            description: description dict about the column.
+            variable_metadata: the original VariableMetadata instance.
+            column: the column to profile.
+
+        Returns:
+            profiled VariableMetadata instance
+        """
+
+        if not variable_metadata.name:
+            variable_metadata.name = column.name
+
+        if not variable_metadata.description:
+            variable_metadata.description = cls.construct_variable_description(column)
+
+        if variable_metadata.named_entity is None:
+            variable_metadata.named_entity = cls.profile_named_entity(column)
+
+        elif variable_metadata.named_entity is False and not description:
+            named_entities = cls.named_entity_recognize(column)
+            if named_entities:
+                variable_metadata.named_entity = named_entities
+
+        if variable_metadata.temporal_coverage is not False:
+            if not variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:
+                variable_metadata.temporal_coverage = cls.profile_temporal_coverage(
+                    column=column, coverage=variable_metadata.temporal_coverage)
+
+        elif not description:
+            temporal_coverage = cls.profile_temporal_coverage(column=column)
+            if temporal_coverage:
+                variable_metadata.temporal_coverage = temporal_coverage
+
+        return variable_metadata
+
+    @classmethod
+    def basic_profiling_entire(cls, global_metadata: GlobalMetadata, data: pd.DataFrame) -> GlobalMetadata:
+        """Profiling entire dataset for necessary fields of metadata, if data is present .
+
+        Args:
+            global_metadata: the original GlobalMetadata instance.
+            data: dataframe of data.
+
+        Returns:
+            profiled GlobalMetadata instance
+        """
+
+        if not global_metadata.title:
+            global_metadata.title = cls.construct_global_title(data)
+
+        if not global_metadata.description:
+            global_metadata.description = cls.construct_global_description(data)
+
+        if not global_metadata.keywords:
+            global_metadata.keywords = cls.construct_global_keywords(data)
+
+        return global_metadata

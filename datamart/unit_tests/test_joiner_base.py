@@ -1,8 +1,8 @@
 import unittest
-from datamart.joiners.joiner_base import DefaultJoiner, JoinerType, JoinerPrepare
+from datamart.joiners.joiner_base import DefaultJoiner, JoinerPrepare
 import pandas as pd
 from pandas.testing import assert_frame_equal
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 
 
 class TestJoinerBase(unittest.TestCase):

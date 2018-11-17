@@ -1,5 +1,5 @@
 from datamart.es_managers.es_manager import ESManager
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 import typing
 import math
 import json
@@ -32,7 +32,7 @@ class QueryManager(ESManager):
             from_index: from index.
 
         Returns:
-
+            match result
         """
 
         result = self.es.search(index=self.es_index, body=body, size=size, from_=from_index, **kwargs)
@@ -54,7 +54,7 @@ class QueryManager(ESManager):
             scroll: how long a scroll id should remain
 
         Returns:
-
+            match result
         """
 
         result = self.es.search(index=self.es_index, body=body, size=size, scroll=scroll, **kwargs)

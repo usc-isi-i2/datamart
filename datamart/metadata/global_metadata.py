@@ -1,10 +1,11 @@
 from datamart.metadata.metadata_base import MetadataBase
 from datamart.metadata.variable_metadata import VariableMetadata
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
+import typing
 
 
 class GlobalMetadata(MetadataBase):
-    def __init__(self, description: dict, datamart_id: int) -> None:
+    def __init__(self, description: dict, datamart_id: typing.Union[int, None] = None) -> None:
         """Init method of GlobalMetadata.
 
         Args:
@@ -17,7 +18,7 @@ class GlobalMetadata(MetadataBase):
 
         super().__init__()
 
-        if not isinstance(datamart_id, int):
+        if datamart_id and not isinstance(datamart_id, int):
             raise ValueError("datamart id must be integer")
 
         self._metadata["datamart_id"] = datamart_id
@@ -49,6 +50,12 @@ class GlobalMetadata(MetadataBase):
         if "original_identifier" in description:
             self._metadata["original_identifier"] = description["original_identifier"]
 
+        if "implicit_variables" in description:
+            self._metadata["implicit_variables"] = description["implicit_variables"]
+
+        if "additional_info" in description:
+            self._metadata["additional_info"] = description["additional_info"]
+
         try:
             self._metadata["materialization"] = description["materialization"]
         except:
@@ -67,7 +74,7 @@ class GlobalMetadata(MetadataBase):
             self._metadata["license"] = description["license"]
 
     @classmethod
-    def construct_global(cls, description, datamart_id) -> 'GlobalMetadata':
+    def construct_global(cls, description, datamart_id=None) -> 'GlobalMetadata':
         return cls(description, datamart_id)
 
     def add_variable_metadata(self, variable_metadata: VariableMetadata) -> None:
@@ -142,6 +149,22 @@ class GlobalMetadata(MetadataBase):
     @property
     def original_identifier(self):
         return self._metadata.get("original_identifier", False)
+
+    @property
+    def implicit_variables(self):
+        return self._metadata.get("implicit_variables", False)
+
+    @implicit_variables.setter
+    def implicit_variables(self, value):
+        self._metadata["implicit_variables"] = value
+
+    @property
+    def additional_info(self):
+        return self._metadata.get("additional_info", False)
+
+    @additional_info.setter
+    def additional_info(self, value):
+        self._metadata["additional_info"] = value
 
     @property
     def materialization(self):

@@ -35,7 +35,6 @@ class DefaultJoiner(JoinerBase):
              left_metadata: dict = None,
              right_metadata: dict = None,
              ) -> pd.DataFrame:
-
         if len(left_columns) != len(right_columns):
             raise ValueError("Default join need length of left_columns equals to right_columns")
 

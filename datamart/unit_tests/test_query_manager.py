@@ -1,6 +1,6 @@
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 from datamart.es_managers.query_manager import QueryManager
-import unittest, json, math
+import unittest, json
 
 
 class TestQueryManager(unittest.TestCase):

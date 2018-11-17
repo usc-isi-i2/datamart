@@ -20,7 +20,6 @@ class RLTKJoiner(JoinerBase):
              left_metadata: dict,
              right_metadata: dict,
              ) -> pd.DataFrame:
-
         return pd.merge(left=left_df,
                         right=right_df,
                         left_on=[left_df.columns[idx] for idx in left_columns],

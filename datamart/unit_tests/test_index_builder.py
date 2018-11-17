@@ -1,4 +1,4 @@
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 from datamart.index_builder import IndexBuilder
 import unittest
 import pandas as pd
@@ -252,7 +252,7 @@ class TestIndexBuilder(unittest.TestCase):
             ]
         }
 
-        self.assertEqual(global_metadata.value, expected)
+        self.assertEqual(global_metadata, expected)
 
     @Utils.test_print
     def test_construct_global_metadata_with_data(self):
@@ -321,7 +321,7 @@ class TestIndexBuilder(unittest.TestCase):
             ]
         }
 
-        self.assertEqual(global_metadata.value, expected)
+        self.assertEqual(global_metadata, expected)
 
     @Utils.test_print
     def test_construct_global_metadata_with_basic_fields(self):
@@ -359,4 +359,4 @@ class TestIndexBuilder(unittest.TestCase):
             'keywords': ['city', 'date']
         }
 
-        self.assertEqual(global_metadata.value, expected)
+        self.assertEqual(global_metadata, expected)

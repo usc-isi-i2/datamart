@@ -28,11 +28,11 @@ class NoaaMaterializer(MaterializerBase):
 
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """ initialization and loading the city name to city id map
 
         """
-        MaterializerBase.__init__(self)
+        MaterializerBase.__init__(self, **kwargs)
         self.headers = None
         resources_path = os.path.join(os.path.dirname(__file__), "../resources")
         with open(os.path.join(resources_path, 'city_id_map.csv'), 'r') as csv_file:

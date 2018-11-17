@@ -16,11 +16,11 @@ from pandas import DataFrame
 class WikidataMaterializer(MaterializerBase):
     property = ""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """ initialization and loading the city name to city id map
 
         """
-        MaterializerBase.__init__(self)
+        MaterializerBase.__init__(self, **kwargs)
 
     def get(self,
             metadata: dict = None,
