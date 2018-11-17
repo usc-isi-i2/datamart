@@ -2,7 +2,7 @@ from datamart.es_managers.query_manager import QueryManager
 from datamart.profiler import Profiler
 import pandas as pd
 import typing
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 from datamart.joiners.joiner_base import JoinerPrepare
 import warnings
 from datetime import datetime

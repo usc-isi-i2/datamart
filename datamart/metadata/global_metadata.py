@@ -1,6 +1,6 @@
 from datamart.metadata.metadata_base import MetadataBase
 from datamart.metadata.variable_metadata import VariableMetadata
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 import typing
 
 

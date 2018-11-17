@@ -1,4 +1,4 @@
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 import unittest, os, json
 from datamart.materializers.materializer_base import MaterializerBase
 from datamart.materializers.noaa_materializer import NoaaMaterializer

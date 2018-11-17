@@ -5,7 +5,7 @@ import warnings
 from datamart.metadata.global_metadata import GlobalMetadata
 from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.es_managers.index_manager import IndexManager
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 from datamart.profiler import Profiler
 import typing
 import traceback
@@ -66,6 +66,8 @@ class IndexBuilder(object):
         if not data and query_data_for_indexing:
             try:
                 data = Utils.materialize(metadata=description).infer_objects()
+                import pdb
+                pdb.set_trace()
             except:
                 traceback.print_exc()
                 warnings.warn("Materialization Failed, index based on schema json only")

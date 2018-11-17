@@ -1,7 +1,7 @@
 import sys, os
 sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 import argparse
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 import json
 
 

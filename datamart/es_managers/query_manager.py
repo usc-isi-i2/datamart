@@ -1,5 +1,5 @@
 from datamart.es_managers.es_manager import ESManager
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 import typing
 import math
 import json

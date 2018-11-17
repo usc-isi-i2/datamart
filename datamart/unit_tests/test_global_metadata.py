@@ -1,6 +1,6 @@
 from datamart.metadata.global_metadata import GlobalMetadata
 from datamart.metadata.variable_metadata import VariableMetadata
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 import unittest, copy, json
 
 gt = json.load(open('datamart/unit_tests/resources/sample_schema.json', "r"))

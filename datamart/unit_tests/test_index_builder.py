@@ -1,4 +1,4 @@
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 from datamart.index_builder import IndexBuilder
 import unittest
 import pandas as pd

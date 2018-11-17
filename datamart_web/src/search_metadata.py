@@ -32,10 +32,6 @@ class SearchMetadata(object):
         query_string_result = self.augument.query_any_field_with_string(
             query_string=query_string) if query_string else None
 
-        query_string_result_ids = None
-        if query_string_result:
-            query_string_result_ids = {x["_source"]["datamart_id"] for x in query_string_result}
-
         for idx in range(df.shape[1]):
             if is_object_dtype(df.iloc[:, idx]):
                 this_column_result = self.augument.query_by_column(col=df.iloc[:, idx],
@@ -50,7 +46,7 @@ class SearchMetadata(object):
                     else:
                         ret["result"].append({
                             "column_idx": idx,
-                            "datasets_metadata": [x for x in this_column_result if
-                                                  x["_source"]["datamart_id"] in query_string_result_ids][:10]
+                            "datasets_metadata": self.augument.get_metadata_intersection(query_string_result,
+                                                                                         this_column_result)
                         })
         return ret
