@@ -36,5 +36,6 @@ class TestJoinerBase(unittest.TestCase):
             'extra': [1, 2, 3, 4, 5],
             'country': ["US", "US", "China", "fwfb", "UK"]
         })
-        assert_frame_equal(joiner.join(left_df=left_df, right_df=right_df, left_columns=[0, 1], right_columns=[0, 2]),
-                           expected)
+        assert_frame_equal(
+            joiner.join(left_df=left_df, right_df=right_df, left_columns=[[0], [1]], right_columns=[[0], [2]]),
+            expected)

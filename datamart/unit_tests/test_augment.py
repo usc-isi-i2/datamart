@@ -87,8 +87,8 @@ class TestAugment(unittest.TestCase):
         self.assertDataframeEqual(self.augment.join(
             left_df=self.df,
             right_df=self.df.iloc[:2, :],
-            left_columns=[0],
-            right_columns=[0],
+            left_columns=[[0]],
+            right_columns=[[0]],
             joiner="default"
         ), expected)
 

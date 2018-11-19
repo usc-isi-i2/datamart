@@ -194,8 +194,8 @@ class Augment(object):
     def join(self,
              left_df: pd.DataFrame,
              right_df: pd.DataFrame,
-             left_columns: typing.List[int],
-             right_columns: typing.List[int],
+             left_columns: typing.List[typing.List[int]],
+             right_columns: typing.List[typing.List[int]],
              left_metadata: dict = None,
              right_metadata: dict = None,
              joiner: str = "default"
