@@ -1,4 +1,5 @@
 from datamart.augment import Augment
+from datamart.utilities.utils import Utils
 import json
 
 """
@@ -13,6 +14,8 @@ class JoinDatasets(object):
         self.augument = Augment(es_index=es_index)
 
     def default_join(self, request, old_df):
+
+        left_metadata = Utils.generate_metadata_from_dataframe(data=old_df)
 
         query_data = json.loads(request.form['data'])
         selected_metadata = query_data["selected_metadata"]
@@ -38,6 +41,14 @@ class JoinDatasets(object):
         for matched in matches:
             constrains["named_entity"][matched["offset"]] = matched["highlight"]["variables.named_entity"]
 
+        if left_metadata.get("variables", []):
+            for variable in left_metadata["variables"]:
+                if variable.get("temporal_coverage") and variable["temporal_coverage"].get("start") and variable["temporal_coverage"].get("end"):
+                    constrains["date_range"] = {
+                      "start": variable["temporal_coverage"]["start"],
+                      "end": variable["temporal_coverage"]["end"]
+                    }
+
         try:
             new_df = self.augument.get_dataset(
                 metadata=selected_metadata["_source"],
@@ -54,7 +65,7 @@ class JoinDatasets(object):
                 right_df=new_df,
                 left_columns=[x["old_cols"] for x in columns_mapping],
                 right_columns=[x["new_cols"] for x in columns_mapping],
-                left_metadata=None,
+                left_metadata=left_metadata,
                 right_metadata=selected_metadata["_source"],
                 joiner="default"
             )
