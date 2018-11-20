@@ -70,7 +70,7 @@ class TestUtils(unittest.TestCase):
         data = {
             'Name': ['Tom', 'Jack', 'Steve', 'Ricky'],
             'Age': [28, 34, 29, 42],
-            'Date': ["2018-10-05", "2014-02-23", "2020-09-23T00:10:00", "2023213"]
+            'Date': ["2018-10-05", "2014-02-23", "2020-09-23", "2023-02-13"]
         }
         df = pd.DataFrame(data)
         expected = {
@@ -90,13 +90,14 @@ class TestUtils(unittest.TestCase):
                     'semantic_type': [],
                     'name': 'Date',
                     'description': 'column name: Date, dtype: object',
-                    'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2020-09-23T00:10:00'}
+                    'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2023-02-13T00:00:00'}
                 },
                 {
                     'datamart_id': None,
                     'semantic_type': [],
                     'name': 'Name',
-                    'description': 'column name: Name, dtype: object'
+                    'description': 'column name: Name, dtype: object',
+                    'named_entity': ['Tom', 'Jack', 'Steve', 'Ricky']
                 }
             ],
             'title': 'Age Date Name',

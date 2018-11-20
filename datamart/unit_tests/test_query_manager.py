@@ -15,7 +15,8 @@ class TestQueryManager(unittest.TestCase):
                 "nested": {
                     "path": "variables",
                     "inner_hits": {
-                        "_source": ["named_entity"]
+                        "_source": ["named_entity"],
+                        "highlight": {"fields": {"variables.named_entity": {"pre_tags": [""], "post_tags": [""]}}}
                     },
                     "query": {
                         "bool": {
@@ -40,8 +41,7 @@ class TestQueryManager(unittest.TestCase):
                         }
                     }
                 }
-            },
-            "highlight": {"fields": {"variables.named_entity": {"pre_tags": [""], "post_tags": [""]}}}
+            }
         }
 
         self.assertEqual(json.dumps(expected), query)
@@ -54,7 +54,10 @@ class TestQueryManager(unittest.TestCase):
             "query": {
                 "nested": {
                     "path": "variables",
-                    "inner_hits": {"_source": ["named_entity"]},
+                    "inner_hits": {
+                        "_source": ["named_entity"],
+                        "highlight": {"fields": {"variables.named_entity": {"pre_tags": [""], "post_tags": [""]}}}
+                    },
                     "query": {
                         "bool": {
                             "should": [
@@ -84,8 +87,7 @@ class TestQueryManager(unittest.TestCase):
                         }
                     }
                 }
-            },
-            "highlight": {"fields": {"variables.named_entity": {"pre_tags": [""], "post_tags": [""]}}}
+            }
         }
 
         self.assertEqual(json.dumps(expected), query)
