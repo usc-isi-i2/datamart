@@ -190,9 +190,33 @@ class Augment(object):
             for x in lst:
                 if x["_source"]["datamart_id"] not in metadata_dict:
                     metadata_dict[x["_source"]["datamart_id"]] = x
+                elif "inner_hits" in x:
+                    metadata_dict[x["_source"]["datamart_id"]] = x
                 this_set.add(x["_source"]["datamart_id"])
             metadata_sets.append(this_set)
         return [metadata_dict[datamart_id] for datamart_id in metadata_sets[0].intersection(*metadata_sets[1:])]
+
+    @staticmethod
+    def get_inner_hits_info(hitted_es_result: dict) -> typing.Optional[typing.List[dict]]:
+        """Get offset of nested object got matched,
+        which query string is matched and which string in document got matched.
+
+        Args:
+            hitted_es_result: hitted result returned by es query
+
+        Returns:
+            list of dictionary
+        """
+
+        matched_queries_lst = hitted_es_result.get("inner_hits", {}).get("variables", {}).get("hits", {}).get("hits",
+                                                                                                              [])
+        if not matched_queries_lst:
+            return None
+        return [{
+            "offset": matched_queries_lst[idx]["_nested"]["offset"],
+            "matched_queries": matched_queries_lst[idx]["matched_queries"],
+            "highlight": matched_queries_lst[idx]["highlight"]
+        } for idx in range(len(matched_queries_lst))]
 
     def join(self,
              left_df: pd.DataFrame,
@@ -272,3 +296,16 @@ class Augment(object):
         if not metadata:
             return metadata
         return self.profiler.dsbox_profiler.profile(inputs=data, metadata=metadata)
+
+    def is_column_able_to_query(self, col: pd.Series) -> bool:
+        """Determine if a column is able for quering
+        Basically means it is a named entity column
+
+         Args:
+             col: pandas Series
+
+         Returns:
+              boolean
+         """
+
+        return self.profiler.basic_profiler.named_entity_column_recognize(col)

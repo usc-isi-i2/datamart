@@ -8,7 +8,7 @@ import json
 from jsonschema import validate
 from termcolor import colored
 import typing
-from pandas import DataFrame
+import pandas as pd
 import tempfile
 from datamart.utilities.timeout import timeout
 
@@ -106,7 +106,7 @@ class Utils:
     @timeout(seconds=MATERIALIZATION_TIME_OUT, error_message="Materialization times out")
     def materialize(cls,
                     metadata: dict,
-                    constrains: dict = None) -> typing.Optional[DataFrame]:
+                    constrains: dict = None) -> typing.Optional[pd.DataFrame]:
         """Get the dataset with materializer.
 
        Args:
@@ -119,7 +119,7 @@ class Utils:
        """
         materializer = cls.load_materializer(materializer_module=metadata["materialization"]["python_path"])
         df = materializer.get(metadata=metadata, constrains=constrains)
-        if isinstance(df, DataFrame):
+        if isinstance(df, pd.DataFrame):
             return df
         return None
 
@@ -149,40 +149,8 @@ class Utils:
 
         return __decorator
 
-    @staticmethod
-    def get_highlight_match_from_metadata(metadata: dict, fields: list) -> dict:
-        """Get highlight match, highlight match is the string in some fields of doc which is matched by this query.
-
-        Args:
-            metadata: hitted result returned by es query
-            fields: list of fields
-
-        Returns:
-            boolean
-        """
-
-        highlights = metadata.get("highlight", {})
-        return {field: highlights[field] for field in fields if field in highlights}
-
-    @staticmethod
-    def get_offset_and_matched_queries_from_variable_metadata(metadata: dict) -> typing.Optional[typing.List[tuple]]:
-        """Get offset of nested object got matched and which query string in matched.
-
-        Args:
-            metadata: hitted result returned by es query
-
-        Returns:
-            boolean
-        """
-
-        matched_queries_lst = metadata.get("inner_hits", {}).get("variables", {}).get("hits", {}).get("hits", [])
-        if not matched_queries_lst:
-            return None
-        return [(matched_queries_lst[idx]["_nested"]["offset"], matched_queries_lst[idx]["matched_queries"])
-                for idx in range(len(matched_queries_lst))]
-
     @classmethod
-    def generate_metadata_from_dataframe(cls, data: DataFrame) -> dict:
+    def generate_metadata_from_dataframe(cls, data: pd.DataFrame) -> dict:
         """Generate a default metadata just from the data, without the dataset schema
 
          Args:
@@ -209,17 +177,3 @@ class Utils:
         global_metadata = profiler.basic_profiler.basic_profiling_entire(global_metadata=global_metadata, data=data)
 
         return global_metadata.value
-
-    @staticmethod
-    def materialize_time_out_handler(signum, frame):
-        """Materialization times out handler
-
-         Args:
-             signum
-             frame
-
-         Returns:
-
-         """
-
-        raise Exception(colored("Materialization times out", 'red'))
