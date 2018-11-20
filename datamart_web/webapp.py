@@ -1,6 +1,7 @@
 import os
 import json
 import sys
+import pandas as pd
 
 sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -15,6 +16,7 @@ class WebApp(Flask):
         super().__init__(__name__, instance_relative_config=True)
         self.search_metadata = SearchMetadata()
         self.join_datasets = JoinDatasets()
+        self.old_df = None
 
     def create_app(self, test_config=None):
         # create and configure the app
@@ -42,11 +44,21 @@ class WebApp(Flask):
 
         @self.route('/search/default_search', methods=['POST'])
         def default_search():
-            return json.dumps(self.search_metadata.default_search_by_csv(request=request))
+            old_df = pd.read_csv(request.files['file']).infer_objects()
+            if old_df is None or old_df.empty:
+                return json.dumps({
+                    "message": "Failed to create Dataframe from csv, nothing found"
+                })
+            self.old_df = old_df
+            return json.dumps(self.search_metadata.default_search_by_csv(request=request, old_df=self.old_df))
 
         @self.route('/augment/default_join', methods=['POST'])
         def default_join():
-            return json.dumps(self.join_datasets.default_join(request=request))
+            if self.old_df is None or self.old_df.empty:
+                return json.dumps({
+                    "message": "Failed to join, no dataset uploaded"
+                })
+            return json.dumps(self.join_datasets.default_join(request=request, old_df=self.old_df))
 
         return self
 

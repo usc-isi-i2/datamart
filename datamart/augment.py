@@ -153,12 +153,17 @@ class Augment(object):
        """
 
         if not constrains:
-            constrains = {"date_range": {}}
+            constrains = dict()
 
-        if not constrains.get("date_range", {}).get("start", None):
+        if "date_range" not in constrains:
+            constrains["date_range"] = dict()
+
+        if not constrains["date_range"].get("start", None):
             constrains["date_range"]["start"] = Augment.DEFAULT_START_DATE
-        if not constrains.get("date_range", {}).get("end", None):
+
+        if not constrains["date_range"].get("end", None):
             constrains["date_range"]["end"] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+
         df = Utils.materialize(metadata=metadata, constrains=constrains)
 
         if variables:
