@@ -44,7 +44,7 @@ class Utils:
         try:
             this_datetime = dateutil.parser.parse(date_text)
         except ValueError:
-            warnings.warn("Incorrect datatime format")
+            warnings.warn("Incorrect datetime format")
             return None
         return this_datetime.isoformat()
 

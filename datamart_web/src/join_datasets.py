@@ -20,11 +20,14 @@ class JoinDatasets(object):
         selected_metadata = query_data["selected_metadata"]
         columns_mapping = query_data["columns_mapping"]
 
+        # Get which string in which column got matched, use it to construct constrains
         offset_and_matched_queries = Utils.get_offset_and_matched_queries_from_variable_metadata(
             metadata=selected_metadata)
 
         if not offset_and_matched_queries:
-            return old_df.to_csv()
+            return json.dumps({
+                "message": "Default join should perform after default search using default search result"
+            })
 
         if "constrains" in query_data:
             try:
