@@ -1,5 +1,4 @@
 from datamart.augment import Augment
-from datamart.utilities.utils import Utils
 import json
 
 """
@@ -15,16 +14,13 @@ class JoinDatasets(object):
 
     def default_join(self, request, old_df):
 
-        # print(request.form, request.files)
         query_data = json.loads(request.form['data'])
         selected_metadata = query_data["selected_metadata"]
         columns_mapping = query_data["columns_mapping"]
 
-        # Get which string in which column got matched, use it to construct constrains
-        offset_and_matched_queries = Utils.get_offset_and_matched_queries_from_variable_metadata(
-            metadata=selected_metadata)
+        matches = self.augument.get_inner_hits_info(hitted_es_result=selected_metadata)
 
-        if not offset_and_matched_queries:
+        if not matches:
             return json.dumps({
                 "message": "Default join should perform after default search using default search result"
             })
@@ -39,8 +35,8 @@ class JoinDatasets(object):
 
         constrains["named_entity"] = {}
 
-        for offset, matched_queries in offset_and_matched_queries:
-            constrains["named_entity"][offset] = matched_queries
+        for matched in matches:
+            constrains["named_entity"][matched["offset"]] = matched["highlight"]["variables.named_entity"]
 
         try:
             new_df = self.augument.get_dataset(

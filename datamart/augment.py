@@ -206,6 +206,9 @@ class Augment(object):
 
         Returns:
             list of dictionary
+            offset: offset of nested object in variables
+            matched_queries: which query string got matched
+            highlight: which string in original doc got matched
         """
 
         matched_queries_lst = hitted_es_result.get("inner_hits", {}).get("variables", {}).get("hits", {}).get("hits",
