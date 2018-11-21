@@ -41,6 +41,7 @@ class JoinDatasets(object):
         for matched in matches:
             constrains["named_entity"][matched["offset"]] = matched["highlight"]["variables.named_entity"]
 
+        # get temporal coverage from provided dataframe
         if left_metadata.get("variables", []):
             for variable in left_metadata["variables"]:
                 if variable.get("temporal_coverage") and variable["temporal_coverage"].get("start") and variable["temporal_coverage"].get("end"):
@@ -48,6 +49,7 @@ class JoinDatasets(object):
                       "start": variable["temporal_coverage"]["start"],
                       "end": variable["temporal_coverage"]["end"]
                     }
+                    break
 
         try:
             new_df = self.augument.get_dataset(
