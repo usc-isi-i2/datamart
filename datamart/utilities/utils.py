@@ -148,32 +148,3 @@ class Utils:
             print(colored('.Done', 'red'))
 
         return __decorator
-
-    @classmethod
-    def generate_metadata_from_dataframe(cls, data: pd.DataFrame) -> dict:
-        """Generate a default metadata just from the data, without the dataset schema
-
-         Args:
-             data: pandas Dataframe
-
-         Returns:
-              metadata dict
-         """
-
-        from datamart.profiler import Profiler
-        from datamart.metadata.global_metadata import GlobalMetadata
-        from datamart.metadata.variable_metadata import VariableMetadata
-
-        profiler = Profiler()
-
-        global_metadata = GlobalMetadata.construct_global(description=cls.DEFAULT_DESCRIPTION)
-        for col_offset in range(data.shape[1]):
-            variable_metadata = profiler.basic_profiler.basic_profiling_column(
-                description={},
-                variable_metadata=VariableMetadata.construct_variable(description={}),
-                column=data.iloc[:, col_offset]
-            )
-            global_metadata.add_variable_metadata(variable_metadata)
-        global_metadata = profiler.basic_profiler.basic_profiling_entire(global_metadata=global_metadata, data=data)
-
-        return global_metadata.value
