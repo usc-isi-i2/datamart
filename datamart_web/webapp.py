@@ -64,4 +64,4 @@ class WebApp(Flask):
 
 
 if __name__ == '__main__':
-    WebApp().create_app().run()
+    WebApp().create_app().run(host="0.0.0.0")
