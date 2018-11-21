@@ -58,7 +58,7 @@ class WebApp(Flask):
                 return json.dumps({
                     "message": "Failed to join, no dataset uploaded"
                 })
-            return json.dumps(self.join_datasets.default_join(request=request, old_df=self.old_df))
+            return self.join_datasets.default_join(request=request, old_df=self.old_df)
 
         return self
 

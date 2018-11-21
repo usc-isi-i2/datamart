@@ -34,7 +34,7 @@ Otherwise noaa data is too big to return.
 
 Then join two dataframes using default outer join
 ```commandline
-value=$(<{your_path}/sample_query.json); curl -X POST  http://dsbox02:5000/augment/default_join -F "data=$value"
+value=$(<{your_path}/sample_query.json); curl -X POST  http://dsbox02:5000/augment/default_join -F "data=$value" > augmented.csv
 ```
 
-It returns a csv string now
+It returns a csv `augmented.csv` now
