@@ -22,6 +22,7 @@ It should return many metadata hitted.
 Suppose user select one, front end will return some request like [sample_query.json](./sample_query.json)
 
 `selected_metadata` is the metadata user selected
+
 `columns_mapping` is the mapping used for joiner, telling pairs of columns for join
 
 
