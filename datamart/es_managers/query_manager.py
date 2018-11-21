@@ -96,7 +96,19 @@ class QueryManager(ESManager):
                     "inner_hits": {
                         "_source": [
                             key.split(".")[1]
-                        ]
+                        ],
+                        "highlight": {
+                            "fields": {
+                                key: {
+                                    "pre_tags": [
+                                        ""
+                                    ],
+                                    "post_tags": [
+                                        ""
+                                    ]
+                                }
+                            }
+                        }
                     },
                     "query": {
                         "bool": {
@@ -104,18 +116,6 @@ class QueryManager(ESManager):
                             ],
                             "minimum_should_match": 1
                         }
-                    }
-                }
-            },
-            "highlight": {
-                "fields": {
-                    key: {
-                        "pre_tags": [
-                            ""
-                        ],
-                        "post_tags": [
-                            ""
-                        ]
                     }
                 }
             }

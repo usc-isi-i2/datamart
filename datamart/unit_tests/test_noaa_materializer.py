@@ -32,7 +32,8 @@ class TestNoaaMaterializer(unittest.TestCase):
         }
         result = self.noaa_materializer.get(metadata=fake_metadata, constrains=fake_constrains).to_dict(
             orient="records")
-        sample_result = json.load(open(os.path.join(resources_path, 'noaa_get_test.json'), "r"))
+        with open(os.path.join(resources_path, 'noaa_get_test.json'), "r") as f:
+            sample_result = json.load(f)
         self.assertEqual(result, sample_result)
         fake_metadata_for_no_return = {
             "materialization": {

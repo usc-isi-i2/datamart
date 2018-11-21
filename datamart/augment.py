@@ -6,6 +6,8 @@ from datamart.utilities.utils import Utils
 from datamart.joiners.joiner_base import JoinerPrepare
 import warnings
 from datetime import datetime
+from datamart.metadata.global_metadata import GlobalMetadata
+from datamart.metadata.variable_metadata import VariableMetadata
 
 
 class Augment(object):
@@ -153,12 +155,15 @@ class Augment(object):
        """
 
         if not constrains:
-            constrains = {"date_range": {}}
+            constrains = dict()
 
-        if not constrains.get("date_range", {}).get("start", None):
-            constrains["date_range"]["start"] = Augment.DEFAULT_START_DATE
-        if not constrains.get("date_range", {}).get("end", None):
-            constrains["date_range"]["end"] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        if constrains.get("date_range", None):
+            if constrains["date_range"].get("start", None) and not constrains["date_range"].get("end", None):
+                constrains["date_range"]["end"] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+
+            if not constrains["date_range"].get("start", None) and constrains["date_range"].get("end", None):
+                constrains["date_range"]["start"] = Augment.DEFAULT_START_DATE
+
         df = Utils.materialize(metadata=metadata, constrains=constrains)
 
         if variables:
@@ -187,15 +192,44 @@ class Augment(object):
             for x in lst:
                 if x["_source"]["datamart_id"] not in metadata_dict:
                     metadata_dict[x["_source"]["datamart_id"]] = x
+                elif "inner_hits" in x:
+                    metadata_dict[x["_source"]["datamart_id"]] = x
                 this_set.add(x["_source"]["datamart_id"])
             metadata_sets.append(this_set)
         return [metadata_dict[datamart_id] for datamart_id in metadata_sets[0].intersection(*metadata_sets[1:])]
 
+    @staticmethod
+    def get_inner_hits_info(hitted_es_result: dict, nested_key: str = "variables") -> typing.Optional[
+        typing.List[dict]]:
+        """Get offset of nested object got matched,
+        which query string is matched and which string in document got matched.
+
+        Args:
+            hitted_es_result: hitted result returned by es query
+            nested_key: nested_key in the doc, default is variables for out metadata index
+
+        Returns:
+            list of dictionary
+            offset: offset of nested object in variables
+            matched_queries: which query string got matched
+            highlight: which string in original doc got matched
+        """
+
+        matched_queries_lst = hitted_es_result.get("inner_hits", {}).get(nested_key, {}).get("hits", {}).get("hits",
+                                                                                                             [])
+        if not matched_queries_lst:
+            return None
+        return [{
+            "offset": matched_queries_lst[idx]["_nested"]["offset"],
+            "matched_queries": matched_queries_lst[idx]["matched_queries"],
+            "highlight": matched_queries_lst[idx]["highlight"]
+        } for idx in range(len(matched_queries_lst))]
+
     def join(self,
              left_df: pd.DataFrame,
              right_df: pd.DataFrame,
-             left_columns: typing.List[int],
-             right_columns: typing.List[int],
+             left_columns: typing.List[typing.List[int]],
+             right_columns: typing.List[typing.List[int]],
              left_metadata: dict = None,
              right_metadata: dict = None,
              joiner: str = "default"
@@ -226,7 +260,7 @@ class Augment(object):
         if not left_metadata:
             # Left df is the user provided one.
             # We will generate metadata just based on the data itself, profiling and so on
-            left_metadata = Utils.generate_metadata_from_dataframe(data=left_df)
+            left_metadata = self.generate_metadata_from_dataframe(data=left_df)
 
         left_metadata = self.calculate_dsbox_features(data=left_df, metadata=left_metadata)
         right_metadata = self.calculate_dsbox_features(data=right_df, metadata=right_metadata)
@@ -269,3 +303,39 @@ class Augment(object):
         if not metadata:
             return metadata
         return self.profiler.dsbox_profiler.profile(inputs=data, metadata=metadata)
+
+    def is_column_able_to_query(self, col: pd.Series) -> bool:
+        """Determine if a column is able for quering
+        Basically means it is a named entity column
+
+         Args:
+             col: pandas Series
+
+         Returns:
+              boolean
+         """
+
+        return self.profiler.basic_profiler.named_entity_column_recognize(col)
+
+    def generate_metadata_from_dataframe(self, data: pd.DataFrame) -> dict:
+        """Generate a default metadata just from the data, without the dataset schema
+
+         Args:
+             data: pandas Dataframe
+
+         Returns:
+              metadata dict
+         """
+
+        global_metadata = GlobalMetadata.construct_global(description=Utils.DEFAULT_DESCRIPTION)
+        for col_offset in range(data.shape[1]):
+            variable_metadata = self.profiler.basic_profiler.basic_profiling_column(
+                description={},
+                variable_metadata=VariableMetadata.construct_variable(description={}),
+                column=data.iloc[:, col_offset]
+            )
+            global_metadata.add_variable_metadata(variable_metadata)
+        global_metadata = self.profiler.basic_profiler.basic_profiling_entire(global_metadata=global_metadata,
+                                                                              data=data)
+
+        return global_metadata.value

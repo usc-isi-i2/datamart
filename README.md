@@ -4,6 +4,12 @@
 
 ```commandline
 cd datamart
+```
+
+if you are using linux, refer here to remove 2 lines:
+https://github.com/conda/conda/issues/6073#issuecomment-393200362
+
+```
 conda env create -f environment.yml
 source activate datamart_env
 git update-index --assume-unchanged datamart/resources/index_info.json

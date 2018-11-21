@@ -79,7 +79,10 @@ def timeout(seconds, error_message):
                     traceback.print_exc()
                     return None
             else:
-                return result[0]
+                try:
+                    return result[0]
+                except:
+                    return None
 
         _.__name__ = func.__name__
         _.__doc__ = func.__doc__
