@@ -3,21 +3,26 @@ import json
 import urllib2
 import ssl
 import os
+import sys 
 
 
+
+
+args1  = sys.argv[1]
+args2  = sys.argv[2]
 counterror = 0
 context = ssl._create_unverified_context()
 for num in range(0,303):         
 	curPath=os.getcwd()
 	tempPath=str(num)
-	targetPath=curPath+os.path.sep+tempPath
+	targetPath=str(args2)+"/"+tempPath
 	if not os.path.exists(targetPath):
 		os.makedirs(targetPath)
 	else:
-		print('you')
+		print('already have it')
 
 
-	with jsonlines.open('output'+str(num)+'.jsonl') as reader:
+	with jsonlines.open(str(args1)+'/output'+str(num)+'.jsonl') as reader:
 	    for obj in reader:
 	    	for element in obj["resources"]:
 	    		if element["mimetype"] is None:
@@ -116,5 +121,5 @@ for num in range(0,303):
 
 		   					f = open(filePath, 'w+')
 		   					f.write(json.dumps(data))
-		   					print("sss")
+		   					#print("sss")
 		   					f.close
