@@ -14,7 +14,9 @@ python ../../datamart_web/webapp.py
 The following curl using `wind` as query string, write to `result.json`
 
 ```commandline
-curl -X POST 'http://dsbox02.isi.edu:5000/search/default_search?query_string=wind' -F "file=@{your_path}/test_fake.csv" > result.json
+curl -X POST 'http://dsbox02.isi.edu:5000/search/default_search?query_string=wind' \
+-F "file=@{your_path}/test_fake.csv" \
+> result.json
 ```
 
 It should return many metadata hitted.
@@ -35,7 +37,10 @@ Otherwise noaa data is too big to return.
 
 Then join two dataframes using default left outer join, write to `augmented.csv`
 ```commandline
-value=$(<{your_path}/sample_query.json); curl -X POST  http://dsbox02:5000/augment/default_join -F "data=$value" > augmented.csv
+value=$(<{your_path}/sample_query.json); \
+curl -X POST  http://dsbox02:5000/augment/default_join \
+-F "data=$value" \
+> augmented.csv
 ```
 
 It returns a csv `augmented.csv` now
