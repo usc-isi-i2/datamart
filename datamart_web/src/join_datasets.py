@@ -1,5 +1,4 @@
 from datamart.augment import Augment
-from datamart.utilities.utils import Utils
 import json
 
 """
@@ -15,7 +14,7 @@ class JoinDatasets(object):
 
     def default_join(self, request, old_df):
 
-        left_metadata = Utils.generate_metadata_from_dataframe(data=old_df)
+        left_metadata = self.augument.generate_metadata_from_dataframe(data=old_df)
 
         query_data = json.loads(request.form['data'])
         selected_metadata = query_data["selected_metadata"]
