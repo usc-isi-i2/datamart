@@ -108,3 +108,6 @@ venv.bak/
 
 # idea
 .idea/
+
+# WikiTables logs
+datamart/materializers/wikitables_downloader/resources/
