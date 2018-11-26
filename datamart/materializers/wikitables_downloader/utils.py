@@ -43,8 +43,6 @@ from wikipediaapi import Wikipedia
 PATH_RESOURCES = join(dirname(__file__), 'resources')
 PATH_LOG = join(PATH_RESOURCES, 'log_%s.txt')
 PATH_ALL_TABLES = join(PATH_RESOURCES, 'all_tables.jsonl')
-PATH_HTML_ARTICLES = join(PATH_RESOURCES, 'html_articles')
-makedirs(PATH_HTML_ARTICLES, exist_ok=True)
 
 PATTERN_LOG = '[%s] %s\n'
 
