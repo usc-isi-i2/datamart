@@ -18,7 +18,7 @@ from math import sqrt, ceil, floor
 from nltk import word_tokenize, pos_tag, ne_chunk, download as nltk_download
 from nltk.corpus import stopwords
 from numpy import array
-from os import makedirs, listdir, rename, remove
+from os import makedirs, listdir, rename, remove, chmod
 from os.path import dirname, abspath, exists, join
 from pandas import DataFrame
 from pickle import load as pload, dump as pdump
@@ -201,7 +201,7 @@ def get_driver(headless=True, disable_images=True, open_links_same_tab=False):
             opts.set_preference('browser.link.open_newwindow', 1)
         if headless: opts.set_headless()
         if disable_images: opts.set_preference('permissions.default.image', 2)
-        try:
+        '''try:
             _driver = Firefox(options=opts)
         except WebDriverException:
             _driver = None
@@ -212,16 +212,18 @@ def get_driver(headless=True, disable_images=True, open_links_same_tab=False):
                 executable_path = gdd.download_and_install()
                 _driver = Firefox(options=opts, executable_path=executable_path[0])
             except:
-                _driver = None
+                _driver = None'''
         # Travis CI fallback (Linux x64)
         if _driver == None:
             url = 'https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz'
-            path = join(PATH_RESOURCES, 'geckodriver.tar.gz')
-            download_file(url, path)
-            with tar_open(path, "r:gz") as tf:
+            compressed_path = join(PATH_RESOURCES, 'geckodriver.tar.gz')
+            uncompressed_path = join(PATH_RESOURCES, 'geckodriver')
+            download_file(url, compressed_path)
+            with tar_open(compressed_path, "r:gz") as tf:
                 tf.extractall(PATH_RESOURCES)
-            remove(path)
-            _driver = Firefox(options=opts, executable_path=join(PATH_RESOURCES, 'geckodriver'))
+            remove(compressed_path)
+            chmod(uncompressed_path, 0o775)
+            _driver = Firefox(options=opts, executable_path=uncompressed_path)
         _driver.set_page_load_timeout(15)
     return _driver
 
