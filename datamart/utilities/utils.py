@@ -30,6 +30,8 @@ class Utils:
 
     MATERIALIZATION_TIME_OUT = 300
 
+    CATEGORICAL_COLUMN_THRESHOLD = 0.2
+
     @staticmethod
     def date_validate(date_text: str) -> typing.Optional[str]:
         """Validate if a string is a valid date.
@@ -152,3 +154,9 @@ class Utils:
             print(colored('.Done', 'red'))
 
         return __decorator
+
+    @staticmethod
+    def is_categorical_column(col: pd.Series):
+        if len(col.unique().tolist()) < Utils.CATEGORICAL_COLUMN_THRESHOLD * len(col):
+            return True
+        return False

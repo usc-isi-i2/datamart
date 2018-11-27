@@ -1,6 +1,7 @@
 import pandas as pd
 import dateutil.parser
 import typing
+from datamart.utilities.utils import Utils
 from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.metadata.global_metadata import GlobalMetadata
 from pandas.api.types import is_object_dtype
@@ -34,9 +35,9 @@ class BasicProfiler(object):
             True if this column is a named entity column
             False if not a named entity column
         """
-        """TODO: Write a real NER here"""
+        """TODO: Write a real NER here maybe"""
 
-        if is_object_dtype(column):
+        if is_object_dtype(column) and not Utils.is_categorical_column(column):
             try:
                 pd.to_datetime(column)
                 return False
