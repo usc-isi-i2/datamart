@@ -40,7 +40,6 @@ from traceback import print_exc, format_exc
 from urllib.parse import urljoin, quote
 from hashlib import md5
 from xml.etree.cElementTree import iterparse
-from webdriverdownloader import GeckoDriverDownloader
 from wikipediaapi import Wikipedia
 
 # --- constants ---------------------------------------------------------------
