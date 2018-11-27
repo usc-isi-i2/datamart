@@ -33,6 +33,7 @@ from selenium.common.exceptions import WebDriverException
 from shutil import rmtree
 from sklearn.cluster import KMeans
 from sys import stdout
+from tarfile import open as tar_open
 from threading import Thread
 from time import strftime, sleep, time
 from traceback import print_exc, format_exc
@@ -203,9 +204,24 @@ def get_driver(headless=True, disable_images=True, open_links_same_tab=False):
         try:
             _driver = Firefox(options=opts)
         except WebDriverException:
-            gdd = GeckoDriverDownloader()
-            executable_path = gdd.download_and_install()
-            _driver = Firefox(options=opts, executable_path=executable_path[0])
+            _driver = None
+        # Geckodriver not installed fallback
+        if _driver == None:
+            try:
+                gdd = GeckoDriverDownloader()
+                executable_path = gdd.download_and_install()
+                _driver = Firefox(options=opts, executable_path=executable_path[0])
+            except:
+                _driver = None
+        # Travis CI fallback (Linux x64)
+        if _driver == None:
+            url = 'https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz'
+            path = join(PATH_RESOURCES, 'geckodriver.tar.gz')
+            download_file(url, path)
+            with tar_open(path, "r:gz") as tf:
+                tf.extract_all()
+            remove(path)
+            _driver = Firefox(options=opts, executable_path=join(PATH_RESOURCES, 'geckodriver'))
         _driver.set_page_load_timeout(15)
     return _driver
 
