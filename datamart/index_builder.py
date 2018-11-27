@@ -57,6 +57,8 @@ class IndexBuilder(object):
 
         """
 
+        print("==== Creating metadata and indexing for " + description_path)
+
         self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
 
         if not self.current_global_index or delete_old_es_index:
@@ -165,7 +167,6 @@ class IndexBuilder(object):
                 data_path = None
                 if data_dir:
                     data_path = os.path.join(data_dir, description.replace("_description.json", ".csv"))
-                print("==== Creating metadata and indexing for " + description)
                 self.indexing(description_path=description_path,
                               es_index=es_index,
                               data_path=data_path,
