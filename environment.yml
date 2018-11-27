@@ -82,7 +82,6 @@ dependencies:
     - webencodings==0.5.1
     - werkzeug==0.14.1
     - Wikipedia-API==0.3.7
-    - webdriverdownloader==0.1.dev2
     - wget==3.2
     - widgetsnbextension==3.4.2
     - xlrd==1.1.0

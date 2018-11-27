@@ -32,7 +32,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import WebDriverException
 from shutil import rmtree
 from sklearn.cluster import KMeans
-from sys import stdout
+from sys import stdout, exc_info
 from tarfile import open as tar_open
 from threading import Thread
 from time import strftime, sleep, time
@@ -201,7 +201,12 @@ def get_driver(headless=True, disable_images=True, open_links_same_tab=False):
             opts.set_preference('browser.link.open_newwindow', 1)
         if headless: opts.set_headless()
         if disable_images: opts.set_preference('permissions.default.image', 2)
-        _driver = Firefox(options=opts)
+        try:
+            _driver = Firefox(options=opts)
+        except:
+            print_exc()
+            for e in sys.exc_info():
+                print(type(e), e, '\n\n')
         _driver.set_page_load_timeout(15)
     return _driver
 
