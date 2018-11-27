@@ -59,4 +59,4 @@ class FootballMatchMaterializer(MaterializerBase):
         uri = materialization_arguments.get("uri", DEFAULT_URI)
         response = self.curl_wrapper(token, uri)
         df = self.csv_generator(response)
-        return df
+        return df.reindex([x["name"] for x in metadata["variables"]], axis=1)
