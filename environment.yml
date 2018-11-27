@@ -2,8 +2,6 @@ name: datamart_env
 dependencies:
   - ca-certificates=2018.03.07
   - certifi=2018.8.24
-  - libcxx=4.0.1
-  - libcxxabi=4.0.1
   - libedit=3.1.20170329
   - libffi=3.2.1
   - ncurses=6.1
@@ -72,6 +70,7 @@ dependencies:
     - send2trash==1.5.0
     - simplegeneric==0.8.1
     - six==1.11.0
+    - spacy==2.0.17
     - termcolor==1.1.0
     - terminado==0.8.1
     - testpath==0.4.2
@@ -83,6 +82,7 @@ dependencies:
     - webencodings==0.5.1
     - werkzeug==0.14.1
     - Wikipedia-API==0.3.7
+    - webdriverdownloader==0.1.dev2
     - wget==3.2
     - widgetsnbextension==3.4.2
     - xlrd==1.1.0
