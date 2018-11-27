@@ -8,6 +8,8 @@ install:
   # version is the same.
   - pip install -r requirements.txt
   - wget https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz
-  - tar -xvzf geckodriver-v0.23.0-linux64.tar.gz
+  - mkdir geckodriver
+  - tar -xzf geckodriver-v0.23.0-linux64.tar.gz -C geckodriver
+  - export PATH=$PATH:$PWD/geckodriver
 script:
   - python -W ignore -m unittest discover
