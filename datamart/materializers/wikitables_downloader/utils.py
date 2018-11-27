@@ -204,7 +204,7 @@ def get_driver(headless=True, disable_images=True, open_links_same_tab=False):
         try:
             _driver = Firefox(options=opts)
         except WebDriverException:
-            _driver = None
+            _driver = Firefox(options=opts, executable_path='geckodriver')
         _driver.set_page_load_timeout(15)
     return _driver
 
