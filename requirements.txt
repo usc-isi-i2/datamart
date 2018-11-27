@@ -62,7 +62,6 @@ tornado==5.1.1
 traitlets==4.3.2
 urllib3==1.23
 wcwidth==0.1.7
-webdriverdownloader==0.1.dev2
 webencodings==0.5.1
 Werkzeug==0.14.1
 Wikipedia-API==0.3.7
