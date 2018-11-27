@@ -49,6 +49,7 @@ def generate_json_schema(uri):
     all_data = res['matches']
     schema = dict()
     schema['title'] = res['competition']['name']
+    schema['description'] = res['competition']['name']
     schema['url'] = 'https://www.football-data.org'
     schema['keywords'] = ['football', 'competition']
     schema['provenance'] = {'source': 'www.football-data.org'}
@@ -66,6 +67,13 @@ def generate_json_schema(uri):
     entity_col = ['referees_' + str(i) + '_name' for i in range(len(all_data[0]['referees']))]
     entity_col.append('homeTeam_name')
     entity_col.append('awayTeam_name')
+    str_type_col = ['referees_' + str(i) + '_name' for i in range(len(all_data[0]['referees']))]
+    str_type_col.extend(
+        ['status', 'stage', 'group', 'score_winner', 'score_duration', 'homeTeam_name', 'awayTeam_name'])
+    int_type_col = [x for x in flatten_match.keys() if 'id' in x]
+    int_type_col.extend(
+        ['score_fullTime_homeTeam', 'score_fullTime_awayTeam', 'score_halfTime_homeTeam', 'score_halfTime_awayTeam'])
+    date_type_col = [x for x in flatten_match.keys() if 'date' in x or 'Date' in x]
     for i in range(len(all_data)):
         flatten_match = flatten_json(all_data[i])
         if i == 0:
@@ -75,6 +83,12 @@ def generate_json_schema(uri):
                     variables[key]['temporal_coverage'] = None
                 if key in entity_col:
                     variables[key]['name_entity'] = set()
+                if key in str_type_col:
+                    variables[key]['semantic_type'] = ["http://schema.org/Text"]
+                if key in int_type_col:
+                    variables[key]['semantic_type'] = ["http://schema.org/Integer"]
+                if key in date_type_col:
+                    variables[key]['semantic_type'] = ["https://metadata.datadrivendiscovery.org/types/Time"]
 
         for k, v in flatten_match.items():
             if k in entity_col:
