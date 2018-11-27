@@ -201,11 +201,10 @@ def get_driver(headless=True, disable_images=True, open_links_same_tab=False):
         if disable_images: opts.set_preference('permissions.default.image', 2)
         try:
             _driver = Firefox(options=opts)
-        except OSError:
+        except FileNotFoundError:
             gdd = GeckoDriverDownloader()
             executable_path = gdd.download_and_install()
             _driver = Firefox(options=opts, executable_path=executable_path[0])
-            raise OSError('Geckodriver needs to be in PATH to run selenium. with Firefox')
         _driver.set_page_load_timeout(15)
     return _driver
 
