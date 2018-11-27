@@ -71,7 +71,7 @@ def generate_json_schema(uri):
     str_type_col.extend(
         ['status', 'stage', 'group', 'score_winner', 'score_duration', 'homeTeam_name', 'awayTeam_name'])
     int_type_col = [x for x in flatten_match.keys() if 'id' in x]
-    int_type_col.append(
+    int_type_col.extend(
         ['score_fullTime_homeTeam', 'score_fullTime_awayTeam', 'score_halfTime_homeTeam', 'score_halfTime_awayTeam'])
     date_type_col = [x for x in flatten_match.keys() if 'date' in x or 'Date' in x]
     for i in range(len(all_data)):
