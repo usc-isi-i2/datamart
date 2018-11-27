@@ -29,6 +29,7 @@ from requests import get, post, head
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
+from selenium.common.exceptions import WebDriverException
 from shutil import rmtree
 from sklearn.cluster import KMeans
 from sys import stdout
@@ -201,7 +202,7 @@ def get_driver(headless=True, disable_images=True, open_links_same_tab=False):
         if disable_images: opts.set_preference('permissions.default.image', 2)
         try:
             _driver = Firefox(options=opts)
-        except FileNotFoundError:
+        except WebDriverException:
             gdd = GeckoDriverDownloader()
             executable_path = gdd.download_and_install()
             _driver = Firefox(options=opts, executable_path=executable_path[0])
