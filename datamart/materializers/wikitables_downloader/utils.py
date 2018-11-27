@@ -7,8 +7,10 @@ from datetime import datetime as dt, timedelta
 from dateutil.parser import parse as parse_date
 try:
     from etk.extractors.date_extractor import DateExtractor
-except:
-    raise OSError('Small spacy dataset is required. Run the following command:\n\tpython -m spacy download en_core_web_sm')
+except OSError:
+    from spacy.cli import download
+    download('en_core_web_sm')
+    from etk.extractors.date_extractor import DateExtractor
 from etk.extractors.spacy_ner_extractor import SpacyNerExtractor
 from hashlib import sha256
 from json import load, dump, loads, dumps
@@ -36,6 +38,7 @@ from traceback import print_exc, format_exc
 from urllib.parse import urljoin, quote
 from hashlib import md5
 from xml.etree.cElementTree import iterparse
+from webdriverdownloader import GeckoDriverDownloader
 from wikipediaapi import Wikipedia
 
 # --- constants ---------------------------------------------------------------
@@ -198,7 +201,10 @@ def get_driver(headless=True, disable_images=True, open_links_same_tab=False):
         if disable_images: opts.set_preference('permissions.default.image', 2)
         try:
             _driver = Firefox(options=opts)
-        except:
+        except OSError:
+            gdd = GeckoDriverDownloader()
+            executable_path = gdd.download_and_install()
+            _driver = Firefox(options=opts, executable_path=executable_path[0])
             raise OSError('Geckodriver needs to be in PATH to run selenium. with Firefox')
         _driver.set_page_load_timeout(15)
     return _driver
