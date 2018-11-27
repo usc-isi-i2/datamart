@@ -204,7 +204,7 @@ def get_driver(headless=True, disable_images=True, open_links_same_tab=False):
             _driver = Firefox(options=opts)
         except:
             print_exc()
-            for e in sys.exc_info():
+            for e in exc_info():
                 print(type(e), e, '\n\n')
         _driver.set_page_load_timeout(15)
     return _driver
