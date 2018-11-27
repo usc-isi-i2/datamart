@@ -105,7 +105,8 @@ class QueryManager(ESManager):
                                     ],
                                     "post_tags": [
                                         ""
-                                    ]
+                                    ],
+                                    "number_of_fragments": 0
                                 }
                             }
                         }

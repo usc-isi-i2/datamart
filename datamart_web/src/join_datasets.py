@@ -20,13 +20,6 @@ class JoinDatasets(object):
         selected_metadata = query_data["selected_metadata"]
         columns_mapping = query_data["columns_mapping"]
 
-        matches = self.augument.get_inner_hits_info(hitted_es_result=selected_metadata)
-
-        if not matches:
-            return json.dumps({
-                "message": "Default join should perform after default search using default search result"
-            })
-
         if "constrains" in query_data:
             try:
                 constrains = query_data["constrains"]
@@ -35,10 +28,14 @@ class JoinDatasets(object):
         else:
             constrains = {}
 
-        constrains["named_entity"] = {}
+        matches = self.augument.get_inner_hits_info(hitted_es_result=selected_metadata)
 
-        for matched in matches:
-            constrains["named_entity"][matched["offset"]] = matched["highlight"]["variables.named_entity"]
+        if not matches:
+            return json.dumps({
+                "message": "Default join should perform after default search using default search result"
+            })
+
+        constrains["named_entity"] = self.augument.get_named_entity_constrain_from_inner_hits(matches)
 
         # get temporal coverage from provided dataframe
         if left_metadata.get("variables", []):
