@@ -82,7 +82,7 @@ def generate_json_schema(uri):
                 if key in time_col:
                     variables[key]['temporal_coverage'] = None
                 if key in entity_col:
-                    variables[key]['name_entity'] = set()
+                    variables[key]['named_entity'] = set()
                 if key in str_type_col:
                     variables[key]['semantic_type'] = ["http://schema.org/Text"]
                 if key in int_type_col:
@@ -92,10 +92,10 @@ def generate_json_schema(uri):
 
         for k, v in flatten_match.items():
             if k in entity_col:
-                variables[k]['name_entity'].add(v)
+                variables[k]['named_entity'].add(v)
     for key in variables:
         try:
-            variables[key]['name_entity'] = list(variables[key]['name_entity'])
+            variables[key]['named_entity'] = list(variables[key]['named_entity'])
         except:
             pass
         schema['variables'].append(variables[key])

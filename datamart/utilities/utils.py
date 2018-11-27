@@ -142,6 +142,10 @@ class Utils:
 
     @staticmethod
     def test_print(func) -> typing.Callable:
+        """A decorator for test print.
+
+        """
+
         def __decorator(self):
             print("[Test]{}/{}".format(self.__class__.__name__, func.__name__))
             func(self)
