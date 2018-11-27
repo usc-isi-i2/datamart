@@ -223,7 +223,7 @@ class TestAugment(unittest.TestCase):
                                     ]
                                 },
                                 "matched_queries": [
-                                    "nunited states of american"
+                                    "united states of american"
                                 ]
                             }
                         ]
@@ -240,8 +240,24 @@ class TestAugment(unittest.TestCase):
             },
             {
                 'offset': 1,
-                'matched_queries': ['nunited states of american'],
+                'matched_queries': ['united states of american'],
                 'highlight': {'variables.named_entity': ['united states']}
             }
         ]
         self.assertListEqual(self.augment.get_inner_hits_info(hitted_es_result=fake_es_result), expected)
+
+    @Utils.test_print
+    def test_get_named_entity_constrain_from_inner_hits(self):
+        expected = {2: ['new york'], 1: ['united states']}
+        self.assertDictEqual(self.augment.get_named_entity_constrain_from_inner_hits(matches=[
+            {
+                'offset': 2,
+                'matched_queries': ['new york'],
+                'highlight': {'variables.named_entity': ['new york']}
+            },
+            {
+                'offset': 1,
+                'matched_queries': ['nunited states of american'],
+                'highlight': {'variables.named_entity': ['united states']}
+            }
+        ]), expected)

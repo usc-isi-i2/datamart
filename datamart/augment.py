@@ -341,7 +341,16 @@ class Augment(object):
         return global_metadata.value
 
     @staticmethod
-    def get_named_entity_constrain_from_inner_hits(matches):
+    def get_named_entity_constrain_from_inner_hits(matches: typing.List[dict]) -> dict:
+        """Generate named entity constrain from get_inner_hits_info method result
+
+         Args:
+             matches: result returned by get_inner_hits_info method
+
+         Returns:
+            dict
+         """
+
         result = dict()
         for matched in matches:
             result[matched["offset"]] = matched["highlight"]["variables.named_entity"]
