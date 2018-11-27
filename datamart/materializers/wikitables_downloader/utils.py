@@ -219,7 +219,7 @@ def get_driver(headless=True, disable_images=True, open_links_same_tab=False):
             path = join(PATH_RESOURCES, 'geckodriver.tar.gz')
             download_file(url, path)
             with tar_open(path, "r:gz") as tf:
-                tf.extractall()
+                tf.extractall(PATH_RESOURCES)
             remove(path)
             _driver = Firefox(options=opts, executable_path=join(PATH_RESOURCES, 'geckodriver'))
         _driver.set_page_load_timeout(15)
