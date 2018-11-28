@@ -200,14 +200,11 @@ def get_driver(headless=True, disable_images=True, open_links_same_tab=False):
             opts.set_preference('browser.link.open_newwindow', 1)
         if headless: opts.set_headless()
         if disable_images: opts.set_preference('permissions.default.image', 2)
-        try:
-            _driver = Firefox(options=opts)
-        except:
-            print_exc()
-            for e in exc_info():
-                print(type(e), e, '\n\n')
+        _driver = Firefox(options=opts)
         _driver.set_page_load_timeout(15)
     return _driver
+
+get_driver()
 
 def close_driver():
     ''' Close the current Firefox webdriver, if any. '''
