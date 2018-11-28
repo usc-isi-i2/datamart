@@ -156,7 +156,9 @@ class Utils:
         return __decorator
 
     @staticmethod
-    def is_categorical_column(col: pd.Series):
-        if len(col.unique().tolist()) < Utils.CATEGORICAL_COLUMN_THRESHOLD * len(col):
-            return True
-        return False
+    def is_categorical_column(col: pd.Series) -> bool:
+        """check if column is categorical.
+
+        """
+
+        return col.nunique() / col.size < Utils.CATEGORICAL_COLUMN_THRESHOLD

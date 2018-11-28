@@ -37,7 +37,7 @@ class BasicProfiler(object):
         """
         """TODO: Write a real NER here maybe"""
 
-        if is_object_dtype(column) and not Utils.is_categorical_column(column):
+        if is_object_dtype(column):
             try:
                 pd.to_datetime(column)
                 return False
