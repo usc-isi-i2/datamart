@@ -4,13 +4,14 @@ python:
 - 3.6.6
 before_install:
   # Download geckodriver for Selenium tests
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
   - wget https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz
   - mkdir geckodriver
   - tar -xzf geckodriver-v0.23.0-linux64.tar.gz -C geckodriver
   - export PATH=$PATH:$PWD/geckodriver
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
-  - sleep 3
+addons:
+  firefox: latest
 install:
   - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
