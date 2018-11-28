@@ -204,8 +204,6 @@ def get_driver(headless=True, disable_images=True, open_links_same_tab=False):
         _driver.set_page_load_timeout(15)
     return _driver
 
-get_driver()
-
 def close_driver():
     ''' Close the current Firefox webdriver, if any. '''
     global _driver
