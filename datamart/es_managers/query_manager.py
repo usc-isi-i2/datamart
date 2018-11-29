@@ -8,6 +8,8 @@ import warnings
 
 class QueryManager(ESManager):
 
+    MINIMUM_SHOULD_MATCH_RATIO = 0.5
+
     def __init__(self, es_host: str, es_port: int, es_index: str) -> None:
         """Init method of QuerySystem, set up connection to elastic search.
 
@@ -73,7 +75,7 @@ class QueryManager(ESManager):
                                               terms: list,
                                               key: str = "variables.named_entity",
                                               minimum_should_match=None
-                                              ) -> str:
+                                              ) -> dict:
         """Generate query body for query that matches some terms from an array.
 
         Args:
@@ -82,48 +84,42 @@ class QueryManager(ESManager):
             minimum_should_match: minimum should match terms from the list.
 
         Returns:
-            string of query body
+            dict of query body
         """
 
-        if not terms:
-            warnings.warn("Empty terms list, match all")
-            return cls.match_all()
-
         body = {
-            "query": {
-                "nested": {
-                    "path": key.split(".")[0],
-                    "inner_hits": {
-                        "_source": [
-                            key.split(".")[1]
-                        ],
-                        "highlight": {
-                            "fields": {
-                                key: {
-                                    "pre_tags": [
-                                        ""
-                                    ],
-                                    "post_tags": [
-                                        ""
-                                    ],
-                                    "number_of_fragments": 0
-                                }
+            "nested": {
+                "path": key.split(".")[0],
+                "inner_hits": {
+                    "_source": [
+                        key.split(".")[1]
+                    ],
+                    "highlight": {
+                        "fields": {
+                            key: {
+                                "pre_tags": [
+                                    ""
+                                ],
+                                "post_tags": [
+                                    ""
+                                ],
+                                "number_of_fragments": 0
                             }
                         }
-                    },
-                    "query": {
-                        "bool": {
-                            "should": [
-                            ],
-                            "minimum_should_match": 1
-                        }
+                    }
+                },
+                "query": {
+                    "bool": {
+                        "should": [
+                        ],
+                        "minimum_should_match": 1
                     }
                 }
             }
         }
 
         for term in terms:
-            body["query"]["nested"]["query"]["bool"]["should"].append(
+            body["nested"]["query"]["bool"]["should"].append(
                 {
                     "match_phrase": {
                         key: {
@@ -135,14 +131,15 @@ class QueryManager(ESManager):
             )
 
         if minimum_should_match:
-            body["query"]["nested"]["query"]["bool"]["minimum_should_match"] = minimum_should_match
+            body["nested"]["query"]["bool"]["minimum_should_match"] = math.ceil(minimum_should_match * len(terms))
         else:
-            body["query"]["nested"]["query"]["bool"]["minimum_should_match"] = math.ceil(len(terms) / 2)
+            body["nested"]["query"]["bool"]["minimum_should_match"] = math.ceil(
+                QueryManager.MINIMUM_SHOULD_MATCH_RATIO * len(terms))
 
-        return json.dumps(body)
+        return body
 
     @classmethod
-    def match_temporal_coverage(cls, start: str = None, end: str = None) -> str:
+    def match_temporal_coverage(cls, start: str = None, end: str = None) -> typing.Optional[dict]:
         """Generate query body for query by temporal_coverage.
 
         Args:
@@ -150,35 +147,34 @@ class QueryManager(ESManager):
             end: dataset should cover date time later than the end date.
 
         Returns:
-            string of query body
+            dict of query body
         """
-        start = Utils.date_validate(date_text=start)
-        end = Utils.date_validate(date_text=end)
+
+        start = Utils.date_validate(date_text=start) if start else None
+        end = Utils.date_validate(date_text=end) if end else None
         if not start and not end:
-            warnings.warn("Start and end are None, match all")
-            return cls.match_all()
+            warnings.warn("Start and end are valid")
+            return None
 
         body = {
-            "query": {
-                "nested": {
-                    "path": "variables",
-                    "inner_hits": {
-                        "_source": [
-                            "temporal_coverage"
+            "nested": {
+                "path": "variables",
+                "inner_hits": {
+                    "_source": [
+                        "temporal_coverage"
+                    ]
+                },
+                "query": {
+                    "bool": {
+                        "must": [
                         ]
-                    },
-                    "query": {
-                        "bool": {
-                            "must": [
-                            ]
-                        }
                     }
                 }
             }
         }
 
         if start:
-            body["query"]["nested"]["query"]["bool"]["must"].append(
+            body["nested"]["query"]["bool"]["must"].append(
                 {
                     "range": {
                         "variables.temporal_coverage.start": {
@@ -190,7 +186,7 @@ class QueryManager(ESManager):
             )
 
         if end:
-            body["query"]["nested"]["query"]["bool"]["must"].append(
+            body["nested"]["query"]["bool"]["must"].append(
                 {
                     "range": {
                         "variables.temporal_coverage.end": {
@@ -201,93 +197,77 @@ class QueryManager(ESManager):
                 }
             )
 
-        return json.dumps(body)
+        return body
 
     @staticmethod
-    def match_global_datamart_id(datamart_id: int) -> str:
+    def match_global_datamart_id(datamart_id: int) -> dict:
         """Generate query body for query by global datamart id.
 
         Args:
             datamart_id: integer for the datamart id to match.
 
         Returns:
-            string of query body
+            dict of query body
         """
 
         body = {
-            "query": {
-                "bool": {
-                    "must": [
-                        {
-                            "term": {
-                                "datamart_id": datamart_id
-                            }
-                        }
-                    ]
-                }
+            "term": {
+                "datamart_id": datamart_id
             }
         }
 
-        return json.dumps(body)
+        return body
 
     @staticmethod
-    def match_variable_datamart_id(datamart_id: int) -> str:
+    def match_variable_datamart_id(datamart_id: int) -> dict:
         """Generate query body for query by variable datamart id.
 
         Args:
             datamart_id: integer for the datamart id to match.
 
         Returns:
-            string of query body
+            dict of query body
         """
 
         body = {
-            "query": {
-                "nested": {
-                    "path": "variables",
-                    "inner_hits": {
-                        "_source": [
-                            "datamart_id"
-                        ]
-                    },
-                    "query": {
-                        "bool": {
-                            "must": [
-                                {
-                                    "term": {
-                                        "variables.datamart_id": datamart_id
-                                    }
+            "nested": {
+                "path": "variables",
+                "inner_hits": {
+                    "_source": [
+                        "datamart_id"
+                    ]
+                },
+                "query": {
+                    "bool": {
+                        "must": [
+                            {
+                                "term": {
+                                    "variables.datamart_id": datamart_id
                                 }
-                            ]
-                        }
+                            }
+                        ]
                     }
                 }
             }
         }
 
-        return json.dumps(body)
+        return body
 
     @classmethod
-    def match_key_value_pairs(cls, key_value_pairs: typing.List[tuple]) -> str:
+    def match_key_value_pairs(cls, key_value_pairs: typing.List[tuple]) -> dict:
         """Generate query body for query by multiple key value pairs.
 
         Args:
             key_value_pairs: list of (key, value) tuples.
 
         Returns:
-            string of query body
+            dict of query body
         """
 
-        if not key_value_pairs:
-            warnings.warn("Empty key value pairs list, match all")
-            return cls.match_all()
-
         body = {
-            "query": {
-                "bool": {
-                    "must": [
-                    ]
-                }
+            "bool": {
+                "must": [
+                ]
             }
         }
 
@@ -311,7 +291,7 @@ class QueryManager(ESManager):
             if not key.startswith("variables"):
                 if isinstance(value, list):
                     for v in value:
-                        body["query"]["bool"]["must"].append(
+                        body["bool"]["must"].append(
                             {
                                 "match": {
                                     key: v
@@ -319,7 +299,7 @@ class QueryManager(ESManager):
                             }
                         )
                 else:
-                    body["query"]["bool"]["must"].append(
+                    body["bool"]["must"].append(
                         {
                             "match": {
                                 key: value
@@ -349,28 +329,28 @@ class QueryManager(ESManager):
                             }
                         }
                     )
-        body["query"]["bool"]["must"].append(nested)
-        return json.dumps(body)
+
+        if nested["nested"]["query"]["bool"]["must"]:
+            body["bool"]["must"].append(nested)
+        return body
 
     @staticmethod
-    def match_any(query_string: str) -> str:
+    def match_any(query_string: str) -> dict:
         """Generate query body for query all fields of doc contains query_string.
 
         Args:
             query_string: string if query.
 
         Returns:
-            string of query body
+            dict of query body
         """
 
         body = {
-            "query": {
-                "query_string": {
-                    "query": query_string
-                }
+            "query_string": {
+                "query": query_string
             }
         }
-        return json.dumps(body)
+        return body
 
     @staticmethod
     def match_all() -> str:
@@ -379,7 +359,7 @@ class QueryManager(ESManager):
         Args:
 
         Returns:
-            string of query body
+            dict of query body
         """
 
         return json.dumps(
@@ -395,3 +375,18 @@ class QueryManager(ESManager):
                 }
             }
         )
+
+    @staticmethod
+    def form_conjunction_query(queries: list):
+        body = {
+            "query": {
+                "bool": {
+                    "must": []
+                }
+            }
+        }
+        for query in queries:
+            if query:
+                body["query"]["bool"]["must"].append(query)
+
+        return json.dumps(body)
