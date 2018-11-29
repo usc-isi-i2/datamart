@@ -1,7 +1,6 @@
 import pandas as pd
 import dateutil.parser
 import typing
-from datamart.utilities.utils import Utils
 from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.metadata.global_metadata import GlobalMetadata
 from pandas.api.types import is_object_dtype

@@ -1,5 +1,6 @@
 from datamart.augment import Augment
 import json
+from datamart.utilities.utils import Utils
 
 """
 This is not well implemented.
@@ -14,7 +15,7 @@ class JoinDatasets(object):
 
     def default_join(self, request, old_df):
 
-        left_metadata = self.augment.generate_metadata_from_dataframe(data=old_df)
+        left_metadata = Utils.generate_metadata_from_dataframe(data=old_df)
 
         query_data = json.loads(request.form['data'])
         selected_metadata = query_data["selected_metadata"]
@@ -28,14 +29,14 @@ class JoinDatasets(object):
         else:
             constrains = {}
 
-        matches = self.augment.get_inner_hits_info(hitted_es_result=selected_metadata)
+        matches = Utils.get_inner_hits_info(hitted_es_result=selected_metadata)
 
         if not matches:
             return json.dumps({
                 "message": "Default join should perform after default search using default search result"
             })
 
-        constrains["named_entity"] = self.augment.get_named_entity_constrain_from_inner_hits(matches)
+        constrains["named_entity"] = Utils.get_named_entity_constrain_from_inner_hits(matches)
 
         # get temporal coverage from provided dataframe
         if left_metadata.get("variables", []):
@@ -48,7 +49,7 @@ class JoinDatasets(object):
                     break
 
         try:
-            new_df = self.augment.get_dataset(
+            new_df = Utils.get_dataset(
                 metadata=selected_metadata["_source"],
                 constrains=constrains
             )

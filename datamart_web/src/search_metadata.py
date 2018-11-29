@@ -1,4 +1,5 @@
 from datamart.augment import Augment
+from datamart.utilities.utils import Utils
 
 
 class SearchMetadata(object):
@@ -23,7 +24,7 @@ class SearchMetadata(object):
             query_string=query_string) if query_string else None
 
         for idx in range(old_df.shape[1]):
-            if self.augment.is_column_able_to_query(old_df.iloc[:, idx]):
+            if Utils.is_column_able_to_query(old_df.iloc[:, idx]):
                 this_column_result = self.augment.query_by_column(
                     col=old_df.iloc[:, idx],
                     minimum_should_match=minimum_should_match
@@ -37,7 +38,7 @@ class SearchMetadata(object):
                     else:
                         ret["result"].append({
                             "column_idx": idx,
-                            "datasets_metadata": self.augment.get_metadata_intersection(query_string_result,
-                                                                                         this_column_result)
+                            "datasets_metadata": Utils.get_metadata_intersection(query_string_result,
+                                                                                 this_column_result)
                         })
         return ret
