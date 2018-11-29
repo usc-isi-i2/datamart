@@ -16,7 +16,10 @@ class TestQueryManager(unittest.TestCase):
                     "path": "variables",
                     "inner_hits": {
                         "_source": ["named_entity"],
-                        "highlight": {"fields": {"variables.named_entity": {"pre_tags": [""], "post_tags": [""]}}}
+                        "highlight": {"fields": {"variables.named_entity": {
+                            "pre_tags": [""],
+                            "post_tags": [""],
+                            "number_of_fragments": 0}}}
                     },
                     "query": {
                         "bool": {
@@ -56,7 +59,10 @@ class TestQueryManager(unittest.TestCase):
                     "path": "variables",
                     "inner_hits": {
                         "_source": ["named_entity"],
-                        "highlight": {"fields": {"variables.named_entity": {"pre_tags": [""], "post_tags": [""]}}}
+                        "highlight": {"fields": {"variables.named_entity": {
+                            "pre_tags": [""],
+                            "post_tags": [""],
+                            "number_of_fragments": 0}}}
                     },
                     "query": {
                         "bool": {

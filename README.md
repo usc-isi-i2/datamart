@@ -45,7 +45,8 @@ Take a look at [tmp.json](./test/tmp/tmp.json#L10).
 
 #### Create metadata and index it on Elasticsearch, following: [Indexing demo](./test/index.ipynb)
 #### Query datamart, following: [Query demo](./test/query.ipynb)
-#### Dealing with TAXI example, following: [taxi_example](./test/taxi_example.ipynb)
+#### Dealing with TAXI example, following: [taxi_example](test/taxi_example/taxi_example.ipynb)
+#### Dealing with FIFA example, following: [fifa_example](test/fifa_example/fifa_example.ipynb)
 
 
 Note: Launch notebook: 

@@ -1,5 +1,6 @@
 from datamart.augment import Augment
 import json
+from datamart.utilities.utils import Utils
 
 """
 This is not well implemented.
@@ -10,22 +11,15 @@ Join is difficult, we are not able to fully automate it currently, implement som
 class JoinDatasets(object):
 
     def __init__(self, es_index="datamart"):
-        self.augument = Augment(es_index=es_index)
+        self.augment = Augment(es_index=es_index)
 
     def default_join(self, request, old_df):
 
-        left_metadata = self.augument.generate_metadata_from_dataframe(data=old_df)
+        left_metadata = Utils.generate_metadata_from_dataframe(data=old_df)
 
         query_data = json.loads(request.form['data'])
         selected_metadata = query_data["selected_metadata"]
         columns_mapping = query_data["columns_mapping"]
-
-        matches = self.augument.get_inner_hits_info(hitted_es_result=selected_metadata)
-
-        if not matches:
-            return json.dumps({
-                "message": "Default join should perform after default search using default search result"
-            })
 
         if "constrains" in query_data:
             try:
@@ -35,10 +29,14 @@ class JoinDatasets(object):
         else:
             constrains = {}
 
-        constrains["named_entity"] = {}
+        matches = Utils.get_inner_hits_info(hitted_es_result=selected_metadata)
 
-        for matched in matches:
-            constrains["named_entity"][matched["offset"]] = matched["highlight"]["variables.named_entity"]
+        if not matches:
+            return json.dumps({
+                "message": "Default join should perform after default search using default search result"
+            })
+
+        constrains["named_entity"] = Utils.get_named_entity_constrain_from_inner_hits(matches)
 
         # get temporal coverage from provided dataframe
         if left_metadata.get("variables", []):
@@ -51,7 +49,7 @@ class JoinDatasets(object):
                     break
 
         try:
-            new_df = self.augument.get_dataset(
+            new_df = Utils.get_dataset(
                 metadata=selected_metadata["_source"],
                 constrains=constrains
             )
@@ -61,7 +59,7 @@ class JoinDatasets(object):
             })
 
         try:
-            df = self.augument.join(
+            df = self.augment.join(
                 left_df=old_df,
                 right_df=new_df,
                 left_columns=[x["old_cols"] for x in columns_mapping],

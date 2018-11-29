@@ -1,11 +1,12 @@
 from datamart.augment import Augment
+from datamart.utilities.utils import Utils
 
 
 class SearchMetadata(object):
     MAX_MATCH = 10
 
     def __init__(self, es_index="datamart_all"):
-        self.augument = Augment(es_index=es_index)
+        self.augment = Augment(es_index=es_index)
 
     def default_search_by_csv(self, request, old_df):
 
@@ -19,12 +20,12 @@ class SearchMetadata(object):
             "result": []
         }
 
-        query_string_result = self.augument.query_any_field_with_string(
+        query_string_result = self.augment.query_any_field_with_string(
             query_string=query_string) if query_string else None
 
         for idx in range(old_df.shape[1]):
-            if self.augument.is_column_able_to_query(old_df.iloc[:, idx]):
-                this_column_result = self.augument.query_by_column(
+            if Utils.is_column_able_to_query(old_df.iloc[:, idx]):
+                this_column_result = self.augment.query_by_column(
                     col=old_df.iloc[:, idx],
                     minimum_should_match=minimum_should_match
                 )
@@ -37,7 +38,7 @@ class SearchMetadata(object):
                     else:
                         ret["result"].append({
                             "column_idx": idx,
-                            "datasets_metadata": self.augument.get_metadata_intersection(query_string_result,
-                                                                                         this_column_result)
+                            "datasets_metadata": Utils.get_metadata_intersection(query_string_result,
+                                                                                 this_column_result)
                         })
         return ret
