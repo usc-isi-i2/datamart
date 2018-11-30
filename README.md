@@ -37,17 +37,17 @@ $ Valid json
 and put in `datamart/materializers`. See [README](./datamart/materializers/README.MD)
 
 3. Have your dataset schema json `materialization.python_path` pointed to the materialization method. 
-Take a look at [tmp.json](./test/tmp/tmp.json#L10).
+Take a look at [tmp.json](example/tmp/tmp.json#L10).
 
 4. Play with the following:
 
 ## Example of using current system
 
-#### Create metadata and index it on Elasticsearch, following: [Indexing demo](./test/index.ipynb)
-#### Query datamart, following: [Query demo](./test/query.ipynb)
-#### Dealing with TAXI example, following: [taxi_example](test/taxi_example/taxi_example.ipynb)
-#### Dealing with FIFA example, following: [fifa_example](test/fifa_example/fifa_example.ipynb)
-
+#### Create metadata and index it on Elasticsearch, following: [Indexing demo](example/index.ipynb)
+#### Query datamart, following: [Query demo](example/query.ipynb)
+#### Dealing with TAXI example, following: [taxi_example](example/taxi_example/taxi_example.ipynb)
+#### Dealing with FIFA example, following: [fifa_example](example/fifa_example/fifa_example.ipynb)
+#### Using current rest service: [rest_example](example/rest_example/example.md)
 
 Note: Launch notebook: 
 ```
