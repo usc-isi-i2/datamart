@@ -34,7 +34,7 @@ class BasicProfiler(object):
             True if this column is a named entity column
             False if not a named entity column
         """
-        """TODO: Write a real NER here"""
+        """TODO: Write a real NER here maybe"""
 
         if is_object_dtype(column):
             try:
