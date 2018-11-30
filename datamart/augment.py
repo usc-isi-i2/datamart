@@ -25,105 +25,74 @@ class Augment(object):
         self.joiners = dict()
         self.profiler = Profiler()
 
-    def query_by_column(self,
-                        col: pd.Series,
-                        minimum_should_match: int = None,
-                        **kwargs
-                        ) -> typing.Optional[typing.List[dict]]:
+    def query(self,
+              col: pd.Series = None,
+              minimum_should_match_ratio_for_col: float = None,
+              query_string: str = None,
+              temporal_coverage_start: str = None,
+              temporal_coverage_end: str = None,
+              global_datamart_id: int = None,
+              variable_datamart_id: int = None,
+              key_value_pairs: typing.List[tuple] = None,
+              **kwargs
+              ) -> typing.Optional[typing.List[dict]]:
+
         """Query metadata by a pandas Dataframe column
 
         Args:
             col: pandas Dataframe column.
-            minimum_should_match: An integer ranges from 0 to length of unique value in col.
-            Represent the minimum number of terms should match.
+            minimum_should_match_ratio_for_col: An float ranges from 0 to 1
+                indicating the ratio of unique value of the column to be matched
+            query_string: string to query any field in metadata
+            temporal_coverage_start: start of a temporal coverage
+            temporal_coverage_end: end of a temporal coverage
+            global_datamart_id: match a global metadata id
+            variable_datamart_id: match a variable metadata id
+            key_value_pairs: match key value pairs
 
         Returns:
             matching docs of metadata
         """
 
-        body = self.qm.match_some_terms_from_variables_array(terms=col.unique().tolist(),
-                                                             minimum_should_match=minimum_should_match)
-        return self.qm.search(body=body, **kwargs)
+        queries = list()
 
-    def query_by_named_entities(self,
-                                named_entities: list,
-                                minimum_should_match: int = None,
-                                **kwargs
-                                ) -> typing.Optional[typing.List[dict]]:
-        """Query metadata by a pandas Dataframe column
+        if query_string:
+            queries.append(
+                self.qm.match_any(query_string=query_string)
+            )
 
-        Args:
-            named_entities: list of named entities
-            minimum_should_match: An integer ranges from 0 to length of named entities list.
-            Represent the minimum number of terms should match.
+        if temporal_coverage_start or temporal_coverage_end:
+            queries.append(
+                self.qm.match_temporal_coverage(start=temporal_coverage_start, end=temporal_coverage_end)
+            )
 
-        Returns:
-            matching docs of metadata
-        """
+        if global_datamart_id:
+            queries.append(
+                self.qm.match_global_datamart_id(datamart_id=global_datamart_id)
+            )
 
-        body = self.qm.match_some_terms_from_variables_array(terms=named_entities,
-                                                             key="variables.named_entity",
-                                                             minimum_should_match=minimum_should_match)
-        return self.qm.search(body=body, **kwargs)
+        if variable_datamart_id:
+            queries.append(
+                self.qm.match_variable_datamart_id(datamart_id=variable_datamart_id)
+            )
 
-    def query_by_temporal_coverage(self, start=None, end=None, **kwargs) -> typing.Optional[typing.List[dict]]:
-        """Query metadata by a temporal coverage of column
+        if key_value_pairs:
+            queries.append(
+                self.qm.match_key_value_pairs(key_value_pairs=key_value_pairs)
+            )
 
-        Args:
-            start: dataset should cover date time earlier than the start date.
-            end: dataset should cover date time later than the end date.
+        if col is not None:
+            queries.append(
+                self.qm.match_some_terms_from_variables_array(terms=col.unique().tolist(),
+                                                              minimum_should_match=minimum_should_match_ratio_for_col)
+            )
 
-        Returns:
-            matching docs of metadata
-        """
+        if not queries:
+            return self._query_all()
 
-        body = self.qm.match_temporal_coverage(start=start, end=end)
-        return self.qm.search(body=body, **kwargs)
+        return self.qm.search(body=self.qm.form_conjunction_query(queries), **kwargs)
 
-    def query_by_datamart_id(self, datamart_id: int, **kwargs) -> typing.Optional[typing.List[dict]]:
-        """Query metadata by datamart id
-
-        Args:
-            datamart_id: int
-
-        Returns:
-            matching docs of metadata
-        """
-
-        global_body = self.qm.match_global_datamart_id(datamart_id=datamart_id)
-        variable_body = self.qm.match_variable_datamart_id(datamart_id=datamart_id)
-        return self.qm.search(body=global_body, **kwargs) or self.qm.search(body=variable_body, **kwargs)
-
-    def query_by_key_value_pairs(self,
-                                 key_value_pairs: typing.List[tuple],
-                                 **kwargs
-                                 ) -> typing.Optional[typing.List[dict]]:
-        """Query metadata by datamart id
-
-        Args:
-            key_value_pairs: list of key value tuple
-
-        Returns:
-            matching docs of metadata
-        """
-
-        body = self.qm.match_key_value_pairs(key_value_pairs=key_value_pairs)
-        return self.qm.search(body=body, **kwargs)
-
-    def query_any_field_with_string(self, query_string, **kwargs) -> typing.Optional[typing.List[dict]]:
-        """Query any field of matadata with query_string
-
-        Args:
-            key_value_pairs: list of key value tuple
-
-        Returns:
-            matching docs of metadata
-        """
-
-        body = self.qm.match_any(query_string=query_string)
-        return self.qm.search(body=body, **kwargs)
-
-    def query_by_es_query(self, body: str, **kwargs) -> typing.Optional[typing.List[dict]]:
+    def _query_by_es_query(self, body: str, **kwargs) -> typing.Optional[typing.List[dict]]:
         """Query metadata by an elastic search query
 
         Args:
@@ -133,6 +102,17 @@ class Augment(object):
             matching docs of metadata
         """
         return self.qm.search(body=body, **kwargs)
+
+    def _query_all(self, **kwargs) -> typing.Optional[typing.List[dict]]:
+        """Query all metadata
+
+        Args:
+
+        Returns:
+            matching docs of metadata
+        """
+
+        return self.qm.search(body=self.qm.match_all(), **kwargs)
 
     def join(self,
              left_df: pd.DataFrame,
