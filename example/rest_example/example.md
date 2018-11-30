@@ -38,4 +38,4 @@ curl -X POST  http://dsbox02:5000/augment/default_join \
 -F "data=$value" > augmented.csv
 ```
 
-It returns a csv `augmented.csv` now
+It returns a csv `augmented.csv` now, which is [this one](../fifa_example/augmented.csv)
