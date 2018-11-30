@@ -1,4 +1,4 @@
-from datamart.materializers.noaa_materializer import NoaaMaterializer
+from datamart.materializers.noaa_materializer import NoaaMaterializer, DEFAULT_TOKEN
 import unittest, json, os
 import pandas as pd
 from datamart.utilities.utils import Utils
@@ -12,7 +12,7 @@ class TestNoaaMaterializer(unittest.TestCase):
 
     @Utils.test_print
     def test_header(self):
-        self.assertEqual(self.noaa_materializer.headers, None)
+        self.assertEqual(self.noaa_materializer.headers, {"token": DEFAULT_TOKEN})
 
     @Utils.test_print
     def test_get(self):
@@ -32,9 +32,8 @@ class TestNoaaMaterializer(unittest.TestCase):
         }
         result = self.noaa_materializer.get(metadata=fake_metadata, constrains=fake_constrains).to_dict(
             orient="records")
-        with open(os.path.join(resources_path, 'noaa_get_test.json'), "r") as f:
-            sample_result = json.load(f)
-        self.assertEqual(result, sample_result)
+        expected = [{'date': '2016-09-23T00:00:00', 'stationid': 'GHCND:US1CALA0001', 'city': 'los angeles', 'PRCP': 0}]
+        self.assertEqual(result, expected)
         fake_metadata_for_no_return = {
             "materialization": {
                 "arguments": {
