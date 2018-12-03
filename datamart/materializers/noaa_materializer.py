@@ -156,7 +156,7 @@ class NoaaMaterializer(MaterializerBase):
         )
         response = requests.get(api, headers=self.headers)
         data = response.json()
-        start_stationid = set([x["station"] for x in data["results"]]) if "results" in data else None
+        start_stationid = [x["station"] for x in data["results"]] if "results" in data else None
 
         api = 'https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid={dataset_id}' \
               '&datatypeid={data_type}&locationid={location_id}&startdate={start_date}' \
@@ -175,12 +175,15 @@ class NoaaMaterializer(MaterializerBase):
         if not start_stationid and not end_stationid:
             return None
 
-        if start_stationid.intersection(end_stationid):
+        if start_stationid and end_stationid and set(start_stationid).intersection(end_stationid):
             for x in end_stationid:
                 if x in start_stationid:
                     return x
 
-        return end_stationid[0]
+        if end_stationid:
+            return end_stationid[0]
+
+        return start_stationid[0]
 
     def add_rows(self, dataset_id, data_type, location, location_id, stationid, start_date, end_date, result):
         api = 'https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid={dataset_id}' \
