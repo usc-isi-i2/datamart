@@ -9,6 +9,7 @@ from datamart.utilities.utils import Utils
 from datamart.profiler import Profiler
 import typing
 import traceback
+from elasticsearch.exceptions import TransportError
 
 GLOBAL_INDEX_INTERVAL = 10000
 
@@ -82,7 +83,12 @@ class IndexBuilder(object):
         if save_to_file:
             self._save_data(save_to_file=save_to_file, save_mode=save_to_file_mode, metadata=metadata)
 
-        self.im.create_doc(index=es_index, doc_type='_doc', body=metadata, id=metadata['datamart_id'])
+        try:
+            self.im.create_doc(index=es_index, doc_type='_doc', body=metadata, id=metadata['datamart_id'])
+        except Exception as e:
+            if isinstance(e, TransportError):
+                print(e.info)
+            pass
 
         return metadata
 
