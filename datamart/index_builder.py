@@ -147,7 +147,8 @@ class IndexBuilder(object):
                       query_data_for_indexing: bool = False,
                       save_to_file: str = None,
                       save_to_file_mode: str = "a+",
-                      delete_old_es_index: bool = False
+                      delete_old_es_index: bool = False,
+                      backup_indexed_files = False
                       ) -> None:
         """Bulk indexing many dataset by providing a path
 
@@ -161,12 +162,16 @@ class IndexBuilder(object):
             save_to_file: str, a path to the json line file
             save_to_file_mode: str, mode for saving, default "a+"
             delete_old_es_index: bool, boolean if delete original es index if it exist
+            backup_indexed_files: bool, boolean if move indexed dataset schema to description_dir+"_backup".
+                So if indexing procedure breaks (like es connection broke). Can continue indexing the remaining datasets
 
         Returns:
 
         """
 
         self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
+        if backup_indexed_files:
+            os.makedirs(description_dir+"_backup", exist_ok=True)
         for description in os.listdir(description_dir):
             if description.endswith('.json'):
                 description_path = os.path.join(description_dir, description)
@@ -179,6 +184,8 @@ class IndexBuilder(object):
                               query_data_for_indexing=query_data_for_indexing,
                               save_to_file=save_to_file,
                               save_to_file_mode=save_to_file_mode)
+                if backup_indexed_files:
+                    os.rename(description_path, os.path.join(description_dir+"_backup", description))
 
     def _check_es_index(self, es_index: str, delete_old_es_index: bool = False) -> None:
         """Check es index, delete or create if necessary
