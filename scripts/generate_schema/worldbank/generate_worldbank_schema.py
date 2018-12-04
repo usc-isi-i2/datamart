@@ -396,7 +396,7 @@ def generate_json_schema(dst_path):
 
                 "description": "date for which indictor value is returned for a particular country",
                 "semantic_type": ["https://metadata.datadrivendiscovery.org/types/Time"],
-                "temporal_coverage": {"start": "2100", "end": "1950"}
+                "temporal_coverage": {"start": "1950", "end": "2100"}
 
             }
             schema['variables'].append(first_col)
