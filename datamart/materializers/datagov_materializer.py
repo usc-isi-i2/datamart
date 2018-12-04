@@ -5,7 +5,7 @@ import pandas as pd
 import typing
 
 
-class datagov_materializer(MaterializerBase):
+class DatagovMaterializer(MaterializerBase):
     def __init__(self, **kwargs):
         MaterializerBase.__init__(self, **kwargs)
 
@@ -20,7 +20,7 @@ class datagov_materializer(MaterializerBase):
                 constrains: include some constrains like date_range, location and so on
         """
         args = metadata['materialization']['arguments']
-        database = requests.get(args).content
-        df = pd.read_csv(io.StringIO(database.decode('utf-8')))
+        # database = requests.get(args).content
+        df = pd.read_csv(args)
 
         return df
