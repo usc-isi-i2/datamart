@@ -23,6 +23,7 @@ dependencies:
     - bleach==3.0.0
     - chardet==3.0.4
     - click==7.0
+    - cycler==0.10.0
     - decorator==4.3.0
     - defusedxml==0.5.0
     - elasticsearch==6.3.1
@@ -37,11 +38,13 @@ dependencies:
     - itsdangerous==1.1.0
     - jedi==0.13.1
     - jinja2==2.10
+    - jsonlines==1.2.0
     - jsonschema==2.6.0
     - jupyter==1.0.0
     - jupyter-client==5.2.3
     - jupyter-console==6.0.0
     - jupyter-core==4.4.0
+    - kiwisolver==1.0.1
     - langdetect==1.0.7
     - markupsafe==1.0
     - mistune==0.8.3
@@ -61,6 +64,7 @@ dependencies:
     - psycopg2-binary==2.7.5
     - ptyprocess==0.6.0
     - pygments==2.2.0
+    - pyparsing==2.3.0
     - python-dateutil==2.7.3
     - pytz==2018.5
     - pyzmq==17.1.2
