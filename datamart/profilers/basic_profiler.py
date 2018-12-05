@@ -250,9 +250,7 @@ class BasicProfiler(object):
                                                                       calendar.monthrange(default_year, default_month)[
                                                                           1]))
                 return {
-                    "temporal_coverage": {
-                        "start": coverage_start.isoformat(),
-                        "end": coverage_end.isoformat()
-                    }
+                    "start": coverage_start.isoformat(),
+                    "end": coverage_end.isoformat()
                 }
         return None

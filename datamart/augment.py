@@ -1,4 +1,5 @@
 from datamart.es_managers.query_manager import QueryManager
+from datamart.es_managers.cluster_query_manager import ClusterQueryManager
 from datamart.profiler import Profiler
 import pandas as pd
 import typing
@@ -9,7 +10,12 @@ import warnings
 
 class Augment(object):
 
-    def __init__(self, es_index: str, es_host: str = "dsbox02.isi.edu", es_port: int = 9200) -> None:
+    def __init__(self,
+                 es_index: str,
+                 cluster_es_index: str = "datamart_cluster",
+                 es_host: str = "dsbox02.isi.edu",
+                 es_port: int = 9200
+                 ) -> None:
         """Init method of QuerySystem, set up connection to elastic search.
 
         Args:
@@ -22,6 +28,7 @@ class Augment(object):
         """
 
         self.qm = QueryManager(es_host=es_host, es_port=es_port, es_index=es_index)
+        self.cluster_qm = ClusterQueryManager(es_host=es_host, es_port=es_port, es_index=cluster_es_index)
         self.joiners = dict()
         self.profiler = Profiler()
 
@@ -113,6 +120,31 @@ class Augment(object):
         """
 
         return self.qm.search(body=self.qm.match_all(), **kwargs)
+
+    def _query_cluster(self,
+                       col: pd.Series = None,
+                       minimum_should_match_ratio_for_col: float = None,
+                       temporal_coverage_start: str = None,
+                       temporal_coverage_end: str = None,
+                       ):
+
+        queries = list()
+
+        if temporal_coverage_start or temporal_coverage_end:
+            queries.append(
+                self.cluster_qm.match_temporal_coverage(start=temporal_coverage_start, end=temporal_coverage_end)
+            )
+
+        if col is not None:
+            queries.append(
+                self.cluster_qm.match_named_entity(terms=col.unique().tolist(),
+                                                   minimum_should_match=minimum_should_match_ratio_for_col)
+            )
+
+        if not queries:
+            return self.cluster_qm.search(body=self.cluster_qm.match_all())
+
+        return self.cluster_qm.search(body=self.cluster_qm.form_conjunction_query(queries))
 
     def join(self,
              left_df: pd.DataFrame,
