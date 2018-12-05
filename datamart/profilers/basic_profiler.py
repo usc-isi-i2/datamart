@@ -21,7 +21,7 @@ class BasicProfiler(object):
             list of named entities string
         """
 
-        return column.unique().tolist()
+        return column.dropna().unique().tolist()
 
     @staticmethod
     def named_entity_column_recognize(column: pd.Series) -> bool:
