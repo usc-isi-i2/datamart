@@ -43,8 +43,8 @@ class NonCategoricalNumberFeature(FeatureBase):
     Non categorical number feature, compare similarity by how different the two values are .
 
     """
-    def __init__(self, dfw: DataFrameWrapper, indexes):
-        super().__init__(dfw, indexes)
+    def __init__(self, df: pd.DataFrame, indexes, metadata, distribute_type, data_type):
+        super().__init__(df, indexes, metadata, distribute_type, data_type)
         # TODO: calc the properties below(or copy from profiler info in metadata)
         self._number_type = NumberType.FLOAT
         self._min_value = 0
@@ -93,8 +93,8 @@ class NonCategoricalStringFeature(SpaceJoinFeature):
         StringType.OTHER: []
     }
 
-    def __init__(self, dfw: DataFrameWrapper, indexes):
-        super().__init__(dfw, indexes)
+    def __init__(self, df: pd.DataFrame, indexes, metadata, distribute_type, data_type):
+        super().__init__(df, indexes, metadata, distribute_type, data_type)
         # TODO: calc the properties below(or copy from profiler info in metadata)
         self._string_type = StringType.WORD
         # more profiled info needed ...
@@ -109,8 +109,8 @@ class DatetimeFeature(FeatureBase):
     TODO
     """
 
-    def __init__(self, dfw: DataFrameWrapper, indexes):
-        super().__init__(dfw, indexes)
+    def __init__(self, df: pd.DataFrame, indexes, metadata, distribute_type, data_type):
+        super().__init__(df, indexes, metadata, distribute_type, data_type)
         self._resolution = DatetimeResolution.HOUR
 
     def value_merge_func(self, record):
