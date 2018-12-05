@@ -171,7 +171,7 @@ class GlobalMetadata(MetadataBase):
         return self._metadata["materialization"]
 
     @property
-    def variables(self):
+    def variables(self) -> typing.List[VariableMetadata]:
         return self._variables
 
     @property
@@ -185,3 +185,11 @@ class GlobalMetadata(MetadataBase):
     @license.setter
     def license(self, value):
         self._metadata["license"] = value
+
+    @property
+    def temporal_coverage(self):
+        return self._metadata.get("temporal_coverage", False)
+
+    @temporal_coverage.setter
+    def temporal_coverage(self, value):
+        self._metadata["temporal_coverage"] = value

@@ -29,7 +29,7 @@ class Utils:
         "variables": []
     }
 
-    MATERIALIZATION_TIME_OUT = 300
+    MATERIALIZATION_TIME_OUT = 120
 
     CATEGORICAL_COLUMN_THRESHOLD = 0.2
 
@@ -47,7 +47,8 @@ class Utils:
         """
 
         try:
-            this_datetime = dateutil.parser.parse(date_text)
+            default_datetime = dateutil.parser.parse(date_text)
+            this_datetime = dateutil.parser.parse(date_text, default=datetime(default_datetime.year, 1, 1))
         except ValueError:
             warnings.warn("Incorrect datetime format")
             return None

@@ -148,7 +148,7 @@ class IndexBuilder(object):
                       save_to_file: str = None,
                       save_to_file_mode: str = "a+",
                       delete_old_es_index: bool = False,
-                      backup_indexed_files = False
+                      backup_indexed_files: bool = False
                       ) -> None:
         """Bulk indexing many dataset by providing a path
 

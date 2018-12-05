@@ -4,6 +4,8 @@ import typing
 from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.metadata.global_metadata import GlobalMetadata
 from pandas.api.types import is_object_dtype
+from datetime import datetime
+import calendar
 
 
 class BasicProfiler(object):
@@ -221,4 +223,36 @@ class BasicProfiler(object):
         if not global_metadata.keywords:
             global_metadata.keywords = cls.construct_global_keywords(data)
 
+        temporal_coverage = None
+        if global_metadata.implicit_variables:
+            temporal_coverage = cls.get_temporal_coverage_from_implicit_variable(global_metadata.implicit_variables)
+        if not temporal_coverage:
+            for variable in global_metadata.variables:
+                if variable.temporal_coverage:
+                    temporal_coverage = variable.temporal_coverage
+                    break
+        if temporal_coverage:
+            global_metadata.temporal_coverage = temporal_coverage
+
         return global_metadata
+
+    @staticmethod
+    def get_temporal_coverage_from_implicit_variable(implicit_variables):
+        for implicit_variable in implicit_variables:
+            if "https://metadata.datadrivendiscovery.org/types/Time" in implicit_variable.get("semantic_type", []):
+                default_year = dateutil.parser.parse(implicit_variable["value"]).year
+                coverage_start = dateutil.parser.parse(implicit_variable["value"],
+                                                       default=datetime(default_year, 1, 1))
+                default_month = dateutil.parser.parse(implicit_variable["value"],
+                                                      default=datetime(default_year, 12, 1)).month
+                coverage_end = dateutil.parser.parse(implicit_variable["value"],
+                                                     default=datetime(default_year, default_month,
+                                                                      calendar.monthrange(default_year, default_month)[
+                                                                          1]))
+                return {
+                    "temporal_coverage": {
+                        "start": coverage_start.isoformat(),
+                        "end": coverage_end.isoformat()
+                    }
+                }
+        return None
