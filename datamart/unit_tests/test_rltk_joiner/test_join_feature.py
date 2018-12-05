@@ -1,9 +1,6 @@
 import unittest
-from datamart.joiners.joiner_base import DefaultJoiner, JoinerPrepare
-import pandas as pd
-from pandas.testing import assert_frame_equal
 from datamart.utilities.utils import Utils
-from datamart.joiners.join_feature.feature_factory import *
+from datamart.joiners.join_feature.feature_pairs import *
 from io import StringIO
 from datamart.profilers.dsbox_profiler import DSboxProfiler
 
@@ -24,6 +21,18 @@ class TestJoinFeature(unittest.TestCase):
                           '12,05,2018,chicago,58.8'])
         self.df2 = pd.read_csv(StringIO(raw2))
 
+        dsbox_profiler = DSboxProfiler()
+        self.meta1 = dsbox_profiler.profile(inputs=self.df1, metadata={
+            'variables': [
+                {'semantic_type': ['http://schema.org/Date']},
+                {}, {}, {}, {}]})
+        self.meta2 = dsbox_profiler.profile(inputs=self.df2, metadata={
+            'variables': [
+                {'semantic_type': ['http://schema.org/Month']},
+                {'semantic_type': ['http://schema.org/Day']},
+                {'semantic_type': ['http://schema.org/Year']},
+                {}, {}]})
+
     @Utils.test_print
     def test_feature_base(self):
         fb1 = FeatureBase(df=self.df1,
@@ -32,7 +41,7 @@ class TestJoinFeature(unittest.TestCase):
                           distribute_type=DistributeType.NON_CATEGORICAL,
                           data_type=DataType.DATETIME)
         result1 = [fb1.data_type, fb1.distribute_type, fb1.multi_column, fb1.metadata, fb1.name]
-        expected1 = [DataType.DATETIME, DistributeType.NON_CATEGORICAL, False, {}, "date"]
+        expected1 = [DataType.DATETIME, DistributeType.NON_CATEGORICAL, False, {}, 'date']
 
         fb2 = FeatureBase(df=self.df2,
                           indexes=[0, 1, 2],
@@ -40,30 +49,36 @@ class TestJoinFeature(unittest.TestCase):
                           distribute_type=DistributeType.NON_CATEGORICAL,
                           data_type=DataType.DATETIME)
         result2 = [fb2.data_type, fb2.distribute_type, fb2.multi_column, fb2.metadata, fb2.name]
-        expected2 = [DataType.DATETIME, DistributeType.NON_CATEGORICAL, True, {}, "month|day|year"]
+        expected2 = [DataType.DATETIME, DistributeType.NON_CATEGORICAL, True, {}, 'month|day|year']
 
         self.assertEqual(result1, expected1)
         self.assertEqual(result2, expected2)
 
     @Utils.test_print
     def test_feature_factory(self):
-        dsbox_profiler = DSboxProfiler()
-        meta1 = dsbox_profiler.profile(inputs=self.df1, metadata={
-            'variables': [
-                {'semantic_type': ['http://schema.org/Date']},
-                {}, {}, {}, {}]})
-        # meta2 = dsbox_profiler.profile(inputs=self.df2, metadata={
-        #     'variables': [
-        #         {'semantic_type': ['http://schema.org/Month']},
-        #         {'semantic_type': ['http://schema.org/Day']},
-        #         {'semantic_type': ['http://schema.org/Year']},
-        #         {}, {}]})
-        print(meta1)
+        expected_feature_classes = [DatetimeFeature, CategoricalStringFeature, NonCategoricalNumberFeature,
+                                    NonCategoricalStringFeature, CategoricalNumberFeature]
         indexes_list = [[0], [1], [2], [3], [4]]
-        feature_classes = [DatetimeFeature, CategoricalStringFeature, NonCategoricalNumberFeature,
-                           NonCategoricalStringFeature, CategoricalNumberFeature]
         for i in range(len(indexes_list)):
-            feature = FeatureFactory.create(self.df1, indexes_list[i], meta1)
-            self.assertIsInstance(feature, feature_classes[i])
+            feature = FeatureFactory.create(self.df1, indexes_list[i], self.meta1)
+            self.assertIsInstance(feature, expected_feature_classes[i])
+
+    @Utils.test_print
+    def test_feature_pairs(self):
+        # TODO: correctness for multi-column feature("month|day|year" here), after implementation
+        expected_names = iter([('date', 'month|day|year'), ('city', 'city')])
+        expected_types = iter([(DatetimeFeature, CategoricalStringFeature),
+                               (CategoricalStringFeature, NonCategoricalStringFeature)])
+        fp = FeaturePairs(left_df=self.df1,
+                          right_df=self.df2,
+                          left_columns=[[0], [1]],
+                          right_columns=[[0, 1, 2], [3]],
+                          left_metadata=self.meta1,
+                          right_metadata=self.meta2)
+        for left, right in fp:
+            names = (left.name, right.name)
+            types = (type(left), type(right))
+            self.assertEqual(names, next(expected_names))
+            self.assertEqual(types, next(expected_types))
 
 

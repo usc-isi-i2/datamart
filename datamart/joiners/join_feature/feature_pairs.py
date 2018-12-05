@@ -19,6 +19,8 @@ class FeaturePairs:
             # TODO: throw error or warning
             return
 
+        self._length = l1
+
         self._left_df = left_df
         self._right_df = right_df
         self._left_columns = left_columns
@@ -29,12 +31,13 @@ class FeaturePairs:
         self._left_rltk_dataset = self.init_rltk_dataset(left_df, left_columns)
         self._right_rltk_dataset = self.init_rltk_dataset(right_df, right_columns)
 
-        self._length = l1
-
     def __len__(self):
         return self._length
 
-    def __next__(self):
+    def __iter__(self):
+        return self.__next__()
+
+    def __next__(self) -> (FeatureBase, FeatureBase):
         for i in range(self._length):
             yield FeatureFactory.create(self._left_df, self._left_columns[i], self._left_metadata),\
                   FeatureFactory.create(self._right_df, self._right_columns[i], self._right_metadata)
