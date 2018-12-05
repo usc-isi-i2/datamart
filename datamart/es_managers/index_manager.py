@@ -41,19 +41,29 @@ class IndexManager(ESManager):
         Returns:
 
         """
-        mapping = '''
-        {  
-          "mappings":{  
-            "_doc": { 
-              "properties": { 
-                "variables": {
-                  "type": "nested"
+        mapping = {
+            "settings": {
+                "index.mapping.ignore_malformed": True
+            },
+            "mappings": {
+                "_doc": {
+                    "properties": {
+                        "variables": {
+                            "type": "nested"
+                        },
+                        "additional_info": {
+                            "type": "object",
+                            "properties": {
+                                "extras": {
+                                    "enabled": False
+                                }
+                            }
+                        }
+                    }
                 }
-              }
             }
-          }
-        }'''
-        self.es.indices.create(**kwargs, body=mapping)
+        }
+        self.es.indices.create(**kwargs, body=json.dumps(mapping))
 
     def delete_index(self, **kwargs) -> None:
         """delete index
