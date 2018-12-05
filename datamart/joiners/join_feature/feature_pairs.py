@@ -28,29 +28,38 @@ class FeaturePairs:
         self._left_metadata = left_metadata
         self._right_metadata = right_metadata
 
-        self._left_rltk_dataset = self.init_rltk_dataset(left_df, left_columns)
-        self._right_rltk_dataset = self.init_rltk_dataset(right_df, right_columns)
+        self._left_rltk_dataset = self._init_rltk_dataset(left_df, left_columns)
+        self._right_rltk_dataset = self._init_rltk_dataset(right_df, right_columns)
+
+        self._pairs = self._init_pairs()
+
+    @property
+    def left_rltk_dataset(self):
+        return self._left_rltk_dataset
+
+    @property
+    def right_rltk_dataset(self):
+        return self._right_rltk_dataset
+
+    @property
+    def pairs(self):
+        return self._pairs
 
     def __len__(self):
         return self._length
 
-    def __iter__(self):
-        return self.__next__()
+    def _init_pairs(self):
+        return [(FeatureFactory.create(self._left_df, self._left_columns[i], self._left_metadata),
+        FeatureFactory.create(self._right_df, self._right_columns[i], self._right_metadata)) for i in range(self._length)]
 
-    def __next__(self) -> (FeatureBase, FeatureBase):
-        for i in range(self._length):
-            yield FeatureFactory.create(self._left_df, self._left_columns[i], self._left_metadata),\
-                  FeatureFactory.create(self._right_df, self._right_columns[i], self._right_metadata)
-
-    def init_rltk_dataset(self, df, columns):
+    def _init_rltk_dataset(self, df, columns):
         all_headers = list(df.columns.values)
         properties = {'id':  property(lambda _self: str(_self.raw_object['dataframe_default_index']))}
 
         for i in range(self._length):
             headers = [all_headers[_] for _ in columns[i]]
             merged_header = merge_headers(headers)
-            properties[merged_header] = property(lambda _self: ''.join([_self.raw_object[header] for header in headers]))
+            properties[merged_header] = property(lambda _self: [_self.raw_object[header] for header in headers])
         record_class = type('SubClass', (rltk.Record,), properties)
         rltk_dataset = rltk.Dataset(reader=DataFrameReader(df, True), record_class=record_class)
         return rltk_dataset
-

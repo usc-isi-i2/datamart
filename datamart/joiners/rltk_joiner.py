@@ -1,7 +1,6 @@
 import pandas as pd
 import typing
-from datamart.joiners.joiner_base import JoinerBase
-from datamart.joiners.dataframe_wrapper import DataFrameWrapper
+from datamart.joiners.join_feature.feature_pairs import FeaturePairs
 import rltk
 from rltk.similarity.levenshtein import levenshtein_similarity
 
@@ -10,13 +9,6 @@ from rltk.similarity.levenshtein import levenshtein_similarity
 TODO
 Implement RLTK joiner
 """
-
-
-def get_feature_pairs(dfw1: DataFrameWrapper, dfw2: DataFrameWrapper):
-    l1 = len(dfw1.merged_columns_headers)
-    l2 = len(dfw2.merged_columns_headers)
-    if l1 == l2:
-        return [(dfw1.merged_columns_headers[i], dfw2.merged_columns_headers[i]) for i in range(l1)]
 
 
 class RLTKJoiner(JoinerBase):
@@ -40,20 +32,26 @@ class RLTKJoiner(JoinerBase):
         2. pull out the mapped columns and form to new datasets with same order to support
         """
 
-        left = DataFrameWrapper(left_df, left_columns, left_metadata)
-        right = DataFrameWrapper(right_df, right_columns, right_metadata)
+        fp = FeaturePairs(left_df, right_df, left_columns, right_columns, left_metadata, right_metadata)
+        record_pairs = rltk.get_record_pairs(fp.left_rltk_dataset, fp.right_rltk_dataset):
 
-        pairs = rltk.get_record_pairs(left.rltk_dataset, right.rltk_dataset)
-        headers = get_feature_pairs(left, right)
-        for r1, r2 in pairs:
-            for h1, h2 in headers:
-                print(h1, h2)
-                print('levenshtein_similarity:', levenshtein_similarity(getattr(r1, h1), getattr(r2, h2)))
+
+
+
+        # left = DataFrameWrapper(left_df, left_columns, left_metadata)
+        # right = DataFrameWrapper(right_df, right_columns, right_metadata)
+        #
+        # pairs = rltk.get_record_pairs(left.rltk_dataset, right.rltk_dataset)
+        # headers = get_feature_pairs(left, right)
+        # for r1, r2 in pairs:
+        #     for h1, h2 in headers:
+        #         print(h1, h2)
+        #         print('levenshtein_similarity:', levenshtein_similarity(getattr(r1, h1), getattr(r2, h2)))
 
 
         # step 2 : analyze target columns - get ranked similarity functions for each columns
         """
-        see https://paper.dropbox.com/doc/ER-for-Datamart--ASlKtpR4ceGaj~6cN4Q7EWoSAQ-tRug6oRX6g5Ko5jzaeynT 
+        see https://paper.dropbox.com/doc/ER-for-Datamart--ASlKtpR4ceGaj~6cN4Q7EWoSAQ-tRug6oRX6g5Ko5jzaeynT
         """
 
 

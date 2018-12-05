@@ -2,40 +2,21 @@ from datamart.joiners.join_feature.feature_base import *
 from rltk.similarity import *
 
 
-class StrictMatchFeature(FeatureBase):
-    """
-    Features that do not need similarity functions; think two values are same only when they are identical .
-
-    """
-    def similarity_functions(self):
-        yield lambda left, right: 1 if left == right else 0
-
-
-class SpaceJoinFeature(FeatureBase):
-    """
-    If the feature is combined by multiple columns, simply join the column values to string by spaces .
-
-    """
-    def value_merge_func(self, record: dict):
-        return ' '.join(super().value_merge_func(record))
-
-
-class CategoricalNumberFeature(StrictMatchFeature, SpaceJoinFeature):
+class CategoricalNumberFeature(FeatureBase):
     pass
 
 
-class CategoricalStringFeature(StrictMatchFeature, SpaceJoinFeature):
+class CategoricalStringFeature(FeatureBase):
     pass
 
 
-class CategoricalTokenFeature(SpaceJoinFeature):
+class CategoricalTokenFeature(FeatureBase):
     """
     Categorical on tokens of feature values, rather than on feature values, then run set based similarity .
 
     """
     def similarity_functions(self):
-        for similarity_function in [jaccard, cosine]:
-            yield similarity_function
+        return [jaccard, cosine]
 
 
 class NonCategoricalNumberFeature(FeatureBase):
@@ -68,22 +49,22 @@ class NonCategoricalNumberFeature(FeatureBase):
     def sigma(self):
         return self._sigma
 
-    def value_merge_func(self, record: dict):
+    def value_merge_func(self, record_values: list):
         """
         sum the values
         TODO: how to merge?
         """
-        return sum(super().value_merge_func(record))
+        return sum(record_values)
 
     def similarity_functions(self):
         def similarity_function(left, right):
             # TODO: calc a convert from differences to similarity by the range/variance etc
             diff = abs(left-right)/self.max_minus_min
             return pow((1 - diff), self.sigma)
-        yield similarity_function
+        return [similarity_function]
 
 
-class NonCategoricalStringFeature(SpaceJoinFeature):
+class NonCategoricalStringFeature(FeatureBase):
     # TODO: if self.multi_column = True, only use set based similarity
     function_mapping = {
         StringType.WORD: [levenshtein_similarity, jaro_winkler_similarity, ngram_similarity],
@@ -100,8 +81,7 @@ class NonCategoricalStringFeature(SpaceJoinFeature):
         # more profiled info needed ...
 
     def similarity_functions(self):
-        for similarity_function in NonCategoricalStringFeature.function_mapping[self._string_type]:
-            yield similarity_function
+        return NonCategoricalStringFeature.function_mapping[self._string_type]
 
 
 class DatetimeFeature(FeatureBase):
@@ -112,9 +92,3 @@ class DatetimeFeature(FeatureBase):
     def __init__(self, df: pd.DataFrame, indexes, metadata, distribute_type, data_type):
         super().__init__(df, indexes, metadata, distribute_type, data_type)
         self._resolution = DatetimeResolution.HOUR
-
-    def value_merge_func(self, record):
-        return '\t'.join([record[header] for header in self._headers])
-
-    def similarity_functions(self):
-        yield lambda left, right: 1 if left == right else 0

@@ -89,7 +89,7 @@ class FeatureBase(object):
         """
         return self._name
 
-    def value_merge_func(self, record: dict):
+    def value_merge_func(self, record_values: list):
         """
         Define the function to map the multiple columns values to a single feature value. Only useful when \
         self.multi_column is True
@@ -101,18 +101,14 @@ class FeatureBase(object):
         Returns: merged value as the feature value for joining
 
         """
-        return [record[header] for header in self._headers]
+        return ' '.join(record_values)
 
     def similarity_functions(self):
         """
         Define which similarity functions should be use when compare two values of this feature, the order is \
         representing the priorities of different similarity functions .
 
-        Returns: functions generator
+        Returns: list of functions
 
         """
-        pass
-
-
-
-
+        return [lambda left, right: 1 if left == right else 0]
