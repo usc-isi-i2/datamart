@@ -263,34 +263,52 @@ class TestUtils(unittest.TestCase):
     @Utils.test_print
     def test_generate_metadata_from_dataframe(self):
         expected = {
-            'datamart_id': None,
-            'materialization': {
-                'python_path': 'default_materializer', 'arguments': None
+            "datamart_id": None,
+            "materialization": {
+                "python_path": "default_materializer",
+                "arguments": None
             },
-            'variables': [
+            "variables": [
                 {
-                    'datamart_id': None,
-                    'semantic_type': [],
-                    'name': 'Age',
-                    'description': 'column name: Age, dtype: int64'
+                    "datamart_id": None,
+                    "semantic_type": [],
+                    "name": "Age",
+                    "description": "column name: Age, dtype: int64"
                 },
                 {
-                    'datamart_id': None,
-                    'semantic_type': [],
-                    'name': 'Date',
-                    'description': 'column name: Date, dtype: object',
-                    'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2023-02-13T00:00:00'}
+                    "datamart_id": None,
+                    "semantic_type": [],
+                    "name": "Date",
+                    "description": "column name: Date, dtype: object",
+                    "temporal_coverage": {
+                        "start": "2014-02-23T00:00:00",
+                        "end": "2023-02-13T00:00:00"
+                    }
                 },
                 {
-                    'datamart_id': None,
-                    'semantic_type': [],
-                    'name': 'Name',
-                    'description': 'column name: Name, dtype: object',
-                    'named_entity': ['Tom', 'Jack', 'Steve', 'Ricky']
+                    "datamart_id": None,
+                    "semantic_type": [],
+                    "name": "Name",
+                    "description": "column name: Name, dtype: object",
+                    "named_entity": [
+                        "Tom",
+                        "Jack",
+                        "Steve",
+                        "Ricky"
+                    ]
                 }
             ],
-            'title': 'Age Date Name',
-            'description': 'Age : int64, Date : object, Name : object',
-            'keywords': ['Age', 'Date', 'Name']
+            "title": "Age Date Name",
+            "description": "Age : int64, Date : object, Name : object",
+            "keywords": [
+                "Age",
+                "Date",
+                "Name"
+            ],
+            "temporal_coverage": {
+                "start": "2014-02-23T00:00:00",
+                "end": "2023-02-13T00:00:00"
+            }
         }
+        print(json.dumps(Utils.generate_metadata_from_dataframe(data=self.df), indent=2))
         self.assertEqual(Utils.generate_metadata_from_dataframe(data=self.df), expected)

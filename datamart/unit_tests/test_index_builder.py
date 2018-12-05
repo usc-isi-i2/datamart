@@ -295,30 +295,55 @@ class TestIndexBuilder(unittest.TestCase):
         )
 
         expected = {
-            'datamart_id': 20000,
-            'title': 'city date',
-            'description': 'city : object, date : object',
-            'url': 'https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/readme.txt',
-            'keywords': ['Average Temperature.'],
-            'date_updated': '2018-09-28T00:00:00',
-            'provenance': {"resource": "noaa.org"},
-            'materialization': {'python_path': 'noaa_materializer', 'arguments': {'type': 'TAVG'}},
-            'variables': [
+            "datamart_id": 20000,
+            "url": "https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/readme.txt",
+            "keywords": [
+                "Average Temperature."
+            ],
+            "date_updated": "2018-09-28T00:00:00",
+            "provenance": {
+                "resource": "noaa.org"
+            },
+            "materialization": {
+                "python_path": "noaa_materializer",
+                "arguments": {
+                    "type": "TAVG"
+                }
+            },
+            "variables": [
                 {
-                    'datamart_id': 20001,
-                    'name': 'city',
-                    'description': 'the city data belongs to',
-                    'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Location'],
-                    'named_entity': ['abu dhabi', 'ajman', 'dubai', 'sharjah']
+                    "datamart_id": 20001,
+                    "name": "city",
+                    "description": "the city data belongs to",
+                    "semantic_type": [
+                        "https://metadata.datadrivendiscovery.org/types/Location"
+                    ],
+                    "named_entity": [
+                        "abu dhabi",
+                        "ajman",
+                        "dubai",
+                        "sharjah"
+                    ]
                 },
                 {
-                    'datamart_id': 20002,
-                    'name': 'date',
-                    'description': 'the date of data',
-                    'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Time'],
-                    'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2023-02-13T00:00:00'}
+                    "datamart_id": 20002,
+                    "name": "date",
+                    "description": "the date of data",
+                    "semantic_type": [
+                        "https://metadata.datadrivendiscovery.org/types/Time"
+                    ],
+                    "temporal_coverage": {
+                        "start": "2014-02-23T00:00:00",
+                        "end": "2023-02-13T00:00:00"
+                    }
                 }
-            ]
+            ],
+            "title": "city date",
+            "description": "city : object, date : object",
+            "temporal_coverage": {
+                "start": "2014-02-23T00:00:00",
+                "end": "2023-02-13T00:00:00"
+            }
         }
 
         self.assertEqual(global_metadata, expected)
@@ -337,14 +362,17 @@ class TestIndexBuilder(unittest.TestCase):
         )
 
         expected = {
-            'datamart_id': 20000,
-            'materialization': {'python_path': 'noaa_materializer', 'arguments': None},
-            'variables': [
+            "datamart_id": 20000,
+            "materialization": {
+                "python_path": "noaa_materializer",
+                "arguments": None
+            },
+            "variables": [
                 {
-                    'datamart_id': 20001,
-                    'semantic_type': [],
-                    'name': 'city',
-                    'description': 'column name: city, dtype: object',
+                    "datamart_id": 20001,
+                    "semantic_type": [],
+                    "name": "city",
+                    "description": "column name: city, dtype: object",
                     "named_entity": [
                         "abu dhabi",
                         "ajman",
@@ -353,16 +381,25 @@ class TestIndexBuilder(unittest.TestCase):
                     ]
                 },
                 {
-                    'datamart_id': 20002,
-                    'semantic_type': [],
-                    'name': 'date',
-                    'description': 'column name: date, dtype: object',
-                    'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2023-02-13T00:00:00'}
+                    "datamart_id": 20002,
+                    "semantic_type": [],
+                    "name": "date",
+                    "description": "column name: date, dtype: object",
+                    "temporal_coverage": {
+                        "start": "2014-02-23T00:00:00",
+                        "end": "2023-02-13T00:00:00"
+                    }
                 }
             ],
-            'title': 'city date',
-            'description': 'city : object, date : object',
-            'keywords': ['city', 'date']
+            "title": "city date",
+            "description": "city : object, date : object",
+            "keywords": [
+                "city",
+                "date"
+            ],
+            "temporal_coverage": {
+                "start": "2014-02-23T00:00:00",
+                "end": "2023-02-13T00:00:00"
+            }
         }
-
         self.assertEqual(global_metadata, expected)
