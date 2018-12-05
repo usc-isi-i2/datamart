@@ -1,7 +1,7 @@
 
 from datamart.joiners.join_feature.feature_classes import *
 from functools import reduce
-from collections import Counter
+import numpy as np
 
 
 class FeatureFactory:

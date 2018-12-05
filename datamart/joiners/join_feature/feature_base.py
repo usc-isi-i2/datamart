@@ -1,6 +1,9 @@
 from enum import Enum
-import numpy as np
 import pandas as pd
+
+
+def merge_headers(headers):
+    return '|'.join(headers)
 
 
 class DistributeType(Enum):
@@ -56,7 +59,7 @@ class FeatureBase(object):
 
         self._multi_column = False if len(indexes) == 1 else True
         self._headers = [df.iloc[:, i].name for i in indexes]
-        self._name = '|'.join(self._headers)
+        self._name = merge_headers(self._headers)
 
         self._distribute_type = distribute_type
         self._data_type = data_type
