@@ -33,14 +33,14 @@ def articles_with_tables(lang='en', download='recent'):
 		articles = {a[0][1:-1].replace('\\"', '"'): int(a[1]) for a in articles}
 	return articles
 
-def tables(article, lang='en', store_result=False, xpath=None):
+def tables(article, lang='en', store_result=False, xpath=None, cache_time=24 * 3600):
 	''' Given a Wikipedia article name or URL, returns a list of Tables. '''
 	if article.startswith('http'):
 		url = article
 	else:
 		url = f'https://{lang}.wikipedia.org/wiki/{article.replace(" ", "_")}'
 	url = url.split('#', 1)[0]
-	document = get_with_render(url, SELECTOR_ROOT)
+	document = cache(get_with_render, (url, SELECTOR_ROOT), identifier=url)
 	document = soup(document, 'html.parser')
 	article = document.title.text.rsplit('-', 1)[0].strip()
 	res = []

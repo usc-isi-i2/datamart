@@ -4,7 +4,6 @@ from bz2 import BZ2File
 from collections import Counter, OrderedDict
 from copy import deepcopy
 from datetime import datetime as dt, timedelta
-from dateutil.parser import parse as parse_date
 try:
     from etk.extractors.date_extractor import DateExtractor
 except OSError:
@@ -101,7 +100,10 @@ if (document.readyState == 'complete') {
 # --- import directives -------------------------------------------------------
 
 makedirs(PATH_RESOURCES, exist_ok=True)
-nltk_download('stopwords')
+try:
+    stopwords.words("english")
+except:
+    nltk_download('stopwords')
 
 # --- format ------------------------------------------------------------------
 
@@ -192,7 +194,6 @@ def get_driver(headless=True, disable_images=True, open_links_same_tab=False):
     ''' Returns a Firefox webdriver, and run one if there is no any active. '''
     global _driver
     if _driver == None:
-        print('Loading Firefox driver')
         opts = Options()
         opts.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', 'false')
         if open_links_same_tab:
@@ -305,14 +306,10 @@ def binarize_categorical(vectors):
 _find_dates_extractor = DateExtractor()
 def find_dates(text):
     try:
-        return parse_date(text, fuzzy_with_tokens=True)[0]
-    except:
-        pass
-    try:
         res = _find_dates_extractor.extract(text, prefer_language_date_order=False)
         if len(res): return res[0].value
     except:
-        log('info', f'ETK DateExtractor raised an error on value {text}.')
+        log('info', f'ETK DateExtractor raised an error on value {text}. Using RegEx fallback instead.')
 
 _find_entities_extractor = SpacyNerExtractor('dummy_parameter')
 def find_entities(text):

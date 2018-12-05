@@ -51,8 +51,8 @@ def segmentate(table):
 				cell_feats = extract_features(cell)
 				del cell_feats['width']
 				del cell_feats['height']
-				cell_feats['rowspan'] /= len(elements)
-				cell_feats['colspan'] /= len(elements[0])
+				cell_feats['rowspan'] = max(0, min(1, cell_feats['rowspan'] / len(elements)))
+				cell_feats['colspan'] = max(0, min(1, cell_feats['colspan'] / len(elements[0])))
 			row_data.append(cell_feats)
 			row_text.append(' '.join(t.strip() for t in cell.find_all(text=True)).strip())
 		features.append(row_data)
@@ -472,22 +472,32 @@ class Table:
 		least min_majority of the values are of that type. '''
 		lang = self.url.split('.', 1)[0].split('/')[-1]
 		pg = Wikipedia(lang).page(self.url.rsplit('/', 1)[-1])
-		kws = [kw.lower().split(':')[-1] for kw in pg.categories]
-		kws = [kw for kw in kws if not any(c in kw for c in WIKIPEDIA_IGNORE_CATEGORIES)]
-		kws = set(word for kw in kws for word in findall(r'\w+', kw) if not len(FIND_STOPWORDS(kw)))
+		try:
+			date_updated = pg.touched
+		except:
+			date_updated = dt.now().strftime('%Y-%m-%mT%H:%M:%SZ')
+		try:
+			kws = [kw.lower().split(':')[-1] for kw in pg.categories]
+			kws = [kw for kw in kws if not any(c in kw for c in WIKIPEDIA_IGNORE_CATEGORIES)]
+			kws = set(word for kw in kws for word in findall(r'\w+', kw) if not len(FIND_STOPWORDS(kw)))
+		except:
+			kws = []
+		try:
+			description = pg.summary.split('\n', 1)[0]
+		except:
+			description = ''
 		res = {
-			"title": self.contextual_info[0] if len(self.contextual_info) else '',
-			"description": pg.summary.split('\n', 1)[0],
+			"title": self.contextual_info['r0'] if 'r0' in self.contextual_info else '',
+			"description": description,
 			"url": self.url,
 			"keywords": list(kws),
-			"date_updated": pg.touched,
+			"date_updated": date_updated,
 			"provenance": "wikipedia.org",
 			"materialization": {
 				"python_path": "wikitables_materializer",
 				"arguments": {
 					"url": self.url,
-					"xpath": self.xpath,
-					"materialize": True,
+					"xpath": self.xpath
 				}
 			}
 		}
@@ -505,12 +515,12 @@ class Table:
 			if len(locations) >= min_sample:
 				var['semantic_type'].append('https://metadata.datadrivendiscovery.org/types/Location')
 			people = [v for v, t in entities.items() if t == 'PERSON']
-			if len(people):
+			if len(people) >= min_sample:
 				var['semantic_type'].append('https://schema.org/Person')
 			if len(entities) >= min_sample:
 				var['named_entity'] = list(entities.keys())
 			numbers = [float(n) for n in values if n.strip().replace('.', '', 1).isdigit()]
-			ranges = [n for n in values if BOOLEAN_SYNTAX_PROPERTIES['range'](n) is not None]
+			ranges = [n for n in values if BOOLEAN_SYNTAX_PROPERTIES['match-range'](n) is not None]
 			if len(numbers) >= min_sample:
 				var['semantic_type'].append('http://schema.org/Float')
 			elif len(ranges) >= min_sample:
