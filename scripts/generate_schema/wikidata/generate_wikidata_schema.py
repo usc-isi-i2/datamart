@@ -8,8 +8,8 @@ from pprint import pprint
 import re
 
 
-template_path = "../json_template/desc_template.json"
-source_value_schema_path = "../json_template/source_value_description_schema.json"
+template_path = "./json_template/desc_template.json"
+source_value_schema_path = "./json_template/source_value_description_schema.json"
 
 
 def read_args():
@@ -273,5 +273,5 @@ if __name__ == '__main__':
             with open('decription_' + property +'.json', 'w') as f:
                 f.write(w_str)
         except Exception as e:
-            with open('generate_property.log', 'a') as f:
-                f.write("Failed to generate description.json for property " + property)
+            with open('generate_property.log', 'a+') as f:
+                f.write("Failed to generate description.json for property " + property + "\n" + str(e) + "\n")
