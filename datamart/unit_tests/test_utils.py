@@ -310,5 +310,4 @@ class TestUtils(unittest.TestCase):
                 "end": "2023-02-13T00:00:00"
             }
         }
-        print(json.dumps(Utils.generate_metadata_from_dataframe(data=self.df), indent=2))
         self.assertEqual(Utils.generate_metadata_from_dataframe(data=self.df), expected)
