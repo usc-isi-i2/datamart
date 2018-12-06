@@ -61,6 +61,16 @@ class Augment(object):
             matching docs of metadata
         """
 
+        """
+        TODO: hit cluster first then move forward to dataset metadata
+        """
+        # hitted_clusters = self._query_cluster(
+        #     col=col,
+        #     minimum_should_match_ratio_for_col=minimum_should_match_ratio_for_col,
+        #     temporal_coverage_start=temporal_coverage_start,
+        #     temporal_coverage_end=temporal_coverage_end
+        # )
+
         queries = list()
 
         if query_string:
