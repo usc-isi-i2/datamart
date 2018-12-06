@@ -4,6 +4,12 @@
 
 ```commandline
 cd datamart
+```
+
+if you are using linux, refer here to remove 2 lines:
+https://github.com/conda/conda/issues/6073#issuecomment-393200362
+
+```
 conda env create -f environment.yml
 source activate datamart_env
 git update-index --assume-unchanged datamart/resources/index_info.json
@@ -24,42 +30,26 @@ $ Valid json
 
 ## How to provide index for one data source
 
-1. Prepare your dataset schema and validate it with the previous step
+1. Prepare your dataset schema following [datamart index schema](https://paper.dropbox.com/doc/Datamart-Index-Schema--ARZ9ANxCYpvOOfTKxXGE9MI1Ag-0Uu03rDIUCttwS0x9GLCq)
+ and validate it with the previous step
 
 2. Create your materialization method by creating a subclass of [`materializer_base.py`](./datamart/materializers/materializer_base.py).
-and put in `datamart/materializers`.
-
-    Implement `get(self, metadata: dict = None, variables: typing.List[int] = None, constrains: dict = None) -> pd.DataFrame` method,
-    
-    metadata is the metadata after processing your dataset schema (profiling and so on).
-    `materialization` field will not be changed, so put every arguments you need for materializing your dataset at `materialization.arguments`
-    
-    variables, default to None for now
-    
-    constrains, fake some constrains for your dataset for querying, eg. 
-    ```
-    constrains={
-        "locations": ["los angeles", "new york"],
-        "date_range": {
-            "start": "2018-09-23T00:00:00",
-            "end": "2018-10-01T00:00:00"
-        }
-    }
-    ```
-    
-    returns a dataframe
-   
-    take a look at [noaa_materializer.py](./datamart/materializers/noaa_materializer.py) for example.
+and put in `datamart/materializers`. See [README](./datamart/materializers/README.MD)
 
 3. Have your dataset schema json `materialization.python_path` pointed to the materialization method. 
-Take a look at [tmp.json](./test/tmp/tmp.json#L10).
+Take a look at [tmp.json](example/tmp/tmp.json#L10).
 
-4. Try to create metadata and index it on Elasticsearch, following: [Indexing demo](./test/indexing.ipynb)
+4. Play with the following:
 
-5. Try some queries for testing you materialization method, following: [Query demo](./test/query.ipynb)
+## Example of using current system
 
+#### Create metadata and index it on Elasticsearch, following: [Indexing demo](example/index.ipynb)
+#### Query datamart, following: [Query demo](example/query.ipynb)
+#### Dealing with TAXI example, following: [taxi_example](example/taxi_example/taxi_example.ipynb)
+#### Dealing with FIFA example, following: [fifa_example](example/fifa_example/fifa_example.ipynb)
+#### Using current rest service: [rest_example](example/rest_example/example.md)
 
 Note: Launch notebook: 
 ```
-jupyter notebook test/indexing.ipynb
+jupyter notebook test/index.ipynb
 ```

@@ -1,7 +1,8 @@
 import unittest
 import pandas as pd
-from datamart.profiler import Profiler
-from datamart.utils import Utils
+from datamart.profilers.basic_profiler import BasicProfiler
+from datamart.profilers.dsbox_profiler import DSboxProfiler
+from datamart.utilities.utils import Utils
 
 
 class TestProfiler(unittest.TestCase):
@@ -12,7 +13,7 @@ class TestProfiler(unittest.TestCase):
             'Date': ["2018-10-05", "2014-02-23", "2020-09-23T00:10:00", "2023213"]
         }
         self.df = pd.DataFrame(data)
-        self.profiler = Profiler()
+        self.profiler = BasicProfiler
 
     @Utils.test_print
     def test_construct_global_keywords(self):
@@ -90,3 +91,43 @@ class TestProfiler(unittest.TestCase):
     def test_profile_named_entity(self):
         named_entity_col = self.df.iloc[:, 2]
         self.assertListEqual(self.profiler.profile_named_entity(named_entity_col), ['Tom', 'Jack', 'Steve', 'Ricky'])
+
+    @Utils.test_print
+    def test_dsbox_profiler(self):
+        self.fake_matadata = {"variables": []}
+        for i in range(self.df.shape[1]):
+            self.fake_matadata["variables"].append({})
+        dsbox_profiler = DSboxProfiler()
+        metadata = dsbox_profiler.profile(inputs=self.df, metadata=self.fake_matadata)
+        expected = {
+            'variables': [
+                {
+                    'dsbox_profiled': {
+                        'ratio_of_numeric_values': 1.0,
+                        'number_of_outlier_numeric_values': 0
+                    }
+                },
+                {
+                    'dsbox_profiled': {
+                        'ratio_of_numeric_values': 0.25,
+                        'number_std': 0,
+                        'number_of_outlier_numeric_values': 0,
+                        'most_common_tokens': [{'name': '2014-02-23', 'count': 1},
+                                               {'name': '2018-10-05', 'count': 1},
+                                               {'name': '2020-09-23T00:10:00', 'count': 1},
+                                               {'name': '2023213', 'count': 1}],
+                        'number_of_tokens_containing_numeric_char': 4,
+                        'ratio_of_tokens_containing_numeric_char': 1.0,
+                        'number_of_values_containing_numeric_char': 4,
+                        'ratio_of_values_containing_numeric_char': 1.0}},
+                {
+                    'dsbox_profiled': {
+                        'most_common_tokens': [{'name': 'Jack', 'count': 1},
+                                               {'name': 'Ricky', 'count': 1},
+                                               {'name': 'Steve', 'count': 1},
+                                               {'name': 'Tom', 'count': 1}]
+                    }
+                }
+            ]
+        }
+        self.assertEqual(metadata, expected)

@@ -1,0 +1,57 @@
+{
+  "title": "TAVG",
+  "description": "Average temperature (tenths of degrees C)[Note that TAVG from source 'S' corresponds to an average for the period ending at 2400 UTC rather than local midnight]",
+  "url": "https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/readme.txt",
+  "keywords": [
+    "Average Temperature."
+  ],
+  "provenance": {
+    "source": "noaa.org"
+  },
+  "materialization": {
+    "python_path": "noaa_materializer",
+    "arguments": {
+      "type": "TAVG"
+    }
+  },
+  "variables": [
+    {
+      "name": "date",
+      "description": "the date of data",
+      "semantic_type": [
+        "https://metadata.datadrivendiscovery.org/types/Time"
+      ],
+      "temporal_coverage": {
+        "start": "1874-10-13",
+        "end": "2018-10-01"
+      }
+    },
+    {
+      "name": "stationId",
+      "description": "the id of station which has this data",
+      "semantic_type": [
+        "https://metadata.datadrivendiscovery.org/types/CategoricalData"
+      ]
+    },
+    {
+      "name": "city",
+      "description": "the city data belongs to",
+      "semantic_type": [
+        "https://metadata.datadrivendiscovery.org/types/Location"
+      ],
+      "named_entity": [
+        "abu dhabi",
+        "ajman",
+        "dubai"
+      ]
+    },
+    {
+      "name": "TAVG",
+      "description": "Average temperature (tenths of degrees C)[Note that TAVG from source 'S' corresponds to an average for the period ending at 2400 UTC rather than local midnight]",
+      "semantic_type": [
+        "http://schema.org/Float"
+      ]
+    }
+  ],
+  "date_updated": "2018-09-28"
+}

@@ -12,14 +12,15 @@ DEFAULT_LOCATIONS = ['United States of America']
 DEFAULT_START_YEAR = '0'
 DEFAULT_END_YEAR = '2018'
 DEFAULT_DATA_TYPE = 'trade_liveanimals_e_all_data'
+LOCATION_COLUMN_INDEX = 0
 
 
 class FaoMaterializer(MaterializerBase):
-    def __init__(self):
+    def __init__(self, **kwargs):
         """ initialization and loading the city name to city id map
 
         """
-        MaterializerBase.__init__(self)
+        MaterializerBase.__init__(self, **kwargs)
         self.conn = None
         try:
             # read connection parameters
@@ -41,14 +42,12 @@ class FaoMaterializer(MaterializerBase):
 
     def get(self,
             metadata: dict = None,
-            variables: typing.List[int] = None,
             constrains: dict = None
             ) -> typing.Optional[pd.DataFrame]:
         """ API for get a dataframe.
 
             Args:
                 metadata: json schema for data_type
-                variables:
                 constrains: include some constrains like date_range, location and so on
         """
         if not constrains:
@@ -62,7 +61,8 @@ class FaoMaterializer(MaterializerBase):
                 date_range_start = parse(date_range["start"]).year
             if "end" in date_range:
                 date_range_end = parse(date_range["end"]).year
-        locations = constrains.get("locations", DEFAULT_LOCATIONS)
+        named_entity = constrains.get("named_entity", {})
+        locations = named_entity.get(LOCATION_COLUMN_INDEX, DEFAULT_LOCATIONS)
         data_type = materialization_arguments.get("type", DEFAULT_DATA_TYPE)
 
         try:

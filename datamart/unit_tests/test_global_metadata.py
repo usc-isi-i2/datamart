@@ -1,6 +1,6 @@
 from datamart.metadata.global_metadata import GlobalMetadata
 from datamart.metadata.variable_metadata import VariableMetadata
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 import unittest, copy, json
 
 gt = json.load(open('datamart/unit_tests/resources/sample_schema.json', "r"))
@@ -75,7 +75,7 @@ class TestGlobalMetadata(unittest.TestCase):
     def test_add_variable(self):
         self.assertEqual(len(self.metadata.variables), 0)
         for col_offset, variable_description in enumerate(self.global_metadata_description["variables"]):
-            variable_metadata = VariableMetadata(variable_description, datamart_id=col_offset+1)
+            variable_metadata = VariableMetadata(variable_description, datamart_id=col_offset + 1)
             self.metadata.add_variable_metadata(variable_metadata)
         self.assertEqual(len(self.metadata.variables), len(sample_global_metadata_description["variables"]))
         self.assertEqual(self.metadata.value, gt["metadata"])

@@ -1,48 +1,57 @@
 name: datamart_env
 dependencies:
-  - ca-certificates=2018.03.07=0
-  - certifi=2018.8.24=py36_1
-  - libcxx=4.0.1=h579ed51_0
-  - libcxxabi=4.0.1=hebd6815_0
-  - libedit=3.1.20170329=hb402a30_2
-  - libffi=3.2.1=h475c297_4
-  - ncurses=6.1=h0a44026_0
-  - openssl=1.0.2p=h1de35cc_0
-  - pip=10.0.1=py36_0
-  - python=3.6.6=hc167b69_0
-  - readline=7.0=h1de35cc_5
-  - setuptools=40.2.0=py36_0
-  - sqlite=3.24.0=ha441bb4_0
-  - tk=8.6.8=ha441bb4_0
-  - wheel=0.31.1=py36_0
-  - xz=5.2.4=h1de35cc_4
-  - zlib=1.2.11=hf3cbc9b_2
+  - ca-certificates=2018.03.07
+  - certifi=2018.8.24
+  - libcxx=4.0.1
+  - libcxxabi=4.0.1
+  - libedit=3.1.20170329
+  - libffi=3.2.1
+  - ncurses=6.1
+  - openssl=1.0.2p
+  - pip=10.0.1
+  - python=3.6.6
+  - readline=7.0
+  - setuptools=40.2.0
+  - sqlite=3.24.0
+  - tk=8.6.8
+  - wheel=0.31.1
+  - xz=5.2.4
+  - zlib=1.2.11
   - pip:
     - appnope==0.1.0
     - backcall==0.1.0
     - bleach==3.0.0
     - chardet==3.0.4
+    - click==7.0
+    - cycler==0.10.0
     - decorator==4.3.0
     - defusedxml==0.5.0
     - elasticsearch==6.3.1
     - entrypoints==0.2.3
+    - etk==2.1.5
+    - flask==1.0.2
     - idna==2.7
     - ipykernel==5.0.0
     - ipython==7.0.1
     - ipython-genutils==0.2.0
     - ipywidgets==7.4.2
+    - itsdangerous==1.1.0
     - jedi==0.13.1
     - jinja2==2.10
+    - jsonlines==1.2.0
     - jsonschema==2.6.0
     - jupyter==1.0.0
     - jupyter-client==5.2.3
     - jupyter-console==6.0.0
     - jupyter-core==4.4.0
+    - kiwisolver==1.0.1
+    - langdetect==1.0.7
     - markupsafe==1.0
     - mistune==0.8.3
     - nbconvert==5.4.0
     - nbformat==4.4.0
-    - notebook==5.7.0
+    - nltk==3.4
+    - notebook==5.7.2
     - numpy==1.15.2
     - pandas==0.22.0
     - pandocfilters==1.4.2
@@ -55,14 +64,19 @@ dependencies:
     - psycopg2-binary==2.7.5
     - ptyprocess==0.6.0
     - pygments==2.2.0
+    - pyparsing==2.3.0
     - python-dateutil==2.7.3
     - pytz==2018.5
     - pyzmq==17.1.2
     - qtconsole==4.4.1
+    - regex==2018.1.10
     - requests==2.20.0
+    - scikit-learn==0.20.1
+    - selenium==3.141.0
     - send2trash==1.5.0
     - simplegeneric==0.8.1
     - six==1.11.0
+    - spacy==2.0.17
     - termcolor==1.1.0
     - terminado==0.8.1
     - testpath==0.4.2
@@ -72,5 +86,8 @@ dependencies:
     - urllib3==1.23
     - wcwidth==0.1.7
     - webencodings==0.5.1
+    - werkzeug==0.14.1
+    - Wikipedia-API==0.3.7
     - wget==3.2
     - widgetsnbextension==3.4.2
+    - xlrd==1.1.0

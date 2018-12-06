@@ -6,21 +6,21 @@ import sys
 import traceback
 import datetime
 
+
 class TradingEconomicsMarketMaterializer(MaterializerBase):
     """TradingEconomicsMaterializer class extended from  Materializer class
 
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """ initialization and loading the city name to city id map
 
         """
-        MaterializerBase.__init__(self)
+        MaterializerBase.__init__(self, **kwargs)
         self.key = None
 
     def get(self,
             metadata: dict = None,
-            variables: typing.List[int] = None,
             constrains: dict = None
             ) -> typing.Optional[pd.DataFrame]:
         """ API for get a dataframe.
@@ -41,8 +41,7 @@ class TradingEconomicsMarketMaterializer(MaterializerBase):
         else:
             self.headers = {"key": "guest:guest"}
         date_range = constrains.get("date_range", {})
-        d1=""
-        datestr=""
+        datestr = ""
 
         if date_range.get("start", None) and date_range.get("end", None):
             datestr += "d1=" + date_range["start"]

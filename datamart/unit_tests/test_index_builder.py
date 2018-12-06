@@ -1,4 +1,4 @@
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 from datamart.index_builder import IndexBuilder
 import unittest
 import pandas as pd
@@ -11,11 +11,11 @@ class TestIndexBuilder(unittest.TestCase):
         self.global_datamart_id = 10000
         self.df_for_global = pd.DataFrame({
             "city": ["abu dhabi", "ajman", "dubai", "sharjah"],
-            'date': ["2018-10-05", "2014-02-23", "2020-09-23T00:10:00", "2023213"]
+            'date': ["2018-10-05", "2014-02-23", "2020-09-23", "2023-02-13"]
         })
 
         self.df_for_variable = pd.DataFrame({
-            'date': ["2018-10-05", "2014-02-23", "2020-09-23T00:10:00", "2023213"]
+            'date': ["2018-10-05", "2014-02-23", "2020-09-23", "2023-02-13"]
         })
 
     @Utils.test_print
@@ -31,7 +31,7 @@ class TestIndexBuilder(unittest.TestCase):
             'semantic_type': [],
             'name': 'date',
             'description': 'column name: date, dtype: object',
-            'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2020-09-23T00:10:00'}
+            'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2023-02-13T00:00:00'}
         }
 
         self.assertEqual(variable_metadata.value, expected)
@@ -92,7 +92,7 @@ class TestIndexBuilder(unittest.TestCase):
             'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Time'],
             'temporal_coverage': {
                 'start': '2014-02-23T00:00:00',
-                'end': '2020-09-23T00:10:00'
+                'end': '2023-02-13T00:00:00'
             }
         }
 
@@ -252,7 +252,7 @@ class TestIndexBuilder(unittest.TestCase):
             ]
         }
 
-        self.assertEqual(global_metadata.value, expected)
+        self.assertEqual(global_metadata, expected)
 
     @Utils.test_print
     def test_construct_global_metadata_with_data(self):
@@ -316,12 +316,12 @@ class TestIndexBuilder(unittest.TestCase):
                     'name': 'date',
                     'description': 'the date of data',
                     'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Time'],
-                    'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2020-09-23T00:10:00'}
+                    'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2023-02-13T00:00:00'}
                 }
             ]
         }
 
-        self.assertEqual(global_metadata.value, expected)
+        self.assertEqual(global_metadata, expected)
 
     @Utils.test_print
     def test_construct_global_metadata_with_basic_fields(self):
@@ -344,14 +344,20 @@ class TestIndexBuilder(unittest.TestCase):
                     'datamart_id': 20001,
                     'semantic_type': [],
                     'name': 'city',
-                    'description': 'column name: city, dtype: object'
+                    'description': 'column name: city, dtype: object',
+                    "named_entity": [
+                        "abu dhabi",
+                        "ajman",
+                        "dubai",
+                        "sharjah"
+                    ]
                 },
                 {
                     'datamart_id': 20002,
                     'semantic_type': [],
                     'name': 'date',
                     'description': 'column name: date, dtype: object',
-                    'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2020-09-23T00:10:00'}
+                    'temporal_coverage': {'start': '2014-02-23T00:00:00', 'end': '2023-02-13T00:00:00'}
                 }
             ],
             'title': 'city date',
@@ -359,4 +365,4 @@ class TestIndexBuilder(unittest.TestCase):
             'keywords': ['city', 'date']
         }
 
-        self.assertEqual(global_metadata.value, expected)
+        self.assertEqual(global_metadata, expected)

@@ -8,22 +8,23 @@ import traceback
 import datetime
 import shutil
 
+LOCATION_COLUMN_INDEX = 0
+
 
 class TradingEconomicsMaterializer(MaterializerBase):
     """TradingEconomicsMaterializer class extended from  Materializer class
 
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """ initialization and loading the city name to city id map
 
         """
-        MaterializerBase.__init__(self)
+        MaterializerBase.__init__(self, **kwargs)
         self.key = None
 
     def get(self,
             metadata: dict = None,
-            variables: typing.List[int] = None,
             constrains: dict = None
             ) -> typing.Optional[pd.DataFrame]:
         """ API for get a dataframe.
@@ -44,28 +45,25 @@ class TradingEconomicsMaterializer(MaterializerBase):
         else:
             self.headers = {"key": "guest:guest"}
         date_range = constrains.get("date_range", {})
-        datestr=""
+        datestr = ""
+        if date_range.get("start", None) or date_range.get("end", None):
+            if date_range.get("start", None) and date_range.get("end", None):
+                datestr += date_range["start"]
+                datestr += '/' + date_range["end"]
+            elif date_range.get("start", None):
+                now = datetime.datetime.now()
+                datestr += date_range["start"]
+                datestr += '/' + "{}-{}-{}".format(now.year, now.month, now.day)
+            else:
+                datestr += "{}-{}-{}".format("1900", "01", "01")
+                datestr += '/' + date_range["end"]
 
-        if date_range.get("start", None) and date_range.get("end", None):
-            datestr += date_range["start"]
-            datestr += '/' + date_range["end"]
-        elif not date_range.get("start", None) and not date_range.get("end", None):
-            now = datetime.datetime.now()
-            datestr += "{}-{}-{}".format(now.year - 1, now.month, now.day)
-            datestr += '/' + "{}-{}-{}".format(now.year, now.month, now.day)
-        elif date_range.get("start", None):
-            now = datetime.datetime.now()
-            datestr += date_range["start"]
-            datestr += '/' + "{}-{}-{}".format(now.year, now.month, now.day)
-        else:
-            datestr += "{}-{}-{}".format("1900", "01", "01")
-            datestr += '/' + date_range["end"]
-
-        path1, path2=getUrl.split("?c=")
-        getUrl=path1+"/"+datestr+"?c="+path2
-        if "locations" in constrains:
-            locations = constrains["locations"]
-            getUrl=getUrl.replace("all",",".join([x.replace(' ', '%20') for x in locations]))
+            path1, path2 = getUrl.split("?c=")
+            getUrl = path1 + "/" + datestr + "?c=" + path2
+        if "named_entity" in constrains and LOCATION_COLUMN_INDEX in constrains["named_entity"] and \
+                constrains["named_entity"][LOCATION_COLUMN_INDEX]:
+            locations = constrains["named_entity"][LOCATION_COLUMN_INDEX]
+            getUrl = getUrl.replace("all", ",".join([x.replace(' ', '%20') for x in locations]))
 
         datasetConfig = {
             "where_to_download": {
