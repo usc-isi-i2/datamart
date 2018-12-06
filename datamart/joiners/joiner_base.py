@@ -30,14 +30,16 @@ class DefaultJoiner(JoinerBase):
     @staticmethod
     def join(left_df: pd.DataFrame,
              right_df: pd.DataFrame,
-             left_columns: list,
-             right_columns: list,
-             left_metadata: dict = None,
-             right_metadata: dict = None,
+             left_columns: typing.List[typing.List[int]],
+             right_columns: typing.List[typing.List[int]],
+             **kwargs
              ) -> pd.DataFrame:
 
+        left_columns = [x[0] for x in left_columns]
+        right_columns = [x[0] for x in right_columns]
+
         if len(left_columns) != len(right_columns):
-            raise ValueError("Default join need length of left_columns equals to right_columns")
+            raise ValueError("Default join only perform on 1-1 mapping")
 
         right_df = right_df.rename(columns={
             right_df.columns[right_columns[idx]]: left_df.columns[left_columns[idx]] for idx in range(len(left_columns))

@@ -2,7 +2,7 @@ import unittest
 import pandas as pd
 from datamart.profilers.basic_profiler import BasicProfiler
 from datamart.profilers.dsbox_profiler import DSboxProfiler
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 
 
 class TestProfiler(unittest.TestCase):

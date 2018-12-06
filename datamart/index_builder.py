@@ -5,10 +5,11 @@ import warnings
 from datamart.metadata.global_metadata import GlobalMetadata
 from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.es_managers.index_manager import IndexManager
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 from datamart.profiler import Profiler
 import typing
 import traceback
+from elasticsearch.exceptions import TransportError
 
 GLOBAL_INDEX_INTERVAL = 10000
 
@@ -57,6 +58,8 @@ class IndexBuilder(object):
 
         """
 
+        print("==== Creating metadata and indexing for " + description_path)
+
         self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
 
         if not self.current_global_index or delete_old_es_index:
@@ -80,7 +83,12 @@ class IndexBuilder(object):
         if save_to_file:
             self._save_data(save_to_file=save_to_file, save_mode=save_to_file_mode, metadata=metadata)
 
-        self.im.create_doc(index=es_index, doc_type='_doc', body=metadata, id=metadata['datamart_id'])
+        try:
+            self.im.create_doc(index=es_index, doc_type='_doc', body=metadata, id=metadata['datamart_id'])
+        except Exception as e:
+            if isinstance(e, TransportError):
+                print(e.info)
+            pass
 
         return metadata
 
@@ -110,16 +118,18 @@ class IndexBuilder(object):
             metadata dictionary
 
         """
+        """
+        Not keep up to date for a while, may not work well. But updating is not very useful as well.
+        """
 
         self._check_es_index(es_index=es_index)
 
         description, data = self._read_data(description_path, data_path)
         if not data and query_data_for_updating:
             try:
-                materializer_module = description["materialization"]["python_path"]
-                materializer = Utils.load_materializer(materializer_module)
-                data = materializer.get(metadata=description)
+                data = Utils.materialize(metadata=description).infer_objects()
             except:
+                traceback.print_exc()
                 warnings.warn("Materialization Failed, index based on schema json only")
 
         metadata = self.construct_global_metadata(description=description, data=data, overwrite_datamart_id=document_id)
@@ -163,7 +173,6 @@ class IndexBuilder(object):
                 data_path = None
                 if data_dir:
                     data_path = os.path.join(data_dir, description.replace("_description.json", ".csv"))
-                print("==== Creating metadata and indexing for " + description)
                 self.indexing(description_path=description_path,
                               es_index=es_index,
                               data_path=data_path,

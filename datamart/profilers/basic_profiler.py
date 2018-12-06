@@ -3,6 +3,7 @@ import dateutil.parser
 import typing
 from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.metadata.global_metadata import GlobalMetadata
+from pandas.api.types import is_object_dtype
 
 
 class BasicProfiler(object):
@@ -20,21 +21,27 @@ class BasicProfiler(object):
             list of named entities string
         """
 
-        return column.unique().tolist()
+        return column.dropna().unique().tolist()
 
     @staticmethod
-    def named_entity_recognize(column: pd.Series) -> typing.Union[typing.List[str], bool]:
+    def named_entity_column_recognize(column: pd.Series) -> bool:
         """Ideally run a NER on the column and profile.
 
         Args:
             column: pandas Series column.
 
         Returns:
-            list of unique named entities strings in this column if contains named entity
+            True if this column is a named entity column
             False if not a named entity column
         """
+        """TODO: Write a real NER here maybe"""
 
-        "TODO"
+        if is_object_dtype(column):
+            try:
+                pd.to_datetime(column)
+                return False
+            except:
+                return True
         return False
 
     @staticmethod
@@ -178,9 +185,8 @@ class BasicProfiler(object):
             variable_metadata.named_entity = cls.profile_named_entity(column)
 
         elif variable_metadata.named_entity is False and not description:
-            named_entities = cls.named_entity_recognize(column)
-            if named_entities:
-                variable_metadata.named_entity = named_entities
+            if cls.named_entity_column_recognize(column):
+                variable_metadata.named_entity = cls.profile_named_entity(column)
 
         if variable_metadata.temporal_coverage is not False:
             if not variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:

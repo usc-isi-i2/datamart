@@ -1,5 +1,6 @@
 import pandas as pd
 from datamart.joiners.joiner_base import JoinerBase
+import typing
 
 """
 TODO
@@ -15,14 +16,9 @@ class RLTKJoiner(JoinerBase):
     def join(self,
              left_df: pd.DataFrame,
              right_df: pd.DataFrame,
-             left_columns: list,
-             right_columns: list,
+             left_columns: typing.List[typing.List[int]],
+             right_columns: typing.List[typing.List[int]],
              left_metadata: dict,
              right_metadata: dict,
              ) -> pd.DataFrame:
-
-        return pd.merge(left=left_df,
-                        right=right_df,
-                        left_on=[left_df.columns[idx] for idx in left_columns],
-                        right_on=[right_df.columns[idx] for idx in right_columns],
-                        how='left')
+        pass

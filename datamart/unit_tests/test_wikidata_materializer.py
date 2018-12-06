@@ -1,7 +1,7 @@
 from datamart.materializers.wikidata_materializer import WikidataMaterializer
-import unittest, json, os
+import unittest, os
 import pandas as pd
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 
 resources_path = os.path.join(os.path.dirname(__file__), "./resources")
 

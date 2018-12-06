@@ -2,14 +2,12 @@ from datamart.es_managers.query_manager import QueryManager
 from datamart.profiler import Profiler
 import pandas as pd
 import typing
-from datamart.utils import Utils
+from datamart.utilities.utils import Utils
 from datamart.joiners.joiner_base import JoinerPrepare
 import warnings
-from datetime import datetime
 
 
 class Augment(object):
-    DEFAULT_START_DATE = "1900-01-01T00:00:00"
 
     def __init__(self, es_index: str, es_host: str = "dsbox02.isi.edu", es_port: int = 9200) -> None:
         """Init method of QuerySystem, set up connection to elastic search.
@@ -27,105 +25,74 @@ class Augment(object):
         self.joiners = dict()
         self.profiler = Profiler()
 
-    def query_by_column(self,
-                        col: pd.Series,
-                        minimum_should_match: int = None,
-                        **kwargs
-                        ) -> typing.Optional[typing.List[dict]]:
+    def query(self,
+              col: pd.Series = None,
+              minimum_should_match_ratio_for_col: float = None,
+              query_string: str = None,
+              temporal_coverage_start: str = None,
+              temporal_coverage_end: str = None,
+              global_datamart_id: int = None,
+              variable_datamart_id: int = None,
+              key_value_pairs: typing.List[tuple] = None,
+              **kwargs
+              ) -> typing.Optional[typing.List[dict]]:
+
         """Query metadata by a pandas Dataframe column
 
         Args:
             col: pandas Dataframe column.
-            minimum_should_match: An integer ranges from 0 to length of unique value in col.
-            Represent the minimum number of terms should match.
+            minimum_should_match_ratio_for_col: An float ranges from 0 to 1
+                indicating the ratio of unique value of the column to be matched
+            query_string: string to query any field in metadata
+            temporal_coverage_start: start of a temporal coverage
+            temporal_coverage_end: end of a temporal coverage
+            global_datamart_id: match a global metadata id
+            variable_datamart_id: match a variable metadata id
+            key_value_pairs: match key value pairs
 
         Returns:
             matching docs of metadata
         """
 
-        body = self.qm.match_some_terms_from_variables_array(terms=col.unique().tolist(),
-                                                             minimum_should_match=minimum_should_match)
-        return self.qm.search(body=body, **kwargs)
+        queries = list()
 
-    def query_by_named_entities(self,
-                                named_entities: list,
-                                minimum_should_match: int = None,
-                                **kwargs
-                                ) -> typing.Optional[typing.List[dict]]:
-        """Query metadata by a pandas Dataframe column
+        if query_string:
+            queries.append(
+                self.qm.match_any(query_string=query_string)
+            )
 
-        Args:
-            named_entities: list of named entities
-            minimum_should_match: An integer ranges from 0 to length of named entities list.
-            Represent the minimum number of terms should match.
+        if temporal_coverage_start or temporal_coverage_end:
+            queries.append(
+                self.qm.match_temporal_coverage(start=temporal_coverage_start, end=temporal_coverage_end)
+            )
 
-        Returns:
-            matching docs of metadata
-        """
+        if global_datamart_id:
+            queries.append(
+                self.qm.match_global_datamart_id(datamart_id=global_datamart_id)
+            )
 
-        body = self.qm.match_some_terms_from_variables_array(terms=named_entities,
-                                                             key="variables.named_entity",
-                                                             minimum_should_match=minimum_should_match)
-        return self.qm.search(body=body, **kwargs)
+        if variable_datamart_id:
+            queries.append(
+                self.qm.match_variable_datamart_id(datamart_id=variable_datamart_id)
+            )
 
-    def query_by_temporal_coverage(self, start=None, end=None, **kwargs) -> typing.Optional[typing.List[dict]]:
-        """Query metadata by a temporal coverage of column
+        if key_value_pairs:
+            queries.append(
+                self.qm.match_key_value_pairs(key_value_pairs=key_value_pairs)
+            )
 
-        Args:
-            start: dataset should cover date time earlier than the start date.
-            end: dataset should cover date time later than the end date.
+        if col is not None:
+            queries.append(
+                self.qm.match_some_terms_from_variables_array(terms=col.unique().tolist(),
+                                                              minimum_should_match=minimum_should_match_ratio_for_col)
+            )
 
-        Returns:
-            matching docs of metadata
-        """
+        if not queries:
+            return self._query_all()
 
-        body = self.qm.match_temporal_coverage(start=start, end=end)
-        return self.qm.search(body=body, **kwargs)
+        return self.qm.search(body=self.qm.form_conjunction_query(queries), **kwargs)
 
-    def query_by_datamart_id(self, datamart_id: int, **kwargs) -> typing.Optional[typing.List[dict]]:
-        """Query metadata by datamart id
-
-        Args:
-            datamart_id: int
-
-        Returns:
-            matching docs of metadata
-        """
-
-        global_body = self.qm.match_global_datamart_id(datamart_id=datamart_id)
-        variable_body = self.qm.match_variable_datamart_id(datamart_id=datamart_id)
-        return self.qm.search(body=global_body, **kwargs) or self.qm.search(body=variable_body, **kwargs)
-
-    def query_by_key_value_pairs(self,
-                                 key_value_pairs: typing.List[tuple],
-                                 **kwargs
-                                 ) -> typing.Optional[typing.List[dict]]:
-        """Query metadata by datamart id
-
-        Args:
-            key_value_pairs: list of key value tuple
-
-        Returns:
-            matching docs of metadata
-        """
-
-        body = self.qm.match_key_value_pairs(key_value_pairs=key_value_pairs)
-        return self.qm.search(body=body, **kwargs)
-
-    def query_any_field_with_string(self, query_string, **kwargs) -> typing.Optional[typing.List[dict]]:
-        """Query any field of matadata with query_string
-
-        Args:
-            key_value_pairs: list of key value tuple
-
-        Returns:
-            matching docs of metadata
-        """
-
-        body = self.qm.match_any(query_string=query_string)
-        return self.qm.search(body=body, **kwargs)
-
-    def query_by_es_query(self, body: str, **kwargs) -> typing.Optional[typing.List[dict]]:
+    def _query_by_es_query(self, body: str, **kwargs) -> typing.Optional[typing.List[dict]]:
         """Query metadata by an elastic search query
 
         Args:
@@ -136,66 +103,22 @@ class Augment(object):
         """
         return self.qm.search(body=body, **kwargs)
 
-    def get_dataset(self,
-                    metadata: dict,
-                    variables: list = None,
-                    constrains: dict = None
-                    ) -> typing.Optional[pd.DataFrame]:
-        """Get the dataset with materializer.
+    def _query_all(self, **kwargs) -> typing.Optional[typing.List[dict]]:
+        """Query all metadata
 
-       Args:
-           metadata: metadata dict.
-           variables:
-           constrains:
+        Args:
 
-       Returns:
-            pandas dataframe
-       """
+        Returns:
+            matching docs of metadata
+        """
 
-        if not constrains:
-            constrains = {"date_range": {}}
-
-        if not constrains.get("date_range", {}).get("start", None):
-            constrains["date_range"]["start"] = Augment.DEFAULT_START_DATE
-        if not constrains.get("date_range", {}).get("end", None):
-            constrains["date_range"]["end"] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-        df = Utils.materialize(metadata=metadata, constrains=constrains)
-
-        if variables:
-            df = df.iloc[:, variables]
-
-        if metadata.get("implicit_variables", None):
-            df = self.append_columns_for_implicit_variables(metadata["implicit_variables"], df)
-
-        return df.infer_objects()
-
-    @staticmethod
-    def get_metadata_intersection(*metadata_lst) -> list:
-        """Get the intersect metadata list.
-
-       Args:
-           metadata_lst: all metadata list returned by multiple queries
-
-       Returns:
-            list of intersect metadata
-       """
-
-        metadata_dict = dict()
-        metadata_sets = []
-        for lst in metadata_lst:
-            this_set = set()
-            for x in lst:
-                if x["_source"]["datamart_id"] not in metadata_dict:
-                    metadata_dict[x["_source"]["datamart_id"]] = x
-                this_set.add(x["_source"]["datamart_id"])
-            metadata_sets.append(this_set)
-        return [metadata_dict[datamart_id] for datamart_id in metadata_sets[0].intersection(*metadata_sets[1:])]
+        return self.qm.search(body=self.qm.match_all(), **kwargs)
 
     def join(self,
              left_df: pd.DataFrame,
              right_df: pd.DataFrame,
-             left_columns: typing.List[int],
-             right_columns: typing.List[int],
+             left_columns: typing.List[typing.List[int]],
+             right_columns: typing.List[typing.List[int]],
              left_metadata: dict = None,
              right_metadata: dict = None,
              joiner: str = "default"
@@ -228,8 +151,8 @@ class Augment(object):
             # We will generate metadata just based on the data itself, profiling and so on
             left_metadata = Utils.generate_metadata_from_dataframe(data=left_df)
 
-        left_metadata = self.calculate_dsbox_features(data=left_df, metadata=left_metadata)
-        right_metadata = self.calculate_dsbox_features(data=right_df, metadata=right_metadata)
+        left_metadata = Utils.calculate_dsbox_features(data=left_df, metadata=left_metadata)
+        right_metadata = Utils.calculate_dsbox_features(data=right_df, metadata=right_metadata)
 
         return self.joiners[joiner].join(left_df=left_df,
                                          right_df=right_df,
@@ -238,24 +161,3 @@ class Augment(object):
                                          left_metadata=left_metadata,
                                          right_metadata=right_metadata,
                                          )
-
-    @staticmethod
-    def append_columns_for_implicit_variables(implicit_variables: typing.List[dict], df: pd.DataFrame) -> pd.DataFrame:
-        """Append implicit_variables as new column with same value across all rows of the dataframe
-
-         Args:
-             implicit_variables: list of implicit_variables in metadata
-             df: Dataframe that implicit_variables will be appended on
-
-         Returns:
-              Dataframe with appended implicit_variables columns
-         """
-
-        for implicit_variable in implicit_variables:
-            df[implicit_variable["name"]] = implicit_variable["value"]
-        return df
-
-    def calculate_dsbox_features(self, data, metadata):
-        if not metadata:
-            return metadata
-        return self.profiler.dsbox_profiler.profile(inputs=data, metadata=metadata)
