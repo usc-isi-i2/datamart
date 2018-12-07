@@ -3,7 +3,8 @@ import typing
 from datamart.joiners.joiner_base import JoinerBase
 from datamart.joiners.join_feature.feature_pairs import FeaturePairs
 import rltk
-
+import json
+from munkres import Munkres
 
 """
 TODO
@@ -34,11 +35,9 @@ class RLTKJoiner(JoinerBase):
 
         fp = FeaturePairs(left_df, right_df, left_columns, right_columns, left_metadata, right_metadata)
         record_pairs = rltk.get_record_pairs(fp.left_rltk_dataset, fp.right_rltk_dataset)
-        sim = {}
+        sim = [[0 for __ in range(len(right_df))] for _ in range(len(left_df))]
 
         for r1, r2 in record_pairs:
-            if r1.id not in sim:
-                sim[r1.id] = {}
             similarities = []
             for f1, f2 in fp.pairs:
                 v1 = f1.value_merge_func(r1)
@@ -49,23 +48,12 @@ class RLTKJoiner(JoinerBase):
                     # print(f1.name, f2.name, v1, v2, similarity, similarity_func, type(f1))
                     # TODO: now only consider the first similarity function for now
                     break
-            sim[r1.id][r2.id] = sum(similarities)/len(similarities) if similarities else 0
+            sim[int(r1.id)][int(r2.id)] = sum(similarities)/len(similarities) if similarities else 0
 
-        print(self.simple_best_match(sim))
-
-
-
-
-        # left = DataFrameWrapper(left_df, left_columns, left_metadata)
-        # right = DataFrameWrapper(right_df, right_columns, right_metadata)
-        #
-        # pairs = rltk.get_record_pairs(left.rltk_dataset, right.rltk_dataset)
-        # headers = get_feature_pairs(left, right)
-        # for r1, r2 in pairs:
-        #     for h1, h2 in headers:
-        #         print(h1, h2)
-        #         print('levenshtein_similarity:', levenshtein_similarity(getattr(r1, h1), getattr(r2, h2)))
-
+        matched_rows = self.simple_best_match(sim)
+        right_remain = self.get_remain_list(right_df, right_columns)
+        to_join = pd.DataFrame([right_df.iloc[i, right_remain] for i in matched_rows], index=range(len(matched_rows)))
+        res = pd.concat([left_df, to_join], axis=1)
 
         # step 2 : analyze target columns - get ranked similarity functions for each columns
         """
@@ -75,19 +63,36 @@ class RLTKJoiner(JoinerBase):
 
         # step 3 : check if 1-1, 1-n, n-1, or m-n relations,
         # based on the analyze in step 2 we can basically know if it is one-to-one relation
-        print(left_df)
-        print(right_df)
+        # print(left_df)
+        # print(right_df)
+        #
+        # print(left_columns)
+        # print(right_columns)
 
-        print(left_columns)
-        print(right_columns)
-
-        return left_df
-
-    def simple_best_match(self, sim: dict):
-        res = []
-        for k, v in sim.items():
-            max_sim_r2 = max(v, key=v.get)
-            res.append(max_sim_r2)
         return res
+
+    def munkrus_match(self, sim: typing.List[typing.List[float]]):
+        pass
+
+    @staticmethod
+    def simple_best_match(sim: typing.List[typing.List[float]]):
+        res = []
+        for idx, v in enumerate(sim):
+            max_val = -1
+            max_idx = None
+            for idx_, v_ in enumerate(v):
+                if v_ > max_val:
+                    max_idx = idx_
+                    max_val = v_
+            res.append(max_idx)
+        return res
+
+    @staticmethod
+    def get_remain_list(df: pd.DataFrame, columns_2d: typing.List[typing.List[int]]):
+        all_columns = list(range(df.shape[1]))
+        columns_1d = [item for sublist in columns_2d for item in sublist]
+        remianing = [_ for _ in all_columns if _ not in columns_1d]
+        return remianing
+
 
 

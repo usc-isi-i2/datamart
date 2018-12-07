@@ -63,6 +63,7 @@ class FeaturePairs:
                  FeatureFactory.create(self._right_df, self._right_columns[i], self._right_metadata))
                 for i in range(self._length)]
 
-    def _init_rltk_dataset(self, df):
+    @staticmethod
+    def _init_rltk_dataset(df):
         rltk_dataset = rltk.Dataset(reader=DataFrameReader(df, True), record_class=DynamicRecord)
         return rltk_dataset

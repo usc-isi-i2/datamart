@@ -105,13 +105,11 @@ class DatetimeFeature(FeatureBase):
         self._range = self._max - self._min
 
     def value_merge_func(self, record: Record):
-        return record.id
+        return self._parsed_series.iloc[int(record.id), 0]
 
     def similarity_functions(self):
         def compare_time(x, y):
-            t1 = self._parsed_series.iloc[int(x), 0]
-            t2 = self._parsed_series.iloc[int(y), 0]
-            delta = t1 - t2
+            delta = x - y
             return 1 - abs(delta/self._range)
         # return [lambda x, y: 1 if to_datetime(x) == to_datetime(y) else 0]
         return [compare_time]
