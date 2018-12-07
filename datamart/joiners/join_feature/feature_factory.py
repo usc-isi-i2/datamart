@@ -39,12 +39,16 @@ class FeatureFactory:
             data_type = _type
         else:
             dtype = df.iloc[:, idx].dtype
-            if dtype == np.object:
-                data_type = cls._get_data_type_by_profile(profiles) or data_type
-            elif dtype == np.int64 or dtype == np.float64:
+            if dtype == np.int64 or dtype == np.float64:
                 data_type = DataType.NUMBER
-            elif isinstance(pd.to_datetime(df.iloc[0, idx]), pd.Timestamp):
-                data_type = DataType.DATETIME
+            else:
+                try:
+                    if isinstance(pd.to_datetime(df.iloc[0, idx]), pd.Timestamp):
+                        data_type = DataType.DATETIME
+                    else:
+                        data_type = cls._get_data_type_by_profile(profiles) or data_type
+                except:
+                    data_type = cls._get_data_type_by_profile(profiles) or data_type
 
         constructor = cls.get_constructor(distribute_type, data_type)
         return constructor(df, indexes, metadata, distribute_type, data_type)
@@ -70,8 +74,8 @@ class FeatureFactory:
     @staticmethod
     def _get_greater_than(list_of_dict, key='count', threshold=2, inclusive=True):
         if inclusive:
-            return reduce(lambda x, y: x + 1 if y[key] >= threshold else x, list_of_dict, 0)
-        return reduce(lambda x, y: x + 1 if y[key] > threshold else x, list_of_dict, 0)
+            return reduce(lambda x, y: x + 1 if float(y[key]) >= threshold else x, list_of_dict, 0)
+        return reduce(lambda x, y: x + 1 if float(y[key]) > threshold else x, list_of_dict, 0)
 
     @staticmethod
     def _get_data_type_by_semantic_type(semantic_types: list):

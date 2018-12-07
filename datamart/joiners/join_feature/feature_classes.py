@@ -1,5 +1,5 @@
 from datamart.joiners.join_feature.feature_base import *
-from rltk.similarity import *
+from datamart.joiners.join_feature.wrapped_similarity_functions import *
 
 
 class CategoricalNumberFeature(FeatureBase):
@@ -7,7 +7,8 @@ class CategoricalNumberFeature(FeatureBase):
 
 
 class CategoricalStringFeature(FeatureBase):
-    pass
+    def similarity_functions(self):
+        return [lambda left, right: 1 if to_lower(left) == to_lower(right) else 0]
 
 
 class CategoricalTokenFeature(FeatureBase):
@@ -16,7 +17,7 @@ class CategoricalTokenFeature(FeatureBase):
 
     """
     def similarity_functions(self):
-        return [jaccard, cosine]
+        return [jaccard_sim, cosine_sim]
 
 
 class NonCategoricalNumberFeature(FeatureBase):
@@ -49,12 +50,12 @@ class NonCategoricalNumberFeature(FeatureBase):
     def sigma(self):
         return self._sigma
 
-    def value_merge_func(self, record_values: list):
+    def value_merge_func(self, record: Record):
         """
         sum the values
         TODO: how to merge?
         """
-        return sum(record_values)
+        return sum([float(getattr(record, header)) for header in self._headers])
 
     def similarity_functions(self):
         def similarity_function(left, right):
@@ -66,11 +67,12 @@ class NonCategoricalNumberFeature(FeatureBase):
 
 class NonCategoricalStringFeature(FeatureBase):
     # TODO: if self.multi_column = True, only use set based similarity
+    # TODO: TFIDF in rltk needs more pre-calc info
     function_mapping = {
-        StringType.WORD: [levenshtein_similarity, jaro_winkler_similarity, ngram_similarity],
-        StringType.PHRASE: [hybrid_jaccard_similarity, ngram_similarity],
-        StringType.SENTENCE: [hybrid_jaccard_similarity, tf_idf_cosine_similarity],
-        StringType.PARAGRAPH: [tf_idf_similarity, hybrid_jaccard_similarity, tf_idf_cosine_similarity],
+        StringType.WORD: [levenshtein_sim, jaro_winkler_sim, ngram_sim],
+        StringType.PHRASE: [hybrid_jaccard_sim, ngram_sim],
+        StringType.SENTENCE: [hybrid_jaccard_sim],
+        StringType.PARAGRAPH: [hybrid_jaccard_sim],
         StringType.OTHER: []
     }
 
@@ -89,6 +91,31 @@ class DatetimeFeature(FeatureBase):
     TODO
     """
 
+    units = ['year', 'month', 'day', 'minute', 'second', 'ms', 'us', 'ns']
+
     def __init__(self, df: pd.DataFrame, indexes, metadata, distribute_type, data_type):
         super().__init__(df, indexes, metadata, distribute_type, data_type)
-        self._resolution = DatetimeResolution.HOUR
+        # TODO: now suppose the column has same resolution, maybe add a profiler for datetime is better
+        # TODO: now not recognize the real resolution, use the explicit resolution
+        # e.g. date column with "{date} 00:00" -> real resolution should be "day" but now we treat it as "minute"
+        self._resolution = self._get_resolution()
+        self._parsed_series = df.iloc[:, indexes].apply(pd.to_datetime)
+        self._min = self._parsed_series.min().iloc[0]
+        self._max = self._parsed_series.max().iloc[0]
+        self._range = self._max - self._min
+
+    def value_merge_func(self, record: Record):
+        return record.id
+
+    def similarity_functions(self):
+        def compare_time(x, y):
+            t1 = self._parsed_series.iloc[int(x), 0]
+            t2 = self._parsed_series.iloc[int(y), 0]
+            delta = t1 - t2
+            return 1 - abs(delta/self._range)
+        # return [lambda x, y: 1 if to_datetime(x) == to_datetime(y) else 0]
+        return [compare_time]
+
+    def _get_resolution(self):
+        # datetime_ = pd.to_datetime(self._df.iloc[0, self._indexes])
+        return DatetimeResolution.HOUR

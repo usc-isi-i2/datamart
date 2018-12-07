@@ -1,8 +1,8 @@
 import pandas as pd
 import typing
+from datamart.joiners.joiner_base import JoinerBase
 from datamart.joiners.join_feature.feature_pairs import FeaturePairs
 import rltk
-from rltk.similarity.levenshtein import levenshtein_similarity
 
 
 """
@@ -33,7 +33,25 @@ class RLTKJoiner(JoinerBase):
         """
 
         fp = FeaturePairs(left_df, right_df, left_columns, right_columns, left_metadata, right_metadata)
-        record_pairs = rltk.get_record_pairs(fp.left_rltk_dataset, fp.right_rltk_dataset):
+        record_pairs = rltk.get_record_pairs(fp.left_rltk_dataset, fp.right_rltk_dataset)
+        sim = {}
+
+        for r1, r2 in record_pairs:
+            if r1.id not in sim:
+                sim[r1.id] = {}
+            similarities = []
+            for f1, f2 in fp.pairs:
+                v1 = f1.value_merge_func(r1)
+                v2 = f2.value_merge_func(r2)
+                for similarity_func in f1.similarity_functions():
+                    similarity = similarity_func(v1, v2)
+                    similarities.append(similarity)
+                    # print(f1.name, f2.name, v1, v2, similarity, similarity_func, type(f1))
+                    # TODO: now only consider the first similarity function for now
+                    break
+            sim[r1.id][r2.id] = sum(similarities)/len(similarities) if similarities else 0
+
+        print(self.simple_best_match(sim))
 
 
 
@@ -64,3 +82,12 @@ class RLTKJoiner(JoinerBase):
         print(right_columns)
 
         return left_df
+
+    def simple_best_match(self, sim: dict):
+        res = []
+        for k, v in sim.items():
+            max_sim_r2 = max(v, key=v.get)
+            res.append(max_sim_r2)
+        return res
+
+

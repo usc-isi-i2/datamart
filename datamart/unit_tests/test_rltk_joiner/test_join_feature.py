@@ -75,7 +75,7 @@ class TestJoinFeature(unittest.TestCase):
                           right_columns=[[0, 1, 2], [3]],
                           left_metadata=self.meta1,
                           right_metadata=self.meta2)
-        for left, right in fp:
+        for left, right in fp.pairs:
             names = (left.name, right.name)
             types = (type(left), type(right))
             self.assertEqual(names, next(expected_names))

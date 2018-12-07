@@ -1,9 +1,6 @@
 from enum import Enum
 import pandas as pd
-
-
-def merge_headers(headers):
-    return '|'.join(headers)
+from rltk import Record
 
 
 class DistributeType(Enum):
@@ -59,7 +56,7 @@ class FeatureBase(object):
 
         self._multi_column = False if len(indexes) == 1 else True
         self._headers = [df.iloc[:, i].name for i in indexes]
-        self._name = merge_headers(self._headers)
+        self._name = '|'.join(self._headers)
 
         self._distribute_type = distribute_type
         self._data_type = data_type
@@ -89,7 +86,7 @@ class FeatureBase(object):
         """
         return self._name
 
-    def value_merge_func(self, record_values: list):
+    def value_merge_func(self, record: Record):
         """
         Define the function to map the multiple columns values to a single feature value. Only useful when \
         self.multi_column is True
@@ -101,7 +98,7 @@ class FeatureBase(object):
         Returns: merged value as the feature value for joining
 
         """
-        return ' '.join(record_values)
+        return [getattr(record, header) for header in self._headers]
 
     def similarity_functions(self):
         """
@@ -111,4 +108,9 @@ class FeatureBase(object):
         Returns: list of functions
 
         """
-        return [lambda left, right: 1 if left == right else 0]
+        def default_similarity_function(r1, r2):
+            v1 = self.value_merge_func(r1)
+            v2 = self.value_merge_func(r2)
+            return 1 if v1 == v2 else 0
+
+        return [default_similarity_function]
