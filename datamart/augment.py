@@ -88,11 +88,11 @@ class Augment(object):
             )
 
         if not queries:
-            return self.query_all()
+            return self._query_all()
 
         return self.qm.search(body=self.qm.form_conjunction_query(queries), **kwargs)
 
-    def query_by_es_query(self, body: str, **kwargs) -> typing.Optional[typing.List[dict]]:
+    def _query_by_es_query(self, body: str, **kwargs) -> typing.Optional[typing.List[dict]]:
         """Query metadata by an elastic search query
 
         Args:
@@ -103,7 +103,7 @@ class Augment(object):
         """
         return self.qm.search(body=body, **kwargs)
 
-    def query_all(self, **kwargs) -> typing.Optional[typing.List[dict]]:
+    def _query_all(self, **kwargs) -> typing.Optional[typing.List[dict]]:
         """Query all metadata
 
         Args:
