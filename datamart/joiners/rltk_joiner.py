@@ -51,9 +51,7 @@ class RLTKJoiner(JoinerBase):
             sim[int(r1.id)][int(r2.id)] = sum(similarities)/len(similarities) if similarities else 0
 
         matched_rows = self.simple_best_match(sim)
-        right_remain = self.get_remain_list(right_df, right_columns)
-        to_join = pd.DataFrame([right_df.iloc[i, right_remain] for i in matched_rows], index=range(len(matched_rows)))
-        res = pd.concat([left_df, to_join], axis=1)
+        res = self.one_to_one_concat(matched_rows, left_df, right_df, right_columns)
 
         # step 2 : analyze target columns - get ranked similarity functions for each columns
         """
@@ -63,28 +61,40 @@ class RLTKJoiner(JoinerBase):
 
         # step 3 : check if 1-1, 1-n, n-1, or m-n relations,
         # based on the analyze in step 2 we can basically know if it is one-to-one relation
-        # print(left_df)
-        # print(right_df)
-        #
-        # print(left_columns)
-        # print(right_columns)
 
+        return res
+
+    def one_to_one_concat(self, matched_rows, left_df, right_df, right_columns):
+        right_remain = self.get_remain_list(right_df, right_columns)
+        to_join = pd.DataFrame([right_df.iloc[i, right_remain] for i in matched_rows], index=range(len(matched_rows)))
+        res = pd.concat([left_df, to_join], axis=1)
         return res
 
     def munkrus_match(self, sim: typing.List[typing.List[float]]):
         pass
 
     @staticmethod
-    def simple_best_match(sim: typing.List[typing.List[float]]):
+    def simple_best_match(sim: typing.List[typing.List[float]], threshold=0.5):
         res = []
         for idx, v in enumerate(sim):
-            max_val = -1
+            max_val = threshold
             max_idx = None
             for idx_, v_ in enumerate(v):
-                if v_ > max_val:
+                if v_ >= max_val:
                     max_idx = idx_
                     max_val = v_
             res.append(max_idx)
+        return res
+
+    @staticmethod
+    def simple_best_matches(sim: typing.List[typing.List[float]], threshold=0.8):
+        res = []
+        for idx, v in enumerate(sim):
+            cur = []
+            for idx_, v_ in enumerate(v):
+                if v_ >= threshold:
+                    cur.append(idx_)
+            res.append(cur)
         return res
 
     @staticmethod

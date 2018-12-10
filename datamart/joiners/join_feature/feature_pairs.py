@@ -4,14 +4,19 @@ import rltk
 from rltk.io.reader.dataframe_reader import DataFrameReader
 
 
-class DynamicRecord(rltk.Record):
+class LeftDynamicRecord(rltk.Record):
     def __init__(self, raw_object: dict):
         super().__init__(raw_object)
+        # TODO: deal with "id" in original dataset, now it will not be in property
         vars(self).update(raw_object)
 
     @property
     def id(self):
         return str(self.raw_object['dataframe_default_index'])
+
+
+class RightDynamicRecord(LeftDynamicRecord):
+    pass
 
 
 class FeaturePairs:
@@ -38,8 +43,8 @@ class FeaturePairs:
         self._left_metadata = left_metadata
         self._right_metadata = right_metadata
 
-        self._left_rltk_dataset = self._init_rltk_dataset(left_df)
-        self._right_rltk_dataset = self._init_rltk_dataset(right_df)
+        self._left_rltk_dataset = self._init_rltk_dataset(left_df, LeftDynamicRecord)
+        self._right_rltk_dataset = self._init_rltk_dataset(right_df, RightDynamicRecord)
 
         self._pairs = self._init_pairs()
 
@@ -64,6 +69,6 @@ class FeaturePairs:
                 for i in range(self._length)]
 
     @staticmethod
-    def _init_rltk_dataset(df):
-        rltk_dataset = rltk.Dataset(reader=DataFrameReader(df, True), record_class=DynamicRecord)
+    def _init_rltk_dataset(df, record_class):
+        rltk_dataset = rltk.Dataset(reader=DataFrameReader(df, True), record_class=record_class)
         return rltk_dataset
