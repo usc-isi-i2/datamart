@@ -42,12 +42,14 @@ class RLTKJoiner(JoinerBase):
             for f1, f2 in fp.pairs:
                 v1 = f1.value_merge_func(r1)
                 v2 = f2.value_merge_func(r2)
+                # print(v1, v2, type(f1), type(f2))
                 for similarity_func in f1.similarity_functions():
                     similarity = similarity_func(v1, v2)
                     similarities.append(similarity)
                     # print(f1.name, f2.name, v1, v2, similarity, similarity_func, type(f1))
                     # TODO: now only consider the first similarity function for now
                     break
+                # print(v1, v2, similarities)
             sim[int(r1.id)][int(r2.id)] = sum(similarities)/len(similarities) if similarities else 0
 
         matched_rows = self.simple_best_match(sim)

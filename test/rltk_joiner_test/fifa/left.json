@@ -1,0 +1,237 @@
+{
+  "datamart_id": null,
+  "materialization": {
+    "python_path": "default_materializer",
+    "arguments": null
+  },
+  "variables": [
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "d3mIndex",
+      "description": "column name: d3mIndex, dtype: int64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "GameID",
+      "description": "column name: GameID, dtype: int64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Date",
+      "description": "column name: Date, dtype: object",
+      "temporal_coverage": {
+        "start": "2018-01-07T00:00:00",
+        "end": "2018-11-07T00:00:00"
+      }
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Team",
+      "description": "column name: Team, dtype: object",
+      "named_entity": [
+        "Russia",
+        "Saudi Arabia",
+        "Egypt",
+        "Uruguay",
+        "Morocco",
+        "Iran",
+        "Portugal",
+        "Spain",
+        "France",
+        "Australia",
+        "Argentina",
+        "Iceland",
+        "Peru",
+        "Denmark",
+        "Croatia",
+        "Nigeria",
+        "Costa Rica",
+        "Serbia",
+        "Germany",
+        "Mexico",
+        "Brazil",
+        "Switzerland",
+        "Sweden",
+        "Korea Republic",
+        "Belgium",
+        "Panama",
+        "Tunisia",
+        "England",
+        "Colombia",
+        "Japan",
+        "Poland",
+        "Senegal"
+      ]
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Opponent",
+      "description": "column name: Opponent, dtype: object",
+      "named_entity": [
+        "Saudi Arabia",
+        "Russia",
+        "Uruguay",
+        "Egypt",
+        "Iran",
+        "Morocco",
+        "Spain",
+        "Portugal",
+        "Australia",
+        "France",
+        "Iceland",
+        "Argentina",
+        "Denmark",
+        "Peru",
+        "Nigeria",
+        "Croatia",
+        "Serbia",
+        "Costa Rica",
+        "Mexico",
+        "Germany",
+        "Switzerland",
+        "Brazil",
+        "Korea Republic",
+        "Sweden",
+        "Panama",
+        "Belgium",
+        "England",
+        "Tunisia",
+        "Japan",
+        "Colombia",
+        "Senegal",
+        "Poland"
+      ]
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Ball Possession %",
+      "description": "column name: Ball Possession %, dtype: int64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Off-Target",
+      "description": "column name: Off-Target, dtype: int64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Blocked",
+      "description": "column name: Blocked, dtype: int64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Offsides",
+      "description": "column name: Offsides, dtype: int64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Saves",
+      "description": "column name: Saves, dtype: int64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Pass Accuracy %",
+      "description": "column name: Pass Accuracy %, dtype: int64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Passes",
+      "description": "column name: Passes, dtype: int64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Distance Covered (Kms)",
+      "description": "column name: Distance Covered (Kms), dtype: int64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Yellow & Red",
+      "description": "column name: Yellow & Red, dtype: int64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Man of the Match",
+      "description": "column name: Man of the Match, dtype: int64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "1st Goal",
+      "description": "column name: 1st Goal, dtype: float64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Round",
+      "description": "column name: Round, dtype: object",
+      "named_entity": [
+        "Group Stage",
+        "Round of 16",
+        "Quarter Finals",
+        "Semi- Finals",
+        "3rd Place",
+        "Final"
+      ]
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "PSO",
+      "description": "column name: PSO, dtype: object",
+      "named_entity": [
+        "No",
+        "Yes"
+      ]
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Goals in PSO",
+      "description": "column name: Goals in PSO, dtype: int64"
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Own goals",
+      "description": "column name: Own goals, dtype: float64"
+    }
+  ],
+  "title": "d3mIndex GameID Date Team Opponent Ball Possession % Off-Target Blocked Offsides Saves Pass Accuracy % Passes Distance Covered (Kms) Yellow & Red Man of the Match 1st Goal Round PSO Goals in PSO Own goals",
+  "description": "d3mIndex : int64, GameID : int64, Date : object, Team : object, Opponent : object, Ball Possession % : int64, Off-Target : int64, Blocked : int64, Offsides : int64, Saves : int64, Pass Accuracy % : int64, Passes : int64, Distance Covered (Kms) : int64, Yellow & Red : int64, Man of the Match : int64, 1st Goal : float64, Round : object, PSO : object, Goals in PSO : int64, Own goals : float64",
+  "keywords": [
+    "d3mIndex",
+    "GameID",
+    "Date",
+    "Team",
+    "Opponent",
+    "Ball Possession %",
+    "Off-Target",
+    "Blocked",
+    "Offsides",
+    "Saves",
+    "Pass Accuracy %",
+    "Passes",
+    "Distance Covered (Kms)",
+    "Yellow & Red",
+    "Man of the Match",
+    "1st Goal",
+    "Round",
+    "PSO",
+    "Goals in PSO",
+    "Own goals"
+  ]
+}
