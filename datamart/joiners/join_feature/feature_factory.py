@@ -16,6 +16,7 @@ class FeatureFactory:
         if multi_column:
             # TODO: how to deal with multi-columns ?
             idx = indexes[0]
+            return CategoricalTokenFeature(df, indexes, df_metadata['variables'][idx], DistributeType.TOKEN_CATEGORICAL, DataType.STRING)
         else:
             idx = indexes[0]
 
@@ -23,7 +24,7 @@ class FeatureFactory:
         data_type = DataType.STRING
         distribute_type = DistributeType.NON_CATEGORICAL
 
-        profiles = metadata.get('dsbox_profiled')
+        profiles = metadata.get('dsbox_profiled', {})
 
         if len(df.iloc[:, idx]) // len(df.iloc[:, idx].unique()) >= 1.5:
             distribute_type = DistributeType.CATEGORICAL
@@ -47,7 +48,8 @@ class FeatureFactory:
                         data_type = DataType.DATETIME
                     else:
                         data_type = cls._get_data_type_by_profile(profiles) or data_type
-                except:
+                except Exception as e:
+                    print(e)
                     data_type = cls._get_data_type_by_profile(profiles) or data_type
 
         constructor = cls.get_constructor(distribute_type, data_type)
