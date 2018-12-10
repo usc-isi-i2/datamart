@@ -49,7 +49,7 @@ class FeatureFactory:
                     else:
                         data_type = cls._get_data_type_by_profile(profiles) or data_type
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     data_type = cls._get_data_type_by_profile(profiles) or data_type
 
         constructor = cls.get_constructor(distribute_type, data_type)
