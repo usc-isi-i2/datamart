@@ -12,7 +12,7 @@ args2  = sys.argv[2]
 
 counterror = 0
 context = ssl._create_unverified_context()
-for num in range(0,1):         
+for num in range(0,303):         
 	curPath=os.getcwd()
 	tempPath=str(num)
 	targetPath=str(args2)+"/"+tempPath
