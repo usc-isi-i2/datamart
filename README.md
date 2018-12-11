@@ -17,7 +17,7 @@ git update-index --assume-unchanged datamart/resources/index_info.json
 python -W ignore -m unittest discover
 ```
 
-#####When new packages were added:
+####When new packages were added:
 
 Before commit: please run the following commands to update the dependencies config.
 ```
