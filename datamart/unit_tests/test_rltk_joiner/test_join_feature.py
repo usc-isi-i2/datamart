@@ -67,7 +67,7 @@ class TestJoinFeature(unittest.TestCase):
     def test_feature_pairs(self):
         # TODO: correctness for multi-column feature("month|day|year" here), after implementation
         expected_names = iter([('date', 'month|day|year'), ('city', 'city')])
-        expected_types = iter([(DatetimeFeature, CategoricalStringFeature),
+        expected_types = iter([(DatetimeFeature, CategoricalTokenFeature),
                                (CategoricalStringFeature, NonCategoricalStringFeature)])
         fp = FeaturePairs(left_df=self.df1,
                           right_df=self.df2,
