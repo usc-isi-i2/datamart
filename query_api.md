@@ -31,37 +31,37 @@ Domain-specific language to specify queries for searching datasets in Datamart.
           - `granularity`: enum, one of ["year", "month", "day", "hour", "minute", "second"], requested dates are well matched with the requested granularity. For example, if "day" is requested, the best match is a dataset with dates; however a dataset with hours is relevant too as hourly data can be aggregated into days.
     2. `geospatial_entity`: describe columns containing geospatial entities such as cities, countries, etc.
           - `type`: "geospatial_entity"
-          - `circle`: object. Geosptial circle area identified using a radius and a center point on the surface of the earth.
+          - `circle`: object. Geospatial circle area identified using a radius and a center point on the surface of the earth.
             - `latitude`: number. The latitude of the center point
             - `longitude`: number. The longitude of the center point
             - `radius`: string. A string specify the radius of the area.
             - `granularity`: string(one of ["country", "state", "city", "county", "postalcode"]). The granularity of the entities contained in a bounding box.
-          - `bounding_box`: object. Geosptial bounding box identified using two points on the surface of the earth.
+          - `bounding_box`: object. Geospatial bounding box identified using two points on the surface of the earth.
             - `latitude1`: number. The latitude of the first point
             - `longitude1`: number. The longitude of the first point
             - `latitude2`: number. The latitude of the second point
             - `longitude2`: number. The longitude of the second point
             - `granularity`: string(one of ["country", "state", "city", "county", "postalcode"]). The granularity of the entities contained in a bounding box.
-          - `named_entities`: object. A set of names of geopspatial entities. This should be used when the requestor doesn't know what type of geospatial entities are provided, they could be cities, states, countries, etc. A matching dataset should have a column containing the requested entities.
+          - `named_entities`: object. A set of names of geospatial entities. This should be used when the requestor doesn't know what type of geospatial entities are provided, they could be cities, states, countries, etc. A matching dataset should have a column containing the requested entities.
             - `semantic_type`: string(one of ["http://schema.org/AdministrativeArea", "http://schema.org/Country", "http://schema.org/City", "http://schema.org/State"]).
             - `items`: array.
     3. `dataframe_columns`: describe columns that a matching dataset should have in terms of columns of a known dataframe. 
           - `type`: "dataframe_columns"
           - `index`: array. A set of indices that identifies a set of columns in the known dataset. When multiple indices are provides, the matching dataset should contain columns corresponding to each of the given columns.
           - `names`: array. A set of column headers that identifies a set of columns in the known dataset. When multiple headers are provides, the matching dataset should contain columns corresponding to each of the given columns.
-          - `relationship`: string(one of ["contains", "similiar", "correlated", "anti-correlated", "mutually-informative", "mutually-uninformative"]). The relationship between a column in the known dataset and a column in a matching dataset. The default is 'contains'.
-    4. `generic_entity`: describe any entity that is not temporal or geospatial. Temporal and geospatial entities receive special treatment. Datamart can raggregate and disagregate temporal and geo-spatial entitie so that the granularity of the requested data and an existing dataset does not need to match exactly.
+          - `relationship`: string(one of ["contains", "similar", "correlated", "anti-correlated", "mutually-informative", "mutually-uninformative"]). The relationship between a column in the known dataset and a column in a matching dataset. The default is 'contains'.
+    4. `generic_entity`: describe any entity that is not temporal or geospatial. Temporal and geospatial entities receive special treatment. Datamart can re-aggregate and disaggregate temporal and geo-spatial entities so that the granularity of the requested data and an existing dataset does not need to match exactly.
           - `type`: "generic_entity"
-          - `about`: string. A query sting that is matched with all information contained in a column including metdata and values. A matching dataset should contain a column whose metadata or values matches at least one of the words in the query string. The matching algorithm gives preference to phrases when possible.
+          - `about`: string. A query sting that is matched with all information contained in a column including metadata and values. A matching dataset should contain a column whose metadata or values matches at least one of the words in the query string. The matching algorithm gives preference to phrases when possible.
           - `variable_name`: array. A set of header names. A matching dataset should have a column that matches closely one of the provided names.
           - `variable_metadata`: array. A set of keywords to be matched with all the words appearing in the metadata of a column. A matching dataset should contain a column whose metadata matches at least one of the keywords.
           - `variable_description`: array. A set of keywords to be matched with all the words in the description of a column in a dataset. A matching dataset should contain a column whose description matches at least one of the keywords.
-          - `variable_syntatic_type`: array. A set of syntatic types. A matching dataset should contain a column with any of the provided syntactic types. Comment: this should be defined using an enum.
+          - `variable_syntactic_type`: array. A set of syntactic types. A matching dataset should contain a column with any of the provided syntactic types. Comment: this should be defined using an enum.
           - `variable_semantic_type`: array. A set of semantic types. A matching dataset should contain a column whose semantic types have a non empty intersection with the provided semantic types.
           - `named_entities`: array. A set of entity names. A matching dataset shold contain a column with the requested names.
           - `column_values`: object.
             - `items`: array. A set of arbitrary values of any type, string, number, date, etc. To be used with the caller doesn't know whether the values represent named entities. A matching dataset shold contain a column with the requested values.
-            - `relationship`: string(one of ["contains", "similiar", "correlated", "anti-correlated", "mutually-informative", "mutually-uninformative"]). The relationship between the specified values and the values in a column in a matching dataset. The default is "contains".
+            - `relationship`: string(one of ["contains", "similar", "correlated", "anti-correlated", "mutually-informative", "mutually-uninformative"]). The relationship between the specified values and the values in a column in a matching dataset. The default is "contains".
 - [Detailed sample query](https://www.dropbox.com/s/cg87gsmfoh6k82x/query-detail-isi-02.json?dl=0)
 - [Real examples](https://www.dropbox.com/s/bzofafmlg1v3xh3/Sample_query_Taxi_FIFA_HOF-02.json?dl=0)
 - [JSON Schema](https://www.dropbox.com/s/txuj2fkbqtmh3m1/query-schema-isi-02.json?dl=0)
