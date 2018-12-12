@@ -15,7 +15,7 @@
             "semantic_type": []
       },
       {
-            "name": "sub_label",
+            "name": "subject_label",
             "description": "the entity label that the entities associated with the given property",
             "semantic_type": ["http://schema.org/Text"],
             "external_identifier": "",
