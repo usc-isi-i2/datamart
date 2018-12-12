@@ -3,7 +3,7 @@
 The query API provides an interface for searching complementary datasets that can be used
 to augment the supplied dataset to improve prediction performance.
 
-This API provides the three search methods 
+This API provides the three ways to search for complementary datasets: 
 * Search by example
 * Search by metadata query
 * Search by content query
@@ -15,7 +15,7 @@ engine searches metadata descriptions of the datasets, and in _search by content
 engine searches content of the datasets.
 
 The API defines a domain specific language in JSON for specifying search queries. This 
-language allows the three search methods to be mixed-and-matched and combined into one 
+language allows the three ways of searching to be mixed-and-matched and combined into one 
 query. 
 
 The query returns a ranked list of dataset matches. Each match contains a match score,
@@ -26,7 +26,7 @@ joiner to create augmented datasets.
 ### 1. Input
 
 The API defines a query method that takes two inputs:
-- data: example dat, either D3M Dataset or D3M Dataframe
+- data: example data, either D3M Dataset or D3M Dataframe
 - query: a JSON object representing what the user what to query (See [2. Query Schema](#2.-Query-Schema)).
 
 ### 2. Query Schema
@@ -40,7 +40,7 @@ contains three root-level properties:
 The `dataset` property is for searching at the dataset-level. This
 includes searching the dataset metadata, and the content of the dataset. The
 `required_variables` and `desired_variables` are for searching variables, i.e. columns, of
-the dataset. Similarly, these properties can search the column metadata and the content of
+the dataset. Similarly, these properties include searching the column metadata and the content of
 columns. For `required_variables` the matched dataset _must_ contain the specified columns,
 and for `desired_variables` the matched dataset _should_ contain the specified columns. All
 three properties are optional.
