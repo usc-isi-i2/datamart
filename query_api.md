@@ -18,10 +18,14 @@ The API defines a domain specific language in JSON for specifying search queries
 language allows the three ways of searching to be mixed-and-matched and combined into one 
 query. 
 
-The query returns a ranked list of dataset matches. Each match contains a match score,
+The JSON Schema of the query language is [here]. Sample queries can be found [here] and [here].
+
+The query returns a ranked list of dataset matches in JSON. Each match contains a match score,
 metadata of the matched dataset, and a description of how the dataset satisfies the given
 query. The query results can used to further refined the search by TA3 users, or by smart
 joiner to create augmented datasets.
+
+The JSON Schema for result is [here]. Sample results can be found [here].
 
 ### 1. Input
 
@@ -45,7 +49,7 @@ columns. For `required_variables` the matched dataset _must_ contain the specifi
 and for `desired_variables` the matched dataset _should_ contain the specified columns. All
 three properties are optional.
 
-The JSON Schema description of the query language is [here]. Sample queries can be found [here] and [here].
+
 
 Below is a detailed description of the query schema:
 
