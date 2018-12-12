@@ -7,9 +7,9 @@
     "date_updated": "",
     "license": {},
     "provenance": {"source": "wikidata.org"},
-    "original_identifier": "wikidata_materializer",
+    "original_identifier": "wikidata_spo_materializer",
     "materialization": {
-        "python_path": "wikidata_materializer",
+        "python_path": "wikidata_spo_materializer",
         "arguments": {
             "property": ""
         }
