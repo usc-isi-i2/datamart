@@ -27,7 +27,7 @@ class TestWikidataSPOMaterializer(unittest.TestCase):
             # .to_dict(orient="records")
         # sort by row
         result2 = pd.DataFrame(np.sort(result.values, axis=0), index=result.index)
-
+        # print(result2)
         sample_result = pd.read_csv(os.path.join(resources_path, 'P2672_SOATO_ID.csv'), dtype=str)
         sample_result = sample_result[["source", "subject_label", "category", "prop_value", "value_label"]]
         sample_result = sample_result.fillna('')

@@ -8,7 +8,7 @@ from pprint import pprint
 import re
 
 
-template_path = "./json_template/desc_template.json"
+template_path = "./json_template/spo_desc_template.json"
 source_value_schema_path = "./json_template/source_value_description_schema.json"
 
 
@@ -108,25 +108,6 @@ def get_prop_value_category(property):
     return prop_value_category
 
 
-# get information from identifier
-def get_identifier_attr_query(property):
-    identifier_attr_query =  \
-        'SELECT DISTINCT ?identifier ?id_l ?desc WHERE \
-        {\
-          ?source wdt:' + property + '?prop_value.\
-          ?source ?id ?id_value.\
-          ?identifier schema:description ?desc.\
-          filter (lang(?desc)="en")\
-          ?identifier wikibase:directClaim ?id.\
-          ?identifier wikibase:propertyType wikibase:ExternalId.\
-          ?identifier rdfs:label ?id_l.\
-          filter (lang(?id_l)="en")\
-        }\
-        ORDER BY ?identifier'
-
-    return identifier_attr_query
-
-
 def fill_description(desc_template, data):
     data = data[0]
     desc_template["title"] = desc_template["title"] + data["prop_label"]["value"].upper()
@@ -162,9 +143,9 @@ def process_property_attr_query(desc_template, data, mapping):
         # print(item)
         # assemble variable
         variable = dict()
-        variable["wikidata_identifier"] = item["identifier"]["value"]
-        prop_id = variable["wikidata_identifier"].split("/")[-1]
-        variable["external_source_ns"] = mapping.get(prop_id, "")
+        # variable["wikidata_identifier"] = item["identifier"]["value"]
+        # prop_id = variable["wikidata_identifier"].split("/")[-1]
+        # variable["external_source_ns"] = mapping.get(prop_id, "")
         variable["name"] = item["id_l"]["value"]
         variable["description"] = item["desc"]["value"]
         variable["semantic_type"] = ["https://metadata.datadrivendiscovery.org/types/Identifier"]
@@ -183,30 +164,6 @@ def append_src_val_desc(filled_src_val_desc, desc_template):
     return desc_template
 
 
-def get_ext_id_namespace_query(property):
-    ext_id_namespace_query = \
-    'SELECT DISTINCT ?p (group_concat(?v; separator = ";") as ?v_concat) WHERE \
-    { \
-        ?source wdt:' + property + ' ?prop_value. \
-        ?source ?p ?v. \
-            BIND(STR(?p) AS ?string ). \
-        filter(regex(str(?p), "direct-normalized")) \
-    } group by ?p'
-
-    return ext_id_namespace_query
-
-
-def process_ext_id_namespace_query(data):
-    mapping = dict()
-    for item in data:
-        external_id = item["p"]["value"].split("/")[-1]
-        urls = item["v_concat"]["value"].split(";")
-        namespace = urls[0].rsplit('/', 1)[0]
-        mapping[external_id] = namespace
-
-    return mapping
-
-
 def process_get_all_properties_query(data):
     properties = list()
     for item in data:
@@ -215,8 +172,13 @@ def process_get_all_properties_query(data):
     return properties
 
 
+def next(query_sent, offset):
+    query_sent = query_sent + " LIMIT 1000 " + "OFFSET " + str(1000 * offset)
+    return query_sent
+
+
 if __name__ == '__main__':
-    # is_partial_dataset = read_args()
+    is_partial_dataset = read_args()
 
     prefix = 'http://sitaware.isi.edu:8080/bigdata/namespace/wdq/sparql?query='
     format = '&format=json'
@@ -226,10 +188,11 @@ if __name__ == '__main__':
     properties = process_get_all_properties_query(get_query_result(get_all_property_query))
 
     for property in properties:
+    # property = "P78"
         try:
             property_attr_query_encoded = encode_url(get_property_attr_query(property))
-            identifier_attr_query_encoded = encode_url(get_identifier_attr_query(property))
-            ext_id_namespace_query_encoded = encode_url(get_ext_id_namespace_query(property))
+            # identifier_attr_query_encoded = encode_url(get_identifier_attr_query(property))
+            # ext_id_namespace_query_encoded = encode_url(get_ext_id_namespace_query(property))
             source_category_query_encoded = encode_url(get_source_category(property))
             prop_value_category_encoded = encode_url(get_prop_value_category(property))
 
@@ -237,10 +200,10 @@ if __name__ == '__main__':
             property_attr_query = urllib.request.Request(prefix + property_attr_query_encoded + format)
 
             # print("identifier_attr ", prefix + identifier_attr_query_encoded + format)
-            identifier_attr_query = urllib.request.Request(prefix + identifier_attr_query_encoded + format)
+            # identifier_attr_query = urllib.request.Request(prefix + identifier_attr_query_encoded + format)
 
             # print("identifier namespace mapping ", prefix + ext_id_namespace_query_encoded + format)
-            ext_id_namespace_query = urllib.request.Request(prefix + ext_id_namespace_query_encoded + format)
+            # ext_id_namespace_query = urllib.request.Request(prefix + ext_id_namespace_query_encoded + format)
 
             # print("source category ", prefix + source_category_query_encoded + format)
             source_category_query = urllib.request.Request(prefix + source_category_query_encoded + format)
@@ -248,16 +211,18 @@ if __name__ == '__main__':
             # print("prop value category ", prefix + prop_value_category_encoded + format)
             prop_value_category_query = urllib.request.Request(prefix + prop_value_category_encoded + format)
 
+            # -------------------------- #
+
             desc_template = read_template(template_path)
             # adding basic information
             desc_template = fill_description(desc_template, get_query_result(property_attr_query))
 
             # adding column information
-            mapping = process_ext_id_namespace_query(get_query_result(ext_id_namespace_query))
+            # mapping = process_ext_id_namespace_query(get_query_result(ext_id_namespace_query))
             # adding external id info.
-            desc_template = process_property_attr_query(desc_template,
-                                                        get_query_result(identifier_attr_query),
-                                                        mapping)
+            # desc_template = process_property_attr_query(desc_template,
+            #                                             get_query_result(identifier_attr_query),
+            #                                             mapping)
             # adding category for source & prop value
             source_value_schema = read_template(source_value_schema_path)
 

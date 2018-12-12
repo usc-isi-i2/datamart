@@ -8,21 +8,11 @@
     "license": {},
     "provenance": {"source": "wikidata.org"},
     "original_identifier": "wikidata_materializer",
-    "materialization": { 
+    "materialization": {
         "python_path": "wikidata_materializer",
         "arguments": {
             "property": ""
-        } 
-    }, 
-    "variables":
-    [
-        {
-            "name": "",
-            "description": "",
-            "semantic_type": [],
-            "wikidata_identifier":"",
-            "external_source_ns": "",
-            "named_entity": []
         }
-    ]
+    },
+    "variables": []
 }
