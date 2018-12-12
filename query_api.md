@@ -1,12 +1,35 @@
 Query API
 
-# Query API
+# Datamart Query API
+
+The query API provides an interface for searching complementary datasets that can be used
+to augment the supplied dataset to improve prediction performance.
+
+This API provides the three search methods 
+* Search by example
+* Search by metadata query
+* Search by content query
+
+In _search by example_ the query engine finds other datasets that contain data similar to
+the given the example data. For instance, give columns of D3M Dataframe as example, the
+query engine returns datasets with similar columns. In _search by metdata query_ the query
+engine searches metadata decriptions of the datasets, and in _search by content_ the query
+engine searches content of the datasets.
+
+The API defines a domain specific language in JSON for specifying search queries. This 
+language allows the three search methods to be mixed-and-matched and combined into one 
+query. 
+
+
 ### 1. Input
-- Dataframe: a d3m dataframe
+
+The API defines a query method that takes two inputs:
+- data: example dat, either D3M Dataset or D3M Dataframe
 - query: a JSON object representing what the user what to query(See [2. Query Schema](#2.-Query-Schema))
 
 ### 2. Query Schema
 Domain-specific language to specify queries for searching datasets in Datamart.
+
 - Descriptions:
   The `query` will be a JSON object, with three root properties: `dataset`, `required_variables`(optional) and `desired_variables`(optional).
   - `dataset`: contains global information of the desired datasets, like what the dataset is about, when the dataset is published etc., with the following fields:
