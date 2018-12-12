@@ -56,7 +56,7 @@ Below is a detailed description of the query schema:
 - Descriptions:
   The `query` will be a JSON object, with three root properties: `dataset`, `required_variables` and `desired_variables`.
   - `dataset`: contains global specification of the desired datasets, like what the dataset is about, when the dataset is published etc., with the following fields:
-    - `about`: a query __string__ that is matched with all information in a dataset, including dataset metdata, column metadata and all dataset values. A matching dataset should match at least one of the words in the query string. The matching algorithm gives preference to phrases when possible.
+    - `about`: a query __string__ that is matched with all information in a dataset, including dataset metadata, column metadata and all dataset values. A matching dataset should match at least one of the words in the query string. The matching algorithm gives preference to phrases when possible.
     - `name`: an __array of string__ of the names/titles of a dataset. (http://schema.org/name)
     - `description`: an __array of string__ of the descriptions of a dataset. (http://schema.org/description)
     - `keywords`: an __array of string__ of the keywords of a dataset. (http://schema.org/keywords)
@@ -67,8 +67,8 @@ Below is a detailed description of the query schema:
     - `date_published`: an __object__ specifying when a dataset is published, with fields `after` and `before`, each is a __string__ for a date. (http://schema.org/datePublished) 
         _(inclusive for both `after` and `before`)_.
     - `url`: an __array of string__ of the URLs of a dataset. (http://schema.org/url)
-  - `required_variables` (optional): contains an __array of object__, each object will represent a [varaible](#*variable) that is required in the matching datasets. All variables in the 'required_variables' set must be match by at least one column in a matching dataset. It is possible that an item is matched using a combination of columns. For example, a temporal item with day resolution can be matched by a dataset that represents dates using multiple columns, for year, month and date.  Typically, the 'required_variables' section is used to list columns to be used to perform a join. 
-  - `desired_variables` (optional): contains an __array of object__, each object will represent a [varaible](#*variable) that is desired in the matching datasets. The 'desired_variables' section describes the minimum set of columns that a matching dataset must have. A matching dataset must contain columns that match at least one of the 'desired_variables'. Typically, the 'desired_variables' are used to specify columns that will be used for augmentation.
+  - `required_variables` (optional): contains an __array of object__, each object will represent a [variable](#*variable) that is required in the matching datasets. All variables in the 'required_variables' set must be match by at least one column in a matching dataset. It is possible that an item is matched using a combination of columns. For example, a temporal item with day resolution can be matched by a dataset that represents dates using multiple columns, for year, month and date.  Typically, the 'required_variables' section is used to list columns to be used to perform a join. 
+  - `desired_variables` (optional): contains an __array of object__, each object will represent a [variable](#*variable) that is desired in the matching datasets. The 'desired_variables' section describes the minimum set of columns that a matching dataset must have. A matching dataset must contain columns that match at least one of the 'desired_variables'. Typically, the 'desired_variables' are used to specify columns that will be used for augmentation.
   - *variable: an __object__, with a required key `type` whose value is one of [`temporal_entity`, `geospatial_entity`, `dataframe_columns`, `generic_entity`]:
     1. `temporal_entity`: describe columns containing temporal information. 
           - `type`: "temporal_entity"
@@ -104,9 +104,9 @@ Below is a detailed description of the query schema:
           - `variable_description`: array. A set of keywords to be matched with all the words in the description of a column in a dataset. A matching dataset should contain a column whose description matches at least one of the keywords.
           - `variable_syntactic_type`: array. A set of syntactic types. A matching dataset should contain a column with any of the provided syntactic types. Comment: this should be defined using an enum.
           - `variable_semantic_type`: array. A set of semantic types. A matching dataset should contain a column whose semantic types have a non empty intersection with the provided semantic types.
-          - `named_entities`: array. A set of entity names. A matching dataset shold contain a column with the requested names.
+          - `named_entities`: array. A set of entity names. A matching dataset should contain a column with the requested names.
           - `column_values`: object.
-            - `items`: array. A set of arbitrary values of any type, string, number, date, etc. To be used with the caller doesn't know whether the values represent named entities. A matching dataset shold contain a column with the requested values.
+            - `items`: array. A set of arbitrary values of any type, string, number, date, etc. To be used with the caller doesn't know whether the values represent named entities. A matching dataset should contain a column with the requested values.
             - `relationship`: string(one of ["contains", "similar", "correlated", "anti-correlated", "mutually-informative", "mutually-uninformative"]). The relationship between the specified values and the values in a column in a matching dataset. The default is "contains".
 - [Detailed sample query](https://www.dropbox.com/s/cg87gsmfoh6k82x/query-detail-isi-02.json?dl=0)
 - [Real examples](https://www.dropbox.com/s/bzofafmlg1v3xh3/Sample_query_Taxi_FIFA_HOF-02.json?dl=0)
