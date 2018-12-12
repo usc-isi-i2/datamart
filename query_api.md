@@ -11,7 +11,7 @@ This API provides the three search methods
 * Search by content query
 
 In _search by example_ the query engine finds other datasets that contain data similar to
-the given the example data. For instance, give columns of D3M Dataframe as example, the
+the given the example data. For instance, give columns of a D3M Dataframe as example, the
 query engine returns datasets with similar columns. In _search by metadata query_ the query
 engine searches metadata descriptions of the datasets, and in _search by content_ the query
 engine searches content of the datasets.
@@ -20,6 +20,10 @@ The API defines a domain specific language in JSON for specifying search queries
 language allows the three search methods to be mixed-and-matched and combined into one 
 query. 
 
+The query returns a ranked list of dataset matches. Each match contains a match score,
+metadata of the matched dataset, and a description of how the dataset satisfies the given
+query. The query results can used to further refined the search by TA3 users, or by smart
+joiner to create augmented datasets.
 
 ### 1. Input
 
@@ -28,7 +32,22 @@ The API defines a query method that takes two inputs:
 - query: a JSON object representing what the user what to query(See [2. Query Schema](#2.-Query-Schema))
 
 ### 2. Query Schema
-Domain-specific language to specify queries for searching datasets in Datamart.
+
+Domain-specific language to specify queries for searching datasets in Datamart. A `query`
+contains three root-level properties: 
+* `dataset`
+* `required_variables`
+* `desired_variables`
+
+The `dataset` property is for searching at the dataset-level. This
+includes searching the dataset metadata, and the content of the dataset. The
+`required_variables` and `desired_variables` are for searching variables, i.e. columns, of
+the dataset. Similarly, these properties can search the column metadata and the content of
+columns.
+
+The JSON Schema description of the query language is here. Sample queries can be found here and here.
+
+Below is a detailed summary of the query schema:
 
 - Descriptions:
   The `query` will be a JSON object, with three root properties: `dataset`, `required_variables`(optional) and `desired_variables`(optional).
