@@ -43,9 +43,10 @@ The `dataset` property is for searching at the dataset-level. This
 includes searching the dataset metadata, and the content of the dataset. The
 `required_variables` and `desired_variables` are for searching variables, i.e. columns, of
 the dataset. Similarly, these properties can search the column metadata and the content of
-columns.
+columns. For `required_variables` the matched dataset _must_ contain the specified columns,
+and for `desired_variables` the matched dataset _should_ contain the specified columns.
 
-The JSON Schema description of the query language is here. Sample queries can be found here and here.
+The JSON Schema description of the query language is [here]. Sample queries can be found [here] and [here].
 
 Below is a detailed summary of the query schema:
 
