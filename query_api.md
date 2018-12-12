@@ -1,5 +1,3 @@
-Query API
-
 # Datamart Query API
 
 The query API provides an interface for searching complementary datasets that can be used
