@@ -12,8 +12,8 @@ This API provides the three search methods
 
 In _search by example_ the query engine finds other datasets that contain data similar to
 the given the example data. For instance, give columns of D3M Dataframe as example, the
-query engine returns datasets with similar columns. In _search by metdata query_ the query
-engine searches metadata decriptions of the datasets, and in _search by content_ the query
+query engine returns datasets with similar columns. In _search by metadata query_ the query
+engine searches metadata descriptions of the datasets, and in _search by content_ the query
 engine searches content of the datasets.
 
 The API defines a domain specific language in JSON for specifying search queries. This 
