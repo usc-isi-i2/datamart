@@ -18,14 +18,14 @@ The API defines a domain specific language in JSON for specifying search queries
 language allows the three ways of searching to be mixed-and-matched and combined into one 
 query. 
 
-The JSON Schema of the query language is [here](https://www.dropbox.com/s/txuj2fkbqtmh3m1/query-schema-isi-02.json?dl=0). Sample queries can be found [here](https://www.dropbox.com/s/cg87gsmfoh6k82x/query-detail-isi-02.json?dl=0) and [here](https://www.dropbox.com/s/bzofafmlg1v3xh3/Sample_query_Taxi_FIFA_HOF-02.json?dl=0).
+The JSON Schema of the query language is [here](https://paper.dropbox.com/doc/Datamart-Query-API-Input-Output--ATnRjCJAaWFVnovGoA3~~zv_Ag-8Rc8HTkA2GAHS0yehJCfl#:uid=594693729313479284833894&h2=Input-schema). Sample queries can be found [here](https://paper.dropbox.com/doc/Datamart-Query-API-Input-Output--ATnRjCJAaWFVnovGoA3~~zv_Ag-8Rc8HTkA2GAHS0yehJCfl#:uid=383295369662625070053841&h2=Input-sample-in-details) and [here](https://paper.dropbox.com/doc/Datamart-Query-API-Input-Output--ATnRjCJAaWFVnovGoA3~~zv_Ag-8Rc8HTkA2GAHS0yehJCfl#:uid=384363162480892852000682&h2=Input-samples-for-examples(Tax).
 
 The query returns a ranked list of dataset matches in JSON. Each match contains a match score,
 metadata of the matched dataset, and a description of how the dataset satisfies the given
 query. The query results can used to further refined the search by TA3 users, or by smart
 joiner to create augmented datasets.
 
-The JSON Schema for result is [here](https://paper.dropbox.com/doc/Output-Sample-and-Schema--ATnRjCJAaWFVnovGoA3~~zv_AQ-8Rc8HTkA2GAHS0yehJCfl). Sample results can be found [here](https://paper.dropbox.com/doc/Output-Sample-and-Schema--ATnRjCJAaWFVnovGoA3~~zv_AQ-8Rc8HTkA2GAHS0yehJCfl).
+The JSON Schema for result is [here](https://paper.dropbox.com/doc/Datamart-Query-API-Input-Output--ATnRjCJAaWFVnovGoA3~~zv_Ag-8Rc8HTkA2GAHS0yehJCfl#:uid=427212382360417372934863&h2=Output-Schema). Sample results can be found [here](https://paper.dropbox.com/doc/Datamart-Query-API-Input-Output--ATnRjCJAaWFVnovGoA3~~zv_Ag-8Rc8HTkA2GAHS0yehJCfl#:uid=079293874953179037454694&h2=Output-Sample).
 
 ### 1. Input
 
@@ -108,9 +108,9 @@ Below is a detailed description of the query schema:
           - `column_values`: object.
             - `items`: array. A set of arbitrary values of any type, string, number, date, etc. To be used with the caller doesn't know whether the values represent named entities. A matching dataset should contain a column with the requested values.
             - `relationship`: string(one of ["contains", "similar", "correlated", "anti-correlated", "mutually-informative", "mutually-uninformative"]). The relationship between the specified values and the values in a column in a matching dataset. The default is "contains".
-- [Detailed sample query](https://www.dropbox.com/s/cg87gsmfoh6k82x/query-detail-isi-02.json?dl=0)
-- [Real examples](https://www.dropbox.com/s/bzofafmlg1v3xh3/Sample_query_Taxi_FIFA_HOF-02.json?dl=0)
-- [JSON Schema](https://www.dropbox.com/s/txuj2fkbqtmh3m1/query-schema-isi-02.json?dl=0)
+- [Detailed sample query](https://paper.dropbox.com/doc/Datamart-Query-API-Input-Output--ATnRjCJAaWFVnovGoA3~~zv_Ag-8Rc8HTkA2GAHS0yehJCfl#:uid=383295369662625070053841&h2=Input-sample-in-details)
+- [Real examples](https://paper.dropbox.com/doc/Datamart-Query-API-Input-Output--ATnRjCJAaWFVnovGoA3~~zv_Ag-8Rc8HTkA2GAHS0yehJCfl#:uid=384363162480892852000682&h2=Input-samples-for-examples(Tax)
+- [JSON Schema](https://paper.dropbox.com/doc/Datamart-Query-API-Input-Output--ATnRjCJAaWFVnovGoA3~~zv_Ag-8Rc8HTkA2GAHS0yehJCfl#:uid=594693729313479284833894&h2=Input-schema)
 
 ### 3. Output
 A list of query results, each represents a dataset by `metadata`,  `required_variables`, `desired_variables`, `other_variables` and a ranking `score`.
@@ -119,7 +119,8 @@ A list of query results, each represents a dataset by `metadata`,  `required_var
 - `desired_variables`: an array of array of variable names in the dataset.  Each array of variable names is matched to an item in the `desired_variables` query list.
 - `other_variables`: an array of variable names that are in the matching dataset, but are not in `required_variables` nor `desired_variables` of the query.
 - `score`: a number for how well the dataset is matched with the query
-- [Return schema](link_to_return_schema?)
+- [Result schema](https://paper.dropbox.com/doc/Datamart-Query-API-Input-Output--ATnRjCJAaWFVnovGoA3~~zv_Ag-8Rc8HTkA2GAHS0yehJCfl#:uid=427212382360417372934863&h2=Output-Schema)
+- [Result sample](https://paper.dropbox.com/doc/Datamart-Query-API-Input-Output--ATnRjCJAaWFVnovGoA3~~zv_Ag-8Rc8HTkA2GAHS0yehJCfl#:uid=079293874953179037454694&h2=Output-Sample)
 
 
 
