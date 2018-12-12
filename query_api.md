@@ -27,7 +27,7 @@ joiner to create augmented datasets.
 
 The API defines a query method that takes two inputs:
 - data: example dat, either D3M Dataset or D3M Dataframe
-- query: a JSON object representing what the user what to query(See [2. Query Schema](#2.-Query-Schema))
+- query: a JSON object representing what the user what to query (See [2. Query Schema](#2.-Query-Schema)).
 
 ### 2. Query Schema
 
@@ -42,28 +42,29 @@ includes searching the dataset metadata, and the content of the dataset. The
 `required_variables` and `desired_variables` are for searching variables, i.e. columns, of
 the dataset. Similarly, these properties can search the column metadata and the content of
 columns. For `required_variables` the matched dataset _must_ contain the specified columns,
-and for `desired_variables` the matched dataset _should_ contain the specified columns.
+and for `desired_variables` the matched dataset _should_ contain the specified columns. All
+three properties are optional.
 
 The JSON Schema description of the query language is [here]. Sample queries can be found [here] and [here].
 
-Below is a detailed summary of the query schema:
+Below is a detailed description of the query schema:
 
 - Descriptions:
-  The `query` will be a JSON object, with three root properties: `dataset`, `required_variables`(optional) and `desired_variables`(optional).
-  - `dataset`: contains global information of the desired datasets, like what the dataset is about, when the dataset is published etc., with the following fields:
-    - `about`: a query __string__ that is matched with all information in a dataset, including all dataset and column metadata and all values. A matching dataset should match at least one of the words in the query string. The matching algorithm gives preference to phrases when possible.
+  The `query` will be a JSON object, with three root properties: `dataset`, `required_variables` and `desired_variables`.
+  - `dataset`: contains global specification of the desired datasets, like what the dataset is about, when the dataset is published etc., with the following fields:
+    - `about`: a query __string__ that is matched with all information in a dataset, including dataset metdata, column metadata and all dataset values. A matching dataset should match at least one of the words in the query string. The matching algorithm gives preference to phrases when possible.
     - `name`: an __array of string__ of the names/titles of a dataset. (http://schema.org/name)
     - `description`: an __array of string__ of the descriptions of a dataset. (http://schema.org/description)
     - `keywords`: an __array of string__ of the keywords of a dataset. (http://schema.org/keywords)
     - `creator`: an __array of string__ of the creators of a dataset. (http://schema.org/creator)
     - `publisher`: an __array of string__ of the publishers of a dataset. (http://schema.org/publisher)
-    - `date_created`: an __object__ define when a dataset is created, with fields `after` and `before`, each is a __string__ for a date. (http://schema.org/dateCreated) 
+    - `date_created`: an __object__ specifying when a dataset is created, with fields `after` and `before`, each is a __string__ for a date. (http://schema.org/dateCreated) 
         _(inclusive for both `after` and `before`)_.
-    - `date_published`: an __object__ define when a dataset is published, with fields `after` and `before`, each is a __string__ for a date. (http://schema.org/datePublished) 
+    - `date_published`: an __object__ specifying when a dataset is published, with fields `after` and `before`, each is a __string__ for a date. (http://schema.org/datePublished) 
         _(inclusive for both `after` and `before`)_.
     - `url`: an __array of string__ of the URLs of a dataset. (http://schema.org/url)
-  - `required_variables`(optional): contains an __array of object__, each object will represent a [varaible](#*variable) that is required in the matching datasets. All variables in the 'required_variables' set must be match by at least one column in a matching dataset. It is possible that an item is matched using a combination of columns. For example, a temporal item with day resolution can be matched by a dataset that represents dates using multiple columns, for year, month and date.  Typically, the 'required_variables' section is used to list columns to be used to perform a join. 
-  - `desired_variables`(optional): contains an __array of object__, each object will represent a [varaible](#*variable) that is desired in the matching datasets. The 'desired_variables' section describes the minimum set of columns that a matching dataset must have. A matching dataset must contain columns that match at least one of the 'desired_variables'. Typically, the 'desired_variables' are used to specify columns that will be used for augmentation.
+  - `required_variables` (optional): contains an __array of object__, each object will represent a [varaible](#*variable) that is required in the matching datasets. All variables in the 'required_variables' set must be match by at least one column in a matching dataset. It is possible that an item is matched using a combination of columns. For example, a temporal item with day resolution can be matched by a dataset that represents dates using multiple columns, for year, month and date.  Typically, the 'required_variables' section is used to list columns to be used to perform a join. 
+  - `desired_variables` (optional): contains an __array of object__, each object will represent a [varaible](#*variable) that is desired in the matching datasets. The 'desired_variables' section describes the minimum set of columns that a matching dataset must have. A matching dataset must contain columns that match at least one of the 'desired_variables'. Typically, the 'desired_variables' are used to specify columns that will be used for augmentation.
   - *variable: an __object__, with a required key `type` whose value is one of [`temporal_entity`, `geospatial_entity`, `dataframe_columns`, `generic_entity`]:
     1. `temporal_entity`: describe columns containing temporal information. 
           - `type`: "temporal_entity"
@@ -109,10 +110,10 @@ Below is a detailed summary of the query schema:
 
 ### 3. Output
 A list of query results, each represents a dataset by `metadata`,  `required_variables`, `desired_variables`, `other_variables` and a ranking `score`.
-- `metadata`: an object, d3m metadata? (has the metadata for the matching dataset on global level, as well as the metadata for each variable.)
-- `required_variables`: an array of variable names in the dataset which are matched to the `required_variables` in the query.
-- `desired_variables`: an array of variable names in the dataset which are matched to the `desired_variables` in the query.
-- `other_variables`: an array of variable names which are in the matching dataset but not in `required_variables` or `desired_variables` of the query.
+- `metadata`: an dataset metadata object (has the metadata for the matching dataset on global level, as well as the metadata for each variable.)
+- `required_variables`: an array of array of variable names in the dataset. Each array of variable names is matched to an item in the `required_variables` query list.
+- `desired_variables`: an array of array of variable names in the dataset.  Each array of variable names is matched to an item in the `desired_variables` query list.
+- `other_variables`: an array of variable names that are in the matching dataset, but are not in `required_variables` nor `desired_variables` of the query.
 - `score`: a number for how well the dataset is matched with the query
 - [Return schema](link_to_return_schema?)
 
