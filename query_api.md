@@ -18,14 +18,14 @@ The API defines a domain specific language in JSON for specifying search queries
 language allows the three ways of searching to be mixed-and-matched and combined into one 
 query. 
 
-The JSON Schema of the query language is [here]. Sample queries can be found [here] and [here].
+The JSON Schema of the query language is [here](https://www.dropbox.com/s/txuj2fkbqtmh3m1/query-schema-isi-02.json?dl=0). Sample queries can be found [here](https://www.dropbox.com/s/cg87gsmfoh6k82x/query-detail-isi-02.json?dl=0) and [here](https://www.dropbox.com/s/bzofafmlg1v3xh3/Sample_query_Taxi_FIFA_HOF-02.json?dl=0).
 
 The query returns a ranked list of dataset matches in JSON. Each match contains a match score,
 metadata of the matched dataset, and a description of how the dataset satisfies the given
 query. The query results can used to further refined the search by TA3 users, or by smart
 joiner to create augmented datasets.
 
-The JSON Schema for result is [here]. Sample results can be found [here].
+The JSON Schema for result is [here](https://paper.dropbox.com/doc/Output-Sample-and-Schema--ATnRjCJAaWFVnovGoA3~~zv_AQ-8Rc8HTkA2GAHS0yehJCfl). Sample results can be found [here](https://paper.dropbox.com/doc/Output-Sample-and-Schema--ATnRjCJAaWFVnovGoA3~~zv_AQ-8Rc8HTkA2GAHS0yehJCfl).
 
 ### 1. Input
 
