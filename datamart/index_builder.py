@@ -76,7 +76,7 @@ class IndexBuilder(object):
                     data.to_csv(cache_dataset_path, index=False)
             except:
                 traceback.print_exc()
-                warnings.warn("Materialization Failed, index based on schema json only")
+                warnings.warn("Materialization Failed, index based on schema json only. (%s)" % description_path)
 
         metadata = self.construct_global_metadata(description=description, data=data)
 
@@ -135,7 +135,7 @@ class IndexBuilder(object):
                 data = Utils.materialize(metadata=description).infer_objects()
             except:
                 traceback.print_exc()
-                warnings.warn("Materialization Failed, index based on schema json only")
+                warnings.warn("Materialization Failed, index based on schema json only. (%s)" % description_path)
 
         metadata = self.construct_global_metadata(description=description, data=data, overwrite_datamart_id=document_id)
         Utils.validate_schema(metadata)
