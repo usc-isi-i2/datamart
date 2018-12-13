@@ -14,11 +14,11 @@
             "property": ""
         } 
     }, 
-    "variables": 
+    "variables":
     [
         {
             "name": "",
-            "description": "",            
+            "description": "",
             "semantic_type": [],
             "wikidata_identifier":"",
             "external_source_ns": "",
