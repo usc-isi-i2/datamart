@@ -153,7 +153,8 @@ class IndexBuilder(object):
                       save_to_file: str = None,
                       save_to_file_mode: str = "a+",
                       delete_old_es_index: bool = False,
-                      cache_dataset_dir: str = None
+                      cache_dataset_dir: str = None,
+                      backup_indexed_files = False
                       ) -> None:
         """Bulk indexing many dataset by providing a path
 
@@ -169,6 +170,8 @@ class IndexBuilder(object):
             delete_old_es_index: bool, boolean if delete original es index if it exist
             cache_dataset_dir: str, path to the directory to save materialized dataset to local. (effective only when \
                 'data_path' is 'None', default is None - not to save)
+            backup_indexed_files: bool, boolean if move indexed dataset schema to description_dir+"_backup".
+                So if indexing procedure breaks (like es connection broke). Can continue indexing the remaining datasets
 
         Returns:
 
@@ -177,6 +180,8 @@ class IndexBuilder(object):
         self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
         cnt = 1
         total = len(os.listdir(description_dir))
+        if backup_indexed_files:
+            os.makedirs(description_dir+"_backup", exist_ok=True)
         for description in os.listdir(description_dir):
             print("start to index %s: %d of %d" % (description, cnt, total))
             cnt += 1
@@ -195,6 +200,8 @@ class IndexBuilder(object):
                               save_to_file=save_to_file,
                               save_to_file_mode=save_to_file_mode,
                               cache_dataset_path=cache_dataset_path)
+                if backup_indexed_files:
+                    os.rename(description_path, os.path.join(description_dir+"_backup", description))
 
     def _check_es_index(self, es_index: str, delete_old_es_index: bool = False) -> None:
         """Check es index, delete or create if necessary
