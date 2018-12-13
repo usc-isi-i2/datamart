@@ -270,7 +270,7 @@ if __name__ == '__main__':
             desc_template["materialization"]["arguments"]["property"] = property
 
             w_str = json.dumps(desc_template, indent=4)
-            with open('decription_' + property +'.json', 'w') as f:
+            with open('description_' + property + '.json', 'w') as f:
                 f.write(w_str)
         except Exception as e:
             with open('generate_property.log', 'a+') as f:
