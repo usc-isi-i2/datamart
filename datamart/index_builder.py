@@ -178,9 +178,13 @@ class IndexBuilder(object):
         """
 
         self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
+        cnt = 1
+        total = len(os.listdir(description_dir))
         if backup_indexed_files:
             os.makedirs(description_dir+"_backup", exist_ok=True)
         for description in os.listdir(description_dir):
+            print("start to index %s: %d of %d" % (description, cnt, total))
+            cnt += 1
             if description.endswith('.json'):
                 description_path = os.path.join(description_dir, description)
                 data_path = None
