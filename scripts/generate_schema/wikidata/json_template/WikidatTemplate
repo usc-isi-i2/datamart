@@ -1,0 +1,18 @@
+{
+    "title": "WIKIDATA_PROP_",
+    "description": "",
+    "url": "https://www.wikidata.org/wiki/Property:",
+    "keywords": [],
+    "date_published": "",
+    "date_updated": "",
+    "license": "",
+    "provenance": {"source": "wikidata.org"},
+    "original_identifier": "wikidata_materializer",
+    "materialization": {
+        "python_path": "wikidata_materializer",
+        "arguments": {
+            "property": ""
+        }
+    },
+    "variables":[]
+}

@@ -18,69 +18,167 @@ dependencies:
   - xz=5.2.4
   - zlib=1.2.11
   - pip:
+    - alabaster==0.7.12
     - appnope==0.1.0
+    - argh==0.26.2
+    - atomicwrites==1.2.1
+    - attrs==18.2.0
+    - babel==2.6.0
     - backcall==0.1.0
+    - beautifulsoup4==4.6.3
     - bleach==3.0.0
     - chardet==3.0.4
     - click==7.0
+    - cloudpickle==0.6.1
+    - cssselect==1.0.3
     - cycler==0.10.0
+    - cymem==2.0.2
+    - cython==0.29
+    - cytoolz==0.9.0.1
+    - dask==0.20.2
+    - datasketch==1.2.10
+    - dateparser==0.7.0
     - decorator==4.3.0
     - defusedxml==0.5.0
+    - demjson==2.2.4
+    - dill==0.2.8.2
+    - distributed==1.24.2
+    - docutils==0.14
     - elasticsearch==6.3.1
+    - en-core-web-sm==2.0.0
     - entrypoints==0.2.3
+    - et-xmlfile==1.0.1
+    - etk==2.1.5
+    - extruct==0.7.1
     - flask==1.0.2
+    - ftfy==5.5.0
+    - happybase==1.1.0
+    - heapdict==1.0.0
+    - html5lib==1.0.1
     - idna==2.7
+    - imagesize==1.1.0
     - ipykernel==5.0.0
     - ipython==7.0.1
     - ipython-genutils==0.2.0
     - ipywidgets==7.4.2
+    - isodate==0.6.0
     - itsdangerous==1.1.0
+    - jdcal==1.4
     - jedi==0.13.1
     - jinja2==2.10
     - jsonlines==1.2.0
+    - jsonpath-ng==1.4.3
     - jsonschema==2.6.0
     - jupyter==1.0.0
     - jupyter-client==5.2.3
     - jupyter-console==6.0.0
     - jupyter-core==4.4.0
     - kiwisolver==1.0.1
+    - landmark-extractor==0.2.4.1
     - langdetect==1.0.7
+    - langid==1.1.6
+    - livereload==2.5.2
+    - lml==0.0.7
+    - lxml==4.2.5
     - markupsafe==1.0
+    - matplotlib==3.0.2
+    - mf2py==1.1.2
     - mistune==0.8.3
+    - more-itertools==4.3.0
+    - msgpack==0.5.6
+    - msgpack-numpy==0.4.3.2
+    - msgpack-python==0.5.6
+    - murmurhash==1.0.1
     - nbconvert==5.4.0
     - nbformat==4.4.0
+    - nbsphinx==0.3.5
+    - nltk==3.4
     - notebook==5.7.2
     - numpy==1.15.2
+    - openpyxl==2.5.12
+    - packaging==18.0
     - pandas==0.22.0
+    - pandoc==1.0.2
     - pandocfilters==1.4.2
     - parso==0.3.1
+    - pathlib==1.0.1
+    - pathtools==0.1.2
     - pexpect==4.6.0
     - pickleshare==0.7.5
+    - plac==0.9.6
+    - pluggy==0.8.0
+    - ply==3.11
+    - plyvel==1.0.5
+    - pockets==0.7.2
+    - port-for==0.3.1
+    - preshed==2.0.1
     - prometheus-client==0.4.0
     - prompt-toolkit==2.0.5
+    - psutil==5.4.8
     - psycopg2==2.7.5
     - psycopg2-binary==2.7.5
     - ptyprocess==0.6.0
+    - py==1.7.0
+    - pyexcel==0.5.10
+    - pyexcel-io==0.5.11
+    - pyexcel-xls==0.5.8
+    - pyexcel-xlsx==0.5.6
     - pygments==2.2.0
+    - pygtrie==2.3
     - pyparsing==2.3.0
+    - pytest==4.0.0
     - python-dateutil==2.7.3
     - pytz==2018.5
+    - pyyaml==3.13
     - pyzmq==17.1.2
     - qtconsole==4.4.1
+    - rdflib==4.2.2
+    - rdflib-jsonld==0.4.0
+    - redis==3.0.1
+    - regex==2018.1.10
     - requests==2.20.0
+    - rltk==2.0.0a9
+    - scikit-learn==0.20.1
+    - scipy==1.1.0
+    - selenium==3.141.0
     - send2trash==1.5.0
     - simplegeneric==0.8.1
+    - singledispatch==3.4.0.3
     - six==1.11.0
+    - snowballstemmer==1.2.1
+    - sortedcontainers==2.0.5
+    - spacy==2.0.17
+    - sparqlwrapper==1.8.2
+    - sphinx==1.8.2
+    - sphinx-autobuild==0.7.1
+    - sphinxcontrib-napoleon==0.7
+    - sphinxcontrib-websupport==1.1.0
+    - tblib==1.3.2
     - termcolor==1.1.0
     - terminado==0.8.1
     - testpath==0.4.2
+    - texttable==1.5.0
+    - thinc==6.12.1
+    - thriftpy==0.3.9
     - tld==0.9.1
+    - toolz==0.9.0
     - tornado==5.1.1
+    - tqdm==4.28.1
     - traitlets==4.3.2
+    - tzlocal==1.5.1
+    - ujson==1.35
     - urllib3==1.23
+    - w3lib==1.19.0
+    - watchdog==0.9.0
     - wcwidth==0.1.7
     - webencodings==0.5.1
     - werkzeug==0.14.1
     - wget==3.2
     - widgetsnbextension==3.4.2
+    - wikipedia-api==0.3.7
+    - wrapt==1.10.11
     - xlrd==1.1.0
+    - xlwt==1.3.0
+    - zict==0.1.3
+
+

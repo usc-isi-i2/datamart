@@ -17,6 +17,16 @@ git update-index --assume-unchanged datamart/resources/index_info.json
 python -W ignore -m unittest discover
 ```
 
+#####When new packages were added:
+
+Before commit: please run the following commands to update the dependencies config.
+```
+conda env export --no-build > environment.yml
+pip freeze > requirements.txt
+```
+After pull: please run `conda env update -f environment.yml` to update the dependencies.
+
+
 ## Validate your schema
 Dataset providers should validate their dataset schema against our json schema by the following
 ```commandline

@@ -1,0 +1,30 @@
+[
+        {
+            "name": "source",
+            "description": "the entities associated with the given property",
+            "semantic_type": []
+        },
+      {
+            "name": "category",
+            "description": "the categories of the entities associated with the given property",
+            "semantic_type": ["http://schema.org/Text"]
+      },
+      {
+            "name": "prop_value",
+            "description": "the entities associated with the given property",
+            "semantic_type": []
+      },
+      {
+            "name": "subject_label",
+            "description": "the entity label that the entities associated with the given property",
+            "semantic_type": ["http://schema.org/Text"],
+            "external_identifier": "",
+            "named_entity": null
+      },
+      {
+            "name": "value_label",
+            "description": "the value label of the property value",
+            "semantic_type": ["http://schema.org/Text"],
+            "named_entity": null
+      }
+]
