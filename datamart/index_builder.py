@@ -154,7 +154,7 @@ class IndexBuilder(object):
                       save_to_file_mode: str = "a+",
                       delete_old_es_index: bool = False,
                       cache_dataset_dir: str = None,
-                      backup_indexed_files = False
+                      backup_indexed_files: bool = False
                       ) -> None:
         """Bulk indexing many dataset by providing a path
 
@@ -192,7 +192,7 @@ class IndexBuilder(object):
                 if data_dir:
                     data_path = os.path.join(data_dir, description.replace("_description.json", ".csv"))
                 elif cache_dataset_dir:
-                    cache_dataset_path = os.path.join(cache_dataset_dir, description.replace("_description.json", ".csv"))
+                    cache_dataset_path = os.path.join(cache_dataset_dir, description.replace(".json", "_data.csv"))
                 self.indexing(description_path=description_path,
                               es_index=es_index,
                               data_path=data_path,
