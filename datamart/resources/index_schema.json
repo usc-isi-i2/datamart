@@ -256,6 +256,26 @@
         "object",
         "null"
       ]
+    },
+    "materialization": {
+      "description": "Method to retrieve the dataset or parts of the dataset",
+      "type": "object",
+      "properties": {
+        "python_path": {
+          "description": "The python class to materialize the dataset",
+          "type": "string"
+        },
+        "arguments": {
+          "description": "keyword arguments to the python __init__ method",
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "python_path"
+      ]
     }
   },
   "required": [
