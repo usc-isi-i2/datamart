@@ -99,13 +99,16 @@ class DatetimeFeature(FeatureBase):
         # TODO: now not recognize the real resolution, use the explicit resolution
         # e.g. date column with "{date} 00:00" -> real resolution should be "day" but now we treat it as "minute"
         self._resolution = self._get_resolution()
-        self._parsed_series = df.iloc[:, indexes].apply(pd.to_datetime)
-        self._min = self._parsed_series.min().iloc[0]
-        self._max = self._parsed_series.max().iloc[0]
+        if self.multi_column:
+            self._parsed_series = pd.to_datetime(df.iloc[:, indexes])
+        else:
+            self._parsed_series = pd.to_datetime(df.iloc[:, indexes[0]])
+        self._min = self._parsed_series.min()
+        self._max = self._parsed_series.max()
         self._range = self._max - self._min
 
     def value_merge_func(self, record: Record):
-        return self._parsed_series.iloc[int(record.id), 0]
+        return self._parsed_series.iloc[int(record.id)]
 
     def similarity_functions(self):
         def compare_time(x, y):

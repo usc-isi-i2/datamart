@@ -60,7 +60,6 @@ class RLTKJoiner(JoinerBase):
         see https://paper.dropbox.com/doc/ER-for-Datamart--ASlKtpR4ceGaj~6cN4Q7EWoSAQ-tRug6oRX6g5Ko5jzaeynT
         """
 
-
         # step 3 : check if 1-1, 1-n, n-1, or m-n relations,
         # based on the analyze in step 2 we can basically know if it is one-to-one relation
 

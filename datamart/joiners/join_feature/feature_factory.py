@@ -21,13 +21,13 @@ class FeatureFactory:
         """
         # set default values:
         metadata = cls._get_feature_metadata(df_metadata, indexes)
+        data_type = None
         distribute_type = DistributeType.NON_CATEGORICAL
 
-        if cls._try_pd_to_datetime(df, indexes):
-            data_type = DataType.DATETIME
-        elif len(indexes) > 1:
-            data_type = DataType.STRING
+        if len(indexes) > 1:
             distribute_type = DistributeType.TOKEN_CATEGORICAL
+            if cls._try_pd_to_datetime(df, indexes):
+                data_type = DataType.DATETIME
         else:
             # single column, not datetime
             idx = indexes[0]
@@ -47,10 +47,11 @@ class FeatureFactory:
                 semantic_types = metadata.get('semantic_type')
                 profiles = metadata.get('dsbox_profiled', {})
                 data_type = cls._get_data_type_by_semantic_type(semantic_types) \
-                            or cls._get_data_type_by_profile(profiles) \
-                            or DataType.STRING
+                            or cls._get_data_type_by_profile(profiles)
+                if not data_type and cls._try_pd_to_datetime(df, indexes):
+                    data_type = DataType.DATETIME
 
-        return cls.get_instance(df, indexes, metadata, data_type, distribute_type)
+        return cls.get_instance(df, indexes, metadata, data_type or DataType.STRING, distribute_type)
 
     @classmethod
     def get_instance(cls, df, indices, metadata, data_type, distribute_type):
@@ -88,7 +89,6 @@ class FeatureFactory:
                 return DataType.DATETIME
             if 'float' in unique_types or 'int' in unique_types or 'number' in unique_types:
                 return DataType.NUMBER
-            return DataType.STRING
 
     @staticmethod
     def _get_data_type_by_profile(profiles):
