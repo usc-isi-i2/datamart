@@ -5,6 +5,13 @@ import numpy as np
 
 
 class FeatureFactory:
+    subclasses = {
+        (DistributeType.CATEGORICAL, DataType.NUMBER): CategoricalNumberFeature,
+        (DistributeType.CATEGORICAL, DataType.STRING): CategoricalStringFeature,
+        (DistributeType.TOKEN_CATEGORICAL, DataType.STRING): CategoricalTokenFeature,
+        (DistributeType.NON_CATEGORICAL, DataType.NUMBER): NonCategoricalNumberFeature,
+        (DistributeType.NON_CATEGORICAL, DataType.STRING): NonCategoricalStringFeature
+    }
 
     @classmethod
     def create(cls, df: pd.DataFrame, indexes, df_metadata):
@@ -12,61 +19,53 @@ class FeatureFactory:
         TODO: dynamically generate subclass of FeatureBase, by profiled info, datatype etc.
 
         """
-        multi_column = True if len(indexes) > 1 else False
-        if multi_column:
-            # TODO: how to deal with multi-columns ?
-            idx = indexes[0]
-            return CategoricalTokenFeature(df, indexes, df_metadata['variables'][idx], DistributeType.TOKEN_CATEGORICAL, DataType.STRING)
-        else:
-            idx = indexes[0]
-
-        metadata = df_metadata['variables'][idx]
-        data_type = DataType.STRING
+        # set default values:
+        metadata = cls._get_feature_metadata(df_metadata, indexes)
         distribute_type = DistributeType.NON_CATEGORICAL
 
-        profiles = metadata.get('dsbox_profiled', {})
-
-        if len(df.iloc[:, idx]) // len(df.iloc[:, idx].unique()) >= 1.5:
-            distribute_type = DistributeType.CATEGORICAL
-        elif profiles:
-            most_common_tokens = profiles.get('most_common_tokens')
-            if most_common_tokens and cls._get_greater_than(most_common_tokens) >= len(most_common_tokens)//2:
-                distribute_type = DistributeType.TOKEN_CATEGORICAL
-
-        # try to get the data type from the 'semantic_type' in
-        semantic_types = metadata.get('semantic_type')
-        _type = cls._get_data_type_by_semantic_type(semantic_types)
-        if _type:
-            data_type = _type
+        if cls._try_pd_to_datetime(df, indexes):
+            data_type = DataType.DATETIME
+        elif len(indexes) > 1:
+            data_type = DataType.STRING
+            distribute_type = DistributeType.TOKEN_CATEGORICAL
         else:
+            # single column, not datetime
+            idx = indexes[0]
+            profiles = metadata.get('dsbox_profiled', {})
+
+            if len(df.iloc[:, idx]) // len(df.iloc[:, idx].unique()) >= 1.5:
+                distribute_type = DistributeType.CATEGORICAL
+            elif profiles:
+                most_common_tokens = profiles.get('most_common_tokens')
+                if most_common_tokens and cls._get_greater_than(most_common_tokens) >= len(most_common_tokens)//2:
+                    distribute_type = DistributeType.TOKEN_CATEGORICAL
+
             dtype = df.iloc[:, idx].dtype
             if dtype == np.int64 or dtype == np.float64:
                 data_type = DataType.NUMBER
             else:
-                try:
-                    if isinstance(pd.to_datetime(df.iloc[0, idx]), pd.Timestamp):
-                        data_type = DataType.DATETIME
-                    else:
-                        data_type = cls._get_data_type_by_profile(profiles) or data_type
-                except Exception as e:
-                    # print(e)
-                    data_type = cls._get_data_type_by_profile(profiles) or data_type
+                semantic_types = metadata.get('semantic_type')
+                profiles = metadata.get('dsbox_profiled', {})
+                data_type = cls._get_data_type_by_semantic_type(semantic_types) \
+                            or cls._get_data_type_by_profile(profiles) \
+                            or DataType.STRING
 
-        constructor = cls.get_constructor(distribute_type, data_type)
-        return constructor(df, indexes, metadata, distribute_type, data_type)
+        return cls.get_instance(df, indexes, metadata, data_type, distribute_type)
 
     @classmethod
-    def get_constructor(cls, distribute_type, data_type):
+    def get_instance(cls, df, indices, metadata, data_type, distribute_type):
+        constructor = cls.get_constructor(data_type, distribute_type)
+        return constructor(df, indices, metadata, distribute_type, data_type)
+
+    @classmethod
+    def get_constructor(cls, data_type, distribute_type=None):
         if data_type == DataType.DATETIME:
             return DatetimeFeature
-        subclasses = {
-            (DistributeType.CATEGORICAL, DataType.NUMBER): CategoricalNumberFeature,
-            (DistributeType.CATEGORICAL, DataType.STRING): CategoricalStringFeature,
-            (DistributeType.TOKEN_CATEGORICAL, DataType.STRING): CategoricalTokenFeature,
-            (DistributeType.NON_CATEGORICAL, DataType.NUMBER): NonCategoricalNumberFeature,
-            (DistributeType.NON_CATEGORICAL, DataType.STRING): NonCategoricalStringFeature,
-        }
-        return subclasses.get((distribute_type, data_type))
+        return cls.subclasses.get((distribute_type, data_type))
+
+    @staticmethod
+    def _get_feature_metadata(metadata, indices):
+        return metadata['variables'][indices[0]]
 
     @staticmethod
     def _get_avg(list_of_dict, key='count'):
@@ -96,5 +95,16 @@ class FeatureFactory:
         numeric_ratio = profiles.get('ratio_of_numeric_values')
         if numeric_ratio and numeric_ratio >= 0.99:
             return DataType.NUMBER
+
+    @staticmethod
+    def _try_pd_to_datetime(df, indices):
+        try:
+            if len(indices) == 1:
+                _ = pd.to_datetime(df.iloc[[0, len(df) - 1], indices[0]])
+            else:
+                _ = pd.to_datetime(df.iloc[[0, len(df)-1], indices])
+            return True
+        except ValueError:
+            return False
 
 
