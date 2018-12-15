@@ -44,12 +44,14 @@ class WebApp(Flask):
 
         @self.route('/search/default_search', methods=['POST'])
         def default_search():
+            print(request.files['file'])
             old_df = pd.read_csv(request.files['file']).infer_objects()
             if old_df is None or old_df.empty:
                 return json.dumps({
                     "message": "Failed to create Dataframe from csv, nothing found"
                 })
             self.old_df = old_df
+            print('returning')
             return json.dumps(self.search_metadata.default_search_by_csv(request=request, old_df=self.old_df))
 
         @self.route('/augment/default_join', methods=['POST'])
@@ -64,4 +66,4 @@ class WebApp(Flask):
 
 
 if __name__ == '__main__':
-    WebApp().create_app().run(host="0.0.0.0")
+    WebApp().create_app().run(host="0.0.0.0", port=9000)
