@@ -35,7 +35,8 @@ class IndexBuilder(object):
                  query_data_for_indexing: bool = False,
                  save_to_file: str = None,
                  save_to_file_mode: str = "a+",
-                 delete_old_es_index: bool = False
+                 delete_old_es_index: bool = False,
+                 cache_dataset_path: str = None
                  ) -> dict:
         """API for the index builder.
 
@@ -52,6 +53,8 @@ class IndexBuilder(object):
             save_to_file: str, a path to the json line file
             save_to_file_mode: str, mode for saving, default "a+"
             delete_old_es_index: bool, boolean if delete original es index if it exist
+            cache_dataset_path: str, path to the file to save materialized dataset to local. (effective only when \
+                'data_path' is 'None', default is None - not to save)
 
         Returns:
             metadata dictionary
@@ -69,9 +72,11 @@ class IndexBuilder(object):
         if not data and query_data_for_indexing:
             try:
                 data = Utils.materialize(metadata=description).infer_objects()
+                if cache_dataset_path:
+                    data.to_csv(cache_dataset_path, index=False)
             except:
                 traceback.print_exc()
-                warnings.warn("Materialization Failed, index based on schema json only")
+                warnings.warn("Materialization Failed, index based on schema json only. (%s)" % description_path)
 
         metadata = self.construct_global_metadata(description=description, data=data)
 
@@ -130,7 +135,7 @@ class IndexBuilder(object):
                 data = Utils.materialize(metadata=description).infer_objects()
             except:
                 traceback.print_exc()
-                warnings.warn("Materialization Failed, index based on schema json only")
+                warnings.warn("Materialization Failed, index based on schema json only. (%s)" % description_path)
 
         metadata = self.construct_global_metadata(description=description, data=data, overwrite_datamart_id=document_id)
         Utils.validate_schema(metadata)
@@ -147,7 +152,9 @@ class IndexBuilder(object):
                       query_data_for_indexing: bool = False,
                       save_to_file: str = None,
                       save_to_file_mode: str = "a+",
-                      delete_old_es_index: bool = False
+                      delete_old_es_index: bool = False,
+                      cache_dataset_dir: str = None,
+                      backup_indexed_files: bool = False
                       ) -> None:
         """Bulk indexing many dataset by providing a path
 
@@ -161,24 +168,40 @@ class IndexBuilder(object):
             save_to_file: str, a path to the json line file
             save_to_file_mode: str, mode for saving, default "a+"
             delete_old_es_index: bool, boolean if delete original es index if it exist
+            cache_dataset_dir: str, path to the directory to save materialized dataset to local. (effective only when \
+                'data_path' is 'None', default is None - not to save)
+            backup_indexed_files: bool, boolean if move indexed dataset schema to description_dir+"_backup".
+                So if indexing procedure breaks (like es connection broke). Can continue indexing the remaining datasets
 
         Returns:
 
         """
 
         self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
+        cnt = 1
+        total = len(os.listdir(description_dir))
+        if backup_indexed_files:
+            os.makedirs(description_dir+"_backup", exist_ok=True)
         for description in os.listdir(description_dir):
+            print("start to index %s: %d of %d" % (description, cnt, total))
+            cnt += 1
             if description.endswith('.json'):
                 description_path = os.path.join(description_dir, description)
                 data_path = None
+                cache_dataset_path = None
                 if data_dir:
                     data_path = os.path.join(data_dir, description.replace("_description.json", ".csv"))
+                elif cache_dataset_dir:
+                    cache_dataset_path = os.path.join(cache_dataset_dir, description.replace(".json", "_data.csv"))
                 self.indexing(description_path=description_path,
                               es_index=es_index,
                               data_path=data_path,
                               query_data_for_indexing=query_data_for_indexing,
                               save_to_file=save_to_file,
-                              save_to_file_mode=save_to_file_mode)
+                              save_to_file_mode=save_to_file_mode,
+                              cache_dataset_path=cache_dataset_path)
+                if backup_indexed_files:
+                    os.rename(description_path, os.path.join(description_dir+"_backup", description))
 
     def _check_es_index(self, es_index: str, delete_old_es_index: bool = False) -> None:
         """Check es index, delete or create if necessary
