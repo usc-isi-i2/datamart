@@ -17,25 +17,42 @@ class TestUserIndex(unittest.TestCase):
         expected = {
             'datamart_id': _id,
             'title': 'A short description of the dataset',
-            'description': 'A long description of the dataset',
-            'implicit_variables': [
-                {
-                    'name': 'year',
-                    'value': '2007',
-                    'semantic_type': [
-                        'http://schema.org/Integer',
-                        'https://metadata.datadrivendiscovery.org/types/Time'
-                    ]
+            'description': 'https://cerc.blackboard.com/Page/1189',
+            'implicit_variables': [{
+                'name': 'year',
+                'value': '2007',
+                'semantic_type': ['http://schema.org/Integer', 'https://metadata.datadrivendiscovery.org/types/Time']
+            }],
+            'materialization': {
+                'python_path': 'general_materializer',
+                'arguments': {
+                    'url': 'http://insight.dev.schoolwires.com/HelpAssets/C2Assets/C2Files/C2ImportFamRelSample.csv',
+                    'file_type': 'csv'
                 }
-            ],
-            'materialization':
+            },
+            'variables': [
                 {
-                    'python_path': 'general_materializer',
-                    'arguments': {
-                        'url': 'http://data.iowadot.gov/datasets/a59edde607864c64a68a10ec142797d3_0.csv',
-                        'file_type': 'csv'
+                    'datamart_id': _id + 1,
+                    'semantic_type': [],
+                    'name': 'Parent Identifier',
+                    'description': 'column name: Parent Identifier, dtype: int64',
+                    'temporal_coverage': {
+                        'start': '1001-01-04T00:00:00',
+                        'end': '1010-01-04T00:00:00'
                     }
                 },
-            'variables': []
+                {
+                    'datamart_id': _id + 2,
+                    'semantic_type': [],
+                    'name': 'Student Identifier',
+                    'description': 'column name: Student Identifier, dtype: int64',
+                    'temporal_coverage': {
+                        'start': '1002-01-04T00:00:00',
+                        'end': '1020-01-04T00:00:00'
+                    }
+                }
+            ],
+            'keywords': ['Parent Identifier', 'Student Identifier']
         }
+        print(res)
         self.assertEqual(res, expected)

@@ -1,6 +1,6 @@
 {
   "title": "A short description of the dataset",
-  "description": "A long description of the dataset",
+  "description": "https://cerc.blackboard.com/Page/1189",
   "implicit_variables": [
     {
       "name": "year",
@@ -14,7 +14,7 @@
   "materialization": {
     "python_path": "general_materializer",
     "arguments": {
-      "url": "http://data.iowadot.gov/datasets/a59edde607864c64a68a10ec142797d3_0.csv",
+      "url": "http://insight.dev.schoolwires.com/HelpAssets/C2Assets/C2Files/C2ImportFamRelSample.csv",
       "file_type": "csv"
     }
   }

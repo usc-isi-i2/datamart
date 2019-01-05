@@ -27,7 +27,7 @@ class GeneralMaterializer(MaterializerBase):
         args = metadata['materialization']['arguments']
         url = args['url']
         _type = args.get('file_type') or url.rstrip('/').rsplit('/', 1)[-1].rsplit('.', 1)[-1]
-        parser = self.type2parser.get(_type, HTMLParser)
+        parser = self.type2parser.get(_type, HTMLParser)()
         res = parser.parse(url)
 
         # TODO: the index builder is designed for one description - one doc, need to change to support a list of tables
