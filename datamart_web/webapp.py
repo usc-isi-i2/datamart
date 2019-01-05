@@ -8,6 +8,7 @@ sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 from flask import Flask, request
 from datamart_web.src.search_metadata import SearchMetadata
 from datamart_web.src.join_datasets import JoinDatasets
+from datamart_web.src.contribute_data import UserDataIndexer
 
 
 class WebApp(Flask):
@@ -16,6 +17,7 @@ class WebApp(Flask):
         super().__init__(__name__, instance_relative_config=True)
         self.search_metadata = SearchMetadata()
         self.join_datasets = JoinDatasets()
+        self.indexer = UserDataIndexer()
         self.old_df = None
 
     def create_app(self, test_config=None):
@@ -62,7 +64,33 @@ class WebApp(Flask):
                 })
             return self.join_datasets.default_join(request=request, old_df=self.old_df)
 
+        @self.route('/index/contribute_data', methods=['POST'])
+        def contribute_data():
+            try:
+                file_content = request.files['file'].read().decode('utf-8')
+                description = json.loads(file_content)
+                es_index = request.form.get('es_index') or 'datamart_tmp'
+                res = self.indexer.index(description, es_index)
+                return self.wrap_response('0000', data=res)
+            except Exception as e:
+                return self.wrap_response('1000', msg=str(e))
+
+        @self.route('/temp_gui', methods=['GET'])
+        def temp_gui():
+            return '''<form id="uploadbanner" enctype="multipart/form-data" method="post" action="/index/contribute_data">
+   <input id="fileupload" name="file" type="file" />
+   <input type="submit" value="submit" id="submit" />
+</form>'''
+
         return self
+
+    @staticmethod
+    def wrap_response(code, msg='', data=None):
+        return json.dumps({
+            'code': code,
+            'message': msg or ('Success' if code == '0000' else 'Failed'),
+            'data': data
+        })
 
 
 if __name__ == '__main__':

@@ -269,6 +269,12 @@ if __name__ == '__main__':
 
             desc_template["materialization"]["arguments"]["property"] = property
 
+            # will be invalid when build index if keep date related property in empty string:
+            if desc_template.get('date_published') == '':
+                del desc_template['date_published']
+            if desc_template.get('date_updated') == '':
+                del desc_template['date_updated']
+
             w_str = json.dumps(desc_template, indent=4)
             with open('description_' + property + '.json', 'w') as f:
                 f.write(w_str)
