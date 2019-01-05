@@ -1,0 +1,21 @@
+{
+  "title": "A short description of the dataset",
+  "description": "A long description of the dataset",
+  "implicit_variables": [
+    {
+      "name": "year",
+      "value": "2007",
+      "semantic_type": [
+        "http://schema.org/Integer",
+        "https://metadata.datadrivendiscovery.org/types/Time"
+      ]
+    }
+  ],
+  "materialization": {
+    "python_path": "general_materializer",
+    "arguments": {
+      "url": "http://data.iowadot.gov/datasets/a59edde607864c64a68a10ec142797d3_0.csv",
+      "file_type": "csv"
+    }
+  }
+}
