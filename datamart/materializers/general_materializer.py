@@ -12,13 +12,14 @@ class GeneralMaterializer(MaterializerBase):
             'json': JSONParser,
             'xls': ExcelParser,
             'excel': ExcelParser,
-            'asp': HTMLParser
+            'asp': HTMLParser,
+            'html': HTMLParser
         }
 
     def get(self,
             metadata: dict = None,
             constrains: dict = None
-            ) -> typing.Optional[pd.DataFrame] or list:
+            ) -> typing.Optional[pd.DataFrame]:
         """ API for get a dataframe.
             Args:
                 metadata: json schema for data_type
@@ -31,7 +32,7 @@ class GeneralMaterializer(MaterializerBase):
         res = parser.parse(url)
 
         # TODO: the index builder is designed for one description - one doc, need to change to support a list of tables
-        if isinstance(res, list):
-            return res[0]
+        # if isinstance(res, list):
+        #     return res[0]
         return res
 
