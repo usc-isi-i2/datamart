@@ -1,5 +1,10 @@
-from etk.extractors.table_extractor import TableExtractor
 from datamart.materializers.parsers.parser_base import *
+try:
+    from etk.extractors.table_extractor import TableExtractor
+except OSError:
+    from spacy.cli import download
+    download('en_core_web_sm')
+    from etk.extractors.table_extractor import TableExtractor
 
 
 class HTMLParser(ParserBase):
