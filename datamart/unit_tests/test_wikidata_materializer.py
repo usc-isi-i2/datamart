@@ -24,4 +24,7 @@ class TestWikidataMaterializer(unittest.TestCase):
         sample_result = pd.read_csv(os.path.join(resources_path, 'P2672_SOATO_ID.csv'), dtype=str)
         sample_result = sample_result.fillna('').to_dict(orient="records")
 
+        sample_result.sort(key=lambda _: _['source'])
+        result.sort(key=lambda _: _['source'])
+
         self.assertEqual(result, sample_result)

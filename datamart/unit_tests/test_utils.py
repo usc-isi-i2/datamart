@@ -51,26 +51,27 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(issubclass(type(materializer), MaterializerBase), True)
         self.assertIn(type(materializer).__name__, NoaaMaterializer.__name__)
 
-    @Utils.test_print
-    def test_materialize(self):
-        fake_metadata = {
-            "materialization": {
-                "python_path": "noaa_materializer",
-                "arguments": {
-                    "type": 'PRCP'
-                }
-            }
-        }
-        fake_constrains = {
-            "date_range": {
-                "start": "2016-09-23",
-                "end": "2016-09-23"
-            },
-            "named_entity": {2: ["los angeles"]}
-        }
-        result = Utils.materialize(metadata=fake_metadata, constrains=fake_constrains).infer_objects()
-        expepcted = pd.read_csv(os.path.join(os.path.dirname(__file__), "resources/noaa_result.csv"))
-        self.dataframe_equal(result, expepcted)
+    # TODO: COMMAND OUT BECAUSE NOAA IS SHUNDOWN RECENTLY
+    # @Utils.test_print
+    # def test_materialize(self):
+    #     fake_metadata = {
+    #         "materialization": {
+    #             "python_path": "noaa_materializer",
+    #             "arguments": {
+    #                 "type": 'PRCP'
+    #             }
+    #         }
+    #     }
+    #     fake_constrains = {
+    #         "date_range": {
+    #             "start": "2016-09-23",
+    #             "end": "2016-09-23"
+    #         },
+    #         "named_entity": {2: ["los angeles"]}
+    #     }
+    #     result = Utils.materialize(metadata=fake_metadata, constrains=fake_constrains).infer_objects()
+    #     expepcted = pd.read_csv(os.path.join(os.path.dirname(__file__), "resources/noaa_result.csv"))
+    #     self.dataframe_equal(result, expepcted)
 
     @Utils.test_print
     def test_is_column_able_to_query(self):
@@ -199,35 +200,36 @@ class TestUtils(unittest.TestCase):
             df=self.df
         ), expected)
 
-    @Utils.test_print
-    def test_get_dataset(self):
-        fake_matadata = {
-            "materialization": {
-                "python_path": "noaa_materializer",
-                "arguments": {
-                    "type": "TAVG"
-                }
-            }
-        }
-
-        fake_constrains = {
-            "named_entity": {
-                2: ["new york", "sdasds"]
-            },
-            "date_range": {
-                "start": "2018-09-23T00:00:00",
-                "end": "2018-09-30T00:00:00"
-            }
-        }
-
-        df = Utils.get_dataset(
-            metadata=fake_matadata,
-            variables=[0, 2, 3],
-            constrains=fake_constrains
-        )
-
-        ground_truth = pd.read_csv(os.path.join(os.path.dirname(__file__), "./resources", "test_augment.csv"))
-        self.dataframe_equal(ground_truth, df)
+    # TODO: COMMAND OUT BECAUSE NOAA IS SHUNDOWN RECENTLY
+    # @Utils.test_print
+    # def test_get_dataset(self):
+    #     fake_matadata = {
+    #         "materialization": {
+    #             "python_path": "noaa_materializer",
+    #             "arguments": {
+    #                 "type": "TAVG"
+    #             }
+    #         }
+    #     }
+    #
+    #     fake_constrains = {
+    #         "named_entity": {
+    #             2: ["new york", "sdasds"]
+    #         },
+    #         "date_range": {
+    #             "start": "2018-09-23T00:00:00",
+    #             "end": "2018-09-30T00:00:00"
+    #         }
+    #     }
+    #
+    #     df = Utils.get_dataset(
+    #         metadata=fake_matadata,
+    #         variables=[0, 2, 3],
+    #         constrains=fake_constrains
+    #     )
+    #
+    #     ground_truth = pd.read_csv(os.path.join(os.path.dirname(__file__), "./resources", "test_augment.csv"))
+    #     self.dataframe_equal(ground_truth, df)
 
     @Utils.test_print
     def test_calculate_dsbox_features(self):
