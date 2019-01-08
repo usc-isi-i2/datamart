@@ -2,6 +2,8 @@ import os
 import json
 import sys
 import pandas as pd
+# When load spacy in a route, it will raise error. So do not remove "import spacy" here:
+import spacy
 
 sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -75,11 +77,14 @@ class WebApp(Flask):
             except Exception as e:
                 return self.wrap_response('1000', msg=str(e))
 
-        @self.route('/temp_gui', methods=['GET'])
+        @self.route('/add_data_gui', methods=['GET'])
         def temp_gui():
             return '''<form id="uploadbanner" enctype="multipart/form-data" method="post" action="/index/contribute_data">
-   <input id="fileupload" name="file" type="file" />
+   <input name="file" type="file" />
+   <input name="es_index" type="radio" value="datamart_tmp">datamart_tmp(for test)</input>
+   <input name="es_index" type="radio" value="datamart_all">datamart_all(in use)</input>
    <input type="submit" value="submit" id="submit" />
+   Will return the metadata doc sent to ES.
 </form>'''
 
         return self
@@ -94,4 +99,4 @@ class WebApp(Flask):
 
 
 if __name__ == '__main__':
-    WebApp().create_app().run(host="0.0.0.0", port=9000)
+    WebApp().create_app().run(host="0.0.0.0", port=9000, debug=False)
