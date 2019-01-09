@@ -71,11 +71,16 @@ class WebApp(Flask):
             try:
                 file_content = request.files['file'].read().decode('utf-8')
                 description = json.loads(file_content)
+                description['materialization'] = {
+                    'python_path': 'general_materializer',
+                    'arguments': description['materialization_arguments']
+                }
+                del description['materialization_arguments']
                 es_index = request.form.get('es_index') or 'datamart_tmp'
                 res = self.indexer.index(description, es_index)
                 return self.wrap_response('0000', data=res)
             except Exception as e:
-                return self.wrap_response('1000', msg=str(e))
+                return self.wrap_response('1000', msg="FAIL - " + str(e))
 
         @self.route('/add_data_gui', methods=['GET'])
         def temp_gui():
