@@ -6,7 +6,7 @@ conda activate datamart_env
 python ../../datamart_web/webapp.py
 ```
 
-#### There is a service running on dsbox02
+#### There is a service running on dsbox02.isi.edu
 #### Show a demo of query current REST API, input data is [fifa.csv](fifa.csv)
 
 ###### POST a query to default search for metadatas with the input dataset, along with a query string.
