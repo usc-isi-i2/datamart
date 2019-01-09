@@ -89,7 +89,7 @@ class WebApp(Flask):
    <input name="es_index" type="radio" value="datamart_tmp">datamart_tmp(for test)</input>
    <input name="es_index" type="radio" value="datamart_all">datamart_all(in use)</input>
    <input type="submit" value="submit" id="submit" />
-   Will return the metadata doc sent to ES.
+   <br />It will return the metadata doc sent to ES. For testing, please use "datamart_tmp"(by default). 
 </form>'''
 
         return self
@@ -104,4 +104,4 @@ class WebApp(Flask):
 
 
 if __name__ == '__main__':
-    WebApp().create_app().run(host="0.0.0.0", port=9000, debug=False)
+    WebApp().create_app().run(host="0.0.0.0", port=9001, debug=False)
