@@ -42,15 +42,21 @@ def augment(original_data: pd.DataFrame, augment_data: Dataset) -> pd.DataFrame:
     Returns:
 
     """
+    if not augment_data.matched_cols:
+        return original_data
+
+    left_cols, right_cols = augment_data.matched_cols
+    default_joiner = 'rltk'
     augmenter = Augment(es_index=DEFAULT_ES)
+
     augmented_data = augmenter.join(
             left_df=original_data,
             right_df=augment_data.materialize(),
-            left_columns=augment_data.matched_cols[0],
-            right_columns=augment_data.matched_cols[1],
+            left_columns=left_cols,
+            right_columns=right_cols,
             left_metadata=None,
             right_metadata=augment_data.metadata,
-            joiner="rltk"
+            joiner=default_joiner
     )
     return augmented_data
 
