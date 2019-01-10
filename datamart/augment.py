@@ -43,7 +43,8 @@ class Augment(object):
         if json_query:
             query_body = self.qm.parse_json_query(json_query, dataset)
             if query_body:
-                return self.qm.search(body=query_body, **kwargs)
+                results = self.qm.search(body=query_body, **kwargs)
+                return results
 
         return self._query_all()
 
