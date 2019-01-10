@@ -1,6 +1,6 @@
-###Datamart API
+### Datamart API
 
-###There are three main APIs:
+### There are three main APIs:
 1. datamart.search(query: dict, data: pandas.DataFrame) -> list[datamart.Dataset]
   - input:
     - a description json object for the target datasets
