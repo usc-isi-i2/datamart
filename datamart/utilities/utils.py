@@ -23,6 +23,9 @@ class Utils:
     INDEX_SCHEMA = json.load(
         open(os.path.join(os.path.join(os.path.dirname(__file__), "../resources"), 'index_schema.json'), 'r'))
 
+    QUERY_SCHEMA = json.load(
+        open(os.path.join(os.path.join(os.path.dirname(__file__), "../resources"), 'query_schema.json'), 'r'))
+
     TMP_FILE_DIR = tempfile.gettempdir()
 
     DEFAULT_DESCRIPTION = {
@@ -147,6 +150,23 @@ class Utils:
         except:
             print(colored("[INVALID SCHEMA] title: {}".format(description.get("title"))), 'red')
             raise ValueError("Invalid dataset description json according to index json schema")
+
+    @classmethod
+    def validate_query(cls, query: dict) -> bool:
+        """Validate dict against json schema.
+
+        Args:
+            query: query dict.
+
+        Returns:
+            boolean
+        """
+        try:
+            validate(query, cls.QUERY_SCHEMA)
+            return True
+        except:
+            print(colored("[INVALID QUERY] title: {}".format(query.get("title"))), 'red')
+            raise ValueError("Invalid query json according to query json schema")
 
     @staticmethod
     def test_print(func) -> typing.Callable:

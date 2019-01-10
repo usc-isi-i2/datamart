@@ -69,7 +69,7 @@
             "format": "uri"
           }
         },
-        "named_entities": {
+        "named_entity": {
           "description": "List of named entities referenced in column values",
           "type": [
             "array",
