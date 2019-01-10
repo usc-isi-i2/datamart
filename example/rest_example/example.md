@@ -6,7 +6,7 @@ conda activate datamart_env
 python ../../datamart_web/webapp.py
 ```
 
-#### There is a service running on dsbox02
+#### There is a service running on dsbox02.isi.edu
 #### Show a demo of query current REST API, input data is [fifa.csv](fifa.csv)
 
 ###### POST a query to default search for metadatas with the input dataset, along with a query string.
@@ -34,7 +34,7 @@ We get the data from some soccer api
 Then join two dataframes using default left outer join, write to `augmented.csv`
 ```commandline
 value=$(<{your_path}/sample_query.json); \
-curl -X POST  http://dsbox02:9000/augment/default_join \
+curl -X POST  http://dsbox02.isi.edu:9000/augment/default_join \
 -F "data=$value" > augmented.csv
 ```
 
