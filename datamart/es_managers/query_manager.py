@@ -75,7 +75,7 @@ class QueryManager(ESManager):
                                               terms: list,
                                               key: str = "variables.named_entity",
                                               minimum_should_match=None,
-                                              match_name: str=""
+                                              match_name: str=None
                                               ) -> dict:
         """Generate query body for query that matches some terms from an array.
 
@@ -93,7 +93,6 @@ class QueryManager(ESManager):
             "nested": {
                 "path": key.split(".")[0],
                 "inner_hits": {
-                    "name": match_name or key.split(".")[0],
                     "_source": [
                         key.split(".")[1]
                     ],
@@ -120,6 +119,9 @@ class QueryManager(ESManager):
                 }
             }
         }
+
+        if match_name:
+            body['nested']['path']['inner_hits']['name'] = match_name
 
         for term in terms:
             body["nested"]["query"]["bool"]["should"].append(
