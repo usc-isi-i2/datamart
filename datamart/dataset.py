@@ -1,4 +1,5 @@
 from datamart.utilities.utils import Utils
+from pandas import DataFrame
 
 
 class Dataset:
@@ -13,6 +14,7 @@ class Dataset:
         self._score = es_raw_object['_score']
         self._id = es_raw_object['_id']
         self._matched_cols = []
+        self._inner_hits = es_raw_object.get('inner_hits', {})
 
     def materialize(self):
         return Utils.materialize(metadata=self.metadata)
@@ -43,6 +45,26 @@ class Dataset:
 
         """
         return self._id
+
+    @property
+    def inner_hits(self):
+        """
+        es _id
+
+        Returns:
+
+        """
+        return self._inner_hits
+
+    @property
+    def _es_raw_object(self):
+        """
+        es _id
+
+        Returns:
+
+        """
+        return self.__es_raw_object
 
     @property
     def metadata(self):
@@ -91,3 +113,42 @@ class Dataset:
     def set_match(self, left_cols, right_cols):
         if len(left_cols) == len(right_cols):
             self._matched_cols = (left_cols, right_cols)
+
+    def auto_set_match(self, original_data: DataFrame):
+        used = set()
+        left = []
+        right = []
+        for key_path, outer_hits in self.inner_hits.items():
+            keys = key_path.split('.')
+            left_index = []
+            if keys[-2] == 'index':
+                left_index.append(int(keys[-1]))
+            elif keys[-2] == 'names':
+                left_index.append(original_data.columns.tolist().index(keys[-1]))
+            if not left_index:
+                continue
+
+            inner_hits = outer_hits.get('hits', {})
+            hits_list = inner_hits.get('hits')
+            right_index = []
+            if hits_list:
+                for hit in hits_list:
+                    offset = hit['_nested']['offset']
+                    if offset not in used:
+                        right_index.append(offset)
+                        used.add(offset)
+                        break
+            if not right_index:
+                continue
+
+            left.append(left_index)
+            right.append(right_index)
+
+        if left and right:
+            self._matched_cols = (left, right)
+
+
+
+
+
+

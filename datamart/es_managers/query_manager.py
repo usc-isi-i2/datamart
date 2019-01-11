@@ -74,7 +74,8 @@ class QueryManager(ESManager):
     def match_some_terms_from_variables_array(cls,
                                               terms: list,
                                               key: str = "variables.named_entity",
-                                              minimum_should_match=None
+                                              minimum_should_match=None,
+                                              match_name: str=""
                                               ) -> dict:
         """Generate query body for query that matches some terms from an array.
 
@@ -82,6 +83,7 @@ class QueryManager(ESManager):
             terms: list of terms for matching.
             key: which key to match, by default, matches column's named_entity.
             minimum_should_match: minimum should match terms from the list.
+            match_name: use as an identifier for this query section, to retrieve where is hit on "inner_hits"
 
         Returns:
             dict of query body
@@ -91,6 +93,7 @@ class QueryManager(ESManager):
             "nested": {
                 "path": key.split(".")[0],
                 "inner_hits": {
+                    "name": match_name or key.split(".")[0],
                     "_source": [
                         key.split(".")[1]
                     ],

@@ -60,18 +60,28 @@ class JSONQueryManager(QueryManager):
         for variables_key in ('required_variables', 'desired_variables'):
             nested_queries = []
             variables = json_query.get(variables_key, [])
-            for variable in variables:
+            for idx, variable in enumerate(variables):
                 nested_query = None
                 _type = variable.get('type')
                 parser = entity_parsers.get(_type)
                 if parser:
                     nested_query = parser(variable)
                 elif _type == 'dataframe_columns':
-                    cols = [df.iloc[:, index] for index in variable.get('index', [])] \
-                           or [df.loc[:, name] for name in variable.get('names', [])]
-                    cols_query = [cls.match_some_terms_from_variables_array(col.unique().tolist()) for col in cols]
-                    if cols_query:
-                        nested_query = cls.conjunction_query(cols_query)
+                    col_type = None
+                    if variable.get('index'):
+                        col_type = 'index'
+                    elif variable.get('names'):
+                        col_type = 'names'
+                    if col_type:
+                        cols_query = []
+                        for col in variable.get(col_type):
+                            terms = df.loc[:, col].unique().tolist() if col_type == 'names' \
+                                else df.iloc[:, col].unique().tolist()
+                            match_name = '.'.join([variables_key, str(idx), col_type, str(col)])
+                            col_query = cls.match_some_terms_from_variables_array(terms, match_name=match_name)
+                            cols_query.append(col_query)
+                        if cols_query:
+                            nested_query = cls.conjunction_query(cols_query)
                 if nested_query:
                     nested_queries.append(nested_query)
             if nested_queries:

@@ -43,7 +43,12 @@ def augment(original_data: pd.DataFrame, augment_data: Dataset) -> pd.DataFrame:
 
     """
     if not augment_data.matched_cols:
-        return original_data
+        try:
+            augment_data.auto_set_match(original_data)
+        except Exception as e:
+            print(str(e))
+        if not augment_data.matched_cols:
+            return original_data
 
     left_cols, right_cols = augment_data.matched_cols
     default_joiner = 'rltk'
