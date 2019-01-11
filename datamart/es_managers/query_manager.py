@@ -121,7 +121,7 @@ class QueryManager(ESManager):
         }
 
         if match_name:
-            body['nested']['path']['inner_hits']['name'] = match_name
+            body["nested"]["inner_hits"]["name"] = match_name
 
         for term in terms:
             body["nested"]["query"]["bool"]["should"].append(
