@@ -3,8 +3,6 @@ import typing
 from datamart.dataset import Dataset
 from datamart.index_builder import IndexBuilder
 from datamart.utilities.utils import DEFAULT_ES
-from datamart.es_managers.json_query_manager import JSONQueryManager
-
 from datamart.augment import Augment
 
 
@@ -26,7 +24,7 @@ def search(query: dict, data: pd.DataFrame) -> typing.List[Dataset]:
     augmenter = Augment(es_index=DEFAULT_ES)
     es_results = augmenter.query_by_json(query, data)
     if es_results:
-        return [Dataset(es_result) for es_result in es_results]
+        return [Dataset(es_result, original_data=data, query_json=query) for es_result in es_results]
     return []
 
 
@@ -43,12 +41,7 @@ def augment(original_data: pd.DataFrame, augment_data: Dataset) -> pd.DataFrame:
 
     """
     if not augment_data.matched_cols:
-        try:
-            augment_data.auto_set_match(original_data)
-        except Exception as e:
-            print(str(e))
-        if not augment_data.matched_cols:
-            return original_data
+        return original_data
 
     left_cols, right_cols = augment_data.matched_cols
     default_joiner = 'rltk'

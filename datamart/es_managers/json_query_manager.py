@@ -3,6 +3,12 @@ from pandas import DataFrame
 
 
 class JSONQueryManager(QueryManager):
+
+    DATAFRAME_COLUMNS = "dataframe_columns"
+    TEMPORAL_ENTITY = "temporal_entity"
+    GEOSPATIAL_ENTITY = "geospatial_entity"
+    GENERIC_ENTITY = "generic_entity"
+
     @classmethod
     def match_key_value_pairs_by_query_mapping(cls, query2index: typing.List[tuple], query_object: dict) \
             -> typing.Optional[dict]:
@@ -51,37 +57,11 @@ class JSONQueryManager(QueryManager):
                         })
 
         # deal with variable list:
-        entity_parsers = {
-            'temporal_entity': cls.parse_temporal_entity,
-            'geospatial_entity': cls.parse_geospatial_entity,
-            'generic_entity': cls.parse_generic_entity
-        }
-
         for variables_key in ('required_variables', 'desired_variables'):
             nested_queries = []
             variables = json_query.get(variables_key, [])
             for idx, variable in enumerate(variables):
-                nested_query = None
-                _type = variable.get('type')
-                parser = entity_parsers.get(_type)
-                if parser:
-                    nested_query = parser(variable)
-                elif _type == 'dataframe_columns':
-                    col_type = None
-                    if variable.get('index'):
-                        col_type = 'index'
-                    elif variable.get('names'):
-                        col_type = 'names'
-                    if col_type:
-                        cols_query = []
-                        for col in variable.get(col_type):
-                            terms = df.loc[:, col].unique().tolist() if col_type == 'names' \
-                                else df.iloc[:, col].unique().tolist()
-                            match_name = '.'.join([variables_key, str(idx), col_type, str(col)])
-                            col_query = cls.match_some_terms_from_variables_array(terms, match_name=match_name)
-                            cols_query.append(col_query)
-                        if cols_query:
-                            nested_query = cls.conjunction_query(cols_query)
+                nested_query = cls.parse_a_variable(variable, variables_key, idx, df)
                 if nested_query:
                     nested_queries.append(nested_query)
             if nested_queries:
@@ -93,6 +73,68 @@ class JSONQueryManager(QueryManager):
             }
             # print(json.dumps(full_query, indent=2))
             return json.dumps(full_query)
+
+    @classmethod
+    def parse_a_variable(cls, entity: dict, key: str, index: int, df: DataFrame=None) -> typing.Optional[dict]:
+        """
+        for a entity in "required_variables" or "desired_variables", parse it to a nested ES query object.
+
+        Args:
+            entity: dict - the object for an entity
+            key: str - either "required_variables" or "desired_variables"
+            index: int - index in the "required_variables" or "desired_variables" array
+            df: pandas.DataFrame - the original data
+
+        Returns:
+            the parsed ES query object
+
+        """
+        entity_type = entity.get('type')
+        inner_match_name = '%s.%d.%s' % (key, index, entity_type)
+        nested_query = None
+        if entity_type == cls.DATAFRAME_COLUMNS:
+            nested_query = cls.parse_dataframe_columns(entity, df)
+        elif entity_type == cls.TEMPORAL_ENTITY:
+            nested_query = cls.parse_temporal_entity(entity)
+        elif entity_type == cls.GEOSPATIAL_ENTITY:
+            nested_query = cls.parse_geospatial_entity(entity)
+        elif entity_type == cls.GENERIC_ENTITY:
+            nested_query = cls.parse_generic_entity(entity)
+
+        if nested_query:
+            cls.add_inner_hits_name(nested_query, inner_match_name)
+            return nested_query
+
+    @classmethod
+    def add_inner_hits_name(cls, root, name):
+        if root.get("nested"):
+            try:
+                root["nested"]["inner_hits"]["name"] = name
+            except:
+                pass
+        else:
+            try:
+                for inner in root["bool"]["must"]:
+                    cls.add_inner_hits_name(inner, name)
+            except:
+                pass
+
+    @classmethod
+    def parse_dataframe_columns(cls, entity: dict, df: DataFrame) -> typing.Optional[dict]:
+        col_type = None
+        if entity.get('index'):
+            col_type = 'index'
+        elif entity.get('names'):
+            col_type = 'names'
+        if col_type:
+            cols_query = []
+            for col in entity.get(col_type):
+                terms = df.loc[:, col].unique().tolist() if col_type == 'names' \
+                    else df.iloc[:, col].unique().tolist()
+                col_query = cls.match_some_terms_from_variables_array(terms)
+                cols_query.append(col_query)
+            if cols_query:
+                return cls.conjunction_query(cols_query)
 
     @classmethod
     def parse_temporal_entity(cls, entity: dict) -> dict:
@@ -115,7 +157,7 @@ class JSONQueryManager(QueryManager):
 
     @classmethod
     def parse_geospatial_entity(cls, entity: dict) -> dict:
-        named_entities = entity.get('named_entities', {}).get('terms')
+        named_entities = entity.get('named_entities', {}).get('items')
         if named_entities:
             nested_body = cls.match_some_terms_from_variables_array(named_entities)
             return nested_body
@@ -128,7 +170,8 @@ class JSONQueryManager(QueryManager):
             queries.append({
                 "nested": {
                     "path": "variables",
-                    "query": cls.match_any(entity['about'])
+                    "query": cls.match_any(entity['about']),
+                    "inner_hits": {}
                 }
             })
         keys_mapping = [
@@ -143,8 +186,8 @@ class JSONQueryManager(QueryManager):
         matches = cls.match_key_value_pairs_by_query_mapping(keys_mapping, entity)
         if matches:
             queries.append(matches)
-        query_body = cls.conjunction_query(queries)
-        return query_body
+        if queries:
+            return cls.conjunction_query(queries)
 
     @staticmethod
     def parse_date_range(start: str, end: str) -> typing.Optional[dict]:

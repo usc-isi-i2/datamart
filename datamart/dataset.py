@@ -1,5 +1,6 @@
 from datamart.utilities.utils import Utils
 from pandas import DataFrame
+from datamart.es_managers.json_query_manager import JSONQueryManager
 
 
 class Dataset:
@@ -8,13 +9,21 @@ class Dataset:
     Contains the meta info and the way to materialize the dataset.
     Follow the API defined by https://datadrivendiscovery.org/wiki/display/work/Python+API
     """
-    def __init__(self, es_raw_object):
+    def __init__(self, es_raw_object, original_data, query_json):
         self.__es_raw_object = es_raw_object
         self._metadata = es_raw_object['_source']
         self._score = es_raw_object['_score']
         self._id = es_raw_object['_id']
         self._matched_cols = []
         self._inner_hits = es_raw_object.get('inner_hits', {})
+
+        self._original_data = original_data
+        self._query_json = query_json
+
+        try:
+            self.auto_set_match()
+        except Exception as e:
+            print(str(e))
 
     def materialize(self):
         return Utils.materialize(metadata=self.metadata)
@@ -110,39 +119,49 @@ class Dataset:
         """
         return self._matched_cols
 
+    @property
+    def original_data(self):
+        return self._original_data
+
+    @property
+    def query_json(self):
+        return self._query_json
+
     def set_match(self, left_cols, right_cols):
         if len(left_cols) == len(right_cols):
             self._matched_cols = (left_cols, right_cols)
 
-    def auto_set_match(self, original_data: DataFrame):
+    def auto_set_match(self):
         used = set()
         left = []
         right = []
         for key_path, outer_hits in self.inner_hits.items():
-            keys = key_path.split('.')
+            vars_type, index, ent_type = key_path.split('.')
+            if vars_type != 'required_variables':
+                continue
             left_index = []
-            if keys[-2] == 'index':
-                left_index.append(int(keys[-1]))
-            elif keys[-2] == 'names':
-                left_index.append(original_data.columns.tolist().index(keys[-1]))
-            if not left_index:
-                continue
-
-            inner_hits = outer_hits.get('hits', {})
-            hits_list = inner_hits.get('hits')
             right_index = []
-            if hits_list:
-                for hit in hits_list:
-                    offset = hit['_nested']['offset']
-                    if offset not in used:
-                        right_index.append(offset)
-                        used.add(offset)
-                        break
-            if not right_index:
-                continue
+            index = int(index)
+            if ent_type == JSONQueryManager.DATAFRAME_COLUMNS:
+                if self.query_json[vars_type][index].get('index'):
+                    left_index = self.query_json[vars_type][index].get('index')
+                elif self.query_json[vars_type][index].get('names'):
+                    left_index = [self.original_data.columns.tolist().index(idx)
+                                  for idx in self.query_json[vars_type][index].get('names')]
 
-            left.append(left_index)
-            right.append(right_index)
+                inner_hits = outer_hits.get('hits', {})
+                hits_list = inner_hits.get('hits')
+                if hits_list:
+                    for hit in hits_list:
+                        offset = hit['_nested']['offset']
+                        if offset not in used:
+                            right_index.append(offset)
+                            used.add(offset)
+                            break
+
+            if left_index and right_index:
+                left.append(left_index)
+                right.append(right_index)
 
         if left and right:
             self._matched_cols = (left, right)

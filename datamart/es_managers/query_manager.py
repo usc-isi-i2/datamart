@@ -74,8 +74,7 @@ class QueryManager(ESManager):
     def match_some_terms_from_variables_array(cls,
                                               terms: list,
                                               key: str = "variables.named_entity",
-                                              minimum_should_match=None,
-                                              match_name: str=None
+                                              minimum_should_match=None
                                               ) -> dict:
         """Generate query body for query that matches some terms from an array.
 
@@ -119,9 +118,6 @@ class QueryManager(ESManager):
                 }
             }
         }
-
-        if match_name:
-            body["nested"]["inner_hits"]["name"] = match_name
 
         for term in terms:
             body["nested"]["query"]["bool"]["should"].append(
