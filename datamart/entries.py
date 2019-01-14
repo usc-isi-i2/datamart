@@ -6,7 +6,7 @@ from datamart.utilities.utils import DEFAULT_ES
 from datamart.augment import Augment
 
 
-def search(query: dict, data: pd.DataFrame) -> typing.List[Dataset]:
+def search(query: dict, data: pd.DataFrame=None) -> typing.List[Dataset]:
     """
     Follow the API defined by https://datadrivendiscovery.org/wiki/display/work/Python+API
 

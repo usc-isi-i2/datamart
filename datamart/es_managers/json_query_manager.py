@@ -10,18 +10,6 @@ class JSONQueryManager(QueryManager):
     GENERIC_ENTITY = "generic_entity"
 
     @classmethod
-    def match_key_value_pairs_by_query_mapping(cls, query2index: typing.List[tuple], query_object: dict) \
-            -> typing.Optional[dict]:
-        k_v_pairs = []
-        for query_key, target_key in query2index:
-            value = query_object.get(query_key)
-            if not target_key or not value:
-                continue
-            k_v_pairs.append((target_key, value))
-        if k_v_pairs:
-            return cls.match_key_value_pairs(k_v_pairs, disjunctive_array_value=True)
-
-    @classmethod
     def parse_json_query(cls, json_query: dict, df: DataFrame=None) -> typing.Optional[str]:
         # conjunction of dataset constrains and required_variables hit and desired_variable hit:
         outer_must = []
@@ -106,20 +94,6 @@ class JSONQueryManager(QueryManager):
             return nested_query
 
     @classmethod
-    def add_inner_hits_name(cls, root, name):
-        if root.get("nested"):
-            try:
-                root["nested"]["inner_hits"]["name"] = name
-            except:
-                pass
-        else:
-            try:
-                for inner in root["bool"]["must"]:
-                    cls.add_inner_hits_name(inner, name)
-            except:
-                pass
-
-    @classmethod
     def parse_dataframe_columns(cls, entity: dict, df: DataFrame) -> typing.Optional[dict]:
         col_type = None
         if entity.get('index'):
@@ -201,3 +175,29 @@ class JSONQueryManager(QueryManager):
         if end:
             range_query["gte"] = end
         return range_query
+
+    @classmethod
+    def match_key_value_pairs_by_query_mapping(cls, query2index: typing.List[tuple], query_object: dict) \
+            -> typing.Optional[dict]:
+        k_v_pairs = []
+        for query_key, target_key in query2index:
+            value = query_object.get(query_key)
+            if not target_key or not value:
+                continue
+            k_v_pairs.append((target_key, value))
+        if k_v_pairs:
+            return cls.match_key_value_pairs(k_v_pairs, disjunctive_array_value=True)
+
+    @classmethod
+    def add_inner_hits_name(cls, root, name):
+        if root.get("nested"):
+            try:
+                root["nested"]["inner_hits"]["name"] = name
+            except:
+                pass
+        else:
+            try:
+                for inner in root["bool"]["must"]:
+                    cls.add_inner_hits_name(inner, name)
+            except:
+                pass

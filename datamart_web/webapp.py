@@ -10,7 +10,8 @@ sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 from flask import Flask, request
 from datamart_web.src.search_metadata import SearchMetadata
 from datamart_web.src.join_datasets import JoinDatasets
-from datamart_web.src.contribute_data import UserDataIndexer
+
+from datamart.entries import search, upload
 
 
 class WebApp(Flask):
@@ -19,7 +20,6 @@ class WebApp(Flask):
         super().__init__(__name__, instance_relative_config=True)
         self.search_metadata = SearchMetadata()
         self.join_datasets = JoinDatasets()
-        self.indexer = UserDataIndexer()
         self.old_df = None
 
     def create_app(self, test_config=None):
@@ -71,26 +71,69 @@ class WebApp(Flask):
             try:
                 file_content = request.files['file'].read().decode('utf-8')
                 description = json.loads(file_content)
-                description['materialization'] = {
-                    'python_path': 'general_materializer',
-                    'arguments': description['materialization_arguments']
-                }
-                del description['materialization_arguments']
-                es_index = request.form.get('es_index') or 'datamart_tmp'
-                res = self.indexer.index(description, es_index)
+                es_index = request.form.get('es_index') or 'datamart_all'
+                res = upload(description, es_index)
                 return self.wrap_response('0000', data=res)
             except Exception as e:
                 return self.wrap_response('1000', msg="FAIL - " + str(e))
 
-        @self.route('/add_data_gui', methods=['GET'])
+        @self.route('/index/search_data', methods=['POST'])
+        def search_data():
+            try:
+                file_content = request.files['file'].read().decode('utf-8')
+                description = json.loads(file_content)
+                res = search(description)
+                return self.wrap_response('0000', data=[r._es_raw_object for r in res])
+            except Exception as e:
+                return self.wrap_response('1000', msg="FAIL - " + str(e))
+
+        @self.route('/temp_gui', methods=['GET'])
         def temp_gui():
-            return '''<form id="uploadbanner" enctype="multipart/form-data" method="post" action="/index/contribute_data">
-   <input name="file" type="file" />
-   <input name="es_index" type="radio" value="datamart_tmp">datamart_tmp(for test)</input>
-   <input name="es_index" type="radio" value="datamart_all">datamart_all(in use)</input>
-   <input type="submit" value="submit" id="submit" />
-   <br />It will return the metadata doc sent to ES. For testing, please use "datamart_tmp"(by default). 
-</form>'''
+            return '''
+<div>
+    <h3> Upload </h3>
+    <form id="uploadbanner" enctype="multipart/form-data" method="post" action="/index/contribute_data">
+        <ul>
+            <li>
+                <p>Please upload a description json for your dataset
+                    <a href="https://datadrivendiscovery.org/wiki/display/work/Datamart+user+upload+dataset+API">(see explain)</a>:
+                </p>
+                <input name="file" type="file" />
+                <br />
+            </li>
+            <li>
+                <p>If checked, the data will not be uploaded to the in-use endpoint but the one for test: </p>
+                <input name="es_index" type="checkbox" value="datamart_tmp" checked>Just for test</input>
+                <br />
+            </li>
+            <li>
+                <p>When submitted, please wait for a while until you got a json response with success/fail message and the metadata put in Datamart:</p>
+                <input type="submit" value="submit" id="submit" />
+            </li>
+        </ul>
+    </form>
+    
+    <br />
+    <br />
+    
+    <h3> Search </h3>
+    <form id="searchbanner" enctype="multipart/form-data" method="post" action="/index/search_data">
+        <ul>
+            <li>
+                <p>Please upload a description json for your target datasets
+                    <a href="https://datadrivendiscovery.org/wiki/display/work/Query+input+samples">(see examples)</a>:
+                </p>
+                <input name="file" type="file" />
+                <br />
+            <li>
+            </li>
+                <input type="submit" value="submit" id="submit" />
+                <br />It will return the search results(a list of dataset description documents). 
+            </li>
+        </ul>
+    </form>
+</div>
+'''
 
         return self
 
@@ -100,8 +143,8 @@ class WebApp(Flask):
             'code': code,
             'message': msg or ('Success' if code == '0000' else 'Failed'),
             'data': data
-        })
+        }, indent=2, default=lambda x: str(x))
 
 
 if __name__ == '__main__':
-    WebApp().create_app().run(host="0.0.0.0", port=9001, debug=False)
+    WebApp().create_app().run(host="0.0.0.0", port=9001, debug=False, ssl_context='adhoc')

@@ -4,6 +4,7 @@ bleach==3.0.0
 chardet==3.0.4
 Click==7.0
 cycler==0.10.0
+d3m==2018.7.10
 decorator==4.3.0
 defusedxml==0.5.0
 elasticsearch==6.3.1
@@ -44,6 +45,7 @@ psycopg2==2.7.5
 psycopg2-binary==2.7.5
 ptyprocess==0.6.0
 Pygments==2.2.0
+pyopenssl==18.0.0
 pyparsing==2.3.0
 python-dateutil==2.7.3
 pytz==2018.5
