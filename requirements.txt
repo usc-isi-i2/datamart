@@ -29,11 +29,11 @@ kiwisolver==1.0.1
 langdetect==1.0.7
 MarkupSafe==1.0
 mistune==0.8.3
-nbconvert==5.3.1
+nbconvert==5.4.0
 nbformat==4.4.0
 nltk==3.4
 notebook==5.7.2
-numpy==1.14.3
+numpy==1.15.2
 pandas==0.22.0
 pandocfilters==1.4.2
 parso==0.3.1
@@ -52,9 +52,9 @@ pytz==2018.5
 pyzmq==17.1.2
 qtconsole==4.4.1
 regex<2017.12.1,>=2017.4.5
-requests==2.18.4
+requests==2.20.0
 -e git+https://github.com/usc-isi-i2/rltk.git@85f12555eda16cb8af810acd4648a887bdf8f02b#egg=rltk
-scikit-learn==0.19.1
+scikit-learn==0.20.1
 selenium==3.141.0
 Send2Trash==1.5.0
 simplegeneric==0.8.1

@@ -90,12 +90,12 @@ dependencies:
     - msgpack-numpy==0.4.3.2
     - msgpack-python==0.5.6
     - murmurhash==1.0.1
-    - nbconvert==5.3.1
+    - nbconvert==5.4.0
     - nbformat==4.4.0
     - nbsphinx==0.3.5
     - nltk==3.4
     - notebook==5.7.2
-    - numpy==1.14.3
+    - numpy==1.15.2
     - openpyxl==2.5.12
     - packaging==18.0
     - pandas==0.22.0
@@ -131,16 +131,16 @@ dependencies:
     - pytest==4.0.0
     - python-dateutil==2.7.3
     - pytz==2018.5
-    - pyyaml==3.12
+    - pyyaml==3.13
     - pyzmq==17.1.2
     - qtconsole==4.4.1
     - rdflib==4.2.2
     - rdflib-jsonld==0.4.0
     - redis==3.0.1
-    - regex<2017.12.1,>=2017.4.5
-    - requests==2.18.4
+    - regex==2018.1.10
+    - requests==2.20.0
     - rltk==2.0.0a9
-    - scikit-learn==0.19.1
+    - scikit-learn==0.20.1
     - scipy==1.1.0
     - selenium==3.141.0
     - send2trash==1.5.0
