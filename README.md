@@ -17,7 +17,14 @@ git update-index --assume-unchanged datamart/resources/index_info.json
 python -W ignore -m unittest discover
 ```
 
-####When new packages were added:
+If you meet problems about level.db, please try the following commands:
+```
+pip install leveldb
+CFLAGS='-mmacosx-version-min=10.7 -stdlib=libc++' pip install plyvel --no-cache-dir --global-option=build_ext --global-option="-I/usr/local/Cellar/leveldb/1.20_2/include/" --global-option="-L/usr/local/lib"
+pip install rltk
+```
+
+#### When new packages were added:
 
 Before commit: please run the following commands to update the dependencies config.
 ```
