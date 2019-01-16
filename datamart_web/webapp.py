@@ -126,7 +126,7 @@ class WebApp(Flask):
             </li>
             <li>
                 <p>If checked, the data will not be uploaded to the in-use endpoint but the one for test: </p>
-                <input name="test" type="checkbox" value="datamart_tmp" checked>Just for test</input>
+                <input name="test" type="checkbox" value="true" checked>Just for test</input>
                 <br />
             </li>
             <li>
