@@ -18,6 +18,8 @@ python -W ignore -m unittest discover
 ```
 
 If you meet problems about level.db, please try the following commands:
+If you have homebrew installed: `brew install leveldb`
+otherwise:
 ```
 pip install leveldb
 CFLAGS='-mmacosx-version-min=10.7 -stdlib=libc++' pip install plyvel --no-cache-dir --global-option=build_ext --global-option="-I/usr/local/Cellar/leveldb/1.20_2/include/" --global-option="-L/usr/local/lib"
