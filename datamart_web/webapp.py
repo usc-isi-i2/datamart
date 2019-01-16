@@ -21,6 +21,18 @@ class WebApp(Flask):
         self.search_metadata = SearchMetadata()
         self.join_datasets = JoinDatasets()
         self.old_df = None
+        self.results = []
+
+    @staticmethod
+    def read_file(files, key, _type):
+        if key in files:
+            try:
+                if _type == 'csv':
+                    return pd.read_csv(files[key]).infer_objects()
+                elif _type == 'json':
+                    return json.load(files[key])
+            except:
+                pass
 
     def create_app(self, test_config=None):
         # create and configure the app
@@ -66,24 +78,35 @@ class WebApp(Flask):
                 })
             return self.join_datasets.default_join(request=request, old_df=self.old_df)
 
-        @self.route('/index/contribute_data', methods=['POST'])
-        def contribute_data():
+        @self.route('/new/upload_data', methods=['POST'])
+        def upload_data():
             try:
-                file_content = request.files['file'].read().decode('utf-8')
-                description = json.loads(file_content)
-                es_index = request.form.get('es_index') or 'datamart_all'
+                description = self.read_file(request.files, 'file', 'json')
+                es_index = 'datamart_tmp' if request.form.get('test') == 'true' else 'datamart_all'
+                print(description, es_index)
                 res = upload(description, es_index)
                 return self.wrap_response('0000', data=res)
             except Exception as e:
                 return self.wrap_response('1000', msg="FAIL - " + str(e))
 
-        @self.route('/index/search_data', methods=['POST'])
+        @self.route('/new/search_data', methods=['POST'])
         def search_data():
+            self.results = []
             try:
-                file_content = request.files['file'].read().decode('utf-8')
-                description = json.loads(file_content)
-                res = search(description)
+                query = self.read_file(request.files, 'query', 'json')
+                data = self.read_file(request.files, 'data', 'csv')
+                res = search(query, data)
+                self.results = res
                 return self.wrap_response('0000', data=[r._es_raw_object for r in res])
+            except Exception as e:
+                return self.wrap_response('1000', msg="FAIL - " + str(e))
+
+        @self.route('/new/materialize_data', methods=['GET'])
+        def materialize_data():
+            try:
+                index = int(request.args.get('index'))
+                dataset = self.results[index]
+                return self.wrap_response('0000', data=dataset.materialize().to_csv(index=False))
             except Exception as e:
                 return self.wrap_response('1000', msg="FAIL - " + str(e))
 
@@ -92,7 +115,7 @@ class WebApp(Flask):
             return '''
 <div>
     <h3> Upload </h3>
-    <form id="uploadbanner" enctype="multipart/form-data" method="post" action="/index/contribute_data">
+    <form id="uploadbanner" enctype="multipart/form-data" method="post" action="/new/upload_data">
         <ul>
             <li>
                 <p>Please upload a description json for your dataset
@@ -103,7 +126,7 @@ class WebApp(Flask):
             </li>
             <li>
                 <p>If checked, the data will not be uploaded to the in-use endpoint but the one for test: </p>
-                <input name="es_index" type="checkbox" value="datamart_tmp" checked>Just for test</input>
+                <input name="test" type="checkbox" value="datamart_tmp" checked>Just for test</input>
                 <br />
             </li>
             <li>
@@ -117,16 +140,23 @@ class WebApp(Flask):
     <br />
     
     <h3> Search </h3>
-    <form id="searchbanner" enctype="multipart/form-data" method="post" action="/index/search_data">
+    <form id="searchbanner" enctype="multipart/form-data" method="post" action="/new/search_data">
         <ul>
             <li>
                 <p>Please upload a description json for your target datasets
                     <a href="https://datadrivendiscovery.org/wiki/display/work/Query+input+samples">(see examples)</a>:
                 </p>
-                <input name="file" type="file" />
+                <input name="query" type="file" />
                 <br />
-            <li>
             </li>
+            <li>
+                <p>
+                    Please upload the data(csv file) you would like to argument:
+                </p>
+                <input name="data" type="file" />
+                <br />
+            </li>
+            <li>
                 <input type="submit" value="submit" id="submit" />
                 <br />It will return the search results(a list of dataset description documents). 
             </li>

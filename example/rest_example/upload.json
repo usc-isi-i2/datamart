@@ -1,0 +1,8 @@
+{
+  "title": "CA Educational Attainment & Personal Income 2008-2014",
+  "description": "CA Educational Attainment & Personal Income 2008-2014.",
+  "materialization_arguments": {
+    "url":"https://data.ca.gov/sites/default/files/CA_Educational_Attainment___Personal_Income_2008-2014.csv",
+    "file_type": "csv"
+  }
+}

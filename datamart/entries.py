@@ -6,6 +6,7 @@ from datamart.utilities.utils import DEFAULT_ES
 from datamart.augment import Augment
 from datamart.data_loader import DataLoader
 import d3m.container.dataset as d3m_ds
+from datamart.utilities.utils import Utils
 
 
 def search(query: dict, data: pd.DataFrame or str or d3m_ds.Dataset =None) -> typing.List[Dataset]:
@@ -25,6 +26,17 @@ def search(query: dict, data: pd.DataFrame or str or d3m_ds.Dataset =None) -> ty
     """
     loaded_data = DataLoader.load_data(data)
     augmenter = Augment(es_index=DEFAULT_ES)
+    if not (query and ('required_variables' in query)) and (loaded_data is not None):
+        query = query or {}
+        query['required_variables'] = []
+        for col in loaded_data:
+            if Utils.is_column_able_to_query(loaded_data[col]):
+                query['required_variables'].append({
+                    "type": "dataframe_columns",
+                    "names": [
+                      col
+                    ]
+                })
     es_results = augmenter.query_by_json(query, loaded_data)
     if es_results:
         return [Dataset(es_result, original_data=loaded_data, query_json=query) for es_result in es_results]

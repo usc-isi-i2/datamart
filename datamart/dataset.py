@@ -1,6 +1,7 @@
 from datamart.utilities.utils import Utils
 from pandas import DataFrame
 from datamart.es_managers.json_query_manager import JSONQueryManager
+import typing
 
 
 class Dataset:
@@ -25,7 +26,7 @@ class Dataset:
         except Exception as e:
             print(str(e))
 
-    def materialize(self):
+    def materialize(self) -> typing.Optional[DataFrame]:
         return Utils.materialize(metadata=self.metadata)
 
     def download(self, destination: str) -> str:
