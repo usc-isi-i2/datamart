@@ -130,7 +130,7 @@ class BasicProfiler(object):
             string of title
         """
 
-        return " ".join(data.columns.tolist())
+        return " ".join([str(_) for _ in data.columns.tolist()])
 
     @staticmethod
     def construct_global_description(data: pd.DataFrame) -> str:

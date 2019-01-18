@@ -18,7 +18,7 @@ class HTMLParser(ParserBase):
         cells = [[cell['text'] for cell in row['cells']] for row in extractions[0].value['rows']]
         headers = None
         try:
-            if rows[0]['cells'][0]['cell'].startswith('<th>'):
+            if not rows[0]['cells'][0]['cell'].startswith('<td>'):
                 headers = cells.pop(0)
         except IndexError or KeyError or SyntaxError or AttributeError:
             pass

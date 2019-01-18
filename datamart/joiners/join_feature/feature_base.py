@@ -55,7 +55,7 @@ class FeatureBase(object):
         self._metadata = metadata
 
         self._multi_column = False if len(indexes) == 1 else True
-        self._headers = [df.iloc[:, i].name for i in indexes]
+        self._headers = [str(df.iloc[:, i].name) for i in indexes]
         self._name = '|'.join(self._headers)
 
         self._distribute_type = distribute_type

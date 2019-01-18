@@ -65,7 +65,8 @@ class RLTKJoiner(JoinerBase):
 
     def one_to_one_concat(self, matched_rows, left_df, right_df, right_columns):
         right_remain = self.get_remain_list(right_df, right_columns)
-        to_join = pd.DataFrame([right_df.iloc[i, right_remain] for i in matched_rows], index=range(len(matched_rows)))
+        to_join_arr = [right_df.iloc[i, right_remain] for i in matched_rows if i]
+        to_join = pd.DataFrame(to_join_arr, index=range(len(to_join_arr)))
         res = pd.concat([left_df, to_join], axis=1)
         return res
 

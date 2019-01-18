@@ -6,9 +6,12 @@ from rltk.io.reader.dataframe_reader import DataFrameReader
 
 class LeftDynamicRecord(rltk.Record):
     def __init__(self, raw_object: dict):
-        super().__init__(raw_object)
+        raw_ = {}
+        for k, v in raw_object.items():
+            raw_[str(k)] = v
+        super().__init__(raw_)
         # TODO: deal with "id" in original dataset, now it will not be in property
-        vars(self).update(raw_object)
+        vars(self).update(raw_)
 
     @property
     def id(self):
