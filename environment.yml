@@ -139,7 +139,7 @@ dependencies:
     - redis==3.0.1
     - regex==2018.1.10
     - requests==2.20.0
-    - rltk==2.0.0a9
+    - https://github.com/usc-isi-i2/rltk.git@85f12555eda16cb8af810acd4648a887bdf8f02b#egg=rltk
     - scikit-learn==0.20.1
     - scipy==1.1.0
     - selenium==3.141.0
