@@ -58,6 +58,7 @@ class TestRLTKJoiner(unittest.TestCase):
 12-07-2018,Chicago,43,snow,3,chicago,58.8
 12-08-2018,Los Angeles,72,moggy,2,chicago,58.8
 '''
+
         self.assertEqual(res.to_csv(index=False), expected)
 
 
