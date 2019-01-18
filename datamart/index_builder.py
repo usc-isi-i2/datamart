@@ -358,6 +358,8 @@ class IndexBuilder(object):
             return metadata
         """
 
+        metadata = self.profiler.two_raven_profiler.profile(inputs=data, metadata=metadata)
+
         return metadata
 
     def _bulk_load_metadata(self,
