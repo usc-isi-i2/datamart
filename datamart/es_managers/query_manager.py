@@ -294,12 +294,13 @@ class QueryManager(ESManager):
                 if isinstance(value, list):
                     if disjunctive_array_value:
                         body["bool"]["must"].append({
-                            "dis_max": {
-                                "queries": [{
+                            "bool": {
+                                "should": [{
                                     "match": {
                                         key: v
                                     }
-                                } for v in value]
+                                } for v in value],
+                                "minimum_should_match": 1
                             }
                         })
                     else:
@@ -328,12 +329,13 @@ class QueryManager(ESManager):
                 if isinstance(value, list):
                     if disjunctive_array_value:
                         nested["nested"]["query"]["bool"]["must"].append({
-                            "dis_max": {
-                                "queries": [{
+                            "bool": {
+                                "should": [{
                                     "match": {
                                         key: v
                                     }
-                                } for v in value]
+                                } for v in value],
+                                "minimum_should_match": 1
                             }
                         })
                     else:
@@ -427,8 +429,9 @@ class QueryManager(ESManager):
     @staticmethod
     def disjunction_query(queries: list) -> dict:
         body = {
-            "dis_max": {
-                "queries": queries
+            "bool": {
+                "should": queries,
+                "minimum_should_match": 1
             }
         }
         return body
