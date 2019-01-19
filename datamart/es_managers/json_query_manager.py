@@ -27,7 +27,9 @@ class JSONQueryManager(QueryManager):
                 ('keywords', 'keywords'),
                 ('url', 'url')
             ]
-            outer_must.append(cls.match_key_value_pairs_by_query_mapping(keys_mapping, dataset))
+            string_arrays = cls.match_key_value_pairs_by_query_mapping(keys_mapping, dataset)
+            if string_arrays:
+                outer_must.append(string_arrays)
 
             for query_date_key, index_date_key in [
                 ('date_published', 'date_published'),
