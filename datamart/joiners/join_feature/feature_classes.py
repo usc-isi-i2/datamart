@@ -16,6 +16,14 @@ class CategoricalTokenFeature(FeatureBase):
     Categorical on tokens of feature values, rather than on feature values, then run set based similarity .
 
     """
+
+    def value_merge_func(self, record: Record):
+        # TODO: if multi-col, compare together or separate?
+        tokens = []
+        for header in self._headers:
+            tokens += getattr(record, header).split()
+        return tokens
+
     def similarity_functions(self):
         return [jaccard_sim, cosine_sim]
 
