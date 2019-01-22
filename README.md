@@ -63,10 +63,15 @@ Take a look at [tmp.json](example/tmp/tmp.json#L10).
 ## Example of using current system
 
 #### Create metadata and index it on Elasticsearch, following: [Indexing demo](example/index.ipynb)
-#### Query datamart, following: [Query demo](example/query.ipynb)
+#### Query datamart, following: [Query demo](example/query_by_json.ipynb)
 #### Dealing with TAXI example, following: [taxi_example](example/taxi_example/taxi_example.ipynb)
 #### Dealing with FIFA example, following: [fifa_example](example/fifa_example/fifa_example.ipynb)
-#### Using current rest service: [rest_example](example/rest_example/example.md)
+#### Dealing with Hall of Fame example, following: [hof_example](example/hof_example/hof_example.ipynb)
+
+#### Python API documentation: [python api](datamart/README.md)
+#### REST API documentation: [rest_example](example/rest_example/example.md)
+
+#### (more information can be found under [wiki](https://datadrivendiscovery.org/wiki/display/work/Data+augmentation+working+group))
 
 Note: Launch notebook: 
 ```

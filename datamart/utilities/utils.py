@@ -35,7 +35,7 @@ class Utils:
         "variables": []
     }
 
-    MATERIALIZATION_TIME_OUT = 300
+    MATERIALIZATION_TIME_OUT = 900
 
     CATEGORICAL_COLUMN_THRESHOLD = 0.2
 
