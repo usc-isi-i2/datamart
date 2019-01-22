@@ -1,9 +1,10 @@
 import pandas as pd
-import os
+import os, sys
+sys.path.append('../../')
 import requests
 import time
 import json
-from datamart import search
+from datamart import *
 
 
 class TwoRavenProfiler(object):
