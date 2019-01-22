@@ -1,22 +1,13 @@
 import pandas as pd
 import typing
 from datamart.joiners.joiner_base import JoinerBase
-from datamart.joiners.dataframe_wrapper import DataFrameWrapper
+from datamart.joiners.join_feature.feature_pairs import FeaturePairs
 import rltk
-from rltk.similarity.levenshtein import levenshtein_similarity
-
 
 """
 TODO
 Implement RLTK joiner
 """
-
-
-def get_feature_pairs(dfw1: DataFrameWrapper, dfw2: DataFrameWrapper):
-    l1 = len(dfw1.merged_columns_headers)
-    l2 = len(dfw2.merged_columns_headers)
-    if l1 == l2:
-        return [(dfw1.merged_columns_headers[i], dfw2.merged_columns_headers[i]) for i in range(l1)]
 
 
 class RLTKJoiner(JoinerBase):
@@ -40,29 +31,84 @@ class RLTKJoiner(JoinerBase):
         2. pull out the mapped columns and form to new datasets with same order to support
         """
 
-        left = DataFrameWrapper(left_df, left_columns, left_metadata)
-        right = DataFrameWrapper(right_df, right_columns, right_metadata)
+        fp = FeaturePairs(left_df, right_df, left_columns, right_columns, left_metadata, right_metadata)
+        record_pairs = rltk.get_record_pairs(fp.left_rltk_dataset, fp.right_rltk_dataset)
+        sim = [[0 for __ in range(len(right_df))] for _ in range(len(left_df))]
 
-        pairs = rltk.get_record_pairs(left.rltk_dataset, right.rltk_dataset)
-        headers = get_feature_pairs(left, right)
-        for r1, r2 in pairs:
-            for h1, h2 in headers:
-                print(h1, h2)
-                print('levenshtein_similarity:', levenshtein_similarity(getattr(r1, h1), getattr(r2, h2)))
+        for r1, r2 in record_pairs:
+            similarities = []
+            for f1, f2 in fp.pairs:
+                v1 = f1.value_merge_func(r1)
+                v2 = f2.value_merge_func(r2)
+                # print(v1, v2, type(f1), type(f2))
+                for similarity_func in f1.similarity_functions():
+                    similarity = similarity_func(v1, v2)
+                    similarities.append(similarity)
+                    # print(f1.name, f2.name, v1, v2, similarity, similarity_func, type(f1))
+                    # TODO: now only consider the first similarity function for now
+                    break
+                # print(v1, v2, similarities)
+            sim[int(r1.id)][int(r2.id)] = sum(similarities)/len(similarities) if similarities else 0
 
+        matched_rows = self.simple_best_match(sim)
+        res = self.one_to_one_concat(matched_rows, left_df, right_df, right_columns)
 
         # step 2 : analyze target columns - get ranked similarity functions for each columns
         """
-        see https://paper.dropbox.com/doc/ER-for-Datamart--ASlKtpR4ceGaj~6cN4Q7EWoSAQ-tRug6oRX6g5Ko5jzaeynT 
+        see https://paper.dropbox.com/doc/ER-for-Datamart--ASlKtpR4ceGaj~6cN4Q7EWoSAQ-tRug6oRX6g5Ko5jzaeynT
         """
-
 
         # step 3 : check if 1-1, 1-n, n-1, or m-n relations,
         # based on the analyze in step 2 we can basically know if it is one-to-one relation
-        print(left_df)
-        print(right_df)
 
-        print(left_columns)
-        print(right_columns)
+        return res
 
-        return left_df
+    def one_to_one_concat(self, matched_rows, left_df, right_df, right_columns):
+        right_remain = self.get_remain_list(right_df, right_columns)
+        right_remain_headers = [right_df.columns.tolist()[j] for j in right_remain]
+        series_arr = []
+        for i in matched_rows:
+            if isinstance(i, int):
+                series_arr.append(right_df.iloc[i, right_remain])
+            else:
+                series_arr.append(pd.Series(index=right_remain_headers))
+        to_join = pd.DataFrame(series_arr, index=range(len(matched_rows)))
+        res = pd.concat([left_df, to_join], axis=1)
+        return res
+
+    def munkrus_match(self, sim: typing.List[typing.List[float]]):
+        pass
+
+    @staticmethod
+    def simple_best_match(sim: typing.List[typing.List[float]], threshold=0.5):
+        res = []
+        for idx, v in enumerate(sim):
+            max_val = threshold
+            max_idx = None
+            for idx_, v_ in enumerate(v):
+                if v_ >= max_val:
+                    max_idx = idx_
+                    max_val = v_
+            res.append(max_idx)
+        return res
+
+    @staticmethod
+    def simple_best_matches(sim: typing.List[typing.List[float]], threshold=0.8):
+        res = []
+        for idx, v in enumerate(sim):
+            cur = []
+            for idx_, v_ in enumerate(v):
+                if v_ >= threshold:
+                    cur.append(idx_)
+            res.append(cur)
+        return res
+
+    @staticmethod
+    def get_remain_list(df: pd.DataFrame, columns_2d: typing.List[typing.List[int]]):
+        all_columns = list(range(df.shape[1]))
+        columns_1d = [item for sublist in columns_2d for item in sublist]
+        remianing = [_ for _ in all_columns if _ not in columns_1d]
+        return remianing
+
+
+

@@ -13,11 +13,12 @@ source_value_schema_path = "./json_template/source_value_description_schema.json
 
 
 def read_args():
-    property = ""
+    is_partial_dataset = ""
     if len(sys.argv) > 1:
-        property = sys.argv[1].strip()
-
-    return property
+        is_partial_dataset = True if sys.argv[1].strip() == "True" else False
+    else:
+        is_partial_dataset = False
+    return is_partial_dataset
 
 
 def read_template(path):
@@ -215,6 +216,8 @@ def process_get_all_properties_query(data):
 
 
 if __name__ == '__main__':
+    # is_partial_dataset = read_args()
+
     prefix = 'http://sitaware.isi.edu:8080/bigdata/namespace/wdq/sparql?query='
     format = '&format=json'
 
@@ -245,9 +248,6 @@ if __name__ == '__main__':
             # print("prop value category ", prefix + prop_value_category_encoded + format)
             prop_value_category_query = urllib.request.Request(prefix + prop_value_category_encoded + format)
 
-
-            # -------------------------- #
-
             desc_template = read_template(template_path)
             # adding basic information
             desc_template = fill_description(desc_template, get_query_result(property_attr_query))
@@ -269,8 +269,14 @@ if __name__ == '__main__':
 
             desc_template["materialization"]["arguments"]["property"] = property
 
+            # will be invalid when build index if keep date related property in empty string:
+            if desc_template.get('date_published') == '':
+                del desc_template['date_published']
+            if desc_template.get('date_updated') == '':
+                del desc_template['date_updated']
+
             w_str = json.dumps(desc_template, indent=4)
-            with open('decription_' + property +'.json', 'w') as f:
+            with open('description_' + property + '.json', 'w') as f:
                 f.write(w_str)
         except Exception as e:
             with open('generate_property.log', 'a+') as f:

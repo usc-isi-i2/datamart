@@ -82,6 +82,7 @@ class QueryManager(ESManager):
             terms: list of terms for matching.
             key: which key to match, by default, matches column's named_entity.
             minimum_should_match: minimum should match terms from the list.
+            match_name: use as an identifier for this query section, to retrieve where is hit on "inner_hits"
 
         Returns:
             dict of query body
@@ -254,11 +255,12 @@ class QueryManager(ESManager):
         return body
 
     @classmethod
-    def match_key_value_pairs(cls, key_value_pairs: typing.List[tuple]) -> dict:
+    def match_key_value_pairs(cls, key_value_pairs: typing.List[tuple], disjunctive_array_value=False) -> dict:
         """Generate query body for query by multiple key value pairs.
 
         Args:
             key_value_pairs: list of (key, value) tuples.
+            disjunctive_array_value: bool. if True, when the "value" is an array, use their disjunctive match
 
         Returns:
             dict of query body
@@ -290,14 +292,26 @@ class QueryManager(ESManager):
         for key, value in key_value_pairs:
             if not key.startswith("variables"):
                 if isinstance(value, list):
-                    for v in value:
-                        body["bool"]["must"].append(
-                            {
-                                "match": {
-                                    key: v
-                                }
+                    if disjunctive_array_value:
+                        body["bool"]["must"].append({
+                            "bool": {
+                                "should": [{
+                                    "match": {
+                                        key: v
+                                    }
+                                } for v in value],
+                                "minimum_should_match": 1
                             }
-                        )
+                        })
+                    else:
+                        for v in value:
+                            body["bool"]["must"].append(
+                                {
+                                    "match": {
+                                        key: v
+                                    }
+                                }
+                            )
                 else:
                     body["bool"]["must"].append(
                         {
@@ -313,14 +327,26 @@ class QueryManager(ESManager):
                 else:
                     match_method = "match"
                 if isinstance(value, list):
-                    for v in value:
-                        nested["nested"]["query"]["bool"]["must"].append(
-                            {
-                                match_method: {
-                                    key: v
-                                }
+                    if disjunctive_array_value:
+                        nested["nested"]["query"]["bool"]["must"].append({
+                            "bool": {
+                                "should": [{
+                                    "match": {
+                                        key: v
+                                    }
+                                } for v in value],
+                                "minimum_should_match": 1
                             }
-                        )
+                        })
+                    else:
+                        for v in value:
+                            nested["nested"]["query"]["bool"]["must"].append(
+                                {
+                                    match_method: {
+                                        key: v
+                                    }
+                                }
+                            )
                 else:
                     nested["nested"]["query"]["bool"]["must"].append(
                         {
@@ -390,3 +416,22 @@ class QueryManager(ESManager):
                 body["query"]["bool"]["must"].append(query)
 
         return json.dumps(body)
+
+    @staticmethod
+    def conjunction_query(queries: list) -> dict:
+        body = {
+            "bool": {
+                "must": queries
+            }
+        }
+        return body
+
+    @staticmethod
+    def disjunction_query(queries: list) -> dict:
+        body = {
+            "bool": {
+                "should": queries,
+                "minimum_should_match": 1
+            }
+        }
+        return body

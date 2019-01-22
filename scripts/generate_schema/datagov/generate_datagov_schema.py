@@ -12,7 +12,7 @@ args2  = sys.argv[2]
 
 counterror = 0
 context = ssl._create_unverified_context()
-for num in range(0,1):         
+for num in range(0,303):         
 	curPath=os.getcwd()
 	tempPath=str(num)
 	targetPath=str(args2)+"/"+tempPath
@@ -84,7 +84,8 @@ for num in range(0,1):
 		    				data["original_identifier"] = element["id"]#.encode("utf-8")
 		    				data["materialization"] = dict()
 		    				data["materialization"]["python_path"]= "datagov_materializer"
-		    				data["materialization"]["arguments"] = urllineStr#.encode("utf-8")
+							# "arguments" must be an object:
+		    				data["materialization"]["arguments"] = {"url": urllineStr} #urllineStr#.encode("utf-8")
 		    				data["variable"] = []
 		    				data["additional_info"] = dict()
 		    				data["additional_info"]["groups"]=[]

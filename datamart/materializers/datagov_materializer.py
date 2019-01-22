@@ -19,8 +19,8 @@ class DatagovMaterializer(MaterializerBase):
                 variables:
                 constrains: include some constrains like date_range, location and so on
         """
-        args = metadata['materialization']['arguments']
+        url = metadata['materialization']['arguments']['url']
         # database = requests.get(args).content
-        df = pd.read_csv(args)
+        df = pd.read_csv(url)
 
         return df

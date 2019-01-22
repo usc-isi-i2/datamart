@@ -1,0 +1,116 @@
+{
+  "datamart_id": null,
+  "materialization": {
+    "python_path": "default_materializer",
+    "arguments": null
+  },
+  "variables": [
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "d3mIndex",
+      "description": "column name: d3mIndex, dtype: int64",
+      "dsbox_profiled": {
+        "ratio_of_numeric_values": 1.0,
+        "number_of_outlier_numeric_values": "0"
+      }
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "tpep_pickup_datetime",
+      "description": "column name: tpep_pickup_datetime, dtype: object",
+      "temporal_coverage": {
+        "start": "2018-01-01T00:00:00",
+        "end": "2018-01-02T23:00:00"
+      },
+      "dsbox_profiled": {
+        "most_common_tokens": [
+          {
+            "name": "2018-01-01",
+            "count": "24"
+          },
+          {
+            "name": "2018-01-02",
+            "count": "24"
+          },
+          {
+            "name": "00:00:00",
+            "count": "2"
+          },
+          {
+            "name": "01:00:00",
+            "count": "2"
+          },
+          {
+            "name": "02:00:00",
+            "count": "2"
+          },
+          {
+            "name": "03:00:00",
+            "count": "2"
+          },
+          {
+            "name": "04:00:00",
+            "count": "2"
+          },
+          {
+            "name": "05:00:00",
+            "count": "2"
+          },
+          {
+            "name": "06:00:00",
+            "count": "2"
+          },
+          {
+            "name": "07:00:00",
+            "count": "2"
+          }
+        ],
+        "number_of_tokens_containing_numeric_char": 96,
+        "ratio_of_tokens_containing_numeric_char": 1.0,
+        "number_of_values_containing_numeric_char": "48",
+        "ratio_of_values_containing_numeric_char": 1.0
+      }
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "num_pickups",
+      "description": "column name: num_pickups, dtype: int64",
+      "dsbox_profiled": {
+        "ratio_of_numeric_values": 1.0,
+        "number_of_outlier_numeric_values": "0"
+      }
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "city",
+      "description": "column name: city, dtype: object",
+      "named_entity": [
+        "New York"
+      ],
+      "dsbox_profiled": {
+        "most_common_tokens": [
+          {
+            "name": "New",
+            "count": "48"
+          },
+          {
+            "name": "York",
+            "count": "48"
+          }
+        ]
+      }
+    }
+  ],
+  "title": "d3mIndex tpep_pickup_datetime num_pickups city",
+  "description": "d3mIndex : int64, tpep_pickup_datetime : object, num_pickups : int64, city : object",
+  "keywords": [
+    "d3mIndex",
+    "tpep_pickup_datetime",
+    "num_pickups",
+    "city"
+  ]
+}

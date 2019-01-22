@@ -1,4 +1,4 @@
-from datamart.es_managers.query_manager import QueryManager
+from datamart.es_managers.json_query_manager import JSONQueryManager
 from datamart.profiler import Profiler
 import pandas as pd
 import typing
@@ -21,9 +21,32 @@ class Augment(object):
 
         """
 
-        self.qm = QueryManager(es_host=es_host, es_port=es_port, es_index=es_index)
+        self.qm = JSONQueryManager(es_host=es_host, es_port=es_port, es_index=es_index)
         self.joiners = dict()
         self.profiler = Profiler()
+
+    def query_by_json(self,
+                      json_query: dict,
+                      dataset: pd.DataFrame=None, **kwargs
+                      ) -> typing.Optional[typing.List[dict]]:
+        """
+
+        Args:
+            json_query:
+            dataset:
+            **kwargs:
+
+        Returns:
+
+        """
+
+        if json_query:
+            query_body = self.qm.parse_json_query(json_query, dataset)
+            if query_body:
+                results = self.qm.search(body=query_body, **kwargs)
+                return results
+
+        return self._query_all()
 
     def query(self,
               col: pd.Series = None,

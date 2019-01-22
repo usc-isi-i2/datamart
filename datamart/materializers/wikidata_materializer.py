@@ -33,7 +33,8 @@ class WikidataMaterializer(MaterializerBase):
         main_query_encoded = self._encode_url(self._formulate_main_query(self.property))
         id_category_encoded = self._encode_url(self._formulate_id_category_query(self.property))
 
-        prefix = 'https://query.wikidata.org/sparql?query='
+        # prefix = 'https://query.wikidata.org/sparql?query='
+        prefix = 'http://sitaware.isi.edu:8080/bigdata/namespace/wdq/sparql?query='
         format = '&format=json'
 
         main_query_req = urllib.request.Request(prefix + main_query_encoded + format)

@@ -1,0 +1,21 @@
+{
+  "title": "A short description of the dataset",
+  "description": "https://cerc.blackboard.com/Page/1189",
+  "implicit_variables": [
+    {
+      "name": "year",
+      "value": "2007",
+      "semantic_type": [
+        "http://schema.org/Integer",
+        "https://metadata.datadrivendiscovery.org/types/Time"
+      ]
+    }
+  ],
+  "materialization": {
+    "python_path": "general_materializer",
+    "arguments": {
+      "url": "http://insight.dev.schoolwires.com/HelpAssets/C2Assets/C2Files/C2ImportFamRelSample.csv",
+      "file_type": "csv"
+    }
+  }
+}
