@@ -70,6 +70,15 @@ class QueryManager(ESManager):
             from_index += size
         return ret
 
+    def get_by_id(self, id: int) -> dict:
+        """get the document by the unique id(the datamart_id, same as the elasticsearch doc "_id")
+
+        :param id: the datamart_id
+        :return: a single doc
+        """
+        result = self.es.get(index=self.es_index, id=id)
+        return result
+
     @classmethod
     def match_some_terms_from_variables_array(cls,
                                               terms: list,
