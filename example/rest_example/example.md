@@ -43,16 +43,16 @@ curl -X POST \
 - Request Method: POST
 - Endpoint: https://dsbox02.isi.edu:9001/new/search_data
 - Body: 
-    - query : the query json file [(example input: query.json)](query.json)
-    - data : the data csv file [(example input: fifa.csv)](fifa.csv)
+    - query : the query json file [(example input: fifa_query.json)](../fifa_example/fifa_query.json)
+    - data : the data csv file [(example input: fifa.csv)](../fifa_examplefifa.csv)
 - Response:
     - response.code: 0000 for success
     - response.message
     - response.data: an array of results(ElasticSearch returned json)
     
     
+**"3. Mateiralize" and "4. Augment" only works after a successful "Search" request**
 ##### 3. Mateiralize a search results:
-**"Mateiralize" only works after a successful "Search" request**
 ```angular2html
 curl -X GET 'https://dsbox02.isi.edu:9001/new/materialize_data?index=0' 
 ```
@@ -64,4 +64,18 @@ curl -X GET 'https://dsbox02.isi.edu:9001/new/materialize_data?index=0'
     - response.code: 0000 for success
     - response.message
     - response.data: data in string(csv)
+    
+##### 4. Augment a search results:
+```angular2html
+curl -X GET 'https://dsbox02.isi.edu:9001/new/augment_data?index=0' 
+```
+- Request Method: GET
+- Endpoint: https://dsbox02.isi.edu:9001/new/augment_data
+- Param: 
+    - index :  the index of the dataset you want to use for augmentation, in the search result
+- Response:
+    - response.code: 0000 for success
+    - response.message
+    - response.data: data in string(csv)
+
 
