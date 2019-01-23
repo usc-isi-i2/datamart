@@ -85,12 +85,3 @@ class TwoRavenProfiler(object):
         exist = os.path.isfile(file_path)
         if exist:
             os.remove(file_path)
-
-
-if __name__ == '__main__':
-    df = pd.DataFrame()
-    datasets = search(query={}, data=df)
-    cur_df = datasets[0].materialize()
-    tr = TwoRavenProfiler()
-    res = tr.profile(cur_df, datasets[0]._metadata)
-    print(res)
