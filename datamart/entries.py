@@ -51,7 +51,9 @@ def search(url: str, query: dict, data: pd.DataFrame or str or d3m_ds.Dataset=No
     return [Dataset(es_result, original_data=loaded_data, query_json=query) for es_result in es_results]
 
 
-def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset, augment_data: Dataset) -> pd.DataFrame:
+def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset,
+            augment_data: Dataset,
+            joining_columns: typing.Tuple[typing.List[typing.List[int or str]]]=None) -> pd.DataFrame:
     """
     Perform the augmentation (either join or union).
     Follow the API defined by https://datadrivendiscovery.org/wiki/display/work/Python+API
@@ -59,17 +61,23 @@ def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset, augment_data: 
     Args:
         original_data:
         augment_data:
+        joining_columns: user defined which columns to be joined
 
     Returns:
 
     """
 
     loaded_data = DataLoader.load_data(original_data)
+    if joining_columns:
+        try:
+            augment_data.set_match(*joining_columns)
+        except Exception as e:
+            print("FAILED SET JOINING COLUMNS:", e)
 
-    if not augment_data.matched_cols:
+    if not augment_data.join_columns:
         return loaded_data
 
-    left_cols, right_cols = augment_data.matched_cols
+    left_cols, right_cols = augment_data.join_columns
     default_joiner = 'rltk'
     augmenter = Augment(es_index=DEFAULT_ES)
 
