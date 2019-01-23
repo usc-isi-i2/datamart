@@ -264,12 +264,14 @@ class QueryManager(ESManager):
         return body
 
     @classmethod
-    def match_key_value_pairs(cls, key_value_pairs: typing.List[tuple], disjunctive_array_value=False) -> dict:
+    def match_key_value_pairs(cls, key_value_pairs: typing.List[tuple], disjunctive_array_value=False,
+                              match_method: str="match") -> dict:
         """Generate query body for query by multiple key value pairs.
 
         Args:
             key_value_pairs: list of (key, value) tuples.
             disjunctive_array_value: bool. if True, when the "value" is an array, use their disjunctive match
+            match_method: can be "match", "match_phrase" etc. any ES supported key
 
         Returns:
             dict of query body
@@ -305,7 +307,7 @@ class QueryManager(ESManager):
                         body["bool"]["must"].append({
                             "bool": {
                                 "should": [{
-                                    "match": {
+                                    match_method: {
                                         key: v
                                     }
                                 } for v in value],
@@ -316,7 +318,7 @@ class QueryManager(ESManager):
                         for v in value:
                             body["bool"]["must"].append(
                                 {
-                                    "match": {
+                                    match_method: {
                                         key: v
                                     }
                                 }
@@ -324,7 +326,7 @@ class QueryManager(ESManager):
                 else:
                     body["bool"]["must"].append(
                         {
-                            "match": {
+                            match_method: {
                                 key: value
                             }
                         }
@@ -332,9 +334,8 @@ class QueryManager(ESManager):
             else:
                 nested["nested"]["inner_hits"]["_source"].append(key.split(".")[1])
                 if key.split(".")[1] == "named_entity":
+                    # for named_entity, force the matched method to be "match_phrase":
                     match_method = "match_phrase"
-                else:
-                    match_method = "match"
                 if isinstance(value, list):
                     if disjunctive_array_value:
                         nested["nested"]["query"]["bool"]["must"].append({
@@ -379,12 +380,12 @@ class QueryManager(ESManager):
         Returns:
             dict of query body
         """
-
         body = {
             "query_string": {
                 "query": query_string
             }
         }
+
         return body
 
     @staticmethod

@@ -20,14 +20,22 @@ class JSONQueryManager(QueryManager):
             if about:
                 # match any fields/values ...
                 # TODO: preference on phrases matching
-                outer_must.append(cls.match_any(about))
+                match_about_outer = cls.match_any(about)
+                match_about_inner = {
+                    "nested": {
+                        "path": "variables",
+                        "query": match_about_outer
+                    }
+                }
+                match_about = {"bool": {"should": [match_about_outer, match_about_inner]}}
+                outer_must.append(match_about)
             keys_mapping = [
                 ('name', 'title'),
                 ('description', 'description'),
                 ('keywords', 'keywords'),
                 ('url', 'url')
             ]
-            string_arrays = cls.match_key_value_pairs_by_query_mapping(keys_mapping, dataset)
+            string_arrays = cls.match_key_value_pairs_by_query_mapping(keys_mapping, dataset, "match_phrase")
             if string_arrays:
                 outer_must.append(string_arrays)
 
@@ -159,7 +167,8 @@ class JSONQueryManager(QueryManager):
             ('named_entities', 'variables.named_entity'),
             ('column_values', None)
         ]
-        matches = cls.match_key_value_pairs_by_query_mapping(keys_mapping, entity)
+        # if the value is array of strings, should be "match_phrase", else "match" ?
+        matches = cls.match_key_value_pairs_by_query_mapping(keys_mapping, entity, "match_phrase")
         if matches:
             queries.append(matches)
         if queries:
@@ -179,8 +188,8 @@ class JSONQueryManager(QueryManager):
         return range_query
 
     @classmethod
-    def match_key_value_pairs_by_query_mapping(cls, query2index: typing.List[tuple], query_object: dict) \
-            -> typing.Optional[dict]:
+    def match_key_value_pairs_by_query_mapping(cls, query2index: typing.List[tuple], query_object: dict,
+                                               match_method: str="match") -> typing.Optional[dict]:
         k_v_pairs = []
         for query_key, target_key in query2index:
             value = query_object.get(query_key)
@@ -188,7 +197,7 @@ class JSONQueryManager(QueryManager):
                 continue
             k_v_pairs.append((target_key, value))
         if k_v_pairs:
-            return cls.match_key_value_pairs(k_v_pairs, disjunctive_array_value=True)
+            return cls.match_key_value_pairs(k_v_pairs, disjunctive_array_value=True, match_method=match_method)
 
     @classmethod
     def add_inner_hits_name(cls, root, name):

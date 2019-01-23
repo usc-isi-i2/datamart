@@ -1,6 +1,8 @@
 from datamart.utilities.utils import Utils
 from datamart.es_managers.json_query_manager import JSONQueryManager
 import unittest, json
+from io import StringIO
+import pandas as pd
 
 
 class TestJSONQueryManager(unittest.TestCase):
@@ -11,13 +13,17 @@ class TestJSONQueryManager(unittest.TestCase):
     def test_dataset_about(self):
         query = {
             "dataset": {
-                "about": "wikidata"
+                "about": "PG12"
             }
         }
         parsed = self.qm.parse_json_query(query)
-        expected = '{"query": {"bool": {"must": [{"query_string": {"query": "wikidata"}}]}}}'
-
-        self.assertEqual(parsed, expected)
+        expected = {"query": {"bool": {"must": [
+            {"bool": {"should": [
+                {"query_string": {"query": "PG12"}},
+                {"nested": {"path": "variables", "query": {"query_string": {"query": "PG12"}}}}
+            ]}}
+        ]}}}
+        self.assertEqual(json.loads(parsed), expected)
 
     @Utils.test_print
     def test_dataset_arr_str(self):
@@ -30,19 +36,21 @@ class TestJSONQueryManager(unittest.TestCase):
             }
         }
         parsed = self.qm.parse_json_query(query)
-        expected = json.dumps({
-          "query": {"bool": {"must": [{
-              "bool": {
-                "must": [
-                  {"bool": {"should": [{"match": {"title": "WIKIDATA_PROP_PROPERTY"}}],"minimum_should_match": 1}},
-                  {"bool": {
-                      "should": [{"match": {"description": "property"}},{"match": {"description": "constraint"}}],
-                      "minimum_should_match": 1}},
-                  {"bool": {"should": [{"match": {"keywords": "category"}}],"minimum_should_match": 1}},
-                  {"bool": {
-                      "should": [{"match": {"url": "www.wikidata.org"}},{"match": {"url": "Property:P2302"}}],
-                      "minimum_should_match": 1}}
-                ]}}]
-          }}})
+        expected = {"query": {"bool": {"must": [
+            {"bool": {"must": [
+                {"bool": {"should": [
+                    {"match_phrase": {"title": "WIKIDATA_PROP_PROPERTY"}}
+                ], "minimum_should_match": 1}},
+                {"bool": {"should": [
+                    {"match_phrase": {"description": "property"}},
+                    {"match_phrase": {"description": "constraint"}}
+                ], "minimum_should_match": 1}},
+                {"bool": {"should": [{"match_phrase": {"keywords": "category"}}], "minimum_should_match": 1}},
+                {"bool": {"should": [
+                    {"match_phrase": {"url": "www.wikidata.org"}},
+                    {"match_phrase": {"url": "Property:P2302"}}
+                ], "minimum_should_match": 1}}
+            ]}}
+        ]}}}
+        self.assertEqual(json.loads(parsed), expected)
 
-        self.assertEqual(parsed, expected)
