@@ -70,7 +70,7 @@ def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset,
     loaded_data = DataLoader.load_data(original_data)
     if joining_columns:
         try:
-            augment_data.set_match(*joining_columns)
+            augment_data.set_join_columns(*joining_columns)
         except Exception as e:
             print("FAILED SET JOINING COLUMNS:", e)
 

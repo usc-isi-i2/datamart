@@ -22,7 +22,7 @@ class Dataset:
         self._query_json = query_json
 
         try:
-            self.auto_set_match()
+            self.auto_set_join_columns()
         except Exception as e:
             print(str(e))
 
@@ -97,18 +97,6 @@ class Dataset:
         return self._score
 
     @property
-    def match(self):
-        """
-        (TODO better name?)
-        Metadata indicating which column of this dataset matches which requested column from the query. \
-        This explains why this dataset matches the query, and can be used for joining.
-
-        Returns:
-
-        """
-        return None
-
-    @property
     def join_columns(self):
         """
         (TODO better name?)
@@ -128,16 +116,34 @@ class Dataset:
     def query_json(self):
         return self._query_json
 
-    def set_match(self, left_cols: typing.List[typing.List[int or str]],
+    @property
+    def summary(self):
+        return """SUMMARY OF THE DATAMART DATASET
+        Datamart ID: {datamart_id}
+        Score: {score}
+        Title: {title}
+        Description: {description}
+        URL: {url}
+        Columns: {columns}
+        Recommend Join Columns: {recommend_join}
+        """.format(datamart_id=self.id,
+                   score=self.score,
+                   title=self.metadata.get('title', ''),
+                   description=self.metadata.get('description', ''),
+                   url=self.metadata.get('url', ''),
+                   columns=self._summary_columns(),
+                   recommend_join=self._summary_join())
+
+    def set_join_columns(self, left_cols: typing.List[typing.List[int or str]],
                   right_cols: typing.List[typing.List[int or str]]):
-        if left_cols and isinstance(left_cols[0], str):
+        if left_cols and left_cols[0] and isinstance(left_cols[0][0], str):
             # convert to int indices
             left_cols = [[self.original_data.columns.get_loc(name) for name in feature] for feature in left_cols]
             right_cols = [[self.original_data.columns.get_loc(name) for name in feature] for feature in right_cols]
         if len(left_cols) == len(right_cols):
             self._join_columns = (left_cols, right_cols)
 
-    def auto_set_match(self):
+    def auto_set_join_columns(self):
         used = set()
         left = []
         right = []
@@ -172,28 +178,14 @@ class Dataset:
         if left and right:
             self._join_columns = (left, right)
 
-    def summary(self):
-        return """SUMMARY OF THE DATAMART DATASET
-        Datamart ID: {datamart_id}
-        Title: {title}
-        Description: {description}
-        URL: {url}
-        Columns: {columns}
-        Recommend Join Columns: {recommend_join}
-        """.format(datamart_id=self.id,
-                   title=self.metadata.get('title', ''),
-                   description=self.metadata.get('description', ''),
-                   url=self.metadata.get('url', ''),
-                   columns=self._summary_columns(),
-                   recommend_join=self._summary_join())
-
     def _summary_join(self):
         left, right = self.join_columns
         if not left or not right or len(left) != len(right):
             return 'None'
-        rows = ["           {:<30} <-> {:<30}".format('Original Columns', 'datamart.Dataset Columns')]
+        rows = ['\n\t\t{:>20} <-> {:<20}'.format('Original Columns', 'datamart.Dataset Columns')]
         for i in range(len(left)):
-            rows.append("{:<30} <-> {:<30}".format(str(left[i]), str(right[i])))
+            rows.append('{:>20} <-> {:<20}'.format(str(left[i]), str(right[i])))
+        return '\n\t\t'.join(rows)
 
     def _summary_columns(self):
         return ''.join([self._summary_column(idx, col) for idx, col in enumerate(self.metadata.get('variables', []))])
@@ -203,10 +195,9 @@ class Dataset:
         samples_str = ''
         if column.get('named_entity'):
             samples = column.get('named_entity')[:3]
-            samples_str = ', '.join(samples) + '...'
+            samples_str = '(%s ...)' % ', '.join(samples)
         return """
-            [%d] %s %s
-        """ % (index, column.get('name', ''), samples_str)
+            [%d] %s %s""" % (index, column.get('name', ''), samples_str)
 
 
 
