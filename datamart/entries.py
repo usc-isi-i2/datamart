@@ -31,17 +31,25 @@ def search(url: str, query: dict, data: pd.DataFrame or str or d3m_ds.Dataset=No
 
     loaded_data = DataLoader.load_data(data)
     augmenter = Augment(es_index=DEFAULT_ES)
+
+    # if there is no "required_variables" in the query JSON, but the dataset exists,
+    # try each named entity column as "required_variables" and concat the results:
     if not (query and ('required_variables' in query)) and (loaded_data is not None):
+        res = []
         query = query or {}
-        query['required_variables'] = []
         for col in loaded_data:
             if Utils.is_column_able_to_query(loaded_data[col]):
-                query['required_variables'].append({
+                query['required_variables'] = [{
                     "type": "dataframe_columns",
                     "names": [
                       col
                     ]
-                })
+                }]
+                es_results = augmenter.query_by_json(query, loaded_data)
+                res += es_results
+        return res
+
+    # else ("required_variables" exists or no data):
     es_results = augmenter.query_by_json(query, loaded_data)
     if es_results:
         return [Dataset(es_result, original_data=loaded_data, query_json=query) for es_result in es_results]
