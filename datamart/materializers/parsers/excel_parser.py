@@ -25,6 +25,8 @@ class ExcelParser(ParserBase):
         for sheet in xl.sheet_names:
             meta, start_row, skipfooter = self._parse_metadata(xl, sheet)
             df = xl.parse(header=start_row, skipfooter=skipfooter, sheet_name=sheet)
+            df = df.dropna(how="all",axis=0)
+            df = df.dropna(how="all",axis=1)
             dfs.append({
                 "sheet_name":sheet,
                 "df":df,
