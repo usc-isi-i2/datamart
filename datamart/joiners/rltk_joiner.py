@@ -32,7 +32,8 @@ class RLTKJoiner(JoinerBase):
         """
 
         fp = FeaturePairs(left_df, right_df, left_columns, right_columns, left_metadata, right_metadata)
-        record_pairs = rltk.get_record_pairs(fp.left_rltk_dataset, fp.right_rltk_dataset)
+
+        record_pairs = rltk.get_record_pairs(fp.left_rltk_dataset, fp.right_rltk_dataset, block=fp.get_rltk_block())
         sim = [[0 for __ in range(len(right_df))] for _ in range(len(left_df))]
 
         for r1, r2 in record_pairs:

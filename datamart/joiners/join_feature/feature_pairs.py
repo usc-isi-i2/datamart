@@ -63,6 +63,24 @@ class FeaturePairs:
     def pairs(self):
         return self._pairs
 
+    def get_rltk_block(self) -> typing.Optional[rltk.BlockGenerator]:
+        prime_key_l = None
+        prime_key_r = None
+        for f1, f2 in self.pairs:
+            if f1.distribute_type == DistributeType.CATEGORICAL and f1.data_type == DataType.STRING:
+                prime_key_l = f1.name
+                prime_key_r = f2.name
+                break
+        if prime_key_l and prime_key_r:
+            try:
+                bg = rltk.HashBlockGenerator()
+                block = bg.generate(
+                    bg.block(self.left_rltk_dataset, function_=lambda r: getattr(r, prime_key_l)[0].lower()),
+                    bg.block(self.right_rltk_dataset, function_=lambda r: getattr(r, prime_key_r)[0].lower()))
+                return block
+            except Exception as e:
+                print(' - BLOCKING EXCEPTION: %s' % str(e))
+
     def __len__(self):
         return self._length
 
@@ -75,3 +93,4 @@ class FeaturePairs:
     def _init_rltk_dataset(df, record_class):
         rltk_dataset = rltk.Dataset(reader=DataFrameReader(df, True), record_class=record_class)
         return rltk_dataset
+
