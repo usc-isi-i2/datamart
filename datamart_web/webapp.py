@@ -11,7 +11,7 @@ from flask import Flask, request
 from datamart_web.src.search_metadata import SearchMetadata
 from datamart_web.src.join_datasets import JoinDatasets
 
-from datamart.entries import search, upload
+from datamart.entries import search, upload, augment
 
 
 class WebApp(Flask):
@@ -95,7 +95,9 @@ class WebApp(Flask):
             try:
                 query = self.read_file(request.files, 'query', 'json')
                 data = self.read_file(request.files, 'data', 'csv')
-                res = search(query, data)
+                if data is not None:
+                    self.old_df = data
+                res = search('https://isi-datamart.edu', query, data)
                 self.results = res
                 return self.wrap_response('0000', data=[r._es_raw_object for r in res])
             except Exception as e:
@@ -107,6 +109,15 @@ class WebApp(Flask):
                 index = int(request.args.get('index'))
                 dataset = self.results[index]
                 return self.wrap_response('0000', data=dataset.materialize().to_csv(index=False))
+            except Exception as e:
+                return self.wrap_response('1000', msg="FAIL - " + str(e))
+
+        @self.route('/new/augment_data', methods=['GET'])
+        def augment_data():
+            try:
+                index = int(request.args.get('index'))
+                dataset = self.results[index]
+                return self.wrap_response('0000', data=augment(self.old_df, dataset).to_csv(index=False))
             except Exception as e:
                 return self.wrap_response('1000', msg="FAIL - " + str(e))
 
