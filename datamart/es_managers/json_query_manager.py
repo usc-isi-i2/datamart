@@ -97,7 +97,7 @@ class JSONQueryManager(QueryManager):
         entity_type = entity.get('type')
         inner_match_name = '%s.%d.%s' % (key, index, entity_type)
         nested_query = None
-        if entity_type == cls.DATAFRAME_COLUMNS:
+        if entity_type == cls.DATAFRAME_COLUMNS and isinstance(df, DataFrame):
             nested_query = cls.parse_dataframe_columns(entity, df)
         elif entity_type == cls.TEMPORAL_ENTITY:
             nested_query = cls.parse_temporal_entity(entity)
