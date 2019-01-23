@@ -87,6 +87,10 @@ class Dataset:
         return self._metadata
 
     @property
+    def variables(self):
+        return self.metadata.get('variables', [])
+
+    @property
     def score(self):
         """
         Floating-point value measuring how well this dataset matches the query parameters. Higher is better.
@@ -118,14 +122,14 @@ class Dataset:
 
     @property
     def summary(self):
-        return """SUMMARY OF THE DATAMART DATASET
-        Datamart ID: {datamart_id}
-        Score: {score}
-        Title: {title}
-        Description: {description}
-        URL: {url}
-        Columns: {columns}
-        Recommend Join Columns: {recommend_join}
+        return """ - SUMMARY OF THE DATAMART DATASET -
+ * Datamart ID: {datamart_id}
+ * Score: {score}
+ * Title: {title}
+ * Description: {description}
+ * URL: {url}
+ * Columns: {columns}
+ * Recommend Join Columns: {recommend_join}
         """.format(datamart_id=self.id,
                    score=self.score,
                    title=self.metadata.get('title', ''),
@@ -139,7 +143,8 @@ class Dataset:
         if left_cols and left_cols[0] and isinstance(left_cols[0][0], str):
             # convert to int indices
             left_cols = [[self.original_data.columns.get_loc(name) for name in feature] for feature in left_cols]
-            right_cols = [[self.original_data.columns.get_loc(name) for name in feature] for feature in right_cols]
+            right_var_names = [_.get('name') for _ in self.variables]
+            right_cols = [[right_var_names.index(name) for name in feature] for feature in right_cols]
         if len(left_cols) == len(right_cols):
             self._join_columns = (left_cols, right_cols)
 
@@ -182,13 +187,13 @@ class Dataset:
         left, right = self.join_columns
         if not left or not right or len(left) != len(right):
             return 'None'
-        rows = ['\n\t\t{:>20} <-> {:<20}'.format('Original Columns', 'datamart.Dataset Columns')]
+        rows = ['\n\t{:>20} <-> {:<20}'.format('Original Columns', 'datamart.Dataset Columns')]
         for i in range(len(left)):
             rows.append('{:>20} <-> {:<20}'.format(str(left[i]), str(right[i])))
-        return '\n\t\t'.join(rows)
+        return '\n\t'.join(rows)
 
     def _summary_columns(self):
-        return ''.join([self._summary_column(idx, col) for idx, col in enumerate(self.metadata.get('variables', []))])
+        return ''.join([self._summary_column(idx, col) for idx, col in enumerate(self.variables)])
 
     @staticmethod
     def _summary_column(index, column):
@@ -196,8 +201,7 @@ class Dataset:
         if column.get('named_entity'):
             samples = column.get('named_entity')[:3]
             samples_str = '(%s ...)' % ', '.join(samples)
-        return """
-            [%d] %s %s""" % (index, column.get('name', ''), samples_str)
+        return '\n\t[%d] %s %s' % (index, column.get('name', ''), samples_str)
 
 
 
