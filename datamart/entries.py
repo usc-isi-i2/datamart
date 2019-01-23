@@ -26,7 +26,7 @@ def search(url: str, query: dict, data: pd.DataFrame or str or d3m_ds.Dataset=No
     Returns: a list of datamart.Dataset objects
 
     """
-    if url != 'isi-datamart':
+    if not url.startswith('https://isi-datamart.edu'):
         return []
 
     loaded_data = DataLoader.load_data(data)
@@ -53,7 +53,8 @@ def search(url: str, query: dict, data: pd.DataFrame or str or d3m_ds.Dataset=No
 
 def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset,
             augment_data: Dataset,
-            joining_columns: typing.Tuple[typing.List[typing.List[int or str]]]=None) -> pd.DataFrame:
+            joining_columns: typing.Tuple[typing.List[typing.List[int or str]], typing.List[typing.List[int or str]]]=None
+            ) -> pd.DataFrame:
     """
     Perform the augmentation (either join or union).
     Follow the API defined by https://datadrivendiscovery.org/wiki/display/work/Python+API
@@ -112,3 +113,64 @@ def upload(description: dict, es_index: str=None) -> dict:
     metadata = ib.indexing(description_path=description, es_index=es_index or DEFAULT_ES, query_data_for_indexing=True)
 
     return metadata
+
+
+def bulk_upload(html_page: str, description: dict=None, es_index: str=None) -> list:
+    """
+    extract links from html page and index each of the data
+
+    Args:
+        html_page
+        description:
+
+    Returns:
+
+    """
+    success = []
+    description = description or {}
+    for text, href in Utils.generate_a_tags_from_html(html_page):
+        try:
+            if not description.get('title'):
+                description['title'] = text
+            upload(description, es_index)
+            success.append((text, href))
+        except Exception as e:
+            print(' - FAILED BULK INDEX ON text=%s, href=%s \n%s' % (text, href, str(e)))
+    return success
+
+
+def join(left_data: pd.DataFrame or str or d3m_ds.Dataset,
+         right_data: Dataset or pd.DataFrame or str or d3m_ds.Dataset,
+         left_columns: typing.List[typing.List[int or str]],
+         right_columns: typing.List[typing.List[int or str]]
+         ) -> pd.DataFrame:
+    """
+
+    :param left_data:
+    :param right_data:
+    :param left_columns:
+    :param right_columns:
+    :return:
+    """
+
+    if isinstance(right_data, Dataset):
+        return augment(left_data, right_data, (left_columns, right_columns))
+
+    left_df = DataLoader.load_data(left_data)
+    right_df = DataLoader.load_data(right_data)
+
+    default_joiner = 'rltk'
+    augmenter = Augment(es_index=DEFAULT_ES)
+
+    augmented_data = augmenter.join(
+            left_df=left_df,
+            right_df=right_df,
+            left_columns=left_columns,
+            right_columns=right_columns,
+            left_metadata=None,
+            right_metadata=None,
+            joiner=default_joiner
+    )
+    return augmented_data
+
+

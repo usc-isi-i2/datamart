@@ -365,3 +365,21 @@ class Utils:
                                                                               data=data)
 
         return global_metadata.value
+
+    @staticmethod
+    def generate_a_tags_from_html(html: str):
+        from bs4 import BeautifulSoup
+        if html.startswith('http'):
+            import urllib.request
+            link = "https://cerc.blackboard.com/Page/1189"
+            f = urllib.request.urlopen(link)
+            html_text = f.read().decode('utf-8')
+        elif html.endswith('.html'):
+            with open(html) as f:
+                html_text = f.read()
+        else:
+            html_text = html
+
+        soup = BeautifulSoup(html_text)
+        for a in soup.find_all('a', href=True):
+            yield a.text, a['href']
