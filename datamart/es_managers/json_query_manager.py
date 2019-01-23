@@ -54,16 +54,23 @@ class JSONQueryManager(QueryManager):
                             }
                         })
 
-        # deal with variable list:
-        for variables_key in ('required_variables', 'desired_variables'):
-            nested_queries = []
-            variables = json_query.get(variables_key, [])
-            for idx, variable in enumerate(variables):
-                nested_query = cls.parse_a_variable(variable, variables_key, idx, df)
-                if nested_query:
-                    nested_queries.append(nested_query)
-            if nested_queries:
-                outer_must.append(cls.disjunction_query(nested_queries))
+        required = json_query.get('required_variables', [])
+        required_queries = []
+        for idx, variable in enumerate(required):
+            nested_query = cls.parse_a_variable(variable, 'required_variables', idx, df)
+            if nested_query:
+                required_queries.append(nested_query)
+        if required_queries:
+            outer_must.append(cls.conjunction_query(required_queries))
+
+        desired_queries = []
+        variables = json_query.get('desired_variables', [])
+        for idx, variable in enumerate(variables):
+            nested_query = cls.parse_a_variable(variable, 'desired_variables', idx, df)
+            if nested_query:
+                desired_queries.append(nested_query)
+        if desired_queries:
+            outer_must.append(cls.disjunction_query(desired_queries))
 
         if outer_must:
             full_query = {
