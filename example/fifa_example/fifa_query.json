@@ -1,0 +1,30 @@
+{
+    "dataset": {
+        "about": "Man of Match, Soccer game, FIFA, best player, team, MVP, Goal, opponent",
+        "description": ["FIFA", "worldcup", "Soccer game", "European Cup"]
+    },
+    "required_variables": [
+        {
+            "type": "dataframe_columns",
+            "names": [
+              "Team"
+            ]
+        },
+        {
+            "type": "dataframe_columns",
+            "names": [
+              "Opponent"
+            ]
+        }
+    ],
+    "desired_variables": [
+        {
+            "type": "generic_entity",
+            "about": "score_winner",
+            "variable_syntactic_type": [
+                "http://schema.org/Text"
+            ],
+            "variable_name": "score_winner"
+        }
+    ]
+}

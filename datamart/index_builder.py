@@ -29,7 +29,7 @@ class IndexBuilder(object):
         self.im = IndexManager(es_host=self.index_config["es_host"], es_port=self.index_config["es_port"])
 
     def indexing(self,
-                 description_path: str,
+                 description_path: str or dict,
                  es_index: str,
                  data_path: str = None,
                  query_data_for_indexing: bool = False,
@@ -44,7 +44,7 @@ class IndexBuilder(object):
         dataset, create index in our index store
 
         Args:
-            description_path: Path to description json file.
+            description_path: Path to description json file, or the description JSON in Python dict.
             es_index: str, es index for this dataset
             data_path: Path to data csv file.
             query_data_for_indexing: Bool. If no data is presented, and query_data_for_indexing is False, will only
@@ -61,7 +61,8 @@ class IndexBuilder(object):
 
         """
 
-        print("==== Creating metadata and indexing for " + description_path)
+        print("==== Creating metadata and indexing for " + (description_path
+                                                            if isinstance(description_path, str) else "dict"))
 
         self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
 
@@ -221,18 +222,20 @@ class IndexBuilder(object):
             self.im.create_index(index=es_index)
 
     @staticmethod
-    def _read_data(description_path: str, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
+    def _read_data(description_path: str or dict, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
         """Read dataset description json and dataset if present.
 
         Args:
-            description_path: Path to description json file.
+            description_path: Path to description json file, or the description JSON in Python dict.
             data_path: Path to data csv file.
 
         Returns:
             Tuple of (description json, dataframe of data)
         """
-
-        description = json.load(open(description_path, 'r'))
+        if isinstance(description_path, str):
+            description = json.load(open(description_path, 'r'))
+        else:
+            description = description_path
         Utils.validate_schema(description)
         if data_path:
             data = pd.read_csv(open(data_path), 'r')
@@ -354,6 +357,8 @@ class IndexBuilder(object):
             metadata = self.profiler.dsbox_profiler.profile(inputs=data, metadata=metadata)
             return metadata
         """
+
+        metadata = self.profiler.two_raven_profiler.profile(inputs=data, metadata=metadata)
 
         return metadata
 

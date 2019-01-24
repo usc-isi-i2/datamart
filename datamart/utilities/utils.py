@@ -16,9 +16,15 @@ from datamart.utilities.timeout import timeout
 sys.path.append(os.path.join(os.path.dirname(__file__), '../materializers'))
 
 
+DEFAULT_ES = 'datamart_all'
+
+
 class Utils:
     INDEX_SCHEMA = json.load(
         open(os.path.join(os.path.join(os.path.dirname(__file__), "../resources"), 'index_schema.json'), 'r'))
+
+    QUERY_SCHEMA = json.load(
+        open(os.path.join(os.path.join(os.path.dirname(__file__), "../resources"), 'query_schema.json'), 'r'))
 
     TMP_FILE_DIR = tempfile.gettempdir()
 
@@ -29,7 +35,7 @@ class Utils:
         "variables": []
     }
 
-    MATERIALIZATION_TIME_OUT = 300
+    MATERIALIZATION_TIME_OUT = 900
 
     CATEGORICAL_COLUMN_THRESHOLD = 0.2
 
@@ -144,6 +150,23 @@ class Utils:
         except:
             print(colored("[INVALID SCHEMA] title: {}".format(description.get("title"))), 'red')
             raise ValueError("Invalid dataset description json according to index json schema")
+
+    @classmethod
+    def validate_query(cls, query: dict) -> bool:
+        """Validate dict against json schema.
+
+        Args:
+            query: query dict.
+
+        Returns:
+            boolean
+        """
+        try:
+            validate(query, cls.QUERY_SCHEMA)
+            return True
+        except:
+            print(colored("[INVALID QUERY] title: {}".format(query.get("title"))), 'red')
+            raise ValueError("Invalid query json according to query json schema")
 
     @staticmethod
     def test_print(func) -> typing.Callable:
@@ -342,3 +365,21 @@ class Utils:
                                                                               data=data)
 
         return global_metadata.value
+
+    @staticmethod
+    def generate_a_tags_from_html(html: str):
+        from bs4 import BeautifulSoup
+        if html.startswith('http'):
+            import urllib.request
+            link = "https://cerc.blackboard.com/Page/1189"
+            f = urllib.request.urlopen(link)
+            html_text = f.read().decode('utf-8')
+        elif html.endswith('.html'):
+            with open(html) as f:
+                html_text = f.read()
+        else:
+            html_text = html
+
+        soup = BeautifulSoup(html_text)
+        for a in soup.find_all('a', href=True):
+            yield a.text, a['href']

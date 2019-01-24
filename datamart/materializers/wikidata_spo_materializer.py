@@ -39,7 +39,7 @@ class WikidataSPOMaterializer(MaterializerBase):
         property_label = ""
         main_query_encoded = self._encode_url(self._formulate_main_query(self.property))
         try:
-            print(prefix + main_query_encoded + format)
+            # print(prefix + main_query_encoded + format)
             main_query_req = urllib.request.Request(prefix + main_query_encoded + format)
             result, property_label = self._process_main_query(self._get_query_result(main_query_req))
         except Exception as err:

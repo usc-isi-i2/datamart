@@ -1,4 +1,4 @@
-from datamart.es_managers.query_manager import QueryManager
+from datamart.es_managers.json_query_manager import JSONQueryManager
 from datamart.profiler import Profiler
 import pandas as pd
 import typing
@@ -21,9 +21,32 @@ class Augment(object):
 
         """
 
-        self.qm = QueryManager(es_host=es_host, es_port=es_port, es_index=es_index)
+        self.qm = JSONQueryManager(es_host=es_host, es_port=es_port, es_index=es_index)
         self.joiners = dict()
         self.profiler = Profiler()
+
+    def query_by_json(self,
+                      json_query: dict,
+                      dataset: pd.DataFrame=None, **kwargs
+                      ) -> typing.Optional[typing.List[dict]]:
+        """
+
+        Args:
+            json_query:
+            dataset:
+            **kwargs:
+
+        Returns:
+
+        """
+
+        if json_query:
+            query_body = self.qm.parse_json_query(json_query, dataset)
+            if query_body:
+                results = self.qm.search(body=query_body, **kwargs)
+                return results
+
+        return self._query_all()
 
     def query(self,
               col: pd.Series = None,
@@ -150,6 +173,9 @@ class Augment(object):
             # Left df is the user provided one.
             # We will generate metadata just based on the data itself, profiling and so on
             left_metadata = Utils.generate_metadata_from_dataframe(data=left_df)
+
+        if not right_metadata:
+            right_metadata = Utils.generate_metadata_from_dataframe(data=left_df)
 
         left_metadata = Utils.calculate_dsbox_features(data=left_df, metadata=left_metadata)
         right_metadata = Utils.calculate_dsbox_features(data=right_df, metadata=right_metadata)

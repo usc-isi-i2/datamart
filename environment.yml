@@ -35,6 +35,7 @@ dependencies:
     - cymem==2.0.2
     - cython==0.29
     - cytoolz==0.9.0.1
+    - d3m==2018.7.10
     - dask==0.20.2
     - datasketch==1.2.10
     - dateparser==0.7.0
@@ -45,7 +46,7 @@ dependencies:
     - distributed==1.24.2
     - docutils==0.14
     - elasticsearch==6.3.1
-    - en-core-web-sm==2.0.0
+    - https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.0.0/en_core_web_sm-2.0.0.tar.gz
     - entrypoints==0.2.3
     - et-xmlfile==1.0.1
     - etk==2.1.5
@@ -125,6 +126,7 @@ dependencies:
     - pyexcel-xlsx==0.5.6
     - pygments==2.2.0
     - pygtrie==2.3
+    - pyopenssl==18.0.0
     - pyparsing==2.3.0
     - pytest==4.0.0
     - python-dateutil==2.7.3
@@ -137,7 +139,7 @@ dependencies:
     - redis==3.0.1
     - regex==2018.1.10
     - requests==2.20.0
-    - rltk==2.0.0a9
+    - https://github.com/usc-isi-i2/rltk.git@85f12555eda16cb8af810acd4648a887bdf8f02b#egg=rltk
     - scikit-learn==0.20.1
     - scipy==1.1.0
     - selenium==3.141.0

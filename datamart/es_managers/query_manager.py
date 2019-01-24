@@ -70,6 +70,15 @@ class QueryManager(ESManager):
             from_index += size
         return ret
 
+    def get_by_id(self, id: int) -> dict:
+        """get the document by the unique id(the datamart_id, same as the elasticsearch doc "_id")
+
+        :param id: the datamart_id
+        :return: a single doc
+        """
+        result = self.es.get(index=self.es_index, id=id)
+        return result
+
     @classmethod
     def match_some_terms_from_variables_array(cls,
                                               terms: list,
@@ -82,6 +91,7 @@ class QueryManager(ESManager):
             terms: list of terms for matching.
             key: which key to match, by default, matches column's named_entity.
             minimum_should_match: minimum should match terms from the list.
+            match_name: use as an identifier for this query section, to retrieve where is hit on "inner_hits"
 
         Returns:
             dict of query body
@@ -254,11 +264,14 @@ class QueryManager(ESManager):
         return body
 
     @classmethod
-    def match_key_value_pairs(cls, key_value_pairs: typing.List[tuple]) -> dict:
+    def match_key_value_pairs(cls, key_value_pairs: typing.List[tuple], disjunctive_array_value=False,
+                              match_method: str="match") -> dict:
         """Generate query body for query by multiple key value pairs.
 
         Args:
             key_value_pairs: list of (key, value) tuples.
+            disjunctive_array_value: bool. if True, when the "value" is an array, use their disjunctive match
+            match_method: can be "match", "match_phrase" etc. any ES supported key
 
         Returns:
             dict of query body
@@ -290,18 +303,30 @@ class QueryManager(ESManager):
         for key, value in key_value_pairs:
             if not key.startswith("variables"):
                 if isinstance(value, list):
-                    for v in value:
-                        body["bool"]["must"].append(
-                            {
-                                "match": {
-                                    key: v
-                                }
+                    if disjunctive_array_value:
+                        body["bool"]["must"].append({
+                            "bool": {
+                                "should": [{
+                                    match_method: {
+                                        key: v
+                                    }
+                                } for v in value],
+                                "minimum_should_match": 1
                             }
-                        )
+                        })
+                    else:
+                        for v in value:
+                            body["bool"]["must"].append(
+                                {
+                                    match_method: {
+                                        key: v
+                                    }
+                                }
+                            )
                 else:
                     body["bool"]["must"].append(
                         {
-                            "match": {
+                            match_method: {
                                 key: value
                             }
                         }
@@ -309,18 +334,29 @@ class QueryManager(ESManager):
             else:
                 nested["nested"]["inner_hits"]["_source"].append(key.split(".")[1])
                 if key.split(".")[1] == "named_entity":
+                    # for named_entity, force the matched method to be "match_phrase":
                     match_method = "match_phrase"
-                else:
-                    match_method = "match"
                 if isinstance(value, list):
-                    for v in value:
-                        nested["nested"]["query"]["bool"]["must"].append(
-                            {
-                                match_method: {
-                                    key: v
-                                }
+                    if disjunctive_array_value:
+                        nested["nested"]["query"]["bool"]["must"].append({
+                            "bool": {
+                                "should": [{
+                                    "match": {
+                                        key: v
+                                    }
+                                } for v in value],
+                                "minimum_should_match": 1
                             }
-                        )
+                        })
+                    else:
+                        for v in value:
+                            nested["nested"]["query"]["bool"]["must"].append(
+                                {
+                                    match_method: {
+                                        key: v
+                                    }
+                                }
+                            )
                 else:
                     nested["nested"]["query"]["bool"]["must"].append(
                         {
@@ -344,12 +380,12 @@ class QueryManager(ESManager):
         Returns:
             dict of query body
         """
-
         body = {
             "query_string": {
                 "query": query_string
             }
         }
+
         return body
 
     @staticmethod
@@ -390,3 +426,22 @@ class QueryManager(ESManager):
                 body["query"]["bool"]["must"].append(query)
 
         return json.dumps(body)
+
+    @staticmethod
+    def conjunction_query(queries: list) -> dict:
+        body = {
+            "bool": {
+                "must": queries
+            }
+        }
+        return body
+
+    @staticmethod
+    def disjunction_query(queries: list) -> dict:
+        body = {
+            "bool": {
+                "should": queries,
+                "minimum_should_match": 1
+            }
+        }
+        return body
