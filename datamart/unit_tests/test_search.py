@@ -1,4 +1,4 @@
-from datamart.utilities.utils import Utils
+from datamart.utilities.utils import Utils, SEARCH_URL
 from datamart import search
 import unittest
 from io import StringIO
@@ -24,7 +24,7 @@ class TestJSONQueryManager(unittest.TestCase):
 
     @staticmethod
     def get_result_ids(query, df=None):
-        res = search('isi-datamart', query, df)
+        res = search(SEARCH_URL, query, df)
         return set(r.id for r in res)
 
     @Utils.test_print
