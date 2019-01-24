@@ -8,20 +8,30 @@ DEFAULT_KEY = {
 }
 
 
-def getAllIndicatorList(indicatorUrlPath):
-    url = indicatorUrlPath + '?c=' + DEFAULT_KEY["KEY"]
-    res = requests.get(url)
+def getAllIndicatorList():
+    indicatorUrlPath = "https://api.tradingeconomics.com/indicators"
+    url1 = indicatorUrlPath + '?c=' + DEFAULT_KEY["KEY"] +'&f=json'
+    res = requests.get(url1)
     data = res.json()
-    url_list = list(((object['URL'].split('/'))[-1], object['Category']) for object in data)
-    unique_urls_str = list(set(url_list))
+    url1_list = list(((object['Category'].lower(), object['Category']) for object in data))
+    url1_list = set(url1_list)
+
+    indicatorDescriptionUrlPath = "https://api.tradingeconomics.com/indicators/descriptions"
+
+    url2 = indicatorDescriptionUrlPath + '?c=' + DEFAULT_KEY["KEY"]
+    res = requests.get(url2)
+    data = res.json()
+    url2_list = list(((object['URL'].split('/'))[-1].replace('-', ' '), object['Category']) for object in data)
+    url2_list = set(url2_list)
+    unique_urls_str = list(url2_list.union(url1_list))
     return unique_urls_str
 
 
 def generate_json_schema(dst_path):
-    indicatorUrlPath = "https://api.tradingeconomics.com/indicators/descriptions"
-    unique_urls_str = getAllIndicatorList(indicatorUrlPath)
+    unique_urls_str = getAllIndicatorList()
+    notworking=[]
     for path, indicator in unique_urls_str:
-        path = path.replace('-', '%20')
+        path = path.replace(' ', '%20')
         materialiseFormat = 'csv'
         infoFormat = 'json'
         url = "https://api.tradingeconomics.com/historical/country/all/indicator/" + path + "?c=" + DEFAULT_KEY[
@@ -95,6 +105,10 @@ def generate_json_schema(dst_path):
 
             with open(file, "w") as fp:
                 json.dump(schema, fp, indent=2)
+        else:
+            notworking.append(path)
+    #print(len(notworking),len(unique_urls_str))
+    #print(notworking)
 
 
 if __name__ == '__main__':
