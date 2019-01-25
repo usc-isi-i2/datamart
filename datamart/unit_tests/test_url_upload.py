@@ -2,6 +2,9 @@ from datamart import bulk_generate_metadata, generate_metadata
 from datamart.utilities.utils import Utils, TEST_ES_INDEX
 import unittest
 import json
+import os
+
+resources_path = os.path.join(os.path.dirname(__file__), "./resources")
 
 
 class TestUrlUpload(unittest.TestCase):
@@ -19,7 +22,7 @@ class TestUrlUpload(unittest.TestCase):
             }
         }
         res = generate_metadata(description=description)
-        with open('datamart/unit_tests/resources/url_upload_csv.json') as f:
+        with open(os.path.join(resources_path, 'url_upload_csv.json')) as f:
             expected = json.load(f)
 
         self.assertEqual(len(res), 1)

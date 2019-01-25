@@ -1,7 +1,12 @@
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-from etk.extractors.html_metadata_extractor import HTMLMetadataExtractor
 from datamart.utilities.utils import Utils
+try:
+    from etk.extractors.html_metadata_extractor import HTMLMetadataExtractor
+except OSError:
+    from spacy.cli import download
+    download('en_core_web_sm')
+    from etk.extractors.html_metadata_extractor import HTMLMetadataExtractor
 
 
 FILE_BLACK_LIST = {
