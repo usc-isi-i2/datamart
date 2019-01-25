@@ -143,8 +143,8 @@ def check_existence(url: str, index: int, es_index: str=PRODUCTION_ES_INDEX):
 
 def upload(meta_list: typing.List[dict],
            es_index: str=PRODUCTION_ES_INDEX,
-           index_builder: IndexBuilder=None,
-           deduplicate: bool=True) -> typing.List[dict]:
+           deduplicate: bool=True,
+           index_builder: IndexBuilder=None) -> typing.List[dict]:
     ib = index_builder or IndexBuilder()
     succeeded = []
     for meta in meta_list:
@@ -170,12 +170,13 @@ def upload(meta_list: typing.List[dict],
 
 
 def bulk_upload(list_of_meta_list: typing.List[typing.List[dict]],
-                es_index: str=PRODUCTION_ES_INDEX
+                es_index: str=PRODUCTION_ES_INDEX,
+                deduplicate: bool=True
                 ) -> typing.List[typing.List[dict]]:
     succeeded= []
     ib = IndexBuilder()
     for meta_list in list_of_meta_list:
-        success_list = upload(meta_list, es_index, ib)
+        success_list = upload(meta_list, es_index, deduplicate, ib)
         if success_list:
             succeeded.append(success_list)
     return succeeded

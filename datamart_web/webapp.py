@@ -11,9 +11,8 @@ from flask import Flask, request
 from datamart_web.src.search_metadata import SearchMetadata
 from datamart_web.src.join_datasets import JoinDatasets
 
-from datamart import search, augment, join, generate_metadata, upload, bulk_generate_metadata, bulk_upload
-from datamart.utilities.utils import SEARCH_URL, ES_PORT, ES_HOST, PRODUCTION_ES_INDEX, Utils
-from datamart.es_managers.query_manager import QueryManager
+from datamart import search, join, generate_metadata, upload, bulk_generate_metadata, bulk_upload
+from datamart.utilities.utils import SEARCH_URL, PRODUCTION_ES_INDEX, TEST_ES_INDEX
 
 from datamart.data_loader import DataLoader
 
@@ -130,6 +129,49 @@ class WebApp(Flask):
             except Exception as e:
                 return self.wrap_response('1000', msg="FAIL JOIN - " + str(e))
 
+        @self.route('/new/get_metadata_single_file', methods=['POST'])
+        def get_metadata_single_file():
+            try:
+                description = request.json
+                metadata_list = generate_metadata(description)
+                return self.wrap_response('0000', data=metadata_list)
+            except Exception as e:
+                return self.wrap_response('1000', msg="FAIL METADATA GENERATION - " + str(e))
+
+        @self.route('/new/get_metadata_extract_links', methods=['POST'])
+        def get_metadata_extract_links():
+            try:
+                url = request.json.get('url')
+                description = request.json.get('description')
+                metadata_lists = bulk_generate_metadata(html_page=url, description=description)
+                return self.wrap_response('0000', data=metadata_lists)
+            except Exception as e:
+                return self.wrap_response('1000', msg="FAIL METADATA GENERATION - " + str(e))
+
+        @self.route('/new/upload_metadata_list', methods=['POST'])
+        def upload_list_of_metadata():
+            try:
+                all_metadata = request.json.get('metadata')
+                for_test = request.json.get('for_test')
+                allow_duplicates = request.json.get('allow_duplicates')
+                es_index = TEST_ES_INDEX if for_test else PRODUCTION_ES_INDEX
+                deduplicate = not allow_duplicates
+                succeed = []
+                if isinstance(all_metadata, dict):
+                    succeed = upload(meta_list=[all_metadata],
+                           es_index=es_index,
+                           deduplicate=deduplicate)
+                elif all_metadata and isinstance(all_metadata[0], dict):
+                    succeed = upload(meta_list=all_metadata,
+                           es_index=es_index,
+                           deduplicate=deduplicate)
+                elif all_metadata and isinstance(all_metadata[0], list):
+                    succeed = bulk_upload(list_of_meta_list=all_metadata,
+                                es_index=es_index,
+                                deduplicate=deduplicate)
+                return self.wrap_response('0000', data=succeed)
+            except Exception as e:
+                return self.wrap_response('1000', msg="FAIL UPLOAD - " + str(e))
 
         return self
 
