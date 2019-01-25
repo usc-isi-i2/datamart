@@ -180,7 +180,6 @@ class DSboxProfiler(object):
                 fc_hih.compute_common_tokens_by_puncs(col, each_res, self._topk, self._specified_features)
 
             # update metadata for a specific column
-
             metadata["variables"][column_counter]["dsbox_profiled"] = each_res
 
         return metadata

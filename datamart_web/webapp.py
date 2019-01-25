@@ -11,7 +11,11 @@ from flask import Flask, request
 from datamart_web.src.search_metadata import SearchMetadata
 from datamart_web.src.join_datasets import JoinDatasets
 
-from datamart.entries import search, upload, augment
+from datamart import search, augment, join, generate_metadata, upload, bulk_generate_metadata, bulk_upload
+from datamart.utilities.utils import SEARCH_URL, ES_PORT, ES_HOST, PRODUCTION_ES_INDEX, Utils
+from datamart.es_managers.query_manager import QueryManager
+
+from datamart.data_loader import DataLoader
 
 
 class WebApp(Flask):
@@ -25,7 +29,7 @@ class WebApp(Flask):
 
     @staticmethod
     def read_file(files, key, _type):
-        if key in files:
+        if files and key in files:
             try:
                 if _type == 'csv':
                     return pd.read_csv(files[key]).infer_objects()
@@ -78,103 +82,54 @@ class WebApp(Flask):
                 })
             return self.join_datasets.default_join(request=request, old_df=self.old_df)
 
-        @self.route('/new/upload_data', methods=['POST'])
-        def upload_data():
-            try:
-                description = self.read_file(request.files, 'file', 'json')
-                es_index = 'datamart_tmp' if request.form.get('test') == 'true' else 'datamart_all'
-                print(description, es_index)
-                res = upload(description, es_index)
-                return self.wrap_response('0000', data=res)
-            except Exception as e:
-                return self.wrap_response('1000', msg="FAIL - " + str(e))
-
+        # ----- All APIs below are for the new APIs from 2019 winter workshop -----
         @self.route('/new/search_data', methods=['POST'])
         def search_data():
-            self.results = []
             try:
                 query = self.read_file(request.files, 'query', 'json')
                 data = self.read_file(request.files, 'data', 'csv')
-                if data is not None:
-                    self.old_df = data
-                res = search('https://isi-datamart.edu', query, data)
-                self.results = res
-                return self.wrap_response('0000', data=[r._es_raw_object for r in res])
+                res = search(SEARCH_URL, query, data, max_return_docs=10)
+                results = []
+                for r in res:
+                    cur = {
+                        'summary': r.summary,
+                        'score': r.score,
+                        'metadata': r.metadata,
+                        'datamart_id': r.id,
+                    }
+                    results.append(cur)
+                return self.wrap_response(code='0000',
+                                          msg='Success',
+                                          data=results)
             except Exception as e:
-                return self.wrap_response('1000', msg="FAIL - " + str(e))
+                return self.wrap_response(code='1000', msg="FAIL - " + str(e))
 
         @self.route('/new/materialize_data', methods=['GET'])
         def materialize_data():
             try:
-                index = int(request.args.get('index'))
-                dataset = self.results[index]
-                return self.wrap_response('0000', data=dataset.materialize().to_csv(index=False))
+                datamart_id = int(request.args.get('datamart_id'))
+                meta, df = DataLoader.load_meta_and_data_by_id(datamart_id)
+                csv = df.to_csv(index=False)
+                return self.wrap_response('0000', data=csv)
             except Exception as e:
                 return self.wrap_response('1000', msg="FAIL - " + str(e))
 
-        @self.route('/new/augment_data', methods=['GET'])
-        def augment_data():
+        @self.route('/new/join_data', methods=['POST'])
+        def join_data():
             try:
-                index = int(request.args.get('index'))
-                dataset = self.results[index]
-                return self.wrap_response('0000', data=augment(self.old_df, dataset).to_csv(index=False))
+                left_df = self.read_file(request.files, 'left_data', 'csv')
+                right_id = int(request.form.get('right_data'))
+                left_columns = json.loads(request.form.get('left_columns'))
+                right_columns = json.loads(request.form.get('right_columns'))
+                joined_df = join(left_data=left_df,
+                                 right_data=right_id,
+                                 left_columns=left_columns,
+                                 right_columns=right_columns)
+                joined_csv = joined_df.to_csv(index=False)
+                return self.wrap_response('0000', data=joined_csv)
             except Exception as e:
-                return self.wrap_response('1000', msg="FAIL - " + str(e))
+                return self.wrap_response('1000', msg="FAIL JOIN - " + str(e))
 
-        @self.route('/temp_gui', methods=['GET'])
-        def temp_gui():
-            return '''
-<div>
-    <h3> Upload </h3>
-    <form id="uploadbanner" enctype="multipart/form-data" method="post" action="/new/upload_data">
-        <ul>
-            <li>
-                <p>Please upload a description json for your dataset
-                    <a href="https://datadrivendiscovery.org/wiki/display/work/Datamart+user+upload+dataset+API">(see explain)</a>:
-                </p>
-                <input name="file" type="file" />
-                <br />
-            </li>
-            <li>
-                <p>If checked, the data will not be uploaded to the in-use endpoint but the one for test: </p>
-                <input name="test" type="checkbox" value="true" checked>Just for test</input>
-                <br />
-            </li>
-            <li>
-                <p>When submitted, please wait for a while until you got a json response with success/fail message and the metadata put in Datamart:</p>
-                <input type="submit" value="submit" id="submit" />
-            </li>
-        </ul>
-    </form>
-    
-    <br />
-    <br />
-    
-    <h3> Search </h3>
-    <form id="searchbanner" enctype="multipart/form-data" method="post" action="/new/search_data">
-        <ul>
-            <li>
-                <p>Please upload a description json for your target datasets
-                    <a href="https://datadrivendiscovery.org/wiki/display/work/Query+input+samples">(see examples)</a>:
-                </p>
-                <input name="query" type="file" />
-                <br />
-            </li>
-            <li>
-                <p>
-                    Please upload the data(csv file) you would like to argument:
-                </p>
-                <input name="data" type="file" />
-                <br />
-            </li>
-            <li>
-                <input type="submit" value="submit" id="submit" />
-                <br />It will return the search results(a list of dataset description documents). 
-            </li>
-        </ul>
-    </form>
-</div>
-'''
 
         return self
 

@@ -76,7 +76,7 @@ class QueryManager(ESManager):
         :param id: the datamart_id
         :return: a single doc
         """
-        result = self.es.get(index=self.es_index, id=id)
+        result = self.es.get(index=self.es_index, id=id, doc_type='_doc')
         return result
 
     @classmethod

@@ -3,47 +3,9 @@ import copy
 from json import dumps
 from datamart.index_builder import IndexBuilder
 from datamart.utilities.html_processer import HTMLProcesser, FILE_BLACK_LIST, TITLE_BLACK_LIST
-from datamart.utilities.utils import Utils, ES_HOST, ES_PORT
+from datamart.utilities.utils import Utils, ES_HOST, ES_PORT, PRODUCTION_ES_INDEX
 from datamart.materializers.general_materializer import GeneralMaterializer
 from datamart.es_managers.query_manager import QueryManager
-
-
-def check_existence(url: str, index: int, es_index: str):
-    """
-    Query ElasticSearch with "general_materializer" and the "url",
-    return the datamart id if exists
-    else return None
-    :param url:
-    :return: datamart_id or None
-    """
-    query = {
-        "query": {
-            "bool": {
-                "must": [
-                    {
-                        "match_phrase": {
-                            "materialization.python_path": "general_materializer"
-                        }
-                    },
-                    {
-                        "match_phrase": {
-                            "materialization.arguments.url": url
-                        }
-                    },
-                    {
-                        "match_phrase": {
-                            "materialization.arguments.index": index
-                        }
-                    }
-                ]
-            }
-        }
-    }
-    qm = QueryManager(es_host=ES_HOST, es_port=ES_PORT, es_index=es_index)
-    res = qm.search(dumps(query))
-    # TODO: how about return many results, should raise warning
-    if res and res[0]:
-        return int(res[0].get('_id'))
 
 
 def generate_metadata(description: dict) -> typing.List[dict]:
@@ -141,8 +103,46 @@ def bulk_generate_metadata(html_page: str,
     return successed
 
 
+def check_existence(url: str, index: int, es_index: str=PRODUCTION_ES_INDEX):
+    """
+    Query ElasticSearch with "general_materializer" and the "url",
+    return the datamart id if exists
+    else return None
+    :param url:
+    :return: datamart_id or None
+    """
+    query = {
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "match_phrase": {
+                            "materialization.python_path": "general_materializer"
+                        }
+                    },
+                    {
+                        "match_phrase": {
+                            "materialization.arguments.url": url
+                        }
+                    },
+                    {
+                        "match_phrase": {
+                            "materialization.arguments.index": index
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    qm = QueryManager(es_host=ES_HOST, es_port=ES_PORT, es_index=es_index)
+    res = qm.search(dumps(query))
+    # TODO: how about return many results, should raise warning
+    if res and res[0]:
+        return int(res[0].get('_id'))
+
+
 def upload(meta_list: typing.List[dict],
-           es_index: str,
+           es_index: str=PRODUCTION_ES_INDEX,
            index_builder: IndexBuilder=None,
            deduplicate: bool=True) -> typing.List[dict]:
     ib = index_builder or IndexBuilder()
@@ -170,18 +170,8 @@ def upload(meta_list: typing.List[dict],
 
 
 def bulk_upload(list_of_meta_list: typing.List[typing.List[dict]],
-                es_index: str
+                es_index: str=PRODUCTION_ES_INDEX
                 ) -> typing.List[typing.List[dict]]:
-    """
-    extract links from html page and index each of the data
-
-    Args:
-        html_page
-        description:
-
-    Returns:
-
-    """
     succeeded= []
     ib = IndexBuilder()
     for meta_list in list_of_meta_list:

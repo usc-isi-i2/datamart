@@ -175,7 +175,7 @@ class Augment(object):
             left_metadata = Utils.generate_metadata_from_dataframe(data=left_df)
 
         if not right_metadata:
-            right_metadata = Utils.generate_metadata_from_dataframe(data=left_df)
+            right_metadata = Utils.generate_metadata_from_dataframe(data=right_df)
 
         left_metadata = Utils.calculate_dsbox_features(data=left_df, metadata=left_metadata)
         right_metadata = Utils.calculate_dsbox_features(data=right_df, metadata=right_metadata)
