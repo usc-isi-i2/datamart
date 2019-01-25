@@ -1,27 +1,9 @@
 import typing
+import copy
 from datamart.index_builder import IndexBuilder
-from datamart.utilities.html_processer import HTMLProcesser
+from datamart.utilities.html_processer import HTMLProcesser, FILE_BLACK_LIST, TITLE_BLACK_LIST
 from datamart.utilities.utils import Utils, DEFAULT_ES
 from datamart.materializers.general_materializer import GeneralMaterializer
-
-
-FILE_BLACK_LIST = {
-    'pdf',
-    'zip',
-    'tar',
-    'gz',
-    'jpg',
-    'jpeg',
-    'png',
-    'img',
-    'gif',
-    'doc',
-    'docx',
-    'mp3',
-    'mp4',
-    'avi',
-    'wmv'
-}
 
 
 def generate_metadata(description: dict, es_index: str=None) -> typing.List[dict]:
@@ -40,11 +22,11 @@ def generate_metadata(description: dict, es_index: str=None) -> typing.List[dict
     if not (url and isinstance(url, str) and Utils.validate_url(url)):
         return []
 
-    file_name = url.rsplit('/', 1)[-1].rsplit('.', 1)[0]
+    file_name = url.rsplit('/', 1)[-1].rsplit('.', 1)
     if not file_name:
         return []
     if len(file_name) == 2:
-        file_suffix = file_name[1]
+        file_suffix = file_name[1].split('#', 1)[0]
         if file_suffix.lower() in FILE_BLACK_LIST:
             return []
 
@@ -86,19 +68,6 @@ def generate_metadata(description: dict, es_index: str=None) -> typing.List[dict
     return meta_list
 
 
-def upload(meta_list: typing.List[dict], es_index: str=None) -> typing.List[dict]:
-    ib = IndexBuilder()
-    successed = []
-    for meta in meta_list:
-        try:
-            success = ib.indexing_send_to_es(metadata=meta, es_index=es_index)
-            if success:
-                successed.append(meta)
-        except:
-            pass
-    return successed
-
-
 def bulk_generate_metadata(html_page: str,
                            description: dict=None,
                            es_index: str=None) -> typing.List[typing.List[dict]]:
@@ -110,26 +79,38 @@ def bulk_generate_metadata(html_page: str,
     :return:
     """
     successed = []
-    description = description or {}
     hp = HTMLProcesser(html_page)
-    meta = hp.extract_description_from_meta()
+    html_meta = hp.extract_description_from_meta()
     for text, href in hp.generate_a_tags_from_html():
         try:
+            cur_description = copy.deepcopy(description) or {}
             if not Utils.validate_url(href):
                 continue
-            if not description.get('title'):
-                black_list = set(text.split()).intersection(hp.TITLE_BLACK_LIST)
+            if not cur_description.get('title'):
+                black_list = set(text.lower().split()).intersection(TITLE_BLACK_LIST)
                 if not black_list:
-                    description['title'] = text.strip()
-            if not description.get('description'):
-                description['description'] = meta
-            if not description.get('url'):
-                description['url'] = href
-            description['materialization_arguments'] = {'url': href}
-            meta = generate_metadata(description, es_index)
-            successed.append(meta)
+                    cur_description['title'] = text.strip()
+            if not cur_description.get('description'):
+                cur_description['description'] = html_meta
+            cur_description['materialization_arguments'] = {'url': href}
+            cur_metadata = generate_metadata(cur_description, es_index)
+            if cur_metadata:
+                successed.append(cur_metadata)
         except Exception as e:
             print(' - FAILED GENERATE METADATA ON \n\ttext = %s, \n\thref = %s \n%s' % (text, href, str(e)))
+    return successed
+
+
+def upload(meta_list: typing.List[dict], es_index: str=None) -> typing.List[dict]:
+    ib = IndexBuilder()
+    successed = []
+    for meta in meta_list:
+        try:
+            success = ib.indexing_send_to_es(metadata=meta, es_index=es_index)
+            if success:
+                successed.append(meta)
+        except:
+            pass
     return successed
 
 

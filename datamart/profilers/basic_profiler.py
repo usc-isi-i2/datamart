@@ -161,7 +161,7 @@ class BasicProfiler(object):
             list of keywords
         """
 
-        return data.columns.tolist()
+        return data.columns.astype(str).tolist()
 
     @classmethod
     def basic_profiling_column(cls,
@@ -181,7 +181,7 @@ class BasicProfiler(object):
         """
 
         if not variable_metadata.name:
-            variable_metadata.name = column.name
+            variable_metadata.name = str(column.name)
 
         if not variable_metadata.description:
             variable_metadata.description = cls.construct_variable_description(column)

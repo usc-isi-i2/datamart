@@ -7,7 +7,6 @@ from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.es_managers.index_manager import IndexManager
 from datamart.utilities.utils import Utils
 from datamart.profiler import Profiler
-from datamart.materializers.general_materializer import GeneralMaterializer
 import typing
 import traceback
 from elasticsearch.exceptions import TransportError
@@ -59,7 +58,6 @@ class IndexBuilder(object):
 
         if data is not None:
             metadata = self.profile(data=data, metadata=metadata)
-
         Utils.validate_schema(metadata)
 
         if save_to_file:

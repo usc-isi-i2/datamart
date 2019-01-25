@@ -1,21 +1,57 @@
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 from etk.extractors.html_metadata_extractor import HTMLMetadataExtractor
+from datamart.utilities.utils import Utils
+
+
+FILE_BLACK_LIST = {
+    'pdf',
+    'zip',
+    'tar',
+    'gz',
+    'jpg',
+    'jpeg',
+    'png',
+    'img',
+    'gif',
+    'doc',
+    'docx',
+    'ppt',
+    'pptx',
+    'mp3',
+    'mp4',
+    'avi',
+    'wmv',
+    'flv',
+    '3gp',
+    'svg',
+    'dxf',
+    'psd',
+    'php',  # NOT EXTRACT HTML TABLE WHEN BULK UPLOAD
+    'html'  # OTHERWISE TOO MANY FP WILL BE INCLUDED
+}
+
+TITLE_BLACK_LIST = {
+    'excel',
+    'csv',
+    'file',
+    'download',
+    'table',
+    'data',
+    'save',
+    'click',
+    'index'
+}.union(FILE_BLACK_LIST)
 
 
 class HTMLProcesser(object):
 
-    TITLE_BLACK_LIST = {
-        'excel',
-        'csv',
-        'file',
-        'download',
-        'table',
-        'data',
-        'save'
-    }
-
     def __init__(self, html):
-        self.html_text = self.load_html_soup(html)
+        self.url = None
+        if html.startswith('http') or html.startswith('ftp'):
+            if Utils.validate_url(html):
+                self.url = html
+        self.html_text = self.load_html_text(html)
 
     def extract_description_from_meta(self):
         descriptions = []
@@ -33,17 +69,25 @@ class HTMLProcesser(object):
         soup = BeautifulSoup(self.html_text, features="lxml")
         if soup.find('body'):
             for a in soup.find('body').find_all('a', href=True):
-                yield a.text, a['href']
+                href = a['href']
+                if not (href.startswith('http') or href.startswith('ftp')):
+                    # relative url
+                    if self.url:
+                        href = urljoin(self.url, href)
+                    else:
+                        continue
+                yield a.text, href
 
-    @staticmethod
-    def load_html_soup(html):
-        if html.startswith('http'):
+    def load_html_text(self, html):
+        html_text = html
+        if self.url:
             import urllib.request
             f = urllib.request.urlopen(html)
-            html_text = f.read().decode('utf-8')
+            html_text = f.read().decode('utf-8', errors='ignore')
         elif html.endswith('.html'):
-            with open(html) as f:
-                html_text = f.read()
-        else:
-            html_text = html
+            try:
+                with open(html) as f:
+                    html_text = f.read()
+            except:
+                pass
         return html_text
