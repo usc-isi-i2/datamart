@@ -8,14 +8,14 @@ class TestUrlUpload(unittest.TestCase):
 
     @Utils.test_print
     def test_generate_metadata(self):
-        url = "http://insight.dev.schoolwires.com/HelpAssets/C2Assets/C2Files/C2ImportCalEventSample.csv"
+        url = "http://insight.dev.schoolwires.com/HelpAssets/C2Assets/C2Files/C2ImportStaffSample.csv"
         description = {
-            "title": "Sample CSV File for Importing Calendar Events",
+            "title": "Sample CSV File for Importing Staff Directory App Information",
             "materialization_arguments": {
                 "url": url
             }
         }
-        res = generate_metadata(description)
+        res = generate_metadata(description=description, es_index='datamart_tmp')
         with open('datamart/unit_tests/resources/url_upload_1.json') as f:
             expected = json.load(f)
 
