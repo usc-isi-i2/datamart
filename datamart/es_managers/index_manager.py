@@ -2,11 +2,12 @@ from elasticsearch.helpers import bulk
 import json
 import typing
 from datamart.es_managers.es_manager import ESManager
+from datamart.utilities.utils import ES_HOST, ES_PORT
 
 
 class IndexManager(ESManager):
 
-    def __init__(self, es_host: str = "dsbox02.isi.edu", es_port: int = 9200) -> None:
+    def __init__(self, es_host: str = ES_HOST, es_port: int = ES_PORT) -> None:
         """Init method for index manager
 
         Args:

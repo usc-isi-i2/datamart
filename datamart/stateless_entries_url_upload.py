@@ -1,13 +1,14 @@
 import typing
 import copy
+from json import dumps
 from datamart.index_builder import IndexBuilder
 from datamart.utilities.html_processer import HTMLProcesser, FILE_BLACK_LIST, TITLE_BLACK_LIST
-from datamart.utilities.utils import Utils, ES_HOST, ES_PORT, PRODUCTION_ES_INDEX
+from datamart.utilities.utils import Utils, ES_HOST, ES_PORT
 from datamart.materializers.general_materializer import GeneralMaterializer
 from datamart.es_managers.query_manager import QueryManager
 
 
-def deduplicate(url, es_index=PRODUCTION_ES_INDEX):
+def check_existence(url, es_index: str):
     """
     Query ElasticSearch with "general_materializer" and the "url",
     return the datamart id if exists
@@ -15,8 +16,7 @@ def deduplicate(url, es_index=PRODUCTION_ES_INDEX):
     :param url:
     :return: datamart_id or None
     """
-    query = """
-    {
+    query = {
         "query": {
             "bool": {
                 "must": [
@@ -27,18 +27,17 @@ def deduplicate(url, es_index=PRODUCTION_ES_INDEX):
                     },
                     {
                         "match_phrase": {
-                            "materialization.arguments.url": %s
+                            "materialization.arguments.url": url
                         }
                     }
                 ]
             }
         }
     }
-    """ % url
-
     qm = QueryManager(es_host=ES_HOST, es_port=ES_PORT, es_index=es_index)
-    res = qm.search(query)
-    print(res)
+    res = qm.search(dumps(query))
+    if res and res[0]:
+        return res[0].get('_id')
 
 
 def generate_metadata(description: dict) -> typing.List[dict]:
@@ -103,8 +102,8 @@ def generate_metadata(description: dict) -> typing.List[dict]:
 
 
 def bulk_generate_metadata(html_page: str,
-                           description: dict=None,
-                           es_index: str=None) -> typing.List[typing.List[dict]]:
+                           description: dict=None
+                           ) -> typing.List[typing.List[dict]]:
     """
 
     :param html_page:
@@ -135,20 +134,22 @@ def bulk_generate_metadata(html_page: str,
     return successed
 
 
-def upload(meta_list: typing.List[dict], es_index: str=None) -> typing.List[dict]:
-    ib = IndexBuilder()
-    successed = []
+def upload(meta_list: typing.List[dict], es_index: str, index_builder: IndexBuilder=None) -> typing.List[dict]:
+    ib = index_builder or IndexBuilder()
+    succeeded = []
     for meta in meta_list:
         try:
             success = ib.indexing_send_to_es(metadata=meta, es_index=es_index)
             if success:
-                successed.append(meta)
+                succeeded.append(meta)
         except:
             pass
-    return successed
+    return succeeded
 
 
-def bulk_upload(html_page: str, description: dict=None, es_index: str=None) -> typing.List[typing.List[dict]]:
+def bulk_upload(list_of_meta_list: typing.List[typing.List[dict]],
+                es_index: str
+                ) -> typing.List[typing.List[dict]]:
     """
     extract links from html page and index each of the data
 
@@ -159,11 +160,10 @@ def bulk_upload(html_page: str, description: dict=None, es_index: str=None) -> t
     Returns:
 
     """
-    list_of_meta_list = bulk_generate_metadata(html_page, description, es_index)
-
     succeeded= []
+    ib = IndexBuilder()
     for meta_list in list_of_meta_list:
-        success_list = upload(meta_list, es_index)
+        success_list = upload(meta_list, es_index, ib)
         if success_list:
             succeeded.append(success_list)
     return succeeded

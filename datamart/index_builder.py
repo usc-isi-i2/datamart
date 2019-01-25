@@ -69,7 +69,8 @@ class IndexBuilder(object):
         # replace the "datamart_id" of metadata with the valid one
         if not self.current_global_index or delete_old_es_index:
             self.current_global_index = self.im.current_global_datamart_id(index=es_index)
-        metadata['datamart_id'] = self.current_global_index + self.GLOBAL_INDEX_INTERVAL
+        valid_datamart_id = self.current_global_index + self.GLOBAL_INDEX_INTERVAL
+        self.update_datamart_id(metadata, valid_datamart_id)
 
         try:
             self.im.create_doc(index=es_index, doc_type='_doc', body=metadata, id=metadata['datamart_id'])
@@ -416,3 +417,10 @@ class IndexBuilder(object):
         """
 
         self.im.create_doc_bulk(file=metadata_out_file, index=es_index)
+
+    @staticmethod
+    def update_datamart_id(metadata: dict, datamart_id: int):
+        metadata['datamart_id'] = datamart_id
+        if metadata.get('variables'):
+            for v in metadata.get('variables'):
+                v['datamart_id'] += metadata['datamart_id']

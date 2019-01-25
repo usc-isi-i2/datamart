@@ -28,7 +28,7 @@ class TestUrlUpload(unittest.TestCase):
     @Utils.test_print
     def test_bulk_generate_metadata(self):
         url = 'https://sample-videos.com/download-sample-xls.php'
-        res = bulk_generate_metadata(url, es_index=self.test_index)
+        res = bulk_generate_metadata(url)
         self.assertEqual(len(res), 6)
         rows = [10, 100, 1000, 5000, 10000, 50000]
         cols = [10, 10, 10, 10, 10, 9]
