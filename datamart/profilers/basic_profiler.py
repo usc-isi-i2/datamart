@@ -71,6 +71,7 @@ class BasicProfiler(object):
             }
 
         for element in column:
+            # TODO: now pure time will be treat as "today"'s time, and generate a range
             try:
                 if isinstance(element, str):
                     this_datetime = dateutil.parser.parse(element)
