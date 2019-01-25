@@ -1,0 +1,167 @@
+{
+    "title": "Sample CSV File for Importing Calendar Events",
+    "url": "http://insight.dev.schoolwires.com/HelpAssets/C2Assets/C2Files/C2ImportCalEventSample.csv",
+    "materialization": {
+      "python_path": "general_materializer",
+      "arguments": {
+        "url": "http://insight.dev.schoolwires.com/HelpAssets/C2Assets/C2Files/C2ImportCalEventSample.csv",
+        "index": 0
+      }
+    },
+    "variables": [
+      {
+        "semantic_type": [],
+        "name": "Start Date ",
+        "description": "column name: Start Date , dtype: object",
+        "temporal_coverage": {
+          "start": "2011-09-05T00:00:00",
+          "end": "2011-09-05T00:00:00"
+        }
+      },
+      {
+        "semantic_type": [],
+        "name": "Start Time",
+        "description": "column name: Start Time, dtype: object",
+        "temporal_coverage": {
+          "start": "2019-01-24T15:00:00",
+          "end": "2019-01-24T18:00:00"
+        }
+      },
+      {
+        "semantic_type": [],
+        "name": "End Date",
+        "description": "column name: End Date, dtype: object",
+        "temporal_coverage": {
+          "start": "2011-09-05T00:00:00",
+          "end": "2011-09-05T00:00:00"
+        }
+      },
+      {
+        "semantic_type": [],
+        "name": "End Time",
+        "description": "column name: End Time, dtype: object"
+      },
+      {
+        "semantic_type": [],
+        "name": "Event Title ",
+        "description": "column name: Event Title , dtype: object",
+        "named_entity": [
+          "Social Studies Dept. Meeting",
+          "Curriculum Meeting"
+        ]
+      },
+      {
+        "semantic_type": [],
+        "name": "All Day Event",
+        "description": "column name: All Day Event, dtype: object",
+        "named_entity": [
+          "N"
+        ]
+      },
+      {
+        "semantic_type": [],
+        "name": "No End Time",
+        "description": "column name: No End Time, dtype: object",
+        "named_entity": [
+          "Y",
+          "N"
+        ]
+      },
+      {
+        "semantic_type": [],
+        "name": "Event Description",
+        "description": "column name: Event Description, dtype: object",
+        "named_entity": [
+          "Department meeting",
+          "Curriculum Meeting"
+        ]
+      },
+      {
+        "semantic_type": [],
+        "name": "Contact ",
+        "description": "column name: Contact , dtype: object",
+        "named_entity": [
+          "Chris Gallagher"
+        ]
+      },
+      {
+        "semantic_type": [],
+        "name": "Contact Email",
+        "description": "column name: Contact Email, dtype: object",
+        "named_entity": [
+          "cgallagher@schoolwires.com"
+        ]
+      },
+      {
+        "semantic_type": [],
+        "name": "Contact Phone",
+        "description": "column name: Contact Phone, dtype: object",
+        "named_entity": [
+          "814-555-5179"
+        ]
+      },
+      {
+        "semantic_type": [],
+        "name": "Location",
+        "description": "column name: Location, dtype: object",
+        "named_entity": [
+          "High School"
+        ]
+      },
+      {
+        "semantic_type": [],
+        "name": "Category",
+        "description": "column name: Category, dtype: int64"
+      },
+      {
+        "semantic_type": [],
+        "name": "Mandatory",
+        "description": "column name: Mandatory, dtype: object",
+        "named_entity": [
+          "N"
+        ]
+      },
+      {
+        "semantic_type": [],
+        "name": "Registration",
+        "description": "column name: Registration, dtype: object",
+        "named_entity": [
+          "N"
+        ]
+      },
+      {
+        "semantic_type": [],
+        "name": "Maximum",
+        "description": "column name: Maximum, dtype: int64"
+      },
+      {
+        "semantic_type": [],
+        "name": "Last Date To Register",
+        "description": "column name: Last Date To Register, dtype: object",
+        "temporal_coverage": {
+          "start": "2011-09-02T00:00:00",
+          "end": "2011-09-02T00:00:00"
+        }
+      }
+    ],
+    "description": "Start Date  : object, Start Time : object, End Date : object, End Time : object, Event Title  : object, All Day Event : object, No End Time : object, Event Description : object, Contact  : object, Contact Email : object, Contact Phone : object, Location : object, Category : int64, Mandatory : object, Registration : object, Maximum : int64, Last Date To Register : object",
+    "keywords": [
+      "Start Date ",
+      "Start Time",
+      "End Date",
+      "End Time",
+      "Event Title ",
+      "All Day Event",
+      "No End Time",
+      "Event Description",
+      "Contact ",
+      "Contact Email",
+      "Contact Phone",
+      "Location",
+      "Category",
+      "Mandatory",
+      "Registration",
+      "Maximum",
+      "Last Date To Register"
+    ]
+  }

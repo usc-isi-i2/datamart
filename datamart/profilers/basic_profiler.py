@@ -20,8 +20,7 @@ class BasicProfiler(object):
         Returns:
             list of named entities string
         """
-
-        return column.dropna().unique().tolist()
+        return column.dropna().unique().astype(str).tolist()
 
     @staticmethod
     def named_entity_column_recognize(column: pd.Series) -> bool:
@@ -41,6 +40,11 @@ class BasicProfiler(object):
                 pd.to_datetime(column)
                 return False
             except:
+                all_ = column.dropna()
+                nums = pd.to_numeric(all_, errors='coerce').dropna()
+                all_ = all_.unique()
+                if len(all_) == 0 or len(nums)/len(all_) > 0.5:
+                    return False
                 return True
         return False
 

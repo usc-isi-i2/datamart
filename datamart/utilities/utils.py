@@ -12,6 +12,7 @@ import pandas as pd
 import tempfile
 from datetime import datetime
 from datamart.utilities.timeout import timeout
+import re
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../materializers'))
 
@@ -363,24 +364,20 @@ class Utils:
             )
             global_metadata.add_variable_metadata(variable_metadata)
         global_metadata = BasicProfiler.basic_profiling_entire(global_metadata=global_metadata,
-                                                                              data=data)
+                                                               data=data)
 
         return global_metadata.value
 
     @staticmethod
-    def generate_a_tags_from_html(html: str):
-        from bs4 import BeautifulSoup
-        if html.startswith('http'):
-            import urllib.request
-            link = "https://cerc.blackboard.com/Page/1189"
-            f = urllib.request.urlopen(link)
-            html_text = f.read().decode('utf-8')
-        elif html.endswith('.html'):
-            with open(html) as f:
-                html_text = f.read()
-        else:
-            html_text = html
-
-        soup = BeautifulSoup(html_text)
-        for a in soup.find_all('a', href=True):
-            yield a.text, a['href']
+    def validate_url(url):
+        try:
+            regex = re.compile(
+                r'^(?:http|ftp)s?://'  # http:// or https://
+                r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
+                r'localhost|'  # localhost...
+                r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+                r'(?::\d+)?'  # optional port
+                r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+            return re.match(regex, url)
+        except:
+            return False

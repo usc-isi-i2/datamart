@@ -10,7 +10,7 @@ class Dataset:
     Contains the meta info and the way to materialize the dataset.
     Follow the API defined by https://datadrivendiscovery.org/wiki/display/work/Python+API
     """
-    def __init__(self, es_raw_object, original_data, query_json):
+    def __init__(self, es_raw_object, original_data=None, query_json=None):
         self.__es_raw_object = es_raw_object
         self._metadata = es_raw_object['_source']
         self._score = es_raw_object['_score']
@@ -149,6 +149,8 @@ class Dataset:
             self._join_columns = (left_cols, right_cols)
 
     def auto_set_join_columns(self):
+        if not (isinstance(self.original_data, DataFrame) and self.query_json):
+            return
         used = set()
         left = []
         right = []

@@ -7,6 +7,7 @@ from datamart.metadata.variable_metadata import VariableMetadata
 from datamart.es_managers.index_manager import IndexManager
 from datamart.utilities.utils import Utils
 from datamart.profiler import Profiler
+from datamart.materializers.general_materializer import GeneralMaterializer
 import typing
 import traceback
 from elasticsearch.exceptions import TransportError
@@ -27,6 +28,58 @@ class IndexBuilder(object):
         self.GLOBAL_INDEX_INTERVAL = GLOBAL_INDEX_INTERVAL
         self.profiler = Profiler()
         self.im = IndexManager(es_host=self.index_config["es_host"], es_port=self.index_config["es_port"])
+
+    def indexing_generate_metadata(self,
+                 description_path: str or dict,
+                 es_index: str,
+                 data_path: str or pd.DataFrame = None,
+                 query_data_for_indexing: bool = False,
+                 save_to_file: str = None,
+                 save_to_file_mode: str = "a+",
+                 delete_old_es_index: bool = False,
+                 cache_dataset_path: str = None
+                 ) -> dict:
+
+        self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
+
+        if not self.current_global_index or delete_old_es_index:
+            self.current_global_index = self.im.current_global_datamart_id(index=es_index)
+
+        description, data = self._read_data(description_path, data_path)
+        if data is None and query_data_for_indexing:
+            try:
+                data = Utils.materialize(metadata=description).infer_objects()
+                if cache_dataset_path:
+                    data.to_csv(cache_dataset_path, index=False)
+            except:
+                traceback.print_exc()
+                warnings.warn("Materialization Failed, index based on schema json only. (%s)" % description_path)
+
+        metadata = self.construct_global_metadata(description=description, data=data)
+
+        if data is not None:
+            metadata = self.profile(data=data, metadata=metadata)
+
+        Utils.validate_schema(metadata)
+
+        if save_to_file:
+            self._save_data(save_to_file=save_to_file, save_mode=save_to_file_mode, metadata=metadata)
+
+        return metadata
+
+    def indexing_send_to_es(self, metadata, es_index,
+                 delete_old_es_index: bool = False,):
+
+        self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
+
+        try:
+            self.im.create_doc(index=es_index, doc_type='_doc', body=metadata, id=metadata['datamart_id'])
+            return True
+        except Exception as e:
+            if isinstance(e, TransportError):
+                print(e.info)
+            pass
+        return False
 
     def indexing(self,
                  description_path: str or dict,
@@ -61,42 +114,24 @@ class IndexBuilder(object):
 
         """
 
-        print("==== Creating metadata and indexing for " + (description_path
+        print("===== Creating metadata and indexing for " + (description_path
                                                             if isinstance(description_path, str) else "dict"))
 
-        self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
+        metadata = self.indexing_generate_metadata(
+                 description_path=description_path,
+                 es_index=es_index,
+                 data_path=data_path,
+                 query_data_for_indexing=query_data_for_indexing,
+                 save_to_file=save_to_file,
+                 save_to_file_mode=save_to_file_mode,
+                 delete_old_es_index=delete_old_es_index,
+                 cache_dataset_path=cache_dataset_path
+        )
 
-        if not self.current_global_index or delete_old_es_index:
-            self.current_global_index = self.im.current_global_datamart_id(index=es_index)
+        send = self.indexing_send_to_es(metadata=metadata, es_index=es_index, delete_old_es_index=delete_old_es_index)
 
-        description, data = self._read_data(description_path, data_path)
-        if not data and query_data_for_indexing:
-            try:
-                data = Utils.materialize(metadata=description).infer_objects()
-                if cache_dataset_path:
-                    data.to_csv(cache_dataset_path, index=False)
-            except:
-                traceback.print_exc()
-                warnings.warn("Materialization Failed, index based on schema json only. (%s)" % description_path)
-
-        metadata = self.construct_global_metadata(description=description, data=data)
-
-        if data is not None:
-            metadata = self.profile(data=data, metadata=metadata)
-
-        Utils.validate_schema(metadata)
-
-        if save_to_file:
-            self._save_data(save_to_file=save_to_file, save_mode=save_to_file_mode, metadata=metadata)
-
-        try:
-            self.im.create_doc(index=es_index, doc_type='_doc', body=metadata, id=metadata['datamart_id'])
-        except Exception as e:
-            if isinstance(e, TransportError):
-                print(e.info)
-            pass
-
-        return metadata
+        if send:
+            return metadata
 
     def updating(self,
                  description_path: str,
@@ -237,7 +272,9 @@ class IndexBuilder(object):
         else:
             description = description_path
         Utils.validate_schema(description)
-        if data_path:
+        if isinstance(data_path, pd.DataFrame):
+            data = data_path
+        elif data_path:
             data = pd.read_csv(open(data_path), 'r')
         else:
             data = None
@@ -358,7 +395,7 @@ class IndexBuilder(object):
             return metadata
         """
 
-        metadata = self.profiler.two_raven_profiler.profile(inputs=data, metadata=metadata)
+        # metadata = self.profiler.two_raven_profiler.profile(inputs=data, metadata=metadata)
 
         return metadata
 
