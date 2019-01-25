@@ -7,7 +7,7 @@ import os
 resources_path = os.path.join(os.path.dirname(__file__), "./resources")
 
 
-class TestUrlUpload(unittest.TestCase):
+class TestUrlMetadataGeneration(unittest.TestCase):
 
     def setUp(self):
         self.test_index = TEST_ES_INDEX
@@ -38,7 +38,7 @@ class TestUrlUpload(unittest.TestCase):
         for i in range(6):
             self.assertEqual(len(res[i]), 1)
             res_title = res[i][0].get('title')
-            expected_title = 'Sample Spreadsheet %d rows(Sample-spreadsheet-file)' % rows[i]
+            expected_title = 'Sample Spreadsheet %d rows' % rows[i]
             self.assertEqual(res_title, expected_title)
             variables = res[i][0].get('variables')
             self.assertEqual(len(variables), cols[i])

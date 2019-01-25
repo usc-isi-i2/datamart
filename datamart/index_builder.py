@@ -75,12 +75,11 @@ class IndexBuilder(object):
         try:
             self.im.create_doc(index=es_index, doc_type='_doc', body=metadata, id=metadata['datamart_id'])
             self.current_global_index += self.GLOBAL_INDEX_INTERVAL
-            return True
+            return metadata
         except Exception as e:
             if isinstance(e, TransportError):
                 print(e.info)
             pass
-        return False
 
     def indexing(self,
                  description_path: str or dict,
@@ -136,6 +135,18 @@ class IndexBuilder(object):
         if send:
             return metadata
 
+    def updating_send_trusted_metadata(self, metadata: dict, datamart_id: int, es_index: str):
+        self.update_datamart_id(metadata=metadata, datamart_id=datamart_id)
+        Utils.validate_schema(metadata)
+        try:
+            self.im.update_doc(index=es_index, doc_type='_doc', body={"doc": metadata},
+                               id=metadata['datamart_id'])
+            return metadata
+        except Exception as e:
+            if isinstance(e, TransportError):
+                print(e.info)
+            pass
+
     def updating(self,
                  description_path: str,
                  es_index: str,
@@ -179,7 +190,7 @@ class IndexBuilder(object):
         metadata = self.construct_global_metadata(description=description, data=data, overwrite_datamart_id=document_id)
         Utils.validate_schema(metadata)
 
-        self.im.update_doc(index=es_index, doc_type='document', body={"doc": metadata},
+        self.im.update_doc(index=es_index, doc_type='_doc', body={"doc": metadata},
                            id=metadata['datamart_id'])
 
         return metadata

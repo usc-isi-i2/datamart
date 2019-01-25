@@ -8,7 +8,7 @@ from datamart.materializers.general_materializer import GeneralMaterializer
 from datamart.es_managers.query_manager import QueryManager
 
 
-def check_existence(url, es_index: str):
+def check_existence(url: str, index: int, es_index: str):
     """
     Query ElasticSearch with "general_materializer" and the "url",
     return the datamart id if exists
@@ -29,6 +29,11 @@ def check_existence(url, es_index: str):
                         "match_phrase": {
                             "materialization.arguments.url": url
                         }
+                    },
+                    {
+                        "match_phrase": {
+                            "materialization.arguments.index": index
+                        }
                     }
                 ]
             }
@@ -36,8 +41,9 @@ def check_existence(url, es_index: str):
     }
     qm = QueryManager(es_host=ES_HOST, es_port=ES_PORT, es_index=es_index)
     res = qm.search(dumps(query))
+    # TODO: how about return many results, should raise warning
     if res and res[0]:
-        return res[0].get('_id')
+        return int(res[0].get('_id'))
 
 
 def generate_metadata(description: dict) -> typing.List[dict]:
@@ -85,9 +91,10 @@ def generate_metadata(description: dict) -> typing.List[dict]:
         try:
             df = res.dataframe
             idx = res.index
-            sub_name = '(%s)' % res.name if res.name else ''
-            if sub_name or description.get('title'):
-                description['title'] = description.get('title', '') + sub_name
+            if len(parse_results) > 1:
+                sub_name = '(%s)' % res.name if res.name else ''
+                if sub_name or description.get('title'):
+                    description['title'] = description.get('title', '') + sub_name
             description['materialization']['arguments']['index'] = idx or 0
             # TODO: make use of res.metadata?
             indexed = ib.indexing_generate_metadata(
@@ -134,16 +141,31 @@ def bulk_generate_metadata(html_page: str,
     return successed
 
 
-def upload(meta_list: typing.List[dict], es_index: str, index_builder: IndexBuilder=None) -> typing.List[dict]:
+def upload(meta_list: typing.List[dict],
+           es_index: str,
+           index_builder: IndexBuilder=None,
+           deduplicate: bool=True) -> typing.List[dict]:
     ib = index_builder or IndexBuilder()
     succeeded = []
     for meta in meta_list:
         try:
-            success = ib.indexing_send_to_es(metadata=meta, es_index=es_index)
+            if deduplicate:
+                url = meta['materialization']['arguments']['url']
+                index = meta['materialization']['arguments']['index']
+                exist_id = check_existence(url, index, es_index)
+                if exist_id:
+                    success = ib.updating_send_trusted_metadata(metadata=meta,
+                                                                es_index=es_index,
+                                                                datamart_id=exist_id)
+                else:
+                    success = ib.indexing_send_to_es(metadata=meta, es_index=es_index)
+            else:
+                success = ib.indexing_send_to_es(metadata=meta, es_index=es_index)
             if success:
-                succeeded.append(meta)
-        except:
-            pass
+                succeeded.append(success)
+        except Exception as e:
+            print('UPLOAD FAILED: ', str(e))
+            continue
     return succeeded
 
 
