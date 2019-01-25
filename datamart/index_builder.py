@@ -29,20 +29,13 @@ class IndexBuilder(object):
         self.im = IndexManager(es_host=self.index_config["es_host"], es_port=self.index_config["es_port"])
 
     def indexing_generate_metadata(self,
-                 description_path: str or dict,
-                 es_index: str,
-                 data_path: str or pd.DataFrame = None,
-                 query_data_for_indexing: bool = False,
-                 save_to_file: str = None,
-                 save_to_file_mode: str = "a+",
-                 delete_old_es_index: bool = False,
-                 cache_dataset_path: str = None
-                 ) -> dict:
-
-        self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
-
-        if not self.current_global_index or delete_old_es_index:
-            self.current_global_index = self.im.current_global_datamart_id(index=es_index)
+                                   description_path: str or dict,
+                                   data_path: str or pd.DataFrame = None,
+                                   query_data_for_indexing: bool = False,
+                                   save_to_file: str = None,
+                                   save_to_file_mode: str = "a+",
+                                   cache_dataset_path: str = None
+                                   ) -> dict:
 
         description, data = self._read_data(description_path, data_path)
         if data is None and query_data_for_indexing:
@@ -54,7 +47,8 @@ class IndexBuilder(object):
                 traceback.print_exc()
                 warnings.warn("Materialization Failed, index based on schema json only. (%s)" % description_path)
 
-        metadata = self.construct_global_metadata(description=description, data=data)
+        # construct global metadata without generating valid datamart_id
+        metadata = self.construct_global_metadata(description=description, data=data, overwrite_datamart_id=0)
 
         if data is not None:
             metadata = self.profile(data=data, metadata=metadata)
@@ -65,13 +59,21 @@ class IndexBuilder(object):
 
         return metadata
 
-    def indexing_send_to_es(self, metadata, es_index,
-                 delete_old_es_index: bool = False,):
+    def indexing_send_to_es(self,
+                            metadata: dict,
+                            es_index: str,
+                            delete_old_es_index: bool = False):
 
         self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
 
+        # replace the "datamart_id" of metadata with the valid one
+        if not self.current_global_index or delete_old_es_index:
+            self.current_global_index = self.im.current_global_datamart_id(index=es_index)
+        metadata['datamart_id'] = self.current_global_index + self.GLOBAL_INDEX_INTERVAL
+
         try:
             self.im.create_doc(index=es_index, doc_type='_doc', body=metadata, id=metadata['datamart_id'])
+            self.current_global_index += self.GLOBAL_INDEX_INTERVAL
             return True
         except Exception as e:
             if isinstance(e, TransportError):
@@ -112,21 +114,23 @@ class IndexBuilder(object):
 
         """
 
-        print("===== Creating metadata and indexing for " + (description_path
-                                                            if isinstance(description_path, str) else "dict"))
+        print("- Creating metadata and indexing for " + (description_path
+                                                         if isinstance(description_path, str) else "description"))
 
+        # metadata without valid datamart_id(use 0 as place holder)
         metadata = self.indexing_generate_metadata(
                  description_path=description_path,
-                 es_index=es_index,
                  data_path=data_path,
                  query_data_for_indexing=query_data_for_indexing,
                  save_to_file=save_to_file,
                  save_to_file_mode=save_to_file_mode,
-                 delete_old_es_index=delete_old_es_index,
                  cache_dataset_path=cache_dataset_path
         )
 
-        send = self.indexing_send_to_es(metadata=metadata, es_index=es_index, delete_old_es_index=delete_old_es_index)
+        # will replace the datamart_id with a valid value and try to index
+        send = self.indexing_send_to_es(metadata=metadata,
+                                        es_index=es_index,
+                                        delete_old_es_index=delete_old_es_index)
 
         if send:
             return metadata
@@ -313,7 +317,7 @@ class IndexBuilder(object):
         Returns:
             metadata dict
         """
-        if not overwrite_datamart_id:
+        if overwrite_datamart_id is None:
             self.current_global_index += self.GLOBAL_INDEX_INTERVAL
             datamart_id = self.current_global_index
         else:

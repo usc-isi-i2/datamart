@@ -1,4 +1,5 @@
 {
+    "datamart_id": 0,
     "title": "Sample CSV File for Importing Staff Directory App Information",
     "url": "http://insight.dev.schoolwires.com/HelpAssets/C2Assets/C2Files/C2ImportStaffSample.csv",
     "materialization": {
@@ -10,11 +11,13 @@
     },
     "variables": [
       {
+        "datamart_id": 1,
         "semantic_type": [],
         "name": "System ID",
         "description": "column name: System ID, dtype: int64"
       },
       {
+        "datamart_id": 2,
         "semantic_type": [],
         "name": "Last Name",
         "description": "column name: Last Name, dtype: object",
@@ -24,6 +27,7 @@
         ]
       },
       {
+        "datamart_id": 3,
         "semantic_type": [],
         "name": "First Name",
         "description": "column name: First Name, dtype: object",
@@ -34,6 +38,7 @@
         ]
       },
       {
+        "datamart_id": 4,
         "semantic_type": [],
         "name": "Full Name",
         "description": "column name: Full Name, dtype: object",
@@ -44,6 +49,7 @@
         ]
       },
       {
+        "datamart_id": 5,
         "semantic_type": [],
         "name": "Phone",
         "description": "column name: Phone, dtype: object",
@@ -52,6 +58,7 @@
         ]
       },
       {
+        "datamart_id": 6,
         "semantic_type": [],
         "name": "Ext",
         "description": "column name: Ext, dtype: int64",
@@ -61,6 +68,7 @@
         }
       },
       {
+        "datamart_id": 7,
         "semantic_type": [],
         "name": "Email",
         "description": "column name: Email, dtype: object",
@@ -71,6 +79,7 @@
         ]
       },
       {
+        "datamart_id": 8,
         "semantic_type": [],
         "name": "Dept",
         "description": "column name: Dept, dtype: object",
@@ -80,6 +89,7 @@
         ]
       },
       {
+        "datamart_id": 9,
         "semantic_type": [],
         "name": "Site",
         "description": "column name: Site, dtype: object",
@@ -88,11 +98,13 @@
         ]
       },
       {
+        "datamart_id": 10,
         "semantic_type": [],
         "name": "Room",
         "description": "column name: Room, dtype: int64"
       },
       {
+        "datamart_id": 11,
         "semantic_type": [],
         "name": "Job Title",
         "description": "column name: Job Title, dtype: object",
@@ -101,6 +113,7 @@
         ]
       },
       {
+        "datamart_id": 12,
         "semantic_type": [],
         "name": "Image",
         "description": "column name: Image, dtype: object",
@@ -109,6 +122,7 @@
         ]
       },
       {
+        "datamart_id": 13,
         "semantic_type": [],
         "name": "URL",
         "description": "column name: URL, dtype: object",
@@ -117,6 +131,7 @@
         ]
       },
       {
+        "datamart_id": 14,
         "semantic_type": [],
         "name": "Active",
         "description": "column name: Active, dtype: bool"

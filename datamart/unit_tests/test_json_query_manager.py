@@ -1,11 +1,11 @@
-from datamart.utilities.utils import Utils
+from datamart.utilities.utils import Utils, ES_HOST, ES_PORT, PRODUCTION_ES_INDEX
 from datamart.es_managers.json_query_manager import JSONQueryManager
 import unittest, json
 
 
 class TestJSONQueryManager(unittest.TestCase):
     def setUp(self):
-        self.qm = JSONQueryManager(es_host="dsbox02.isi.edu", es_port=9200, es_index='datamart_all')
+        self.qm = JSONQueryManager(es_host=ES_HOST, es_port=ES_PORT, es_index=PRODUCTION_ES_INDEX)
 
     @Utils.test_print
     def test_dataset_about(self):

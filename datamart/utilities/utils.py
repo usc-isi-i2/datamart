@@ -16,8 +16,11 @@ import re
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../materializers'))
 
+ES_HOST = 'dsbox02.isi.edu'
+ES_PORT = 9200
+PRODUCTION_ES_INDEX = 'datamart_all'
+TEST_ES_INDEX = 'datamart_tmp'
 
-DEFAULT_ES = 'datamart_all'
 SEARCH_URL = 'https://isi-datamart.edu'
 
 

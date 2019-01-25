@@ -2,11 +2,46 @@ import typing
 import copy
 from datamart.index_builder import IndexBuilder
 from datamart.utilities.html_processer import HTMLProcesser, FILE_BLACK_LIST, TITLE_BLACK_LIST
-from datamart.utilities.utils import Utils, DEFAULT_ES
+from datamart.utilities.utils import Utils, ES_HOST, ES_PORT, PRODUCTION_ES_INDEX
 from datamart.materializers.general_materializer import GeneralMaterializer
+from datamart.es_managers.query_manager import QueryManager
 
 
-def generate_metadata(description: dict, es_index: str=None) -> typing.List[dict]:
+def deduplicate(url, es_index=PRODUCTION_ES_INDEX):
+    """
+    Query ElasticSearch with "general_materializer" and the "url",
+    return the datamart id if exists
+    else return None
+    :param url:
+    :return: datamart_id or None
+    """
+    query = """
+    {
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "match_phrase": {
+                            "materialization.python_path": "general_materializer"
+                        }
+                    },
+                    {
+                        "match_phrase": {
+                            "materialization.arguments.url": %s
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    """ % url
+
+    qm = QueryManager(es_host=ES_HOST, es_port=ES_PORT, es_index=es_index)
+    res = qm.search(query)
+    print(res)
+
+
+def generate_metadata(description: dict) -> typing.List[dict]:
     """
     Step 1 for indexing, user provide a description with url for materializing,
     datamart will try to generate metadata, by materializing, profiling the data,
@@ -58,12 +93,11 @@ def generate_metadata(description: dict, es_index: str=None) -> typing.List[dict
             # TODO: make use of res.metadata?
             indexed = ib.indexing_generate_metadata(
                 description_path=description,
-                es_index=es_index or DEFAULT_ES,
                 data_path=df
             )
             meta_list.append(indexed)
         except Exception as e:
-            print('user_upload_indexing, FAIL ON %d' % res.index, e)
+            print('IndexBuilder.indexing_generate_metadata, FAIL ON %d' % res.index, e)
             continue
     return meta_list
 
@@ -93,7 +127,7 @@ def bulk_generate_metadata(html_page: str,
             if not cur_description.get('description'):
                 cur_description['description'] = html_meta
             cur_description['materialization_arguments'] = {'url': href}
-            cur_metadata = generate_metadata(cur_description, es_index)
+            cur_metadata = generate_metadata(cur_description)
             if cur_metadata:
                 successed.append(cur_metadata)
         except Exception as e:
@@ -127,9 +161,9 @@ def bulk_upload(html_page: str, description: dict=None, es_index: str=None) -> t
     """
     list_of_meta_list = bulk_generate_metadata(html_page, description, es_index)
 
-    successed = []
+    succeeded= []
     for meta_list in list_of_meta_list:
         success_list = upload(meta_list, es_index)
         if success_list:
-            successed.append(success_list)
-    return successed
+            succeeded.append(success_list)
+    return succeeded

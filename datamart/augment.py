@@ -2,14 +2,14 @@ from datamart.es_managers.json_query_manager import JSONQueryManager
 from datamart.profiler import Profiler
 import pandas as pd
 import typing
-from datamart.utilities.utils import Utils
+from datamart.utilities.utils import Utils, ES_HOST, ES_PORT
 from datamart.joiners.joiner_base import JoinerPrepare
 import warnings
 
 
 class Augment(object):
 
-    def __init__(self, es_index: str, es_host: str = "dsbox02.isi.edu", es_port: int = 9200) -> None:
+    def __init__(self, es_index: str, es_host: str = ES_HOST, es_port: int = ES_PORT) -> None:
         """Init method of QuerySystem, set up connection to elastic search.
 
         Args:

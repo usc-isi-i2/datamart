@@ -1,7 +1,7 @@
 import pandas as pd
 import typing
 from datamart.dataset import Dataset
-from datamart.utilities.utils import DEFAULT_ES
+from datamart.utilities.utils import PRODUCTION_ES_INDEX, SEARCH_URL
 from datamart.augment import Augment
 from datamart.data_loader import DataLoader
 import d3m.container.dataset as d3m_ds
@@ -25,11 +25,11 @@ def search(url: str, query: dict, data: pd.DataFrame or str or d3m_ds.Dataset=No
     Returns: a list of datamart.Dataset objects
 
     """
-    if not url.startswith('https://isi-datamart.edu'):
+    if not url.startswith(SEARCH_URL):
         return []
 
     loaded_data = DataLoader.load_data(data)
-    augmenter = Augment(es_index=DEFAULT_ES)
+    augmenter = Augment(es_index=PRODUCTION_ES_INDEX)
 
     es_results = []
     if (query and ('required_variables' in query)) or (loaded_data is None):
@@ -79,7 +79,7 @@ def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset,
 
     left_cols, right_cols = augment_data.join_columns
     default_joiner = 'rltk'
-    augmenter = Augment(es_index=DEFAULT_ES)
+    augmenter = Augment(es_index=PRODUCTION_ES_INDEX)
 
     augmented_data = augmenter.join(
             left_df=loaded_data,
@@ -115,7 +115,7 @@ def join(left_data: pd.DataFrame or str or d3m_ds.Dataset,
     right_df = DataLoader.load_data(right_data)
 
     default_joiner = 'rltk'
-    augmenter = Augment(es_index=DEFAULT_ES)
+    augmenter = Augment(es_index=PRODUCTION_ES_INDEX)
 
     augmented_data = augmenter.join(
             left_df=left_df,
