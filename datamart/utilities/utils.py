@@ -12,13 +12,24 @@ import pandas as pd
 import tempfile
 from datetime import datetime
 from datamart.utilities.timeout import timeout
+import re
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../materializers'))
+
+ES_HOST = 'dsbox02.isi.edu'
+ES_PORT = 9200
+PRODUCTION_ES_INDEX = 'datamart_all'
+TEST_ES_INDEX = 'datamart_tmp'
+
+SEARCH_URL = 'https://isi-datamart.edu'
 
 
 class Utils:
     INDEX_SCHEMA = json.load(
         open(os.path.join(os.path.join(os.path.dirname(__file__), "../resources"), 'index_schema.json'), 'r'))
+
+    QUERY_SCHEMA = json.load(
+        open(os.path.join(os.path.join(os.path.dirname(__file__), "../resources"), 'query_schema.json'), 'r'))
 
     TMP_FILE_DIR = tempfile.gettempdir()
 
@@ -29,7 +40,7 @@ class Utils:
         "variables": []
     }
 
-    MATERIALIZATION_TIME_OUT = 300
+    MATERIALIZATION_TIME_OUT = 900
 
     CATEGORICAL_COLUMN_THRESHOLD = 0.2
 
@@ -144,6 +155,23 @@ class Utils:
         except:
             print(colored("[INVALID SCHEMA] title: {}".format(description.get("title"))), 'red')
             raise ValueError("Invalid dataset description json according to index json schema")
+
+    @classmethod
+    def validate_query(cls, query: dict) -> bool:
+        """Validate dict against json schema.
+
+        Args:
+            query: query dict.
+
+        Returns:
+            boolean
+        """
+        try:
+            validate(query, cls.QUERY_SCHEMA)
+            return True
+        except:
+            print(colored("[INVALID QUERY] title: {}".format(query.get("title"))), 'red')
+            raise ValueError("Invalid query json according to query json schema")
 
     @staticmethod
     def test_print(func) -> typing.Callable:
@@ -339,6 +367,20 @@ class Utils:
             )
             global_metadata.add_variable_metadata(variable_metadata)
         global_metadata = BasicProfiler.basic_profiling_entire(global_metadata=global_metadata,
-                                                                              data=data)
+                                                               data=data)
 
         return global_metadata.value
+
+    @staticmethod
+    def validate_url(url):
+        try:
+            regex = re.compile(
+                r'^(?:http|ftp)s?://'  # http:// or https://
+                r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
+                r'localhost|'  # localhost...
+                r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+                r'(?::\d+)?'  # optional port
+                r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+            return re.match(regex, url)
+        except:
+            return False

@@ -1,10 +1,10 @@
 appnope==0.1.0
 backcall==0.1.0
 bleach==3.0.0
-certifi==2018.8.24
 chardet==3.0.4
 Click==7.0
 cycler==0.10.0
+d3m==2018.7.10
 decorator==4.3.0
 defusedxml==0.5.0
 elasticsearch==6.3.1
@@ -45,6 +45,7 @@ psycopg2==2.7.5
 psycopg2-binary==2.7.5
 ptyprocess==0.6.0
 Pygments==2.2.0
+pyopenssl==18.0.0
 pyparsing==2.3.0
 python-dateutil==2.7.3
 pytz==2018.5
@@ -52,6 +53,7 @@ pyzmq==17.1.2
 qtconsole==4.4.1
 regex<2017.12.1,>=2017.4.5
 requests==2.20.0
+-e git+https://github.com/usc-isi-i2/rltk.git@85f12555eda16cb8af810acd4648a887bdf8f02b#egg=rltk
 scikit-learn==0.20.1
 selenium==3.141.0
 Send2Trash==1.5.0

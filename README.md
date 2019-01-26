@@ -17,7 +17,16 @@ git update-index --assume-unchanged datamart/resources/index_info.json
 python -W ignore -m unittest discover
 ```
 
-#####When new packages were added:
+If you meet problems about level.db, please try the following commands:
+If you have homebrew installed: `brew install leveldb`
+otherwise:
+```
+pip install leveldb
+CFLAGS='-mmacosx-version-min=10.7 -stdlib=libc++' pip install plyvel --no-cache-dir --global-option=build_ext --global-option="-I/usr/local/Cellar/leveldb/1.20_2/include/" --global-option="-L/usr/local/lib"
+pip install rltk
+```
+
+#### When new packages were added:
 
 Before commit: please run the following commands to update the dependencies config.
 ```
@@ -49,15 +58,45 @@ and put in `datamart/materializers`. See [README](./datamart/materializers/READM
 3. Have your dataset schema json `materialization.python_path` pointed to the materialization method. 
 Take a look at [tmp.json](example/tmp/tmp.json#L10).
 
-4. Play with the following:
+---
 
-## Example of using current system
+#### Python API:
 
-#### Create metadata and index it on Elasticsearch, following: [Indexing demo](example/index.ipynb)
-#### Query datamart, following: [Query demo](example/query.ipynb)
-#### Dealing with TAXI example, following: [taxi_example](example/taxi_example/taxi_example.ipynb)
-#### Dealing with FIFA example, following: [fifa_example](example/fifa_example/fifa_example.ipynb)
-#### Using current rest service: [rest_example](example/rest_example/example.md)
+##### There are three main APIs:
+1. datamart.search(url: str, query: dict, data: pandas.DataFrame, send_data: bool=True) -> list[datamart.Dataset]
+  - input:
+    - url: for ISI's datamart it should be "isi-datamart"
+    - query: a description json object for the target datasets
+    - data: the original dataset to be augmented
+    -send_data: meaningless for current ISI datamart
+  - output: 
+    - a list of datamart.Dataset objects, each is for a dataset indexed in Datamart
+    
+2. datamart.augment(original_data: pandas.DataFrame, augment_data: datamart.Dataset) -> pandas.DataFrame
+  - input:
+    - the original dataset to be augmented
+    - the datamart.Dataset to be used for augmentation
+  - output:
+    - the augmented data
+    
+3. datamart.upload(description: dict, es_index: str=None) -> dict
+  - input:
+    - a description json for the dataset, including the url for the concrete data(e.g. an url for a csv file)
+    - where to index(OPTIONAL) - used to toggle test/in-use datamart ES indices
+  - output:
+    - the final object indexed into datamart(with user provided description, inferred description, profiling info etc.)
+
+(more information can be found under [wiki](https://datadrivendiscovery.org/wiki/display/work/Data+augmentation+working+group))
+
+#### REST API documentation: [rest_example](example/rest_example/example.md)
+
+#### Example of using current system:
+- ##### Create metadata and index it on Elasticsearch, following: [Indexing demo](example/index.ipynb)
+- ##### Query datamart, following: [Query demo](example/query_by_json.ipynb)
+- ##### Dealing with TAXI example, following: [taxi_example](example/taxi_example/taxi_example.ipynb)
+- ##### Dealing with FIFA example, following: [fifa_example](example/fifa_example/fifa_example.ipynb)
+- ##### Dealing with Hall of Fame example, following: [hof_example](example/hof_example/hof_example.ipynb)
+
 
 Note: Launch notebook: 
 ```

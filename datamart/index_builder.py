@@ -28,8 +28,61 @@ class IndexBuilder(object):
         self.profiler = Profiler()
         self.im = IndexManager(es_host=self.index_config["es_host"], es_port=self.index_config["es_port"])
 
+    def indexing_generate_metadata(self,
+                                   description_path: str or dict,
+                                   data_path: str or pd.DataFrame = None,
+                                   query_data_for_indexing: bool = False,
+                                   save_to_file: str = None,
+                                   save_to_file_mode: str = "a+",
+                                   cache_dataset_path: str = None
+                                   ) -> dict:
+
+        description, data = self._read_data(description_path, data_path)
+        if data is None and query_data_for_indexing:
+            try:
+                data = Utils.materialize(metadata=description).infer_objects()
+                if cache_dataset_path:
+                    data.to_csv(cache_dataset_path, index=False)
+            except:
+                traceback.print_exc()
+                warnings.warn("Materialization Failed, index based on schema json only. (%s)" % description_path)
+
+        # construct global metadata without generating valid datamart_id
+        metadata = self.construct_global_metadata(description=description, data=data, overwrite_datamart_id=0)
+
+        if data is not None:
+            metadata = self.profile(data=data, metadata=metadata)
+        Utils.validate_schema(metadata)
+
+        if save_to_file:
+            self._save_data(save_to_file=save_to_file, save_mode=save_to_file_mode, metadata=metadata)
+
+        return metadata
+
+    def indexing_send_to_es(self,
+                            metadata: dict,
+                            es_index: str,
+                            delete_old_es_index: bool = False):
+
+        self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
+
+        # replace the "datamart_id" of metadata with the valid one
+        if not self.current_global_index or delete_old_es_index:
+            self.current_global_index = self.im.current_global_datamart_id(index=es_index)
+        valid_datamart_id = self.current_global_index + self.GLOBAL_INDEX_INTERVAL
+        self.update_datamart_id(metadata, valid_datamart_id)
+
+        try:
+            self.im.create_doc(index=es_index, doc_type='_doc', body=metadata, id=metadata['datamart_id'])
+            self.current_global_index += self.GLOBAL_INDEX_INTERVAL
+            return metadata
+        except Exception as e:
+            if isinstance(e, TransportError):
+                print(e.info)
+            pass
+
     def indexing(self,
-                 description_path: str,
+                 description_path: str or dict,
                  es_index: str,
                  data_path: str = None,
                  query_data_for_indexing: bool = False,
@@ -44,7 +97,7 @@ class IndexBuilder(object):
         dataset, create index in our index store
 
         Args:
-            description_path: Path to description json file.
+            description_path: Path to description json file, or the description JSON in Python dict.
             es_index: str, es index for this dataset
             data_path: Path to data csv file.
             query_data_for_indexing: Bool. If no data is presented, and query_data_for_indexing is False, will only
@@ -61,41 +114,38 @@ class IndexBuilder(object):
 
         """
 
-        print("==== Creating metadata and indexing for " + description_path)
+        print("- Creating metadata and indexing for " + (description_path
+                                                         if isinstance(description_path, str) else "description"))
 
-        self._check_es_index(es_index=es_index, delete_old_es_index=delete_old_es_index)
+        # metadata without valid datamart_id(use 0 as place holder)
+        metadata = self.indexing_generate_metadata(
+                 description_path=description_path,
+                 data_path=data_path,
+                 query_data_for_indexing=query_data_for_indexing,
+                 save_to_file=save_to_file,
+                 save_to_file_mode=save_to_file_mode,
+                 cache_dataset_path=cache_dataset_path
+        )
 
-        if not self.current_global_index or delete_old_es_index:
-            self.current_global_index = self.im.current_global_datamart_id(index=es_index)
+        # will replace the datamart_id with a valid value and try to index
+        send = self.indexing_send_to_es(metadata=metadata,
+                                        es_index=es_index,
+                                        delete_old_es_index=delete_old_es_index)
 
-        description, data = self._read_data(description_path, data_path)
-        if not data and query_data_for_indexing:
-            try:
-                data = Utils.materialize(metadata=description).infer_objects()
-                if cache_dataset_path:
-                    data.to_csv(cache_dataset_path, index=False)
-            except:
-                traceback.print_exc()
-                warnings.warn("Materialization Failed, index based on schema json only. (%s)" % description_path)
+        if send:
+            return metadata
 
-        metadata = self.construct_global_metadata(description=description, data=data)
-
-        if data is not None:
-            metadata = self.profile(data=data, metadata=metadata)
-
+    def updating_send_trusted_metadata(self, metadata: dict, datamart_id: int, es_index: str):
+        self.update_datamart_id(metadata=metadata, datamart_id=datamart_id)
         Utils.validate_schema(metadata)
-
-        if save_to_file:
-            self._save_data(save_to_file=save_to_file, save_mode=save_to_file_mode, metadata=metadata)
-
         try:
-            self.im.create_doc(index=es_index, doc_type='_doc', body=metadata, id=metadata['datamart_id'])
+            self.im.update_doc(index=es_index, doc_type='_doc', body={"doc": metadata},
+                               id=metadata['datamart_id'])
+            return metadata
         except Exception as e:
             if isinstance(e, TransportError):
                 print(e.info)
             pass
-
-        return metadata
 
     def updating(self,
                  description_path: str,
@@ -140,7 +190,7 @@ class IndexBuilder(object):
         metadata = self.construct_global_metadata(description=description, data=data, overwrite_datamart_id=document_id)
         Utils.validate_schema(metadata)
 
-        self.im.update_doc(index=es_index, doc_type='document', body={"doc": metadata},
+        self.im.update_doc(index=es_index, doc_type='_doc', body={"doc": metadata},
                            id=metadata['datamart_id'])
 
         return metadata
@@ -221,20 +271,24 @@ class IndexBuilder(object):
             self.im.create_index(index=es_index)
 
     @staticmethod
-    def _read_data(description_path: str, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
+    def _read_data(description_path: str or dict, data_path: str = None) -> typing.Tuple[dict, pd.DataFrame]:
         """Read dataset description json and dataset if present.
 
         Args:
-            description_path: Path to description json file.
+            description_path: Path to description json file, or the description JSON in Python dict.
             data_path: Path to data csv file.
 
         Returns:
             Tuple of (description json, dataframe of data)
         """
-
-        description = json.load(open(description_path, 'r'))
+        if isinstance(description_path, str):
+            description = json.load(open(description_path, 'r'))
+        else:
+            description = description_path
         Utils.validate_schema(description)
-        if data_path:
+        if isinstance(data_path, pd.DataFrame):
+            data = data_path
+        elif data_path:
             data = pd.read_csv(open(data_path), 'r')
         else:
             data = None
@@ -275,7 +329,7 @@ class IndexBuilder(object):
         Returns:
             metadata dict
         """
-        if not overwrite_datamart_id:
+        if overwrite_datamart_id is None:
             self.current_global_index += self.GLOBAL_INDEX_INTERVAL
             datamart_id = self.current_global_index
         else:
@@ -355,6 +409,8 @@ class IndexBuilder(object):
             return metadata
         """
 
+        # metadata = self.profiler.two_raven_profiler.profile(inputs=data, metadata=metadata)
+
         return metadata
 
     def _bulk_load_metadata(self,
@@ -372,3 +428,10 @@ class IndexBuilder(object):
         """
 
         self.im.create_doc_bulk(file=metadata_out_file, index=es_index)
+
+    @staticmethod
+    def update_datamart_id(metadata: dict, datamart_id: int):
+        metadata['datamart_id'] = datamart_id
+        if metadata.get('variables'):
+            for v in metadata.get('variables'):
+                v['datamart_id'] += metadata['datamart_id']
