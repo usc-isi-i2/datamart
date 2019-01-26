@@ -34,22 +34,25 @@ def generate_json_schema(dst_path):
         "indexUrlPath" : "https://api.tradingeconomics.com/markets/index",
         "bondUrlPath" : "https://api.tradingeconomics.com/markets/bond"
     }
-
+    # urlType = {
+    #     "indexUrlPath": "https://api.tradingeconomics.com/markets/index"
+    # }
     for type in urlType:
         unique_urls_str = getAllIndicatorList(urlType[type])
         stockPath=getStockPathList()
+        stockPath=[]
         for path, name, country in unique_urls_str+stockPath:
             materialiseFormat = 'csv'
             infoFormat = 'json'
             url = "https://api.tradingeconomics.com/markets/historical/" + path.lower() + "?c=" + DEFAULT_KEY[
-                "KEY"] + "&format=" + infoFormat
+                "KEY"] + "&format=" + infoFormat +'&d1=1700-08-01'
             try:
                 res_indicator = requests.get(url)
                 data = res_indicator.json()
             except Exception as e:
                 print("Invalid Url for ",path,url)
                 continue
-            print("Generating schema for Trading economics", path,name,country)
+            #print("Generating schema for Trading economics", path,name,country)
             if len(data) > 2:
                 schema = dict()
                 schema['title'] = data[0]['Symbol']
@@ -114,6 +117,8 @@ def generate_json_schema(dst_path):
 
                 with open(file, "w") as fp:
                     json.dump(schema, fp, indent=2)
+            else:
+                print(path,url)
 
 
 if __name__ == '__main__':
