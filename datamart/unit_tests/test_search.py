@@ -5,7 +5,7 @@ from io import StringIO
 import pandas as pd
 
 
-class TestJSONQueryManager(unittest.TestCase):
+class TestSearch(unittest.TestCase):
     def setUp(self):
         self.df = pd.read_csv(StringIO("""date,team1,team2
 2018-08-11,Arsenal,CD Tondela

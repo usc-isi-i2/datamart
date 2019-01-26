@@ -1,15 +1,18 @@
 from numpy import nan
-import pandas as pd
 
 from datamart.materializers.parsers.parser_base import *
+
 
 class ExcelParser(ParserBase):
 
     @staticmethod
     def encode_url(url):
-        return url.replace(" ", "%20")    
+        return url.replace(" ", "%20")
 
-    def parse(self, url: str) -> typing.Optional[pd.DataFrame]:
+    def get_all(self, url: str) -> typing.List[pd.DataFrame]:
+        return [_.dataframe for _ in self.parse(url)]
+
+    def parse(self, url: str) -> typing.List[ParseResult]:
         """
         Retrive excel file from url and return Dataframe and metadata for every sheet
 
@@ -22,19 +25,18 @@ class ExcelParser(ParserBase):
         url = self.encode_url(url)
         xl = pd.ExcelFile(url)
         dfs = []
-        for sheet in xl.sheet_names:
+        for idx, sheet in enumerate(xl.sheet_names):
             meta, start_row, skipfooter = self._parse_metadata(xl, sheet)
             df = xl.parse(header=start_row, skipfooter=skipfooter, sheet_name=sheet)
             df = df.dropna(how="all",axis=0)
             df = df.dropna(how="all",axis=1)
-            dfs.append({
-                "sheet_name":sheet,
-                "df":df,
-                "metadata":meta
-            })
-        
+            dfs.append(ParseResult(
+                df=df,
+                index=idx,
+                name=sheet,
+                metadata=meta
+            ))
         return dfs
-    
     
     def _parse_metadata(self, xl, sheetname):
         """
