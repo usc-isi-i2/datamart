@@ -23,7 +23,7 @@ def getAllIndicatorList():
     data = res.json()
     url2_list = list(((object['URL'].split('/'))[-1].replace('-', ' '), object['Category']) for object in data)
     url2_list = set(url2_list)
-    unique_urls_str = list(set(url1_list)+set(url2_list))
+    unique_urls_str = list(url2_list.union(url1_list))
     return unique_urls_str
 
 
