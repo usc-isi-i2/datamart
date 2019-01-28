@@ -39,6 +39,7 @@ def search(url: str, query: dict, data: pd.DataFrame or str or d3m_ds.Dataset=No
         # if there is no "required_variables" in the query JSON, but the dataset exists,
         # try each named entity column as "required_variables" and concat the results:
         query = query or {}
+        exist = set()
         for col in loaded_data:
             if Utils.is_column_able_to_query(loaded_data[col]):
                 query['required_variables'] = [{
@@ -46,7 +47,10 @@ def search(url: str, query: dict, data: pd.DataFrame or str or d3m_ds.Dataset=No
                     "names": [col]
                 }]
                 for res in augmenter.query_by_json(query, loaded_data, size=max_return_docs):
-                    es_results.append(res)
+                    if res['_id'] not in exist:
+                        # TODO: how about the score ??
+                        exist.add(res['_id'])
+                        es_results.append(res)
     return [Dataset(es_result, original_data=loaded_data, query_json=query) for es_result in es_results]
 
 
