@@ -1,5 +1,5 @@
 
-### Example of querying current rest service to augment a fake taxi example dataset
+### ISI-datamart Restful API
 
 #### There is a service running on dsbox02.isi.edu:9002
 
