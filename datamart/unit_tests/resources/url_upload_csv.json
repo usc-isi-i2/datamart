@@ -1,157 +1,153 @@
 {
-    "datamart_id": 0,
-    "title": "Sample CSV File for Importing Staff Directory App Information",
-    "url": "http://insight.dev.schoolwires.com/HelpAssets/C2Assets/C2Files/C2ImportStaffSample.csv",
-    "materialization": {
-      "python_path": "general_materializer",
-      "arguments": {
-        "url": "http://insight.dev.schoolwires.com/HelpAssets/C2Assets/C2Files/C2ImportStaffSample.csv",
-        "index": 0
-      }
+  "datamart_id": 0,
+  "title": "Sample CSV File for Importing Staff Directory App Information",
+  "url": "http://insight.dev.schoolwires.com/HelpAssets/C2Assets/C2Files/C2ImportStaffSample.csv",
+  "materialization": {
+    "python_path": "general_materializer",
+    "arguments": {
+      "url": "http://insight.dev.schoolwires.com/HelpAssets/C2Assets/C2Files/C2ImportStaffSample.csv",
+      "index": 0
+    }
+  },
+  "variables": [
+    {
+      "datamart_id": 1,
+      "semantic_type": [],
+      "name": "System ID",
+      "description": "column name: System ID, dtype: int64"
     },
-    "variables": [
-      {
-        "datamart_id": 1,
-        "semantic_type": [],
-        "name": "System ID",
-        "description": "column name: System ID, dtype: int64"
-      },
-      {
-        "datamart_id": 2,
-        "semantic_type": [],
-        "name": "Last Name",
-        "description": "column name: Last Name, dtype: object",
-        "named_entity": [
-          "Jones",
-          "Smith"
-        ]
-      },
-      {
-        "datamart_id": 3,
-        "semantic_type": [],
-        "name": "First Name",
-        "description": "column name: First Name, dtype: object",
-        "named_entity": [
-          "Jason",
-          "Rick",
-          "Anne"
-        ]
-      },
-      {
-        "datamart_id": 4,
-        "semantic_type": [],
-        "name": "Full Name",
-        "description": "column name: Full Name, dtype: object",
-        "named_entity": [
-          "Jason Jones",
-          "Rick Jones",
-          "Anne Smith"
-        ]
-      },
-      {
-        "datamart_id": 5,
-        "semantic_type": [],
-        "name": "Phone",
-        "description": "column name: Phone, dtype: object",
-        "named_entity": [
-          "814-555-1212"
-        ]
-      },
-      {
-        "datamart_id": 6,
-        "semantic_type": [],
-        "name": "Ext",
-        "description": "column name: Ext, dtype: int64",
-        "temporal_coverage": {
-          "start": "1002-01-25T00:00:00",
-          "end": "1006-01-25T00:00:00"
-        }
-      },
-      {
-        "datamart_id": 7,
-        "semantic_type": [],
-        "name": "Email",
-        "description": "column name: Email, dtype: object",
-        "named_entity": [
-          "jjones@hvsd.org",
-          "rjones@hvsd.org",
-          "asmith@hvsd.org"
-        ]
-      },
-      {
-        "datamart_id": 8,
-        "semantic_type": [],
-        "name": "Dept",
-        "description": "column name: Dept, dtype: object",
-        "named_entity": [
-          "Science",
-          "English"
-        ]
-      },
-      {
-        "datamart_id": 9,
-        "semantic_type": [],
-        "name": "Site",
-        "description": "column name: Site, dtype: object",
-        "named_entity": [
-          "HVHS"
-        ]
-      },
-      {
-        "datamart_id": 10,
-        "semantic_type": [],
-        "name": "Room",
-        "description": "column name: Room, dtype: int64"
-      },
-      {
-        "datamart_id": 11,
-        "semantic_type": [],
-        "name": "Job Title",
-        "description": "column name: Job Title, dtype: object",
-        "named_entity": [
-          "Teacher"
-        ]
-      },
-      {
-        "datamart_id": 12,
-        "semantic_type": [],
-        "name": "Image",
-        "description": "column name: Image, dtype: object",
-        "named_entity": [
-          "/cms/lib/TC00000006/centricity/Domain/8854/GenericHuman.png"
-        ]
-      },
-      {
-        "datamart_id": 13,
-        "semantic_type": [],
-        "name": "URL",
-        "description": "column name: URL, dtype: object",
-        "named_entity": [
-          "http://www.blackboard.com"
-        ]
-      },
-      {
-        "datamart_id": 14,
-        "semantic_type": [],
-        "name": "Active",
-        "description": "column name: Active, dtype: bool"
-      }
-    ],
-    "description": "System ID : int64, Last Name : object, First Name : object, Full Name : object, Phone : object, Ext : int64, Email : object, Dept : object, Site : object, Room : int64, Job Title : object, Image : object, URL : object, Active : bool",
-    "keywords": [
-      "System ID",
-      "Last Name",
-      "First Name",
-      "Full Name",
-      "Phone",
-      "Ext",
-      "Email",
-      "Dept",
-      "Site",
-      "Room",
-      "Job Title",
-      "Image",
-      "URL",
-      "Active"
-    ]
+    {
+      "datamart_id": 2,
+      "semantic_type": [],
+      "name": "Last Name",
+      "description": "column name: Last Name, dtype: object",
+      "named_entity": [
+        "Jones",
+        "Smith"
+      ]
+    },
+    {
+      "datamart_id": 3,
+      "semantic_type": [],
+      "name": "First Name",
+      "description": "column name: First Name, dtype: object",
+      "named_entity": [
+        "Jason",
+        "Rick",
+        "Anne"
+      ]
+    },
+    {
+      "datamart_id": 4,
+      "semantic_type": [],
+      "name": "Full Name",
+      "description": "column name: Full Name, dtype: object",
+      "named_entity": [
+        "Jason Jones",
+        "Rick Jones",
+        "Anne Smith"
+      ]
+    },
+    {
+      "datamart_id": 5,
+      "semantic_type": [],
+      "name": "Phone",
+      "description": "column name: Phone, dtype: object",
+      "named_entity": [
+        "814-555-1212"
+      ]
+    },
+    {
+      "datamart_id": 6,
+      "semantic_type": [],
+      "name": "Ext",
+      "description": "column name: Ext, dtype: int64"
+    },
+    {
+      "datamart_id": 7,
+      "semantic_type": [],
+      "name": "Email",
+      "description": "column name: Email, dtype: object",
+      "named_entity": [
+        "jjones@hvsd.org",
+        "rjones@hvsd.org",
+        "asmith@hvsd.org"
+      ]
+    },
+    {
+      "datamart_id": 8,
+      "semantic_type": [],
+      "name": "Dept",
+      "description": "column name: Dept, dtype: object",
+      "named_entity": [
+        "Science",
+        "English"
+      ]
+    },
+    {
+      "datamart_id": 9,
+      "semantic_type": [],
+      "name": "Site",
+      "description": "column name: Site, dtype: object",
+      "named_entity": [
+        "HVHS"
+      ]
+    },
+    {
+      "datamart_id": 10,
+      "semantic_type": [],
+      "name": "Room",
+      "description": "column name: Room, dtype: int64"
+    },
+    {
+      "datamart_id": 11,
+      "semantic_type": [],
+      "name": "Job Title",
+      "description": "column name: Job Title, dtype: object",
+      "named_entity": [
+        "Teacher"
+      ]
+    },
+    {
+      "datamart_id": 12,
+      "semantic_type": [],
+      "name": "Image",
+      "description": "column name: Image, dtype: object",
+      "named_entity": [
+        "/cms/lib/TC00000006/centricity/Domain/8854/GenericHuman.png"
+      ]
+    },
+    {
+      "datamart_id": 13,
+      "semantic_type": [],
+      "name": "URL",
+      "description": "column name: URL, dtype: object",
+      "named_entity": [
+        "http://www.blackboard.com"
+      ]
+    },
+    {
+      "datamart_id": 14,
+      "semantic_type": [],
+      "name": "Active",
+      "description": "column name: Active, dtype: bool"
+    }
+  ],
+  "description": "System ID : int64, Last Name : object, First Name : object, Full Name : object, Phone : object, Ext : int64, Email : object, Dept : object, Site : object, Room : int64, Job Title : object, Image : object, URL : object, Active : bool",
+  "keywords": [
+    "System ID",
+    "Last Name",
+    "First Name",
+    "Full Name",
+    "Phone",
+    "Ext",
+    "Email",
+    "Dept",
+    "Site",
+    "Room",
+    "Job Title",
+    "Image",
+    "URL",
+    "Active"
+  ]
 }

@@ -72,11 +72,12 @@ class BasicProfiler(object):
 
         for element in column:
             # TODO: now pure time will be treat as "today"'s time, and generate a range
+            # TODO: improve date/time detection and parse
             try:
                 if isinstance(element, str):
                     this_datetime = dateutil.parser.parse(element)
                 else:
-                    if len(str(element)) == 4:
+                    if len(str(element)) == 4 and column.name.lower() == 'year':
                         this_datetime = dateutil.parser.parse(str(element))
                     else:
                         break
