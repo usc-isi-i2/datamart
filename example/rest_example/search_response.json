@@ -1,0 +1,749 @@
+{
+  "code": "0000",
+  "message": "Success",
+  "data": [
+    {
+      "summary": " - SUMMARY OF THE DATAMART DATASET -\n * Datamart ID: 127860000\n * Score: 84.735825\n * Title: FIFA World Cup\n * Description: FIFA World Cup\n * URL: https://www.football-data.org\n * Columns: \n\t[0] id \n\t[1] season_id \n\t[2] season_startDate \n\t[3] season_endDate \n\t[4] season_currentMatchday \n\t[5] utcDate \n\t[6] status \n\t[7] matchday \n\t[8] stage \n\t[9] group \n\t[10] lastUpdated \n\t[11] score_winner \n\t[12] score_duration \n\t[13] score_fullTime_homeTeam \n\t[14] score_fullTime_awayTeam \n\t[15] score_halfTime_homeTeam \n\t[16] score_halfTime_awayTeam \n\t[17] score_extraTime_homeTeam \n\t[18] score_extraTime_awayTeam \n\t[19] score_penalties_homeTeam \n\t[20] score_penalties_awayTeam \n\t[21] homeTeam_id \n\t[22] homeTeam_name (Egypt, Uruguay, Colombia ...)\n\t[23] awayTeam_id \n\t[24] awayTeam_name (Uruguay, Egypt, Colombia ...)\n\t[25] referees_0_id \n\t[26] referees_0_name (Bj\u00f6rn Kuipers, Enrique C\u00e1ceres, Malang Di\u00e9dhiou ...)\n\t[27] referees_0_nationality \n\t[28] referees_1_id \n\t[29] referees_1_name (Bahattin Duran, Joe Fletcher, Jure Praprotnik ...)\n\t[30] referees_1_nationality \n\t[31] referees_2_id \n\t[32] referees_2_name (Marcelo Carvalho Van Gasse, Frank Anderson, Tar\u0131k Ongun ...)\n\t[33] referees_2_nationality \n\t[34] referees_3_id \n\t[35] referees_3_name (Norbert Hauata, John Pitti, Bj\u00f6rn Kuipers ...)\n\t[36] referees_3_nationality \n\t[37] referees_4_id \n\t[38] referees_4_name (Hiroshi Yamauchi, Bahattin Duran, Massimiliano Irrati ...)\n\t[39] referees_4_nationality \n\t[40] referees_5_id \n\t[41] referees_5_name (Artur Soares Dias, Mauro Vigliano, Cl\u00e9ment Turpin ...)\n\t[42] referees_5_nationality \n\t[43] referees_6_id \n\t[44] referees_6_name (Artur Soares Dias, Bastian Dankert, Carlos Astroza ...)\n\t[45] referees_6_nationality \n\t[46] referees_7_id \n\t[47] referees_7_name (Artur Soares Dias, Bastian Dankert, Carlos Astroza ...)\n\t[48] referees_7_nationality \n\t[49] referees_8_id \n\t[50] referees_8_name (Artur Soares Dias, Bastian Dankert, Sandro Ricci ...)\n\t[51] referees_8_nationality \n * Recommend Join Columns: \n\t    Original Columns <-> datamart.Dataset Columns\n\t                 [3] <-> [24]                \n\t                 [4] <-> [22]                \n        ",
+      "score": 84.735825,
+      "metadata": {
+        "datamart_id": 127860000,
+        "title": "FIFA World Cup",
+        "description": "FIFA World Cup",
+        "url": "https://www.football-data.org",
+        "keywords": [
+          "football",
+          "competition"
+        ],
+        "provenance": {
+          "source": "www.football-data.org"
+        },
+        "materialization": {
+          "python_path": "football_match_materializer",
+          "arguments": {
+            "uri": "/v2/competitions/2000/matches?limit=999",
+            "token": "d019bc4541c9490fabcba6806cbcc42b"
+          }
+        },
+        "variables": [
+          {
+            "datamart_id": 127860001,
+            "name": "id",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: id, dtype: int64"
+          },
+          {
+            "datamart_id": 127860002,
+            "name": "season_id",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: season_id, dtype: int64"
+          },
+          {
+            "datamart_id": 127860003,
+            "name": "season_startDate",
+            "semantic_type": [
+              "https://metadata.datadrivendiscovery.org/types/Time"
+            ],
+            "description": "column name: season_startDate, dtype: object"
+          },
+          {
+            "datamart_id": 127860004,
+            "name": "season_endDate",
+            "semantic_type": [
+              "https://metadata.datadrivendiscovery.org/types/Time"
+            ],
+            "description": "column name: season_endDate, dtype: object"
+          },
+          {
+            "datamart_id": 127860005,
+            "name": "season_currentMatchday",
+            "semantic_type": [],
+            "description": "column name: season_currentMatchday, dtype: int64"
+          },
+          {
+            "datamart_id": 127860006,
+            "name": "utcDate",
+            "semantic_type": [
+              "https://metadata.datadrivendiscovery.org/types/Time"
+            ],
+            "temporal_coverage": {
+              "start": "2018-06-14T15:00:00+00:00",
+              "end": "2018-07-15T15:00:00+00:00"
+            },
+            "description": "column name: utcDate, dtype: object"
+          },
+          {
+            "datamart_id": 127860007,
+            "name": "status",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "description": "column name: status, dtype: object"
+          },
+          {
+            "datamart_id": 127860008,
+            "name": "matchday",
+            "semantic_type": [],
+            "description": "column name: matchday, dtype: float64"
+          },
+          {
+            "datamart_id": 127860009,
+            "name": "stage",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "description": "column name: stage, dtype: object"
+          },
+          {
+            "datamart_id": 127860010,
+            "name": "group",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "description": "column name: group, dtype: object"
+          },
+          {
+            "datamart_id": 127860011,
+            "name": "lastUpdated",
+            "semantic_type": [
+              "https://metadata.datadrivendiscovery.org/types/Time"
+            ],
+            "temporal_coverage": {
+              "start": "2018-06-22T10:00:01+00:00",
+              "end": "2018-07-15T20:00:01+00:00"
+            },
+            "description": "column name: lastUpdated, dtype: object"
+          },
+          {
+            "datamart_id": 127860012,
+            "name": "score_winner",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "description": "column name: score_winner, dtype: object"
+          },
+          {
+            "datamart_id": 127860013,
+            "name": "score_duration",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "description": "column name: score_duration, dtype: object"
+          },
+          {
+            "datamart_id": 127860014,
+            "name": "score_fullTime_homeTeam",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: score_fullTime_homeTeam, dtype: int64"
+          },
+          {
+            "datamart_id": 127860015,
+            "name": "score_fullTime_awayTeam",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: score_fullTime_awayTeam, dtype: int64"
+          },
+          {
+            "datamart_id": 127860016,
+            "name": "score_halfTime_homeTeam",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: score_halfTime_homeTeam, dtype: int64"
+          },
+          {
+            "datamart_id": 127860017,
+            "name": "score_halfTime_awayTeam",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: score_halfTime_awayTeam, dtype: int64"
+          },
+          {
+            "datamart_id": 127860018,
+            "name": "score_extraTime_homeTeam",
+            "semantic_type": [],
+            "description": "column name: score_extraTime_homeTeam, dtype: float64"
+          },
+          {
+            "datamart_id": 127860019,
+            "name": "score_extraTime_awayTeam",
+            "semantic_type": [],
+            "description": "column name: score_extraTime_awayTeam, dtype: float64"
+          },
+          {
+            "datamart_id": 127860020,
+            "name": "score_penalties_homeTeam",
+            "semantic_type": [],
+            "description": "column name: score_penalties_homeTeam, dtype: float64"
+          },
+          {
+            "datamart_id": 127860021,
+            "name": "score_penalties_awayTeam",
+            "semantic_type": [],
+            "description": "column name: score_penalties_awayTeam, dtype: float64"
+          },
+          {
+            "datamart_id": 127860022,
+            "name": "homeTeam_id",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: homeTeam_id, dtype: int64"
+          },
+          {
+            "datamart_id": 127860023,
+            "name": "homeTeam_name",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "named_entity": [
+              "Egypt",
+              "Uruguay",
+              "Colombia",
+              "Argentina",
+              "Tunisia",
+              "France",
+              "Korea Republic",
+              "Panama",
+              "Iceland",
+              "Mexico",
+              "Croatia",
+              "England",
+              "Switzerland",
+              "Poland",
+              "Serbia",
+              "Saudi Arabia",
+              "Spain",
+              "Belgium",
+              "Costa Rica",
+              "Australia",
+              "Russia",
+              "Senegal",
+              "Brazil",
+              "Iran",
+              "Denmark",
+              "Japan",
+              "Portugal",
+              "Nigeria",
+              "Germany",
+              "Sweden",
+              "Peru",
+              "Morocco"
+            ],
+            "description": "column name: homeTeam_name, dtype: object"
+          },
+          {
+            "datamart_id": 127860024,
+            "name": "awayTeam_id",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: awayTeam_id, dtype: int64"
+          },
+          {
+            "datamart_id": 127860025,
+            "name": "awayTeam_name",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "named_entity": [
+              "Uruguay",
+              "Egypt",
+              "Colombia",
+              "Argentina",
+              "Tunisia",
+              "France",
+              "Korea Republic",
+              "Panama",
+              "Iceland",
+              "Mexico",
+              "England",
+              "Croatia",
+              "Switzerland",
+              "Serbia",
+              "Poland",
+              "Saudi Arabia",
+              "Spain",
+              "Belgium",
+              "Costa Rica",
+              "Australia",
+              "Russia",
+              "Senegal",
+              "Brazil",
+              "Iran",
+              "Denmark",
+              "Japan",
+              "Portugal",
+              "Nigeria",
+              "Germany",
+              "Sweden",
+              "Peru",
+              "Morocco"
+            ],
+            "description": "column name: awayTeam_name, dtype: object"
+          },
+          {
+            "datamart_id": 127860026,
+            "name": "referees_0_id",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: referees_0_id, dtype: int64"
+          },
+          {
+            "datamart_id": 127860027,
+            "name": "referees_0_name",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "named_entity": [
+              "Bj\u00f6rn Kuipers",
+              "Enrique C\u00e1ceres",
+              "Malang Di\u00e9dhiou",
+              "Sandro Ricci",
+              "N\u00e9stor Pitana",
+              "Mohammed Abdulla Hassan",
+              "Matt Conger",
+              "Jair Marrufo",
+              "Sergey Karasev",
+              "Antonio Mat\u00e9u",
+              "Cl\u00e9ment Turpin",
+              "Damir Skomina",
+              "Wilmar Rold\u00e1n",
+              "Alireza Faghani",
+              "Gehad Grisha",
+              "Milorad Ma\u017ei\u0107",
+              "Nawaf Shukralla",
+              "Gianluca Rocchi",
+              "Andr\u00e9s Cunha",
+              "C\u00e9sar Arturo Ramos",
+              "Janny Sikazwe",
+              "C\u00fcneyt \u00c7ak\u03b9r",
+              "Ravshan Irmatov",
+              "Szymon Marciniak",
+              "Bakary Papa Gassama",
+              "Felix Brych",
+              "C\u00e9sar Ramos",
+              "Mark Geiger",
+              "Joel Aguilar"
+            ],
+            "description": "column name: referees_0_name, dtype: object"
+          },
+          {
+            "datamart_id": 127860028,
+            "name": "referees_0_nationality",
+            "semantic_type": [],
+            "description": "column name: referees_0_nationality, dtype: object"
+          },
+          {
+            "datamart_id": 127860029,
+            "name": "referees_1_id",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: referees_1_id, dtype: int64"
+          },
+          {
+            "datamart_id": 127860030,
+            "name": "referees_1_name",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "named_entity": [
+              "Bahattin Duran",
+              "Joe Fletcher",
+              "Jure Praprotnik",
+              "Elenito Di Liberatore",
+              "Pau Cebri\u00e1n",
+              "Mohamed Ahmed Al Hammadi",
+              "Marvin Torrentera",
+              "Reza Sokhandan",
+              "Abdukhamidullo Rasulov",
+              "Corey Rockwell",
+              "Redouane Achik",
+              "Eduardo Cardozo",
+              "Jerson dos Santos",
+              "Nicol\u00e1s Tar\u00e1n",
+              "Juan Pablo Belatti",
+              "Mark Borsch",
+              "Emerson Augusto De Carvalho",
+              "Nicolas Danos",
+              "Hern\u00e1n Maidana",
+              "Sander van Roekel",
+              "Jean-Claude Birumushahu",
+              "Anton Averianov",
+              "Djibril Camara",
+              "Milovan Risti\u0107",
+              "Pawe\u0142 Sokolnicki",
+              "Simon Lount",
+              "Yaser Tulefat",
+              "Alexander Guzm\u00e1n",
+              "Juan Zumba"
+            ],
+            "description": "column name: referees_1_name, dtype: object"
+          },
+          {
+            "datamart_id": 127860031,
+            "name": "referees_1_nationality",
+            "semantic_type": [],
+            "description": "column name: referees_1_nationality, dtype: object"
+          },
+          {
+            "datamart_id": 127860032,
+            "name": "referees_2_id",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: referees_2_id, dtype: int64"
+          },
+          {
+            "datamart_id": 127860033,
+            "name": "referees_2_name",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "named_entity": [
+              "Marcelo Carvalho Van Gasse",
+              "Frank Anderson",
+              "Tar\u0131k Ongun",
+              "Stefan Lupp",
+              "Waleed Ahmed Ali",
+              "Abdelhak Etchiali",
+              "Mauricio Espinosa",
+              "Mauro Tonolini",
+              "Roberto D\u00edaz",
+              "Taleb Salem Al Marri",
+              "Dalibor \u0110ur\u0111evi\u0107",
+              "Juan Carlos Mora",
+              "Juan Zorrilla",
+              "Tomasz Listkiewicz",
+              "Miguel \u00c1ngel Hern\u00e1ndez",
+              "Erwin Zeinstra",
+              "Zakhele Siwela",
+              "Juan Pablo Belatti",
+              "Tevita Makasini",
+              "Jakhongir Saidov",
+              "Christian de la Cruz",
+              "Cyril Gringore",
+              "Hern\u00e1n Maidana",
+              "El Hadji Malick Samba",
+              "Tikhon Kalugin",
+              "Mohammadreza Mansouri",
+              "Hasan Mohamed Al Mahri",
+              "Robert Vukan",
+              "Juan Zumba"
+            ],
+            "description": "column name: referees_2_name, dtype: object"
+          },
+          {
+            "datamart_id": 127860034,
+            "name": "referees_2_nationality",
+            "semantic_type": [],
+            "description": "column name: referees_2_nationality, dtype: object"
+          },
+          {
+            "datamart_id": 127860035,
+            "name": "referees_3_id",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: referees_3_id, dtype: int64"
+          },
+          {
+            "datamart_id": 127860036,
+            "name": "referees_3_name",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "named_entity": [
+              "Norbert Hauata",
+              "John Pitti",
+              "Bj\u00f6rn Kuipers",
+              "Enrique C\u00e1ceres",
+              "Malang Di\u00e9dhiou",
+              "Sandro Ricci",
+              "Mohammed Abdulla Hassan",
+              "Matt Conger",
+              "Mehdi Abid Charef",
+              "Ry\u016bji Sat\u014d",
+              "Abdelrahman Al Jassim",
+              "Julio Bascu\u00f1\u00e1n",
+              "Sergey Karasev",
+              "Jair Marrufo",
+              "Antonio Mat\u00e9u",
+              "Cl\u00e9ment Turpin",
+              "Damir Skomina",
+              "Wilmar Rold\u00e1n",
+              "Alireza Faghani",
+              "Milorad Ma\u017ei\u0107",
+              "Bamlak Tessema",
+              "Nawaf Shukralla",
+              "Gianluca Rocchi",
+              "Andr\u00e9s Cunha",
+              "C\u00e9sar Arturo Ramos",
+              "Janny Sikazwe",
+              "C\u00fcneyt \u00c7ak\u03b9r",
+              "Bakary Papa Gassama",
+              "Ricardo Montero"
+            ],
+            "description": "column name: referees_3_name, dtype: object"
+          },
+          {
+            "datamart_id": 127860037,
+            "name": "referees_3_nationality",
+            "semantic_type": [],
+            "description": "column name: referees_3_nationality, dtype: object"
+          },
+          {
+            "datamart_id": 127860038,
+            "name": "referees_4_id",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: referees_4_id, dtype: int64"
+          },
+          {
+            "datamart_id": 127860039,
+            "name": "referees_4_name",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "named_entity": [
+              "Hiroshi Yamauchi",
+              "Bahattin Duran",
+              "Massimiliano Irrati",
+              "Felix Zwayer",
+              "Jure Praprotnik",
+              "Christian Schiemann",
+              "Mauricio Espinosa",
+              "Pau Cebri\u00e1n",
+              "Mohamed Ahmed Al Hammadi",
+              "Mauro Tonolini",
+              "Marvin Torrentera",
+              "Taleb Salem Al Marri",
+              "Juan Carlos Mora",
+              "Corey Rockwell",
+              "Daniele Orsato",
+              "Bertrand Brial",
+              "Jerson dos Santos",
+              "Nicol\u00e1s Tar\u00e1n",
+              "Eduardo Cardozo",
+              "Erwin Zeinstra",
+              "Anouar Hmila",
+              "Emerson Augusto De Carvalho",
+              "Toru Sagara",
+              "Sander van Roekel",
+              "Danny Makkelie",
+              "Anton Averianov",
+              "Tikhon Kalugin",
+              "Djibril Camara",
+              "Hasan Mohamed Al Mahri",
+              "Milovan Risti\u0107",
+              "Yaser Tulefat",
+              "Gabriel Victoria",
+              "Alexander Guzm\u00e1n"
+            ],
+            "description": "column name: referees_4_name, dtype: object"
+          },
+          {
+            "datamart_id": 127860040,
+            "name": "referees_4_nationality",
+            "semantic_type": [],
+            "description": "column name: referees_4_nationality, dtype: object"
+          },
+          {
+            "datamart_id": 127860041,
+            "name": "referees_5_id",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: referees_5_id, dtype: int64"
+          },
+          {
+            "datamart_id": 127860042,
+            "name": "referees_5_name",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "named_entity": [
+              "Artur Soares Dias",
+              "Mauro Vigliano",
+              "Cl\u00e9ment Turpin",
+              "Paolo Valeri",
+              "Bastian Dankert",
+              "Sandro Ricci",
+              "Mark Borsch",
+              "Carlos Astroza",
+              "Felix Zwayer",
+              "Massimiliano Irrati",
+              "Szymon Marciniak",
+              "Daniele Orsato",
+              "Mark Geiger",
+              "Tiago Martins",
+              "Danny Makkelie",
+              "Roberto D\u00edaz"
+            ],
+            "description": "column name: referees_5_name, dtype: object"
+          },
+          {
+            "datamart_id": 127860043,
+            "name": "referees_5_nationality",
+            "semantic_type": [],
+            "description": "column name: referees_5_nationality, dtype: object"
+          },
+          {
+            "datamart_id": 127860044,
+            "name": "referees_6_id",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: referees_6_id, dtype: int64"
+          },
+          {
+            "datamart_id": 127860045,
+            "name": "referees_6_name",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "named_entity": [
+              "Artur Soares Dias",
+              "Bastian Dankert",
+              "Carlos Astroza",
+              "Joe Fletcher",
+              "Felix Zwayer",
+              "Tiago Martins",
+              "Abdelrahman Al Jassim",
+              "Jair Marrufo",
+              "Roberto D\u00edaz",
+              "Paolo Valeri",
+              "Cl\u00e9ment Turpin",
+              "Gery Vargas",
+              "Corey Rockwell",
+              "Daniele Orsato",
+              "Cyril Gringore",
+              "Hern\u00e1n Maidana",
+              "Sander van Roekel",
+              "Mauro Vigliano",
+              "Pawe\u0142 Gil",
+              "Pawe\u0142 Sokolnicki",
+              "Wilton Pereira Sampaio"
+            ],
+            "description": "column name: referees_6_name, dtype: object"
+          },
+          {
+            "datamart_id": 127860046,
+            "name": "referees_6_nationality",
+            "semantic_type": [],
+            "description": "column name: referees_6_nationality, dtype: object"
+          },
+          {
+            "datamart_id": 127860047,
+            "name": "referees_7_id",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: referees_7_id, dtype: int64"
+          },
+          {
+            "datamart_id": 127860048,
+            "name": "referees_7_name",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "named_entity": [
+              "Artur Soares Dias",
+              "Bastian Dankert",
+              "Carlos Astroza",
+              "Joe Fletcher",
+              "Massimiliano Irrati",
+              "Felix Zwayer",
+              "Elenito Di Liberatore",
+              "Tiago Martins",
+              "Roberto D\u00edaz",
+              "Paolo Valeri",
+              "Gery Vargas",
+              "Marvin Torrentera",
+              "Taleb Salem Al Marri",
+              "Corey Rockwell",
+              "Tevita Makasini",
+              "Mark Borsch",
+              "Emerson Augusto De Carvalho",
+              "Cyril Gringore",
+              "Hern\u00e1n Maidana",
+              "Nicolas Danos",
+              "Sander van Roekel",
+              "Danny Makkelie",
+              "Mauro Vigliano",
+              "Pawe\u0142 Gil",
+              "Pawe\u0142 Sokolnicki",
+              "Simon Lount",
+              "Alexander Guzm\u00e1n"
+            ],
+            "description": "column name: referees_7_name, dtype: object"
+          },
+          {
+            "datamart_id": 127860049,
+            "name": "referees_7_nationality",
+            "semantic_type": [],
+            "description": "column name: referees_7_nationality, dtype: object"
+          },
+          {
+            "datamart_id": 127860050,
+            "name": "referees_8_id",
+            "semantic_type": [
+              "http://schema.org/Integer"
+            ],
+            "description": "column name: referees_8_id, dtype: int64"
+          },
+          {
+            "datamart_id": 127860051,
+            "name": "referees_8_name",
+            "semantic_type": [
+              "http://schema.org/Text"
+            ],
+            "named_entity": [
+              "Artur Soares Dias",
+              "Bastian Dankert",
+              "Sandro Ricci",
+              "Felix Zwayer",
+              "Massimiliano Irrati",
+              "Tiago Martins",
+              "Pau Cebri\u00e1n",
+              "Jair Marrufo",
+              "Cl\u00e9ment Turpin",
+              "Paolo Valeri",
+              "Gery Vargas",
+              "Reza Sokhandan",
+              "Corey Rockwell",
+              "Daniele Orsato",
+              "Gianluca Rocchi",
+              "Jean-Claude Birumushahu",
+              "Danny Makkelie",
+              "Mauro Vigliano",
+              "Pawe\u0142 Gil",
+              "Szymon Marciniak",
+              "Yaser Tulefat",
+              "Mark Geiger",
+              "Wilton Pereira Sampaio"
+            ],
+            "description": "column name: referees_8_name, dtype: object"
+          },
+          {
+            "datamart_id": 127860052,
+            "name": "referees_8_nationality",
+            "semantic_type": [],
+            "description": "column name: referees_8_nationality, dtype: object"
+          }
+        ]
+      },
+      "datamart_id": "127860000"
+    }
+  ]
+}
