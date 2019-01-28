@@ -46,7 +46,7 @@ class QueryManager(ESManager):
             return result["hits"]["hits"]
         return self.scroll_search(body=body, size=size, count=count)
 
-    def scroll_search(self, body: str, size: int, count: int, scroll: str = '1m', **kwargs) -> typing.List[dict]:
+    def scroll_search(self, body: str, size: int, count: int, scroll: str = '5m', **kwargs) -> typing.List[dict]:
         """Scroll search for the case that the result from es is too long.
 
         Args:
@@ -128,23 +128,32 @@ class QueryManager(ESManager):
             }
         }
 
-        for term in terms:
+        # TODO: maybe change the configuration of ES and support longer query will be better
+        max_terms = 1000
+        for term in terms[: max_terms]:
+            # body["nested"]["query"]["bool"]["should"].append(
+            #     {
+            #         "match_phrase": {
+            #             key: {
+            #                 "query": term.lower(),
+            #                 "_name": term.lower()
+            #             }
+            #         }
+            #     }
+            # )
             body["nested"]["query"]["bool"]["should"].append(
                 {
                     "match_phrase": {
-                        key: {
-                            "query": term.lower(),
-                            "_name": term.lower()
-                        }
+                        key: term.lower()
                     }
                 }
             )
-
+        total_len = min(len(terms), max_terms)
         if minimum_should_match:
-            body["nested"]["query"]["bool"]["minimum_should_match"] = math.ceil(minimum_should_match * len(terms))
+            body["nested"]["query"]["bool"]["minimum_should_match"] = math.ceil(minimum_should_match * total_len)
         else:
             body["nested"]["query"]["bool"]["minimum_should_match"] = math.ceil(
-                QueryManager.MINIMUM_SHOULD_MATCH_RATIO * len(terms))
+                QueryManager.MINIMUM_SHOULD_MATCH_RATIO * total_len)
 
         return body
 

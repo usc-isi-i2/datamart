@@ -10,7 +10,9 @@ class JSONQueryManager(QueryManager):
     GENERIC_ENTITY = "generic_entity"
 
     @classmethod
-    def parse_json_query(cls, json_query: dict, df: DataFrame=None) -> typing.Optional[str]:
+    def parse_json_query(cls, json_query: dict,
+                         df: DataFrame=None,
+                         return_named_entity: bool=False) -> typing.Optional[str]:
         # conjunction of dataset constrains and required_variables hit and desired_variable hit:
         outer_must = []
 
@@ -76,6 +78,10 @@ class JSONQueryManager(QueryManager):
             full_query = {
                 "query": cls.conjunction_query(outer_must)
             }
+            if not return_named_entity:
+                full_query['_source'] = {
+                    "excludes": [ "variables.named_entity" ]
+                }
             # print(json.dumps(full_query, indent=2))
             return json.dumps(full_query)
 
