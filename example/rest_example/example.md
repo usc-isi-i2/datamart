@@ -1,7 +1,7 @@
 
 ### Example of querying current rest service to augment a fake taxi example dataset
 
-#### There is a service running on dsbox02.isi.edu:9001
+#### There is a service running on dsbox02.isi.edu:9002
 
 #### RESTful APIs - Basics:
 
@@ -14,7 +14,7 @@
 - example:
     ```angular2html
     curl -X POST \
-      https://dsbox02.isi.edu:9001/new/search_data 
+      https://dsbox02.isi.edu:9002/new/search_data 
       -H 'content-type: multipart/form-data' \
       -F data=@datamart/example/fifa_example/fifa.csv \
       -F query=@datamart/example/fifa_example/fifa_query.json
@@ -44,7 +44,7 @@
 - example:
     ```angular2html
     curl -X GET \
-      'https://dsbox02.isi.edu:9001/new/materialize_data?datamart_id=127860000'
+      'https://dsbox02.isi.edu:9002/new/materialize_data?datamart_id=127860000'
     ```
 - [sample response](materialize_response.json)
     ```angular2html
@@ -67,7 +67,7 @@
 - example:
     ```angular2html
     curl -X POST \
-      https://dsbox02.isi.edu:9001/new/join_data \
+      https://dsbox02.isi.edu:9002/new/join_data \
       -H 'content-type: multipart/form-data' \
       -F left_data=@datamart/example/fifa_example/fifa.csv \
       -F right_data=127860000 \
@@ -122,7 +122,7 @@ If you would like to index a new dataset into ISI-datamart, there are two method
 - example:
     ```angular2html
     curl -X POST \
-      https://dsbox02.isi.edu:9001/new/get_metadata_single_file \
+      https://dsbox02.isi.edu:9002/new/get_metadata_single_file \
       -H 'Content-Type: application/json' \
       -d '{
         "materialization_arguments": {
@@ -150,7 +150,7 @@ If you would like to index a new dataset into ISI-datamart, there are two method
 - example:
     ```angular2html
     curl -X POST \
-      https://dsbox02.isi.edu:9001/new/get_metadata_extract_links \
+      https://dsbox02.isi.edu:9002/new/get_metadata_extract_links \
       -H 'Content-Type: application/json' \
       -d '{
         "url": "https://sample-videos.com/download-sample-xls.php"
@@ -181,7 +181,7 @@ If you would like to index a new dataset into ISI-datamart, there are two method
 - example:
     ```angular2html
     curl -X POST \
-      https://dsbox02.isi.edu:9001/new/upload_metadata_list \
+      https://dsbox02.isi.edu:9002/new/upload_metadata_list \
       -H 'Content-Type: application/json' \
       -d '{
         "metadata":     {
