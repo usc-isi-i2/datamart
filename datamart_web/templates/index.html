@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ISI-datamart</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+<style>
+    div.meta-container {
+        margin-bottom: 20px;
+    }
+    textarea.meta {
+        height: 200px;
+        width: 90%;
+    }
+    textarea.meta + button {
+        width: 90%;
+    }
+    input {
+        font-size: 15px;
+        font-weight: bolder;
+        width: 340px;
+    }
+    p {
+        margin-bottom: 3px;
+        margin-top: 5px;
+    }
+    div.row {
+        width: 100%;
+    }
+    div.left {
+        display: inline-block;
+        width: 400px;
+        height: 500px;
+        vertical-align: top;
+    }
+    div.right {
+        display: inline-block;
+        width: calc(100% - 410px);
+        height: 500px;
+        vertical-align: top;
+        white-space: pre-wrap;
+        overflow: scroll;
+        border: 1px solid #eee;
+    }
+    h4 {
+        margin-top: 10px;
+        margin-bottom: 3px;
+    }
+    button {
+        font-size: 14px;
+        font-weight: bold;
+    }
+    input:disabled, button:disabled {
+        color: #eeeeee;
+        cursor: not-allowed;
+    }
+
+</style>
+    <div>
+        <div class="row">
+            <div class="left">
+                <h3> Search </h3>
+                <form id="searchbanner" enctype="multipart/form-data" method="post" action="/new/search_data">
+                    <ul>
+                        <li>
+                            <h4>Query JSON</h4>
+                            <p>Please upload a description json for your target datasets
+                                <a href="https://datadrivendiscovery.org/wiki/display/work/Query+input+samples">(see examples)</a>:
+                            </p>
+                            <input name="query" type="file" />
+                            <br />
+                        </li>
+                        <li>
+                            <h4>Supplied DATA</h4>
+                            <p>
+                                Please upload the data(csv file) you would like to augment:
+                            </p>
+                            <input name="data" type="file" />
+                            <br />
+                        </li>
+                        <li>
+                            <input type="submit" value="submit" id="submit-search" />
+                        </li>
+                    </ul>
+                </form>
+            </div>
+            <div class="right" id="search-results" >
+            </div>
+        </div>
+
+        <br />
+        <br />
+
+        <div class="row">
+            <div class="left">
+                <h3> Join </h3>
+                <form id="joinbanner" enctype="multipart/form-data" method="post" action="/new/join_data">
+                    <ul>
+                        <li>
+                            <h4>Supplied DATA</h4>
+                            <p>
+                                The supplied data(csv file you would like to augment):
+                            </p>
+                            <input name="left_data" type="file" />
+                            <br />
+                        </li>
+                        <li>
+                            <h4>Augment Data "datamart_id"</h4>
+                            <p>The Datamart ID for the augmentation data</p>
+                            <input type="text" name="right_data" />
+                        </li>
+                        <li>
+                            <h4>Supplied Data Joining Columns</h4>
+                            <p>The columns indices sequence to join(e.g. <strong>[[0]]</strong>)</p>
+                            <input type="text" name="left_columns" />
+                        </li>
+                        <li>
+                            <h4>Augment Data Joining Columns</h4>
+                            <p>The columns indices sequence to join(e.g. <strong>[[0]]</strong>)</p>
+                            <input type="text" name="right_columns" />
+                        </li>
+                        <li>
+                            <input type="submit" value="submit" id="submit-join" />
+                        </li>
+                    </ul>
+                </form>
+
+            </div>
+            <div class="right" id="join-results">
+            </div>
+        </div>
+
+        <br />
+        <br />
+        <div class="row">
+            <div class="left">
+            <h3> Upload Multiple Files </h3>
+
+            <form id="uploadmultibanner" enctype="application/json" method="post" action="/new/get_metadata_extract_links">
+                <ul>
+                    <li>
+                        <p>
+                            <h4>URL</h4>
+                            <p>Please input the url you would like to extract file links from:
+                            <strong>[Required]</strong>
+                            </p>
+                        </p>
+                        <input name="url" />
+                    </li>
+                    <li>
+                        <p>When submitted, please wait for a while until you got a json response with
+                            success/fail message and the metadata generated</p>
+                        <input type="submit" value="submit" id="submit-multi" />
+                    </li>
+                    <li>
+                        <p>Check or modify the returned metadata, if you would like to index it into ISI-Datamart,
+                            click on the corresponding <strong>upload</strong> button.</p>
+                    </li>
+                </ul>
+            </form>
+
+            </div>
+            <div class="right" id="multi-results">
+            </div>
+        </div>
+
+        <br />
+        <br />
+
+        <div class="row">
+            <div class="left">
+                <h3> Upload Single File </h3>
+                <form id="uploadsinglebanner" enctype="application/json" method="post" action="/new/get_metadata_single_file">
+                    <p>
+                        <span>Please upload a description json for your dataset</span>
+                        <a
+                                href="https://datadrivendiscovery.org/wiki/display/work/Datamart+user+upload+dataset+API"
+                        >(see explain)</a>:
+                    </p>
+                    <ul>
+                        <li>
+                            <h4>URL[Required]</h4>
+                            <p>The url for downloading the data file(or extracting the html table)
+                            </p>
+                            <input name="url" />
+                        </li>
+                        <li>
+                            <h4>File Type[Optional]</h4>
+                            <p>one of <strong>"csv", "excel", "html"</strong>
+                            </p>
+                            <input name="file_type" />
+                        </li>
+                        <li>
+                            <h4>Title[Optional]</h4>
+                            <input name="title" />
+                        </li>
+                        <li>
+                            <h4>Description[Optional]</h4>
+                            <input name="description" />
+                        </li>
+                        <li>
+                            <p>When submitted, please wait for a while until you got a json response with
+                                success/fail message and the metadata generated</p>
+                            <input type="submit" value="submit" id="submit-single" />
+                        </li>
+                        <li>
+                            <p>Check or modify the returned metadata, if you would like to index it into ISI-Datamart,
+                                click on the corresponding <strong>upload</strong> button.</p>
+                        </li>
+                    </ul>
+                </form>
+                </div>
+            <div class="right" id="single-results">
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        $("#searchbanner").submit(function(e) {
+            console.log('SUBMIT');
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+
+            // disabled the submit button
+            $("#submit-search").prop("disabled", true).text('Searching ...');
+
+            $.ajax({
+                type: $(this).attr('method'),
+                enctype: $(this).attr('enctype'),
+                url: $(this).attr('action'),
+                data: new FormData($(this)[0]),
+                processData: false,
+                cache: false,
+                contentType: false,
+                timeout: 600000,
+                complete: function (response) {
+                    var results = JSON.parse(response.responseText);
+                    console.log(results);
+                    var { code, message, data } = results;
+                    if(code === '0000') {
+                        console.log("SUCCESS");
+                        for (i = 0; i < data.length; i++){
+                          $("#search-results").append("<p>" + data[i].summary + "</p>");
+                        }
+                    }
+
+                    $("#submit-search").prop("disabled", false).text('submit');
+                }
+            });
+
+        });
+
+
+
+        $("#joinbanner").submit(function(e) {
+            console.log('SUBMIT JOIN');
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+
+            // disabled the submit button
+            $("#submit-join").prop("disabled", true).text('Joining ...');
+
+            $.ajax({
+                type: $(this).attr('method'),
+                enctype: $(this).attr('enctype'),
+                url: $(this).attr('action'),
+                data: new FormData($(this)[0]),
+                processData: false,
+                cache: false,
+                contentType: false,
+                timeout: 600000,
+                complete: function (response) {
+                    var results = JSON.parse(response.responseText);
+                    console.log(results);
+                    var { code, message, data } = results;
+                    if(code === '0000') {
+                        console.log("SUCCESS");
+                        $("#join-results").append(parseCSV(data));
+                    }
+
+                    $("#submit-join").prop("disabled", false).text('submit');
+                }
+            });
+
+        });
+
+
+
+        $("#uploadmultibanner").submit(function(e) {
+            console.log('SUBMIT upload multi');
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+
+            // disabled the submit button
+            $("#submit-multi").prop("disabled", true).text('Generating metadata ...');
+
+            var kv = $(this).serializeArray()[0];
+            var data_payload = {};
+            data_payload[kv.name] = kv.value;
+
+
+            $.ajax({
+                type: $(this).attr('method'),
+                enctype: $(this).attr('enctype'),
+                url: $(this).attr('action'),
+                data: JSON.stringify(data_payload),
+                dataType: "json",
+                contentType: "application/json",
+                timeout: 600000,
+                complete: function (response) {
+                    var results = JSON.parse(response.responseText);
+                    console.log(results);
+                    var { code, message, data } = results;
+                    if(code === '0000') {
+                        console.log("SUCCESS", data);
+                        $("#multi-results").append(parseMetaList(data));
+                    }
+
+                    $("#submit-multi").prop("disabled", false).text('submit');
+                }
+            });
+
+        });
+
+        $("#uploadsinglebanner").submit(function(e) {
+            console.log('SUBMIT upload single');
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+
+            // disabled the submit button
+            $("#submit-single").prop("disabled", true).text('Generating metadata ...');
+
+            var kv = $(this).serializeArray();
+
+            var data_payload = {"materialization_arguments": {}};
+            kv.forEach(function(single_kv){
+                if(single_kv.value && single_kv.value.length) {
+                    if(single_kv.name === "url" || single_kv.name === "file_type"){
+                        data_payload.materialization_arguments[single_kv.name] = single_kv.value;
+                    } else {
+                        data_payload[single_kv.name] = single_kv.value;
+                    }
+                }
+            });
+            console.log(data_payload);
+
+            $.ajax({
+                type: $(this).attr('method'),
+                enctype: $(this).attr('enctype'),
+                url: $(this).attr('action'),
+                data: JSON.stringify(data_payload),
+                dataType: "json",
+                contentType: "application/json",
+                timeout: 600000,
+                complete: function (response) {
+                    var results = JSON.parse(response.responseText);
+                    console.log(results);
+                    var { code, message, data } = results;
+                    if(code === '0000') {
+                        console.log("SUCCESS", data);
+                        $("#single-results").append(parseMetaList(data));
+                    }
+
+                    $("#submit-single").prop("disabled", false).text('submit');
+                }
+            });
+
+        });
+
+
+        function parseCSV(data) {
+            // start the table
+            var html = "<table>";
+
+            // split into lines
+            var rows = data.split("\n");
+
+            // parse lines
+            rows.forEach( function getvalues(ourrow) {
+
+                // start a table row
+                html += "<tr>";
+
+                // split line into columns
+                var columns = ourrow.split(",");
+
+                columns.forEach(function(col){
+                    html += "<td>" + col + "</td>";
+                });
+
+                // close row
+                html += "</tr>";
+            });
+            // close table
+            html += "</table>";
+
+            return html;
+        }
+
+        function uploadMeta(idx) {
+            console.log(`textarea#meta${idx}`);
+            var selecterStr = `textarea#meta${idx}`;
+            var metaStr = $(selecterStr).val();
+            var data_payload = `{"metadata": [${metaStr}]}`;
+
+            $(`#upload${idx}`).prop("disabled", true).text('UPLOADING ... ');
+
+            $.ajax({
+                type: 'post',
+                url: '/new/upload_metadata_list',
+                data: data_payload,
+                dataType: "json",
+                contentType: "application/json",
+                timeout: 600000,
+                complete: function (response) {
+                    var results = JSON.parse(response.responseText);
+                    var { code, message, data } = results;
+                    if(code === '0000') {
+                        console.log("SUCCESS", data);
+                        $(selecterStr).val(JSON.stringify(data[0], null, 2));
+                        $(`#upload${idx}`).prop("disabled", true)
+                            .text(`UPLOADED SUCCESSFULLY [datamart_id: ${data[0].datamart_id}]`);
+                    } else {
+                        $(`#upload${idx}`).prop("disabled", false).text('upload');
+                    }
+
+                }
+            });
+
+        }
+
+
+        function parseMeta(data, idx) {
+            // start the table
+            var html = `<div class="meta-container"><textarea id="meta${idx}" class="meta">`;
+
+            var meta = JSON.stringify(data, null, 2);
+            html += meta;
+
+            html += `</textarea><button onclick="uploadMeta(${idx})" id="upload${idx}" >upload</button></div>`;
+
+            return html;
+        }
+
+        function parseMetaList(data) {
+            var metalist = data.flat();
+            var html = "<div>";
+            metalist.forEach(function(meta, idx) {
+                html += parseMeta(meta, idx);
+            });
+            html += "</div>";
+            return html;
+        }
+
+    </script>
+
+</body>
+</html>

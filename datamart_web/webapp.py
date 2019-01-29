@@ -7,7 +7,7 @@ import spacy
 
 sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 from datamart_web.src.search_metadata import SearchMetadata
 from datamart_web.src.join_datasets import JoinDatasets
 
@@ -61,33 +61,16 @@ class WebApp(Flask):
         def hello():
             return 'Datamart Web Service!'
 
-        @self.route('/search/default_search', methods=['POST'])
-        def default_search():
-            print(request.files['file'])
-            old_df = pd.read_csv(request.files['file']).infer_objects()
-            if old_df is None or old_df.empty:
-                return json.dumps({
-                    "message": "Failed to create Dataframe from csv, nothing found"
-                })
-            self.old_df = old_df
-            print('returning')
-            return json.dumps(self.search_metadata.default_search_by_csv(request=request, old_df=self.old_df))
-
-        @self.route('/augment/default_join', methods=['POST'])
-        def default_join():
-            if self.old_df is None or self.old_df.empty:
-                return json.dumps({
-                    "message": "Failed to join, no dataset uploaded"
-                })
-            return self.join_datasets.default_join(request=request, old_df=self.old_df)
-
-        # ----- All APIs below are for the new APIs from 2019 winter workshop -----
         @self.route('/new/search_data', methods=['POST'])
         def search_data():
             try:
                 query = self.read_file(request.files, 'query', 'json')
                 data = self.read_file(request.files, 'data', 'csv')
-                res = search(SEARCH_URL, query, data, max_return_docs=10)
+                max_return_docs = int(request.args.get('max_return_docs')) if request.args.get('max_return_docs') else 10
+                return_named_entity = False
+                if request.args.get('return_named_entity') and request.args.get('return_named_entity').lower() != "false":
+                    return_named_entity = True
+                res = search(SEARCH_URL, query, data, max_return_docs=max_return_docs, return_named_entity=return_named_entity)
                 results = []
                 for r in res:
                     cur = {
@@ -172,6 +155,20 @@ class WebApp(Flask):
                 return self.wrap_response('0000', data=succeed)
             except Exception as e:
                 return self.wrap_response('1000', msg="FAIL UPLOAD - " + str(e))
+
+        # ----- gui for upload -----
+        @self.route('/gui', methods=['GET'])
+        def gui_index():
+            return render_template("index.html")
+
+        # def get_metadata_extract_links():
+        #     try:
+        #         url = request.json.get('url')
+        #         description = request.json.get('description')
+        #         metadata_lists = bulk_generate_metadata(html_page=url, description=description)
+        #         return self.wrap_response('0000', data=metadata_lists)
+        #     except Exception as e:
+        #         return self.wrap_response('1000', msg="FAIL METADATA GENERATION - " + str(e))
 
         return self
 
