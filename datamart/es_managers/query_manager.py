@@ -131,23 +131,23 @@ class QueryManager(ESManager):
         # TODO: maybe change the configuration of ES and support longer query will be better
         max_terms = 1000
         for term in terms[: max_terms]:
-            # body["nested"]["query"]["bool"]["should"].append(
-            #     {
-            #         "match_phrase": {
-            #             key: {
-            #                 "query": term.lower(),
-            #                 "_name": term.lower()
-            #             }
-            #         }
-            #     }
-            # )
             body["nested"]["query"]["bool"]["should"].append(
                 {
                     "match_phrase": {
-                        key: term.lower()
+                        key: {
+                            "query": term.lower(),
+                            "_name": term.lower()
+                        }
                     }
                 }
             )
+            # body["nested"]["query"]["bool"]["should"].append(
+            #     {
+            #         "match_phrase": {
+            #             key: term.lower()
+            #         }
+            #     }
+            # )
         total_len = min(len(terms), max_terms)
         if minimum_should_match:
             body["nested"]["query"]["bool"]["minimum_should_match"] = math.ceil(minimum_should_match * total_len)
