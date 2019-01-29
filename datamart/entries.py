@@ -8,7 +8,12 @@ import d3m.container.dataset as d3m_ds
 from datamart.utilities.utils import Utils
 
 
-def search(url: str, query: dict, data: pd.DataFrame or str or d3m_ds.Dataset=None, send_data=True, max_return_docs: int=10) -> typing.List[Dataset]:
+def search(url: str,
+           query: dict,
+           data: pd.DataFrame or str or d3m_ds.Dataset=None,
+           send_data=True,
+           max_return_docs: int=10,
+           return_named_entity: bool=False) -> typing.List[Dataset]:
     """
     Follow the API defined by https://datadrivendiscovery.org/wiki/display/work/Python+API
 
@@ -34,7 +39,9 @@ def search(url: str, query: dict, data: pd.DataFrame or str or d3m_ds.Dataset=No
     es_results = []
     if (query and ('required_variables' in query)) or (loaded_data is None):
         # if ("required_variables" exists or no data):
-        es_results = augmenter.query_by_json(query, loaded_data, size=max_return_docs) or []
+        es_results = augmenter.query_by_json(query, loaded_data,
+                                             size=max_return_docs,
+                                             return_named_entity=return_named_entity) or []
     else:
         # if there is no "required_variables" in the query JSON, but the dataset exists,
         # try each named entity column as "required_variables" and concat the results:
@@ -46,7 +53,9 @@ def search(url: str, query: dict, data: pd.DataFrame or str or d3m_ds.Dataset=No
                     "type": "dataframe_columns",
                     "names": [col]
                 }]
-                for res in augmenter.query_by_json(query, loaded_data, size=max_return_docs):
+                for res in augmenter.query_by_json(query, loaded_data,
+                                                   size=max_return_docs,
+                                                   return_named_entity=return_named_entity):
                     if res['_id'] not in exist:
                         # TODO: how about the score ??
                         exist.add(res['_id'])

@@ -5,10 +5,11 @@ from datamart.index_builder import IndexBuilder
 from datamart.utilities.html_processer import HTMLProcesser, FILE_BLACK_LIST, TITLE_BLACK_LIST
 from datamart.utilities.utils import Utils, ES_HOST, ES_PORT, PRODUCTION_ES_INDEX
 from datamart.materializers.general_materializer import GeneralMaterializer
+from datamart.materializers.parsers.html_parser import HTMLParser
 from datamart.es_managers.query_manager import QueryManager
 
 
-def generate_metadata(description: dict) -> typing.List[dict]:
+def generate_metadata(description: dict, ignore_html=False) -> typing.List[dict]:
     """
     Step 1 for indexing, user provide a description with url for materializing,
     datamart will try to generate metadata, by materializing, profiling the data,
@@ -31,6 +32,10 @@ def generate_metadata(description: dict) -> typing.List[dict]:
         file_suffix = file_name[1].split('#', 1)[0]
         if file_suffix.lower() in FILE_BLACK_LIST:
             return []
+        if ignore_html:
+            parser = GeneralMaterializer().type2parser.get(file_suffix.lower())
+            if isinstance(parser, HTMLParser) or parser is None:
+                return []
 
     file_name = file_name[0].replace('-', ' ').replace('_', ' ')
     if not description.get('title'):
@@ -95,7 +100,8 @@ def bulk_generate_metadata(html_page: str,
             if not cur_description.get('description'):
                 cur_description['description'] = html_meta
             cur_description['materialization_arguments'] = {'url': href}
-            cur_metadata = generate_metadata(cur_description)
+            # Not to extract html tables, otherwise there will be too many FPs:
+            cur_metadata = generate_metadata(cur_description, ignore_html=True)
             if cur_metadata:
                 successed.append(cur_metadata)
         except Exception as e:

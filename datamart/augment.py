@@ -27,7 +27,9 @@ class Augment(object):
 
     def query_by_json(self,
                       json_query: dict,
-                      dataset: pd.DataFrame=None, **kwargs
+                      dataset: pd.DataFrame=None,
+                      return_named_entity: bool=False,
+                      **kwargs
                       ) -> typing.Optional[typing.List[dict]]:
         """
 
@@ -41,7 +43,7 @@ class Augment(object):
         """
 
         if json_query:
-            query_body = self.qm.parse_json_query(json_query, dataset)
+            query_body = self.qm.parse_json_query(json_query, dataset, return_named_entity=return_named_entity)
             if query_body:
                 results = self.qm.search(body=query_body, **kwargs)
                 return results
