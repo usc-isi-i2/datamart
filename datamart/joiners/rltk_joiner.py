@@ -94,7 +94,7 @@ class RLTKJoiner(JoinerBase):
         return res
 
     @staticmethod
-    def simple_best_matches(sim: typing.List[typing.List[float]], threshold=0.8):
+    def simple_best_matches(sim: typing.List[typing.List[float]], threshold=0.5):
         res = []
         for idx, v in enumerate(sim):
             cur = []
@@ -108,8 +108,8 @@ class RLTKJoiner(JoinerBase):
     def get_remain_list(df: pd.DataFrame, columns_2d: typing.List[typing.List[int]]):
         all_columns = list(range(df.shape[1]))
         columns_1d = [item for sublist in columns_2d for item in sublist]
-        remianing = [_ for _ in all_columns if _ not in columns_1d]
-        return remianing
+        remaining = [_ for _ in all_columns if _ not in columns_1d]
+        return remaining
 
 
 

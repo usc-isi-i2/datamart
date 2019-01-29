@@ -90,6 +90,9 @@ class NonCategoricalStringFeature(FeatureBase):
         self._string_type = StringType.WORD
         # more profiled info needed ...
 
+    def value_merge_func(self, record: Record):
+        return [getattr(record, header).replace('_', ' ') for header in self._headers]
+
     def similarity_functions(self):
         return NonCategoricalStringFeature.function_mapping[self._string_type]
 
