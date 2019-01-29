@@ -11,6 +11,9 @@
 - body`form-data`: two files, one for query json, the other for supplied data(csv, optional)
     - `query`: file, json file following [query schema](https://datadrivendiscovery.org/wiki/pages/viewpage.action?spaceKey=work&title=Datamart+Query+API)
     - `data`: file, csv file (optional)
+- params: 
+    - `max_return_docs`: a number for the maximum number of search results will be returned(default is 10)
+    - `return_named_entity`: `true` or `false` for if return the `named_entity` (default is false)
 - example:
     ```angular2html
     curl -X POST \
