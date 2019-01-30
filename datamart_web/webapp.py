@@ -66,6 +66,8 @@ class WebApp(Flask):
             try:
                 query = self.read_file(request.files, 'query', 'json')
                 data = self.read_file(request.files, 'data', 'csv')
+                if not query and request.form.get('query_json'):
+                    query = json.loads(request.form.get('query_json'))
                 max_return_docs = int(request.args.get('max_return_docs')) if request.args.get('max_return_docs') else 10
                 return_named_entity = False
                 if request.args.get('return_named_entity') and request.args.get('return_named_entity').lower() != "false":

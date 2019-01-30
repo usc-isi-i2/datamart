@@ -7,6 +7,13 @@
 </head>
 <body>
 <style>
+    textarea#query_json {
+        width: 90%;
+        height: 200px;
+        font-size: 14px;
+        font-weight: bold;
+        color: #0f0f54;
+    }
     div.meta-container {
         margin-bottom: 20px;
     }
@@ -57,6 +64,7 @@
         cursor: not-allowed;
     }
 
+
 </style>
     <div>
         <div class="row">
@@ -64,12 +72,20 @@
                 <h3> Search </h3>
                 <form id="searchbanner" enctype="multipart/form-data" method="post" action="/new/search_data">
                     <ul>
+{#                        <li>#}
+{#                            <h4>Query JSON</h4>#}
+{#                            <p>Please upload a description json for your target datasets#}
+{#                                <a href="https://datadrivendiscovery.org/wiki/display/work/Query+input+samples">(see examples)</a>:#}
+{#                            </p>#}
+{#                            <input name="query" type="file" />#}
+{#                            <br />#}
+{#                        </li>#}
                         <li>
                             <h4>Query JSON</h4>
-                            <p>Please upload a description json for your target datasets
+                            <p>Please construct the query json here
                                 <a href="https://datadrivendiscovery.org/wiki/display/work/Query+input+samples">(see examples)</a>:
                             </p>
-                            <input name="query" type="file" />
+                            <textarea name="query_json" id="query_json"></textarea>
                             <br />
                         </li>
                         <li>
@@ -240,9 +256,11 @@
                     console.log(results);
                     var { code, message, data } = results;
                     if(code === '0000') {
+                        var result_container = $("#search-results");
+                        result_container.empty();
                         console.log("SUCCESS");
                         for (i = 0; i < data.length; i++){
-                          $("#search-results").append("<p>" + data[i].summary + "</p>");
+                          result_container.append("<p>" + data[i].summary + "</p>");
                         }
                     }
 
@@ -276,7 +294,9 @@
                     var { code, message, data } = results;
                     if(code === '0000') {
                         console.log("SUCCESS");
-                        $("#join-results").append(parseCSV(data));
+                        var result_container = $("#join-results");
+                        result_container.empty();
+                        result_container.append(parseCSV(data));
                     }
 
                     $("#submit-join").prop("disabled", false).text('submit');
@@ -313,7 +333,9 @@
                     var { code, message, data } = results;
                     if(code === '0000') {
                         console.log("SUCCESS", data);
-                        $("#multi-results").append(parseMetaList(data));
+                        var result_container = $("#multi-results");
+                        result_container.empty();
+                        result_container.append(parseMetaList(data));
                     }
 
                     $("#submit-multi").prop("disabled", false).text('submit');
@@ -357,7 +379,9 @@
                     var { code, message, data } = results;
                     if(code === '0000') {
                         console.log("SUCCESS", data);
-                        $("#single-results").append(parseMetaList(data));
+                        var result_container = $("#single-results");
+                        result_container.empty();
+                        result_container.append(parseMetaList(data));
                     }
 
                     $("#submit-single").prop("disabled", false).text('submit');
