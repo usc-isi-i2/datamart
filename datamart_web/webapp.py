@@ -92,7 +92,12 @@ class WebApp(Flask):
         def materialize_data():
             try:
                 datamart_id = int(request.args.get('datamart_id'))
-                meta, df = DataLoader.load_meta_and_data_by_id(datamart_id)
+                first_n_rows = None
+                try:
+                    first_n_rows = int(request.args.get('first_n_rows'))
+                except:
+                    pass
+                meta, df = DataLoader.load_meta_and_data_by_id(datamart_id, first_n_rows)
                 csv = df.to_csv(index=False)
                 return self.wrap_response('0000', data=csv)
             except Exception as e:

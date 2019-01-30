@@ -42,12 +42,13 @@
 ##### 2. materialize
 - route: `/new/materialize_data`
 - methods: `GET`
-- params: one param for datamart_id
+- params: one param for datamart_id, and an optional param to return the first several rows only
     - `datamart_id`: the datamart_id of the data you would like to materialize
+    - `first_n_rows`: int, if you would like to get only the first several rows of the dataset rather than all of them
 - example:
     ```angular2html
     curl -X GET \
-      'https://dsbox02.isi.edu:9000/new/materialize_data?datamart_id=127860000'
+      'https://dsbox02.isi.edu:9000/new/materialize_data?datamart_id=127860000&first_n_rows=10'
     ```
 - [sample response](materialize_response.json)
     ```angular2html
@@ -82,7 +83,7 @@
     ***`exact_match` uses `pandas` left-merge, may return a table with more rows when there is multiple rows in the right dataset matched one row in the left dataset**
     
     ***Fuzzy match will return a dataset has exactly the same number of rows as the left dataset**
-- [sample response](materialize_response.json)
+- [sample response](join_response.json)
     ```angular2html
     {
       "code": "0000",
