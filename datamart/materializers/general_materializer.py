@@ -12,6 +12,9 @@ class GeneralMaterializer(MaterializerBase):
             'csv': CSVParser,
             'json': JSONParser,
             'xls': ExcelParser,
+            'xlsb': ExcelParser,
+            'xlsm': ExcelParser,
+            'xlsx': ExcelParser,
             'excel': ExcelParser,
             'asp': HTMLParser,
             'html': HTMLParser
