@@ -5,6 +5,7 @@ import typing
 from datamart.utilities.utils import Utils, ES_HOST, ES_PORT
 from datamart.joiners.joiner_base import JoinerPrepare
 import warnings
+from itertools import chain
 
 
 class Augment(object):
@@ -179,8 +180,12 @@ class Augment(object):
         if not right_metadata:
             right_metadata = Utils.generate_metadata_from_dataframe(data=right_df)
 
-        left_metadata = Utils.calculate_dsbox_features(data=left_df, metadata=left_metadata)
-        right_metadata = Utils.calculate_dsbox_features(data=right_df, metadata=right_metadata)
+        # Only profile the joining columns, otherwise it will be too slow:
+        left_metadata = Utils.calculate_dsbox_features(data=left_df, metadata=left_metadata,
+                                                       selected_columns=set(chain.from_iterable(left_columns)))
+
+        right_metadata = Utils.calculate_dsbox_features(data=right_df, metadata=right_metadata,
+                                                        selected_columns=set(chain.from_iterable(right_columns)))
 
         return self.joiners[joiner].join(left_df=left_df,
                                          right_df=right_df,

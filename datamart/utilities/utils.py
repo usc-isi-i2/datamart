@@ -330,7 +330,8 @@ class Utils:
         return df.infer_objects()
 
     @staticmethod
-    def calculate_dsbox_features(data: pd.DataFrame, metadata: typing.Union[dict, None]) -> dict:
+    def calculate_dsbox_features(data: pd.DataFrame, metadata: typing.Union[dict, None],
+                                 selected_columns: typing.Set[int] = None) -> dict:
         """Calculate dsbox features, add to metadata dictionary
 
          Args:
@@ -344,7 +345,7 @@ class Utils:
         from datamart.profilers.dsbox_profiler import DSboxProfiler
         if not metadata:
             return metadata
-        return DSboxProfiler().profile(inputs=data, metadata=metadata)
+        return DSboxProfiler().profile(inputs=data, metadata=metadata, selected_columns=selected_columns)
 
     @classmethod
     def generate_metadata_from_dataframe(cls, data: pd.DataFrame) -> dict:
