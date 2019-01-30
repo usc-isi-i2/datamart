@@ -122,14 +122,13 @@ class Dataset:
 
     @property
     def summary(self):
-        return """ - SUMMARY OF THE DATAMART DATASET -
- * Datamart ID: {datamart_id}
- * Score: {score}
- * Title: {title}
- * Description: {description}
- * URL: {url}
- * Columns: {columns}
- * Recommend Join Columns: {recommend_join}
+        return """ - {title} -
+    * Datamart ID: {datamart_id}
+    * Score: {score}
+    * Description: {description}
+    * URL: {url}
+    * Columns: {columns}
+    * Recommend Join Columns: {recommend_join}
         """.format(datamart_id=self.id,
                    score=self.score,
                    title=self.metadata.get('title', ''),

@@ -53,9 +53,12 @@ def search(url: str,
                     "type": "dataframe_columns",
                     "names": [col]
                 }]
-                for res in augmenter.query_by_json(query, loaded_data,
+                cur_results = augmenter.query_by_json(query, loaded_data,
                                                    size=max_return_docs,
-                                                   return_named_entity=return_named_entity):
+                                                   return_named_entity=return_named_entity)
+                if not cur_results:
+                    continue
+                for res in cur_results:
                     if res['_id'] not in exist:
                         # TODO: how about the score ??
                         exist.add(res['_id'])
