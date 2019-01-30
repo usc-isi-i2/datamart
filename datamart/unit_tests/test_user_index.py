@@ -35,21 +35,13 @@ class TestUserIndex(unittest.TestCase):
                     'datamart_id': _id + 1,
                     'semantic_type': [],
                     'name': 'Parent Identifier',
-                    'description': 'column name: Parent Identifier, dtype: int64',
-                    'temporal_coverage': {
-                        'start': '1001-01-04T00:00:00',
-                        'end': '1010-01-04T00:00:00'
-                    }
+                    'description': 'column name: Parent Identifier, dtype: int64'
                 },
                 {
                     'datamart_id': _id + 2,
                     'semantic_type': [],
                     'name': 'Student Identifier',
-                    'description': 'column name: Student Identifier, dtype: int64',
-                    'temporal_coverage': {
-                        'start': '1002-01-04T00:00:00',
-                        'end': '1020-01-04T00:00:00'
-                    }
+                    'description': 'column name: Student Identifier, dtype: int64'
                 }
             ],
             'keywords': ['Parent Identifier', 'Student Identifier']
