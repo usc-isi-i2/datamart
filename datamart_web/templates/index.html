@@ -60,7 +60,7 @@
         font-weight: bold;
     }
     input:disabled, button:disabled {
-        color: #eeeeee;
+        color: #888;
         cursor: not-allowed;
     }
 
@@ -235,6 +235,8 @@
     </div>
 
     <script>
+        $("#query_json").val('{\n\t"dataset": {\n\t\t"about": "gold"\n\t}\n}');
+
         $("#searchbanner").submit(function(e) {
             console.log('SUBMIT');
             e.preventDefault(); // avoid to execute the actual submit of the form.
@@ -260,7 +262,32 @@
                         result_container.empty();
                         console.log("SUCCESS");
                         for (i = 0; i < data.length; i++){
-                          result_container.append("<p>" + data[i].summary + "</p>");
+                            const summary = "<p>" + data[i].summary + "</p>";
+                            const _id = data[i].datamart_id;
+                            const _url = `/new/materialize_data?datamart_id=${_id}`;
+                            const materialize = `<button id="materialize${_id}" value="${_url}" >materialize</button>`;
+                            result_container.append(materialize + "<br/>" + summary);
+
+                            const button_selecter = `#materialize${_id}`;
+                            $(button_selecter).click(function (e) {
+                                console.log('materialize');
+                                e.preventDefault(); // avoid to execute the actual submit of the form.
+                                $(this).prop("disabled", true).text('materializing ...');
+                                $.ajax({
+                                    type: "GET",
+                                    url: _url,
+                                    complete: function(response) {
+                                        var results = JSON.parse(response.responseText);
+                                        console.log("success", results);
+                                        var { code, message, data } = results;
+                                        if(code === '0000') {
+                                            alert(parseCSV(data));
+                                        }
+                                        $(button_selecter).prop("disabled", false).text('materializing');
+                                    }
+                                })
+
+                            })
                         }
                     }
 
@@ -474,6 +501,12 @@
             html += "</div>";
             return html;
         }
+
+        {#function expandPopUp(_id, innerHTML) {#}
+        {#    if ($("#" + _id)){#}
+        {##}
+        {#    }#}
+        {#}#}
 
     </script>
 

@@ -110,13 +110,18 @@ class WebApp(Flask):
                     joiner = 'default'
                 else:
                     joiner = 'rltk'
-                joined_df = join(left_data=left_df,
+                join_res = join(left_data=left_df,
                                  right_data=right_id,
                                  left_columns=left_columns,
                                  right_columns=right_columns,
                                  joiner=joiner)
-                joined_csv = joined_df.to_csv(index=False)
-                return self.wrap_response('0000', data=joined_csv)
+                if join_res.df is not None:
+                    joined_csv = join_res.df.to_csv(index=False)
+                    return self.wrap_response('0000', data=joined_csv,
+                                              matched_rows=join_res.matched_rows,
+                                              cover_ratio=join_res.cover_ratio)
+                else:
+                    return self.wrap_response('2000', msg="Failed, invalid inputs")
             except Exception as e:
                 return self.wrap_response('1000', msg="FAIL JOIN - " + str(e))
 
@@ -190,11 +195,12 @@ class WebApp(Flask):
         return self
 
     @staticmethod
-    def wrap_response(code, msg='', data=None):
+    def wrap_response(code, msg='', data=None, **kwargs):
         return json.dumps({
             'code': code,
             'message': msg or ('Success' if code == '0000' else 'Failed'),
-            'data': data
+            'data': data,
+            **kwargs
         }, indent=2, default=lambda x: str(x))
 
 

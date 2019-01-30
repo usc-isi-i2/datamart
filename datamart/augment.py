@@ -4,6 +4,7 @@ import pandas as pd
 import typing
 from datamart.utilities.utils import Utils, ES_HOST, ES_PORT
 from datamart.joiners.joiner_base import JoinerPrepare
+from datamart.joiners.join_result import JoinResult
 import warnings
 from itertools import chain
 
@@ -148,7 +149,7 @@ class Augment(object):
              left_metadata: dict = None,
              right_metadata: dict = None,
              joiner: str = "default"
-             ) -> typing.Optional[pd.DataFrame]:
+             ) -> JoinResult:
 
         """Join two dataframes based on different joiner.
 
@@ -162,7 +163,7 @@ class Augment(object):
               joiner: string of joiner, default to be "default"
 
           Returns:
-               Dataframe
+               JoinResult
           """
 
         if joiner not in self.joiners:
@@ -170,7 +171,7 @@ class Augment(object):
 
         if not self.joiners[joiner]:
             warnings.warn("No suitable joiner, return original dataframe")
-            return left_df
+            return JoinResult(left_df, [])
 
         if not left_metadata:
             # Left df is the user provided one.
@@ -187,10 +188,12 @@ class Augment(object):
         right_metadata = Utils.calculate_dsbox_features(data=right_df, metadata=right_metadata,
                                                         selected_columns=set(chain.from_iterable(right_columns)))
 
-        return self.joiners[joiner].join(left_df=left_df,
+        res = self.joiners[joiner].join(left_df=left_df,
                                          right_df=right_df,
                                          left_columns=left_columns,
                                          right_columns=right_columns,
                                          left_metadata=left_metadata,
                                          right_metadata=right_metadata,
                                          )
+
+        return res

@@ -79,15 +79,30 @@
       -F 'right_columns=[[22], [24]]' \
       -F 'exact_match=true'
     ```
+    ***`exact_match` uses `pandas` left-merge, may return a table with more rows when there is multiple rows in the right dataset matched one row in the left dataset**
+    
+    ***Fuzzy match will return a dataset has exactly the same number of rows as the left dataset**
 - [sample response](materialize_response.json)
     ```angular2html
     {
       "code": "0000",
       "message": "Success",
-      "data": "CSV RESULT HERE"
+      "data": "CSV RESULT HERE",
+      "matched_rows": [1, 3, 2, 0, None],
+      "cover_ratio": 0.8
     }
     ```
+    ***The `matched_row` and `cover_ratio` only available when NOT use `exact_match` for now**
+    - `matched_rows`: which row(index) in the right row is aligned to the each left(row)
+        - e.g. `[1, 3, 2, 0, None]` here means:
+            - left_rows[0] <-matched-> right_rows[1]
+            - left_rows[1] <-matched-> right_rows[3]
+            - left_rows[2] <-matched-> right_rows[2]
+            - left_rows[3] <-matched-> right_rows[0]
+            - left_rows[5] <--- Nothing matched in the right dataset 
+    - `cover_ratio`: how many rows in the left dataset is augmented, in the example above it is 0.8 (4/5).
     
+        
 #### Upload data to ISI-datamart:
 
 If you would like to index a new dataset into ISI-datamart, there are two methods:

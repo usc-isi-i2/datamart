@@ -2,6 +2,7 @@ import pandas as pd
 import typing
 from datamart.joiners.joiner_base import JoinerBase
 from datamart.joiners.join_feature.feature_pairs import FeaturePairs
+from datamart.joiners.join_result import JoinResult
 import rltk
 
 """
@@ -22,7 +23,7 @@ class RLTKJoiner(JoinerBase):
              right_columns: typing.List[typing.List[int]],
              left_metadata: dict,
              right_metadata: dict,
-             ) -> pd.DataFrame:
+             ) -> JoinResult:
         # print(left_metadata)
 
         # step 1 : transform columns
@@ -62,7 +63,7 @@ class RLTKJoiner(JoinerBase):
         # step 3 : check if 1-1, 1-n, n-1, or m-n relations,
         # based on the analyze in step 2 we can basically know if it is one-to-one relation
 
-        return res
+        return JoinResult(res, matched_rows)
 
     def one_to_one_concat(self, matched_rows, left_df, right_df, right_columns):
         right_remain = self.get_remain_list(right_df, right_columns)

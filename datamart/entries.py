@@ -6,6 +6,7 @@ from datamart.augment import Augment
 from datamart.data_loader import DataLoader
 import d3m.container.dataset as d3m_ds
 from datamart.utilities.utils import Utils
+from datamart.joiners.join_result import JoinResult
 
 
 def search(url: str,
@@ -70,7 +71,7 @@ def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset,
             augment_data: Dataset,
             joining_columns: typing.Tuple[typing.List[typing.List[int or str]], typing.List[typing.List[int or str]]]=None,
             joiner="rltk"
-            ) -> pd.DataFrame:
+            ) -> JoinResult:
     """
     Perform the augmentation (either join or union).
     Follow the API defined by https://datadrivendiscovery.org/wiki/display/work/Python+API
@@ -92,7 +93,7 @@ def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset,
             print("FAILED SET JOINING COLUMNS:", e)
 
     if not augment_data.join_columns:
-        return loaded_data
+        return JoinResult(loaded_data, [])
 
     left_cols, right_cols = augment_data.join_columns
     augmenter = Augment(es_index=PRODUCTION_ES_INDEX)
@@ -114,7 +115,7 @@ def join(left_data: pd.DataFrame or str or d3m_ds.Dataset,
          left_columns: typing.List[typing.List[int or str]],
          right_columns: typing.List[typing.List[int or str]],
          joiner="rltk"
-         ) -> typing.Optional[pd.DataFrame]:
+         ) -> JoinResult:
     """
 
     :param left_data: a tabular data
@@ -136,7 +137,7 @@ def join(left_data: pd.DataFrame or str or d3m_ds.Dataset,
         right_df = DataLoader.load_data(right_data)
 
     if not (isinstance(left_df, pd.DataFrame) and isinstance(right_df, pd.DataFrame) and left_columns and right_columns):
-        return left_df
+        return JoinResult(left_df, [])
 
     augmenter = Augment(es_index=PRODUCTION_ES_INDEX)
 
