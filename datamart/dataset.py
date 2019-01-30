@@ -194,7 +194,16 @@ class Dataset:
         return '\n\t'.join(rows)
 
     def _summary_columns(self):
-        return ''.join([self._summary_column(idx, col) for idx, col in enumerate(self.variables)])
+        if len(self.variables) < 10:
+            return ''.join([self._summary_column(idx, col) for idx, col in enumerate(self.variables)])
+        else:
+            res = []
+            for i in range(5):
+                res.append(self._summary_column(i, self.variables[i]))
+            res.append('\n\t ... ')
+            for i in range(len(self.variables) - 5, len(self.variables)):
+                res.append(self._summary_column(i, self.variables[i]))
+            return ''.join(res)
 
     @staticmethod
     def _summary_column(index, column):

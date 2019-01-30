@@ -34,7 +34,8 @@ class IndexBuilder(object):
                                    query_data_for_indexing: bool = False,
                                    save_to_file: str = None,
                                    save_to_file_mode: str = "a+",
-                                   cache_dataset_path: str = None
+                                   cache_dataset_path: str = None,
+                                   enable_two_ravens_profiler: bool=False
                                    ) -> dict:
 
         description, data = self._read_data(description_path, data_path)
@@ -51,7 +52,7 @@ class IndexBuilder(object):
         metadata = self.construct_global_metadata(description=description, data=data, overwrite_datamart_id=0)
 
         if data is not None:
-            metadata = self.profile(data=data, metadata=metadata)
+            metadata = self.profile(data=data, metadata=metadata, enable_two_ravens_profiler=enable_two_ravens_profiler)
         Utils.validate_schema(metadata)
 
         if save_to_file:
@@ -392,7 +393,7 @@ class IndexBuilder(object):
 
         return variable_metadata
 
-    def profile(self, data: pd.DataFrame, metadata: dict) -> dict:
+    def profile(self, data: pd.DataFrame, metadata: dict, enable_two_ravens_profiler=False) -> dict:
         """Any profiler needed should be called here.
 
         Args:
@@ -408,8 +409,11 @@ class IndexBuilder(object):
             metadata = self.profiler.dsbox_profiler.profile(inputs=data, metadata=metadata)
             return metadata
         """
-
-        # metadata = self.profiler.two_raven_profiler.profile(inputs=data, metadata=metadata)
+        # if enable_two_ravens_profiler:
+        #     try:
+        #         metadata = self.profiler.two_raven_profiler.profile(inputs=data, metadata=metadata)
+        #     except:
+        #         pass
 
         return metadata
 

@@ -68,7 +68,8 @@ def search(url: str,
 
 def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset,
             augment_data: Dataset,
-            joining_columns: typing.Tuple[typing.List[typing.List[int or str]], typing.List[typing.List[int or str]]]=None
+            joining_columns: typing.Tuple[typing.List[typing.List[int or str]], typing.List[typing.List[int or str]]]=None,
+            joiner="rltk"
             ) -> pd.DataFrame:
     """
     Perform the augmentation (either join or union).
@@ -94,7 +95,6 @@ def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset,
         return loaded_data
 
     left_cols, right_cols = augment_data.join_columns
-    default_joiner = 'rltk'
     augmenter = Augment(es_index=PRODUCTION_ES_INDEX)
 
     augmented_data = augmenter.join(
@@ -104,7 +104,7 @@ def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset,
             right_columns=right_cols,
             left_metadata=None,
             right_metadata=augment_data.metadata,
-            joiner=default_joiner
+            joiner=joiner
     )
     return augmented_data
 
@@ -112,7 +112,8 @@ def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset,
 def join(left_data: pd.DataFrame or str or d3m_ds.Dataset,
          right_data: Dataset or int or pd.DataFrame or str or d3m_ds.Dataset,
          left_columns: typing.List[typing.List[int or str]],
-         right_columns: typing.List[typing.List[int or str]]
+         right_columns: typing.List[typing.List[int or str]],
+         joiner="rltk"
          ) -> typing.Optional[pd.DataFrame]:
     """
 
@@ -125,7 +126,7 @@ def join(left_data: pd.DataFrame or str or d3m_ds.Dataset,
     """
 
     if isinstance(right_data, Dataset):
-        return augment(left_data, right_data, (left_columns, right_columns))
+        return augment(left_data, right_data, (left_columns, right_columns), joiner)
 
     left_df = DataLoader.load_data(left_data)
     right_metadata = None
@@ -146,7 +147,7 @@ def join(left_data: pd.DataFrame or str or d3m_ds.Dataset,
             right_columns=right_columns,
             left_metadata=None,
             right_metadata=right_metadata,
-            joiner='rltk'
+            joiner=joiner
     )
     return augmented_data
 

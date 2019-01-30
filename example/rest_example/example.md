@@ -67,6 +67,7 @@
     - `right_data`: text, a datamart_id for the data you would like to use for augmentation
     - `left_columns`: text, specify the join features in the left dataset, by column indeces
     - `right_columns`: text, specify the join features in the right dataset, by column indeces
+    - `exact_match`: text, exact join or fuzzy join, either `true` or `false`, default is `false` - fuzzy matching
 - example:
     ```angular2html
     curl -X POST \
@@ -75,7 +76,8 @@
       -F left_data=@datamart/example/fifa_example/fifa.csv \
       -F right_data=127860000 \
       -F 'left_columns=[[3], [4]]' \
-      -F 'right_columns=[[22], [24]]'
+      -F 'right_columns=[[22], [24]]' \
+      -F 'exact_match=true'
     ```
 - [sample response](materialize_response.json)
     ```angular2html

@@ -9,7 +9,7 @@ from datamart.materializers.parsers.html_parser import HTMLParser
 from datamart.es_managers.query_manager import QueryManager
 
 
-def generate_metadata(description: dict, ignore_html=False) -> typing.List[dict]:
+def generate_metadata(description: dict, ignore_html=False, enable_two_ravens_profiler=False) -> typing.List[dict]:
     """
     Step 1 for indexing, user provide a description with url for materializing,
     datamart will try to generate metadata, by materializing, profiling the data,
@@ -66,7 +66,8 @@ def generate_metadata(description: dict, ignore_html=False) -> typing.List[dict]
             # TODO: make use of res.metadata?
             indexed = ib.indexing_generate_metadata(
                 description_path=description,
-                data_path=df
+                data_path=df,
+                enable_two_ravens_profiler=enable_two_ravens_profiler
             )
             meta_list.append(indexed)
         except Exception as e:
@@ -76,7 +77,8 @@ def generate_metadata(description: dict, ignore_html=False) -> typing.List[dict]
 
 
 def bulk_generate_metadata(html_page: str,
-                           description: dict=None
+                           description: dict=None,
+                           enable_two_ravens_profiler=False
                            ) -> typing.List[typing.List[dict]]:
     """
 
@@ -101,7 +103,8 @@ def bulk_generate_metadata(html_page: str,
                 cur_description['description'] = html_meta
             cur_description['materialization_arguments'] = {'url': href}
             # Not to extract html tables, otherwise there will be too many FPs:
-            cur_metadata = generate_metadata(cur_description, ignore_html=True)
+            cur_metadata = generate_metadata(cur_description, ignore_html=True,
+                                             enable_two_ravens_profiler=enable_two_ravens_profiler)
             if cur_metadata:
                 successed.append(cur_metadata)
         except Exception as e:

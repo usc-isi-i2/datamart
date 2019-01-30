@@ -59,7 +59,7 @@ class WebApp(Flask):
 
         @self.route('/')
         def hello():
-            return 'Datamart Web Service!'
+            return 'Datamart Web Service!<a href="/gui">gui</a>'
 
         @self.route('/new/search_data', methods=['POST'])
         def search_data():
@@ -105,10 +105,16 @@ class WebApp(Flask):
                 right_id = int(request.form.get('right_data'))
                 left_columns = json.loads(request.form.get('left_columns'))
                 right_columns = json.loads(request.form.get('right_columns'))
+                exact_match = request.form.get('exact_match')
+                if exact_match and exact_match.lower() == 'true':
+                    joiner = 'default'
+                else:
+                    joiner = 'rltk'
                 joined_df = join(left_data=left_df,
                                  right_data=right_id,
                                  left_columns=left_columns,
-                                 right_columns=right_columns)
+                                 right_columns=right_columns,
+                                 joiner=joiner)
                 joined_csv = joined_df.to_csv(index=False)
                 return self.wrap_response('0000', data=joined_csv)
             except Exception as e:
@@ -118,7 +124,11 @@ class WebApp(Flask):
         def get_metadata_single_file():
             try:
                 description = request.json
-                metadata_list = generate_metadata(description)
+                enable_two_ravens_profiler = False
+                if request.args.get('enable_two_ravens_profiler') and request.args.get(
+                        'enable_two_ravens_profiler').lower() != "false":
+                    enable_two_ravens_profiler = True
+                metadata_list = generate_metadata(description, enable_two_ravens_profiler=enable_two_ravens_profiler)
                 return self.wrap_response('0000', data=metadata_list)
             except Exception as e:
                 return self.wrap_response('1000', msg="FAIL METADATA GENERATION - " + str(e))
@@ -126,9 +136,14 @@ class WebApp(Flask):
         @self.route('/new/get_metadata_extract_links', methods=['POST'])
         def get_metadata_extract_links():
             try:
+                enable_two_ravens_profiler = False
+                if request.args.get('enable_two_ravens_profiler') and request.args.get(
+                        'enable_two_ravens_profiler').lower() != "false":
+                    enable_two_ravens_profiler = True
                 url = request.json.get('url')
                 description = request.json.get('description')
-                metadata_lists = bulk_generate_metadata(html_page=url, description=description)
+                metadata_lists = bulk_generate_metadata(html_page=url, description=description,
+                                                        enable_two_ravens_profiler=enable_two_ravens_profiler)
                 return self.wrap_response('0000', data=metadata_lists)
             except Exception as e:
                 return self.wrap_response('1000', msg="FAIL METADATA GENERATION - " + str(e))
