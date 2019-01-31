@@ -336,7 +336,11 @@ class QueryManager(ESManager):
                     url_query = {
                         "multi_match": {
                             "query": value,
-                            "fields": ["url", "materialization.arguments.url.keyword", "materialization.arguments.url"]
+                            "fields": ["url",
+                                       "materialization.arguments.url.keyword",
+                                       "materialization.arguments.url",
+                                       "uri"
+                                       ]
                         }
                     }
                     if match_method == "match_phrase":
