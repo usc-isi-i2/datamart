@@ -68,6 +68,19 @@
     - `right_data`: text, a datamart_id for the data you would like to use for augmentation
     - `left_columns`: text, specify the join features in the left dataset, by column indeces
     - `right_columns`: text, specify the join features in the right dataset, by column indeces
+    - `left_meta`: text, json for the metadata of supplied data, follow [index_schema](../../datamart/resources/index_schema.json)
+        - useful when there is `implicit_variables`, e.g. :
+        ```angular2
+        {
+            "implicit_variables": [
+                {
+                    "name": "city",
+                    "value": "New York",
+                    "semantic_type": []
+                }
+            ]
+        }
+        ```
     - `exact_match`: text, exact join or fuzzy join, either `true` or `false`, default is `false` - fuzzy matching
 - example:
     ```angular2html
@@ -78,6 +91,7 @@
       -F right_data=127860000 \
       -F 'left_columns=[[3], [4]]' \
       -F 'right_columns=[[22], [24]]' \
+      -F 'left_meta={"implicit_variables":[{"name":"city","value":"New York","semantic_type":[]}]}' \
       -F 'exact_match=true'
     ```
     ***`exact_match` uses `pandas` left-merge, may return a table with more rows when there is multiple rows in the right dataset matched one row in the left dataset**
