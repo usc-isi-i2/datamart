@@ -42,7 +42,7 @@ def generate_json_schema(dst_path):
             materialiseFormat = 'csv'
             infoFormat = 'json'
             url = "https://api.tradingeconomics.com/markets/historical/" + path.lower() + "?c=" + DEFAULT_KEY[
-                "KEY"] + "&format=" + infoFormat
+                "KEY"] + "&format=" + infoFormat +'&d1=1700-08-01'
             try:
                 res_indicator = requests.get(url)
                 data = res_indicator.json()
