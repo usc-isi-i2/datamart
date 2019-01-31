@@ -130,10 +130,15 @@
                             <br />
                         </li>
                         <li>
-                            <input type="submit" value="submit" id="submit-search" />
+                            <input type="submit" value="Search" id="submit-search" />
                         </li>
                     </ul>
                 </form>
+                <ul>
+                    <li><span>Return named entity(might be very slow)</span> <input type="checkbox" value="true" id="return_named_entity"/></li>
+                    <li><span>Max return docs</span><input type="text" id="max_return_docs"></li>
+                </ul>
+
             </div>
             <div class="right" id="search-results" >
             </div>
@@ -175,6 +180,11 @@
                         </li>
                     </ul>
                 </form>
+                <ul>
+                    <li><span>Exact Match</span><input type="checkbox" value="true" id="exact_match" style="display: inline-block"></li>
+                </ul>
+                <br/>
+                <div id="cover-ratio"></div>
 
             </div>
             <div class="right" id="join-results">
@@ -279,16 +289,33 @@
         $("#query_json").val('{\n\t"dataset": {\n\t\t"about": "gold"\n\t}\n}');
 
         $("#searchbanner").submit(function(e) {
-            console.log('SUBMIT');
             e.preventDefault(); // avoid to execute the actual submit of the form.
 
             // disabled the submit button
-            $("#submit-search").prop("disabled", true).text('Searching ...');
+            var url_ = $(this).attr('action');
+            const rne = $("#return_named_entity").is(':checked');
+            const mrd = $("#max_return_dcs").val();
+            if (rne && mrd) {
+                url_ += "?return_named_entity=true";
+                url_ += "&max_return_docs=";
+                url_ += mrd;
+            }
+            else if (rne) {
+                url_ += "?return_named_entity=true";
+            }
+            else if (mrd) {
+                url_ += "?max_return_docs=";
+                url_ += mrd;
+            }
+            console.log('SUBMIT', url_);
+            var result_container = $("#search-results");
+            result_container.empty();
+            $("#submit-search").prop("disabled", true).val('Searching ...');
 
             $.ajax({
                 type: $(this).attr('method'),
                 enctype: $(this).attr('enctype'),
-                url: $(this).attr('action'),
+                url: url_,
                 data: new FormData($(this)[0]),
                 processData: false,
                 cache: false,
@@ -298,9 +325,7 @@
                     var results = JSON.parse(response.responseText);
                     console.log(results);
                     var { code, message, data } = results;
-                    var result_container = $("#search-results");
                     if(code === '0000') {
-                        result_container.empty();
                         console.log("SUCCESS");
                         for (i = 0; i < data.length; i++){
                             const summary = "<p>" + data[i].summary + "</p>";
@@ -336,11 +361,10 @@
                             })
                         }
                     } else {
-                        result_container.empty();
                         result_container.append(response.responseText);
                     }
 
-                    $("#submit-search").prop("disabled", false).text('submit');
+                    $("#submit-search").prop("disabled", false).val('Search');
                 }
             });
 
@@ -354,11 +378,21 @@
 
             // disabled the submit button
             $("#submit-join").prop("disabled", true).text('Joining ...');
+            var url_ = $(this).attr('action');
+            const em = $("#exact_match").is(':checked');
+            if (em) {
+                url_ += "?exact_match=true";
+            }
+
+            var result_container = $("#join-results");
+            var cover_ratio_container = $("#cover-ratio");
+            cover_ratio_container.empty();
+            result_container.empty();
 
             $.ajax({
                 type: $(this).attr('method'),
                 enctype: $(this).attr('enctype'),
-                url: $(this).attr('action'),
+                url: url_,
                 data: new FormData($(this)[0]),
                 processData: false,
                 cache: false,
@@ -368,13 +402,13 @@
                     var results = JSON.parse(response.responseText);
                     console.log(results);
                     var { code, message, data } = results;
-                    var result_container = $("#join-results");
                     if(code === '0000') {
                         console.log("SUCCESS");
-                        result_container.empty();
+                        if (results.cover_ratio) {
+                            cover_ratio_container.append(`<div><strong>Cover Ratio: ${results.cover_ratio}</strong></div>`)
+                        }
                         result_container.append(parseCSV(data));
                     } else {
-                        result_container.empty();
                         result_container.append(response.responseText);
                     }
 
@@ -391,7 +425,9 @@
             e.preventDefault(); // avoid to execute the actual submit of the form.
 
             // disabled the submit button
-            $("#submit-multi").prop("disabled", true).text('Generating metadata ...');
+            $("#submit-multi").prop("disabled", true).val('Generating metadata ...');
+            var result_container = $("#multi-results");
+            result_container.empty();
 
             var kv = $(this).serializeArray()[0];
             var data_payload = {};
@@ -410,17 +446,14 @@
                     var results = JSON.parse(response.responseText);
                     console.log(results);
                     var { code, message, data } = results;
-                    var result_container = $("#multi-results");
                     if(code === '0000') {
                         console.log("SUCCESS", data);
-                        result_container.empty();
                         result_container.append(parseMetaList(data));
                     } else {
-                        result_container.empty();
                         result_container.append(response.responseText);
                     }
 
-                    $("#submit-multi").prop("disabled", false).text('submit');
+                    $("#submit-multi").prop("disabled", false).val('submit');
                 }
             });
 
@@ -431,7 +464,9 @@
             e.preventDefault(); // avoid to execute the actual submit of the form.
 
             // disabled the submit button
-            $("#submit-single").prop("disabled", true).text('Generating metadata ...');
+            $("#submit-single").prop("disabled", true).val('Generating metadata ...');
+            var result_container = $("#single-results");
+            result_container.empty();
 
             var kv = $(this).serializeArray();
 
@@ -464,17 +499,14 @@
                     var results = JSON.parse(response.responseText);
                     console.log(results);
                     var { code, message, data } = results;
-                    var result_container = $("#single-results");
                     if(code === '0000') {
                         console.log("SUCCESS", data);
-                        result_container.empty();
                         result_container.append(parseMetaList(data));
                     } else {
-                        result_container.empty();
                         result_container.append(response.responseText);
                     }
 
-                    $("#submit-single").prop("disabled", false).text('submit');
+                    $("#submit-single").prop("disabled", false).val('submit');
                 }
             });
 
