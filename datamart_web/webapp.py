@@ -5,7 +5,6 @@ import pandas as pd
 # When load spacy in a route, it will raise error. So do not remove "import spacy" here:
 import spacy
 import traceback
-from datamart.joiners.joiner_base import JoinerType
 
 sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -17,6 +16,7 @@ from datamart import search, join, generate_metadata, upload, bulk_generate_meta
 from datamart.utilities.utils import SEARCH_URL, PRODUCTION_ES_INDEX, TEST_ES_INDEX
 
 from datamart.data_loader import DataLoader
+from datamart.joiners.joiner_base import JoinerType
 
 
 class WebApp(Flask):
@@ -213,4 +213,4 @@ class WebApp(Flask):
 
 
 if __name__ == '__main__':
-    WebApp().create_app().run(host="0.0.0.0", port=9000, debug=False, threaded=True)
+    WebApp().create_app().run(host="0.0.0.0", port=9000, debug=False, ssl_context=('cert.pem', 'key.pem'), threaded=True)
