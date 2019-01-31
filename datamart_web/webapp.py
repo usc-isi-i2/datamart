@@ -211,4 +211,4 @@ class WebApp(Flask):
 
 
 if __name__ == '__main__':
-    WebApp().create_app().run(host="0.0.0.0", port=9000, debug=False, ssl_context=('cert.pem', 'key.pem'))
+    WebApp().create_app().run(host="0.0.0.0", port=9000, debug=False, ssl_context=('cert.pem', 'key.pem'), threaded=True)
