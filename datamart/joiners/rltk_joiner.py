@@ -14,6 +14,7 @@ Implement RLTK joiner
 class RLTKJoiner(JoinerBase):
 
     def __init__(self):
+        self.exact_match = False
         pass
 
     def join(self,
@@ -22,7 +23,7 @@ class RLTKJoiner(JoinerBase):
              left_columns: typing.List[typing.List[int]],
              right_columns: typing.List[typing.List[int]],
              left_metadata: dict,
-             right_metadata: dict,
+             right_metadata: dict
              ) -> JoinResult:
         # print(left_metadata)
 
@@ -42,6 +43,9 @@ class RLTKJoiner(JoinerBase):
             for f1, f2 in fp.pairs:
                 v1 = f1.value_merge_func(r1)
                 v2 = f2.value_merge_func(r2)
+                if self.exact_match:
+                    similarities.append(1 if v1 == v2 else 0)
+                    continue
                 # print(v1, v2, type(f1), type(f2))
                 for similarity_func in f1.similarity_functions():
                     similarity = similarity_func(v1, v2)

@@ -21,6 +21,7 @@ class JoinerBase(ABC):
 class JoinerType(Enum):
     DEFAULT = "default"
     RLTK = "rltk"
+    EXACT_MATCH = "exact_match"
 
 
 class DefaultJoiner(JoinerBase):
@@ -58,7 +59,7 @@ class DefaultJoiner(JoinerBase):
 class JoinerPrepare(object):
 
     @staticmethod
-    def prepare_joiner(joiner: str = "default") -> typing.Optional[JoinerBase]:
+    def prepare_joiner(joiner: str = JoinerType.DEFAULT) -> typing.Optional[JoinerBase]:
 
         """Prepare joiner, lazy evaluation for joiners,
         should be useful because joiner like RLTK may need many dependency packages.
@@ -82,5 +83,9 @@ class JoinerPrepare(object):
 
         if JoinerType(joiner) == JoinerType.DEFAULT:
             return DefaultJoiner()
+
+        if JoinerType(joiner) == JoinerType.EXACT_MATCH:
+            from datamart.joiners.exact_match_joiner import ExactMatchJoiner
+            return ExactMatchJoiner()
 
         return None

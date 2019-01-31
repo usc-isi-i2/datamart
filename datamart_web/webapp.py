@@ -5,6 +5,7 @@ import pandas as pd
 # When load spacy in a route, it will raise error. So do not remove "import spacy" here:
 import spacy
 import traceback
+from datamart.joiners.joiner_base import JoinerType
 
 sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -73,7 +74,8 @@ class WebApp(Flask):
                 return_named_entity = False
                 if request.args.get('return_named_entity') and request.args.get('return_named_entity').lower() != "false":
                     return_named_entity = True
-                res = search(SEARCH_URL, query, data, max_return_docs=max_return_docs, return_named_entity=return_named_entity)
+                res = search(SEARCH_URL, query, data, max_return_docs=max_return_docs,
+                             return_named_entity=return_named_entity)
                 results = []
                 for r in res:
                     cur = {
@@ -111,11 +113,11 @@ class WebApp(Flask):
                 right_id = int(request.form.get('right_data'))
                 left_columns = json.loads(request.form.get('left_columns'))
                 right_columns = json.loads(request.form.get('right_columns'))
-                exact_match = request.form.get('exact_match')
+                exact_match = request.args.get('exact_match') or request.form.get('exact_match')
                 if exact_match and exact_match.lower() == 'true':
-                    joiner = 'default'
+                    joiner = JoinerType.EXACT_MATCH
                 else:
-                    joiner = 'rltk'
+                    joiner = JoinerType.RLTK
                 join_res = join(left_data=left_df,
                                  right_data=right_id,
                                  left_columns=left_columns,
@@ -211,4 +213,4 @@ class WebApp(Flask):
 
 
 if __name__ == '__main__':
-    WebApp().create_app().run(host="0.0.0.0", port=9000, debug=False, ssl_context=('cert.pem', 'key.pem'), threaded=True)
+    WebApp().create_app().run(host="0.0.0.0", port=9000, debug=False, threaded=True)

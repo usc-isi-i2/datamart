@@ -3,7 +3,7 @@ from datamart.profiler import Profiler
 import pandas as pd
 import typing
 from datamart.utilities.utils import Utils, ES_HOST, ES_PORT
-from datamart.joiners.joiner_base import JoinerPrepare
+from datamart.joiners.joiner_base import JoinerPrepare, JoinerType
 from datamart.joiners.join_result import JoinResult
 import warnings
 from itertools import chain
@@ -148,7 +148,7 @@ class Augment(object):
              right_columns: typing.List[typing.List[int]],
              left_metadata: dict = None,
              right_metadata: dict = None,
-             joiner: str = "default"
+             joiner: str = JoinerType.DEFAULT
              ) -> JoinResult:
 
         """Join two dataframes based on different joiner.
@@ -173,6 +173,7 @@ class Augment(object):
             warnings.warn("No suitable joiner, return original dataframe")
             return JoinResult(left_df, [])
 
+        print(" - start profiling")
         if not left_metadata:
             # Left df is the user provided one.
             # We will generate metadata just based on the data itself, profiling and so on
@@ -188,6 +189,7 @@ class Augment(object):
         right_metadata = Utils.calculate_dsbox_features(data=right_df, metadata=right_metadata,
                                                         selected_columns=set(chain.from_iterable(right_columns)))
 
+        print(" - start joining tables")
         res = self.joiners[joiner].join(left_df=left_df,
                                          right_df=right_df,
                                          left_columns=left_columns,

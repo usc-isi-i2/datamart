@@ -7,6 +7,7 @@ from datamart.data_loader import DataLoader
 import d3m.container.dataset as d3m_ds
 from datamart.utilities.utils import Utils
 from datamart.joiners.join_result import JoinResult
+from datamart.joiners.joiner_base import JoinerType
 
 
 def search(url: str,
@@ -70,7 +71,7 @@ def search(url: str,
 def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset,
             augment_data: Dataset,
             joining_columns: typing.Tuple[typing.List[typing.List[int or str]], typing.List[typing.List[int or str]]]=None,
-            joiner="rltk"
+            joiner=JoinerType.RLTK
             ) -> JoinResult:
     """
     Perform the augmentation (either join or union).
@@ -114,7 +115,7 @@ def join(left_data: pd.DataFrame or str or d3m_ds.Dataset,
          right_data: Dataset or int or pd.DataFrame or str or d3m_ds.Dataset,
          left_columns: typing.List[typing.List[int or str]],
          right_columns: typing.List[typing.List[int or str]],
-         joiner="rltk"
+         joiner=JoinerType.RLTK
          ) -> JoinResult:
     """
 
@@ -129,6 +130,7 @@ def join(left_data: pd.DataFrame or str or d3m_ds.Dataset,
     if isinstance(right_data, Dataset):
         return augment(left_data, right_data, (left_columns, right_columns), joiner)
 
+    print(" - start loading data")
     left_df = DataLoader.load_data(left_data)
     right_metadata = None
     if isinstance(right_data, int):
@@ -141,6 +143,7 @@ def join(left_data: pd.DataFrame or str or d3m_ds.Dataset,
 
     augmenter = Augment(es_index=PRODUCTION_ES_INDEX)
 
+    print(" - satrt augmenting")
     augmented_data = augmenter.join(
             left_df=left_df,
             right_df=right_df,
