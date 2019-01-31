@@ -407,7 +407,7 @@ class QueryManager(ESManager):
         """
         body = {
             "query_string": {
-                "query": query_string
+                "query": query_string.replace('/', '//')
             }
         }
 
