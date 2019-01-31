@@ -298,8 +298,8 @@
                     var results = JSON.parse(response.responseText);
                     console.log(results);
                     var { code, message, data } = results;
+                    var result_container = $("#search-results");
                     if(code === '0000') {
-                        var result_container = $("#search-results");
                         result_container.empty();
                         console.log("SUCCESS");
                         for (i = 0; i < data.length; i++){
@@ -368,9 +368,9 @@
                     var results = JSON.parse(response.responseText);
                     console.log(results);
                     var { code, message, data } = results;
+                    var result_container = $("#join-results");
                     if(code === '0000') {
                         console.log("SUCCESS");
-                        var result_container = $("#join-results");
                         result_container.empty();
                         result_container.append(parseCSV(data));
                     } else {
@@ -410,9 +410,9 @@
                     var results = JSON.parse(response.responseText);
                     console.log(results);
                     var { code, message, data } = results;
+                    var result_container = $("#multi-results");
                     if(code === '0000') {
                         console.log("SUCCESS", data);
-                        var result_container = $("#multi-results");
                         result_container.empty();
                         result_container.append(parseMetaList(data));
                     } else {
@@ -464,9 +464,9 @@
                     var results = JSON.parse(response.responseText);
                     console.log(results);
                     var { code, message, data } = results;
+                    var result_container = $("#single-results");
                     if(code === '0000') {
                         console.log("SUCCESS", data);
-                        var result_container = $("#single-results");
                         result_container.empty();
                         result_container.append(parseMetaList(data));
                     } else {
