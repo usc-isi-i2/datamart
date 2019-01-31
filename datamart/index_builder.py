@@ -409,11 +409,11 @@ class IndexBuilder(object):
             metadata = self.profiler.dsbox_profiler.profile(inputs=data, metadata=metadata)
             return metadata
         """
-        # if enable_two_ravens_profiler:
-        #     try:
-        #         metadata = self.profiler.two_raven_profiler.profile(inputs=data, metadata=metadata)
-        #     except:
-        #         pass
+        if enable_two_ravens_profiler:
+            try:
+                metadata = self.profiler.two_ravens_profiler.profile(inputs=data, metadata=metadata)
+            except Exception as e:
+                print("failed on two ravens profiling", str(e))
 
         return metadata
 

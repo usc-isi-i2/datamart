@@ -5,7 +5,7 @@ import time
 import json
 
 
-class TwoRavenProfiler(object):
+class TwoRavensProfiler(object):
     def __init__(self):
         self.tr_url = 'http://metadata.2ravens.org/preprocess/api/process-single-file'
         pass
@@ -21,7 +21,7 @@ class TwoRavenProfiler(object):
             dict
         """
 
-        temp_path = 'datamart_temp.csv'
+        temp_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datamart_temp.csv')
         self.file_save(temp_path, inputs)
         f = dict(source_file=open(temp_path, 'rb'))
         raw_iter_times = 5
