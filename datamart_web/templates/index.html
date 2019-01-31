@@ -237,7 +237,7 @@
                         </li>
                         <li>
                             <h4>File Type[Optional]</h4>
-                            <p>one of <strong>"csv", "excel", "html"</strong>
+                            <p>one of <strong>"csv", "excel", "html", "json"</strong>
                             </p>
                             <input name="file_type" />
                         </li>
@@ -248,6 +248,10 @@
                         <li>
                             <h4>Description[Optional]</h4>
                             <input name="description" />
+                        </li>
+                        <li>
+                            <h4>Keywords(split by "|")[Optional]</h4>
+                            <input name="keywords" />
                         </li>
                         <li>
                             <p>When submitted, please wait for a while until you got a json response with
@@ -437,7 +441,12 @@
                     if(single_kv.name === "url" || single_kv.name === "file_type"){
                         data_payload.materialization_arguments[single_kv.name] = single_kv.value;
                     } else {
-                        data_payload[single_kv.name] = single_kv.value;
+                        if (single_kv.name === "keywords") {
+                            data_payload[single_kv.name] = single_kv.value.split('|');
+                        } else {
+                            data_payload[single_kv.name] = single_kv.value;
+                        }
+
                     }
                 }
             });
