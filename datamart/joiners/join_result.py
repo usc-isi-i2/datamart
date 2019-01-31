@@ -18,4 +18,5 @@ class JoinResult(object):
     @property
     def cover_ratio(self):
         cnt = len([_ for _ in self.matched_rows if _])
-        return cnt/len(self.matched_rows)
+        if len(self.matched_rows):
+            return cnt/len(self.matched_rows)

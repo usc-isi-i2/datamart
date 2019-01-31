@@ -4,6 +4,7 @@ import sys
 import pandas as pd
 # When load spacy in a route, it will raise error. So do not remove "import spacy" here:
 import spacy
+import traceback
 
 sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -86,7 +87,7 @@ class WebApp(Flask):
                                           msg='Success',
                                           data=results)
             except Exception as e:
-                return self.wrap_response(code='1000', msg="FAIL - " + str(e))
+                return self.wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" %(str(e), str(traceback.format_exc())))
 
         @self.route('/new/materialize_data', methods=['GET'])
         def materialize_data():
@@ -101,7 +102,7 @@ class WebApp(Flask):
                 csv = df.to_csv(index=False)
                 return self.wrap_response('0000', data=csv)
             except Exception as e:
-                return self.wrap_response('1000', msg="FAIL - " + str(e))
+                return self.wrap_response('1000', msg="FAIL MATERIALIZE - %s \n %s" %(str(e), str(traceback.format_exc())))
 
         @self.route('/new/join_data', methods=['POST'])
         def join_data():
@@ -128,7 +129,7 @@ class WebApp(Flask):
                 else:
                     return self.wrap_response('2000', msg="Failed, invalid inputs")
             except Exception as e:
-                return self.wrap_response('1000', msg="FAIL JOIN - " + str(e))
+                return self.wrap_response('1000', msg="FAIL JOIN - %s \n %s" %(str(e), str(traceback.format_exc())))
 
         @self.route('/new/get_metadata_single_file', methods=['POST'])
         def get_metadata_single_file():
@@ -141,7 +142,7 @@ class WebApp(Flask):
                 metadata_list = generate_metadata(description, enable_two_ravens_profiler=enable_two_ravens_profiler)
                 return self.wrap_response('0000', data=metadata_list)
             except Exception as e:
-                return self.wrap_response('1000', msg="FAIL METADATA GENERATION - " + str(e))
+                return self.wrap_response('1000', msg="FAIL GENERATE DATA FOR SINGLE FILE - %s \n %s" %(str(e), str(traceback.format_exc())))
 
         @self.route('/new/get_metadata_extract_links', methods=['POST'])
         def get_metadata_extract_links():
@@ -156,7 +157,7 @@ class WebApp(Flask):
                                                         enable_two_ravens_profiler=enable_two_ravens_profiler)
                 return self.wrap_response('0000', data=metadata_lists)
             except Exception as e:
-                return self.wrap_response('1000', msg="FAIL METADATA GENERATION - " + str(e))
+                return self.wrap_response('1000', msg="FAIL GENERATE META FROM LINKS - %s \n %s" %(str(e), str(traceback.format_exc())))
 
         @self.route('/new/upload_metadata_list', methods=['POST'])
         def upload_list_of_metadata():
@@ -181,7 +182,7 @@ class WebApp(Flask):
                                 deduplicate=deduplicate)
                 return self.wrap_response('0000', data=succeed)
             except Exception as e:
-                return self.wrap_response('1000', msg="FAIL UPLOAD - " + str(e))
+                return self.wrap_response('1000', msg="FAIL UPLOAD - %s \n %s" %(str(e), str(traceback.format_exc())))
 
         # ----- gui for upload -----
         @self.route('/gui', methods=['GET'])
