@@ -109,7 +109,7 @@
 If you would like to index a new dataset into ISI-datamart, there are two methods:
 1. By single file:
     1. find the url for the data you would like to upload:
-        - it can be a csv file, an excel file, an html page with tabular data.
+        - it can be a csv file, an excel file, an html page with tabular data, or a json file.
     2. construct a description json for the data like:
         ```angular2html
         {
@@ -140,10 +140,13 @@ If you would like to index a new dataset into ISI-datamart, there are two method
 - methods: `POST`
 - body`json`: the description json for the file, including the url 
     - see 1.ii above
+    - `materialization_arguments.file_type` can be one of `csv`, `excel`, `html`, `table`
+- params:
+    - `enable_two_ravens_profiler`: if `true`, will try to use twoRavens profiler on the dataset and append info onto metadata. default is disabled.
 - example:
     ```angular2html
     curl -X POST \
-      https://dsbox02.isi.edu:9000/new/get_metadata_single_file \
+      https://dsbox02.isi.edu:9000/new/get_metadata_single_file?enable_two_ravens_profiler=false \
       -H 'Content-Type: application/json' \
       -d '{
         "materialization_arguments": {
