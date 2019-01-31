@@ -264,9 +264,34 @@ class Utils:
               Dataframe with appended implicit_variables columns
          """
 
-        for implicit_variable in implicit_variables:
-            df[implicit_variable["name"]] = implicit_variable["value"]
+        for idx, implicit_variable in enumerate(implicit_variables):
+            if implicit_variable.get("value"):
+                df[implicit_variable.get("name") or "implicit_variable_%d" % idx] = implicit_variable["value"]
         return df
+
+    @staticmethod
+    def append_columns_for_implicit_variables_and_add_meta(meta: dict, df: pd.DataFrame) -> None:
+        """Append implicit_variables as new column with same value across all rows of the dataframe
+
+         Args:
+             implicit_variables: list of implicit_variables in metadata
+             df: Dataframe that implicit_variables will be appended on
+
+         Returns:
+              Dataframe with appended implicit_variables columns
+         """
+        implicit_variables = meta.get("implicit_variables", [])
+        for idx, implicit_variable in enumerate(implicit_variables):
+            if implicit_variable.get("value"):
+                header = implicit_variable.get("name") or "implicit_variable_%d" % idx
+                df[header] = implicit_variable["value"]
+                if meta.get("variables"):
+                    meta["variables"].append({
+                        "name": header,
+                        "description": header,
+                        "named_entity": [implicit_variable["value"]],
+                        "semantic_type": implicit_variable.get("semantic_type") or []
+                    })
 
     @staticmethod
     def get_metadata_intersection(*metadata_lst) -> list:
@@ -348,7 +373,7 @@ class Utils:
         return DSboxProfiler().profile(inputs=data, metadata=metadata, selected_columns=selected_columns)
 
     @classmethod
-    def generate_metadata_from_dataframe(cls, data: pd.DataFrame) -> dict:
+    def generate_metadata_from_dataframe(cls, data: pd.DataFrame, original_meta: dict=None) -> dict:
         """Generate a default metadata just from the data, without the dataset schema
 
          Args:
@@ -369,7 +394,8 @@ class Utils:
             global_metadata.add_variable_metadata(variable_metadata)
         global_metadata = BasicProfiler.basic_profiling_entire(global_metadata=global_metadata,
                                                                data=data)
-
+        if original_meta:
+            global_metadata.value.update(original_meta)
         return global_metadata.value
 
     @staticmethod

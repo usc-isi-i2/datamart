@@ -113,6 +113,7 @@ class WebApp(Flask):
                 right_id = int(request.form.get('right_data'))
                 left_columns = json.loads(request.form.get('left_columns'))
                 right_columns = json.loads(request.form.get('right_columns'))
+                left_meta = json.loads(request.form.get('left_meta')) if request.form.get('left_meta') else None
                 exact_match = request.args.get('exact_match') or request.form.get('exact_match')
                 if exact_match and exact_match.lower() == 'true':
                     joiner = JoinerType.EXACT_MATCH
@@ -122,6 +123,7 @@ class WebApp(Flask):
                                  right_data=right_id,
                                  left_columns=left_columns,
                                  right_columns=right_columns,
+                                 left_meta=left_meta,
                                  joiner=joiner)
                 if join_res.df is not None:
                     joined_csv = join_res.df.to_csv(index=False)

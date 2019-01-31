@@ -148,7 +148,7 @@ class Augment(object):
              right_columns: typing.List[typing.List[int]],
              left_metadata: dict = None,
              right_metadata: dict = None,
-             joiner: str = JoinerType.DEFAULT
+             joiner: JoinerType = JoinerType.DEFAULT
              ) -> JoinResult:
 
         """Join two dataframes based on different joiner.
@@ -174,10 +174,10 @@ class Augment(object):
             return JoinResult(left_df, [])
 
         print(" - start profiling")
-        if not left_metadata:
+        if not (left_metadata and left_metadata.get("variables")):
             # Left df is the user provided one.
             # We will generate metadata just based on the data itself, profiling and so on
-            left_metadata = Utils.generate_metadata_from_dataframe(data=left_df)
+            left_metadata = Utils.generate_metadata_from_dataframe(data=left_df, original_meta=left_metadata)
 
         if not right_metadata:
             right_metadata = Utils.generate_metadata_from_dataframe(data=right_df)
@@ -188,6 +188,10 @@ class Augment(object):
 
         right_metadata = Utils.calculate_dsbox_features(data=right_df, metadata=right_metadata,
                                                         selected_columns=set(chain.from_iterable(right_columns)))
+
+        # update with implicit_variable on the user supplied dataset
+        if left_metadata.get('implicit_variables'):
+            Utils.append_columns_for_implicit_variables_and_add_meta(left_metadata, left_df)
 
         print(" - start joining tables")
         res = self.joiners[joiner].join(left_df=left_df,

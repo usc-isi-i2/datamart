@@ -115,6 +115,7 @@ def join(left_data: pd.DataFrame or str or d3m_ds.Dataset,
          right_data: Dataset or int or pd.DataFrame or str or d3m_ds.Dataset,
          left_columns: typing.List[typing.List[int or str]],
          right_columns: typing.List[typing.List[int or str]],
+         left_meta: dict=None,
          joiner=JoinerType.RLTK
          ) -> JoinResult:
     """
@@ -149,7 +150,7 @@ def join(left_data: pd.DataFrame or str or d3m_ds.Dataset,
             right_df=right_df,
             left_columns=left_columns,
             right_columns=right_columns,
-            left_metadata=None,
+            left_metadata=left_meta,
             right_metadata=right_metadata,
             joiner=joiner
     )

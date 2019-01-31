@@ -7,7 +7,7 @@
 </head>
 <body>
 <style>
-    textarea#query_json {
+    textarea#query_json, textarea#left_meta {
         width: 90%;
         height: 200px;
         font-size: 14px;
@@ -161,6 +161,13 @@
                             <br />
                         </li>
                         <li>
+                            <h4>Supplied Data Implicit Variables</h4>
+                            <p>
+                                If specify the "name" and "value", a new column with the "name" as header and with "value" for every cell, will be appended to the original dataset to do the joining.
+                            </p>
+                            <span><textarea form="joinbanner" name="left_meta" id="left_meta"></textarea></span>
+                        </li>
+                        <li>
                             <h4>Augment Data "datamart_id"</h4>
                             <p>The Datamart ID for the augmentation data</p>
                             <input type="text" name="right_data" />
@@ -287,6 +294,7 @@
         var materialized = {};
 
         $("#query_json").val('{\n\t"dataset": {\n\t\t"about": "gold"\n\t}\n}');
+        $("#left_meta").val('{\n\t"implicit_variables": [\n\t\t{\n\t\t\t"name": "",\n\t\t\t"value": "",\n\t\t\t"semantic_type": []\n\t\t}\n\t]\n}');
 
         $("#searchbanner").submit(function(e) {
             e.preventDefault(); // avoid to execute the actual submit of the form.

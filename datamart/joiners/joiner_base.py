@@ -59,7 +59,7 @@ class DefaultJoiner(JoinerBase):
 class JoinerPrepare(object):
 
     @staticmethod
-    def prepare_joiner(joiner: str = JoinerType.DEFAULT) -> typing.Optional[JoinerBase]:
+    def prepare_joiner(joiner: JoinerType = JoinerType.DEFAULT) -> typing.Optional[JoinerBase]:
 
         """Prepare joiner, lazy evaluation for joiners,
         should be useful because joiner like RLTK may need many dependency packages.

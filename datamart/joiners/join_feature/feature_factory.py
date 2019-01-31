@@ -20,7 +20,7 @@ class FeatureFactory:
 
         """
         # set default values:
-        metadata = cls._get_feature_metadata(df_metadata, indexes)
+        metadata = cls._get_feature_metadata(df_metadata, indexes) or {}
         data_type = None
         distribute_type = DistributeType.NON_CATEGORICAL
 
@@ -66,7 +66,8 @@ class FeatureFactory:
 
     @staticmethod
     def _get_feature_metadata(metadata, indices):
-        return metadata['variables'][indices[0]]
+        if metadata.get('variables') and indices and indices[0] < len(metadata.get('variables')):
+            return metadata['variables'][indices[0]]
 
     @staticmethod
     def _get_avg(list_of_dict, key='count'):
