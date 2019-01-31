@@ -332,6 +332,16 @@ class QueryManager(ESManager):
                                     }
                                 }
                             )
+                elif key == "url":
+                    url_query = {
+                        "multi_match": {
+                            "query": value,
+                            "fields": ["url", "materialization.arguments.url.keyword", "materialization.arguments.url"]
+                        }
+                    }
+                    if match_method == "match_phrase":
+                        url_query["multi_match"]["type"] = "phrase"
+                    body["bool"]["must"].append(url_query)
                 else:
                     body["bool"]["must"].append(
                         {
