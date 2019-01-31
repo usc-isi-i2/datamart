@@ -131,6 +131,8 @@ class QueryManager(ESManager):
         # TODO: maybe change the configuration of ES and support longer query will be better
         max_terms = 1000
         for term in terms[: max_terms]:
+            if not isinstance(term, str):
+                continue
             body["nested"]["query"]["bool"]["should"].append(
                 {
                     "match_phrase": {
