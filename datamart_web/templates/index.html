@@ -21,8 +21,9 @@
         height: 200px;
         width: 90%;
     }
-    textarea.meta + button {
-        width: 90%;
+    .uploadBtn, .enlargeBtn {
+        width: 45%;
+        display: inline-block;
     }
     input {
         font-size: 15px;
@@ -36,17 +37,17 @@
     div.row {
         width: 100%;
     }
-    div.left {
+
+    div.left, div.right {
         display: inline-block;
-        width: 400px;
-        height: 500px;
+        height: 90vh;
         vertical-align: top;
     }
+    div.left {
+        width: 400px;
+    }
     div.right {
-        display: inline-block;
-        width: calc(100% - 410px);
-        height: 500px;
-        vertical-align: top;
+        width: calc(100% - 420px);
         white-space: pre-wrap;
         overflow: scroll;
         border: 1px solid #eee;
@@ -64,9 +65,41 @@
         cursor: not-allowed;
     }
 
+    div#popup-window {
+        width: 90%;
+        background-color: #555;
+        color: #fff;
+        padding: 30px;
+        position: absolute;
+        z-index: 1;
+        left: 2%;
+        top: 2%;
+        height: 90%;
+        overflow: scroll;
+    }
+
+    button#popup-close {
+        position: fixed;
+        z-index: 2;
+        right: 0;
+        top: 0;
+        font-size: 22px;
+    }
+
+    div#top-container {
+        height: 100vh;
+        width: 100vw;
+        overflow: scroll;
+        margin: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 5px;
+    }
+
 
 </style>
-    <div>
+    <div id="top-container">
         <div class="row">
             <div class="left">
                 <h3> Search </h3>
@@ -234,7 +267,11 @@
         </div>
     </div>
 
+    <div id="popup-container"></div>
+
     <script>
+        var materialized = {};
+
         $("#query_json").val('{\n\t"dataset": {\n\t\t"about": "gold"\n\t}\n}');
 
         $("#searchbanner").submit(function(e) {
@@ -264,31 +301,39 @@
                         for (i = 0; i < data.length; i++){
                             const summary = "<p>" + data[i].summary + "</p>";
                             const _id = data[i].datamart_id;
-                            const _url = `/new/materialize_data?datamart_id=${_id}`;
-                            const materialize = `<button id="materialize${_id}" value="${_url}" >materialize</button>`;
+                            const _url = `/new/materialize_data?datamart_id=${_id}&first_n_rows=30`;
+                            const materialize = `<button id="materialize${_id}" value="${_url}" >materialize the first 30 rows</button>`;
                             result_container.append(materialize + "<br/>" + summary);
 
                             const button_selecter = `#materialize${_id}`;
                             $(button_selecter).click(function (e) {
                                 console.log('materialize');
                                 e.preventDefault(); // avoid to execute the actual submit of the form.
-                                $(this).prop("disabled", true).text('materializing ...');
-                                $.ajax({
-                                    type: "GET",
-                                    url: _url,
-                                    complete: function(response) {
-                                        var results = JSON.parse(response.responseText);
-                                        console.log("success", results);
-                                        var { code, message, data } = results;
-                                        if(code === '0000') {
-                                            alert(parseCSV(data));
+                                if(materialized[_id]) {
+                                    expandPopup(materialized[_id]);
+                                } else {
+                                    $(this).prop("disabled", true).text('materializing ...');
+                                    $.ajax({
+                                        type: "GET",
+                                        url: _url,
+                                        complete: function(response) {
+                                            var results = JSON.parse(response.responseText);
+                                            console.log("success", results);
+                                            var { code, message, data } = results;
+                                            if(code === '0000') {
+                                                materialized[_id] = parseCSV(data);
+                                                expandPopup(materialized[_id]);
+                                            }
+                                            $(button_selecter).prop("disabled", false).text('materialize the first 30 rows');
                                         }
-                                        $(button_selecter).prop("disabled", false).text('materializing');
-                                    }
-                                })
+                                    })
+                                }
 
                             })
                         }
+                    } else {
+                        result_container.empty();
+                        result_container.append(response.responseText);
                     }
 
                     $("#submit-search").prop("disabled", false).text('submit');
@@ -324,6 +369,9 @@
                         var result_container = $("#join-results");
                         result_container.empty();
                         result_container.append(parseCSV(data));
+                    } else {
+                        result_container.empty();
+                        result_container.append(response.responseText);
                     }
 
                     $("#submit-join").prop("disabled", false).text('submit');
@@ -363,6 +411,9 @@
                         var result_container = $("#multi-results");
                         result_container.empty();
                         result_container.append(parseMetaList(data));
+                    } else {
+                        result_container.empty();
+                        result_container.append(response.responseText);
                     }
 
                     $("#submit-multi").prop("disabled", false).text('submit');
@@ -409,6 +460,9 @@
                         var result_container = $("#single-results");
                         result_container.empty();
                         result_container.append(parseMetaList(data));
+                    } else {
+                        result_container.empty();
+                        result_container.append(response.responseText);
                     }
 
                     $("#submit-single").prop("disabled", false).text('submit');
@@ -471,7 +525,7 @@
                         $(`#upload${idx}`).prop("disabled", true)
                             .text(`UPLOADED SUCCESSFULLY [datamart_id: ${data[0].datamart_id}]`);
                     } else {
-                        $(`#upload${idx}`).prop("disabled", false).text('upload');
+                        $(`#upload${idx}`).prop("disabled", false).text('failed - retry upload');
                     }
 
                 }
@@ -482,14 +536,25 @@
 
         function parseMeta(data, idx) {
             // start the table
-            var html = `<div class="meta-container"><textarea id="meta${idx}" class="meta">`;
+            const textareaId = `meta${idx}`;
+            const textareaHTML = `<textarea id="${textareaId}" class="meta">` + JSON.stringify(data, null, 2) + "</textarea>";
+            var html = `<div class="meta-container">` + textareaHTML;
 
-            var meta = JSON.stringify(data, null, 2);
-            html += meta;
-
-            html += `</textarea><button onclick="uploadMeta(${idx})" id="upload${idx}" >upload</button></div>`;
+            const uploadButton = `<button onclick="uploadMeta(${idx})" id="upload${idx}" class="uploadBtn">upload</button>`;
+            const enlargeButton = `<button onclick="enlargeMeta(${textareaId})" class="enlargeBtn">enlarge</button>`;
+            html += `${uploadButton}${enlargeButton}</div>`;
 
             return html;
+        }
+
+        function enlargeMeta(ele) {
+            {#const selectID = "#" + _id;#}
+            {#console.log(selectID)#}
+            {#const ele = $(selectID);#}
+            {#console.log(selectID, ele);#}
+            expandPopup(ele.outerHTML);
+            var container = $("#popup-container");
+            container.children("textarea").style.cssText = "width:100%; height: 100%; font-size:16px;"
         }
 
         function parseMetaList(data) {
@@ -502,11 +567,16 @@
             return html;
         }
 
-        {#function expandPopUp(_id, innerHTML) {#}
-        {#    if ($("#" + _id)){#}
-        {##}
-        {#    }#}
-        {#}#}
+        function closePopup() {
+            var container = $("#popup-container");
+            container.empty();
+        }
+
+        function expandPopup(content) {
+            {#alert(materialized[_id]);#}
+            var container = $("#popup-container");
+            container.append(`<div class="popup" id="popup-window">${content}<button id="popup-close" onclick="closePopup()" >close</button></div>`);
+        }
 
     </script>
 
