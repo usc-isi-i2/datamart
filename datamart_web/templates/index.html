@@ -7,6 +7,9 @@
 </head>
 <body>
 <style>
+    body {
+        font-family: sans-serif;
+    }
     #togglebanner {
         position: sticky;
         top: 0;
@@ -179,7 +182,7 @@
                 </form>
                 <ul>
                     <li><span>Return named entity(might be very slow)</span> <input type="checkbox" value="true" id="return_named_entity"/></li>
-                    <li><span>Max return docs</span><input type="text" id="max_return_docs"></li>
+                    <li><span>Max return docs(default is 10)</span><input type="text" id="max_return_docs"></li>
                 </ul>
                 <br />
                 <div id="search-cnt"></div>
