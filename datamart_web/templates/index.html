@@ -382,10 +382,12 @@
                         cnt_container.append("Results count # " + data.length.toString());
                         for (i = 0; i < data.length; i++){
                             const summary = "<p>" + data[i].summary + "</p>";
+                            const metadata_text = '<p style="white-space: pre-wrap;">' + JSON.stringify(data[i].metadata, null, 4) + "</p>";
                             const _id = data[i].datamart_id;
                             const _url = `/new/materialize_data?datamart_id=${_id}&first_n_rows=30`;
                             const materialize = `<button id="materialize${_id}" value="${_url}" >materialize the first 30 rows</button>`;
-                            result_container.append(materialize + "<br/>" + summary);
+                            const metadata = `<button id="metadata${_id}" value="${_url}" >show the metadata</button>`;
+                            result_container.append(materialize + metadata + "<br/>" + summary);
 
                             const button_selecter = `#materialize${_id}`;
                             $(button_selecter).click(function (e) {
@@ -410,8 +412,14 @@
                                         }
                                     })
                                 }
+                            });
 
-                            })
+                            const metadata_button_selecter = `#metadata${_id}`;
+                            $(metadata_button_selecter).click(function (e) {
+                                console.log('metadata', metadata_text);
+                                e.preventDefault(); // avoid to execute the actual submit of the form.
+                                expandPopup(metadata_text);
+                            });
                         }
                     } else {
                         result_container.append(response.responseText);
@@ -652,8 +660,8 @@
             {#const ele = $(selectID);#}
             {#console.log(selectID, ele);#}
             expandPopup(ele.outerHTML);
-            var container = $("#popup-container");
-            container.find("textarea")[0].style.cssText = "width:100%; height: 100%; font-size:16px;"
+            let container = $("#popup-container");
+            container.find("textarea")[0].style.cssText = "width:100%; height: 100%; font-size:16px;";
         }
 
         function parseMetaList(data) {
@@ -667,13 +675,14 @@
         }
 
         function closePopup() {
-            var container = $("#popup-container");
+            let container = $("#popup-container");
             container.empty();
         }
 
         function expandPopup(content) {
             {#alert(materialized[_id]);#}
-            var container = $("#popup-container");
+            let container = $("#popup-container");
+            container.empty();
             container.append(`<div class="popup" id="popup-window">${content}<button id="popup-close" onclick="closePopup()" >close</button></div>`);
         }
 
