@@ -19,6 +19,19 @@ from datamart.data_loader import DataLoader
 from datamart.joiners.joiner_base import JoinerType
 
 
+class Renamer:
+    def __init__(self):
+        self.d = dict()
+
+    def __call__(self, x):
+        if x not in self.d:
+            self.d[x] = 0
+            return x
+        else:
+            self.d[x] += 1
+            return "%s.%d" % (x, self.d[x])
+
+
 class WebApp(Flask):
 
     def __init__(self):
@@ -126,6 +139,7 @@ class WebApp(Flask):
                                  left_meta=left_meta,
                                  joiner=joiner)
                 if join_res.df is not None:
+                    join_res.df.rename(columns=Renamer(), inplace=True)
                     joined_csv = join_res.df.to_csv(index=False)
                     return self.wrap_response('0000', data=joined_csv,
                                               matched_rows=join_res.matched_rows,
