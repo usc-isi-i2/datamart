@@ -96,11 +96,39 @@
         left: 0;
         padding: 5px;
     }
+    div#togglebanner input {
+        width: 20px;
+    }
+    div#togglebanner label {
+        padding-right: 30px;
+    }
+
 
 
 </style>
     <div id="top-container">
-        <div class="row">
+        <div id="togglebanner">
+            <span>
+              <input type="checkbox" id="search-checkbox" name="search-checkbox" value="search" onclick="toggleSearch()">
+              <label for="search-checkbox">Search</label>
+            </span>
+
+            <span>
+              <input type="checkbox" id="join-checkbox" name="join-checkbox" value="join" onclick="toggleJoin()">
+              <label for="join-checkbox">Join</label>
+            </span>
+
+            <span>
+              <input type="checkbox" id="multi-checkbox" name="multi-checkbox" value="multi" onclick="toggleMulti()">
+              <label for="multi-checkbox">Upload Multiple Files</label>
+            </span>
+
+            <span>
+              <input type="checkbox" id="single-checkbox" name="single-checkbox" value="single" onclick="toggleSingle()">
+              <label for="single-checkbox">Upload Single File</label>
+            </span>
+        </div>
+        <div class="row" id="search-row">
             <div class="left">
                 <h3> Search </h3>
                 <form id="searchbanner" enctype="multipart/form-data" method="post" action="/new/search_data">
@@ -147,7 +175,7 @@
         <br />
         <br />
 
-        <div class="row">
+        <div class="row" id="join-row">
             <div class="left">
                 <h3> Join </h3>
                 <form id="joinbanner" enctype="multipart/form-data" method="post" action="/new/join_data">
@@ -200,7 +228,7 @@
 
         <br />
         <br />
-        <div class="row">
+        <div class="row" id="multi-row">
             <div class="left">
             <h3> Upload Multiple Files </h3>
 
@@ -235,7 +263,7 @@
         <br />
         <br />
 
-        <div class="row">
+        <div class="row" id="single-row">
             <div class="left">
                 <h3> Upload Single File </h3>
                 <form id="uploadsinglebanner" enctype="application/json" method="post" action="/new/get_metadata_single_file">
@@ -295,6 +323,7 @@
 
         $("#query_json").val('{\n\t"dataset": {\n\t\t"about": "gold"\n\t}\n}');
         $("#left_meta").val('{\n\t"implicit_variables": [\n\t\t{\n\t\t\t"name": "",\n\t\t\t"value": "",\n\t\t\t"semantic_type": []\n\t\t}\n\t]\n}');
+
 
         $("#searchbanner").submit(function(e) {
             e.preventDefault(); // avoid to execute the actual submit of the form.
@@ -415,7 +444,7 @@
                         if (results.cover_ratio) {
                             cover_ratio_container.append(`<div><strong>Cover Ratio: ${results.cover_ratio}</strong></div>`)
                         }
-                        result_container.append(parseCSV(data));
+                        result_container.append(parseCSV(data, results.matched_rows));
                     } else {
                         result_container.append(response.responseText);
                     }
@@ -521,7 +550,7 @@
         });
 
 
-        function parseCSV(data) {
+        function parseCSV(data, matches) {
             // start the table
             var html = "<table>";
 
@@ -529,10 +558,15 @@
             var rows = data.split("\n");
 
             // parse lines
-            rows.forEach( function getvalues(ourrow) {
+            rows.forEach( function getvalues(ourrow, idx) {
 
                 // start a table row
-                html += "<tr>";
+                if (idx > 0 && Array.isArray(matches) && matches[idx-1]) {
+                    html += '<tr style="background: #ffefef;">'
+                } else {
+                    html += "<tr>";
+                }
+
 
                 // split line into columns
                 var columns = ourrow.split(",");
@@ -626,6 +660,66 @@
             var container = $("#popup-container");
             container.append(`<div class="popup" id="popup-window">${content}<button id="popup-close" onclick="closePopup()" >close</button></div>`);
         }
+
+        function toggleSearch() {
+          // Get the checkbox
+          let checkBox = document.getElementById("search-checkbox");
+          // Get the output text
+          let row = document.getElementById("search-row");
+
+          // If the checkbox is checked, display the output text
+          if (checkBox.checked === true){
+            row.style.display = "block";
+          } else {
+            row.style.display = "none";
+          }
+        }
+
+        function toggleJoin() {
+          // Get the checkbox
+          let checkBox = document.getElementById("join-checkbox");
+          // Get the output text
+          let row = document.getElementById("join-row");
+
+          // If the checkbox is checked, display the output text
+          if (checkBox.checked === true){
+            row.style.display = "block";
+          } else {
+            row.style.display = "none";
+          }
+        }
+
+        function toggleMulti() {
+          // Get the checkbox
+          let checkBox = document.getElementById("multi-checkbox");
+          // Get the output text
+          let row = document.getElementById("multi-row");
+
+          // If the checkbox is checked, display the output text
+          if (checkBox.checked === true){
+            row.style.display = "block";
+          } else {
+            row.style.display = "none";
+          }
+        }
+
+        function toggleSingle() {
+          // Get the checkbox
+          let checkBox = document.getElementById("single-checkbox");
+          // Get the output text
+          let row = document.getElementById("single-row");
+
+          // If the checkbox is checked, display the output text
+          if (checkBox.checked === true){
+            row.style.display = "block";
+          } else {
+            row.style.display = "none";
+          }
+        }
+        toggleSearch();
+        toggleJoin();
+        toggleMulti();
+        toggleSingle();
 
     </script>
 
