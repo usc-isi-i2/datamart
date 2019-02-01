@@ -9,6 +9,27 @@ class JSONQueryManager(QueryManager):
     GEOSPATIAL_ENTITY = "geospatial_entity"
     GENERIC_ENTITY = "generic_entity"
 
+    def search(self, body: str, size: int = 5000, from_index: int = 0, **kwargs) -> typing.Optional[typing.List[dict]]:
+        """Entry point for querying.
+
+        Args:
+            body: query body.
+            size: query return size.
+            from_index: from index.
+
+        Returns:
+            match result
+        """
+
+        result = self.es.search(index=self.es_index, body=body, size=size, from_=from_index, **kwargs)
+
+        count = result["hits"]["total"]
+        if count <= 0:
+            print("Nothing found")
+            return None
+        return result["hits"]["hits"]
+        # return self.scroll_search(body=body, size=size, count=count)
+
     @classmethod
     def parse_json_query(cls, json_query: dict,
                          df: DataFrame=None,

@@ -181,6 +181,8 @@
                     <li><span>Return named entity(might be very slow)</span> <input type="checkbox" value="true" id="return_named_entity"/></li>
                     <li><span>Max return docs</span><input type="text" id="max_return_docs"></li>
                 </ul>
+                <br />
+                <div id="search-cnt"></div>
 
             </div>
             <div class="right" id="search-results" >
@@ -353,7 +355,9 @@
             }
             console.log('SUBMIT', url_);
             var result_container = $("#search-results");
+            var cnt_container = $("#search-cnt");
             result_container.empty();
+            cnt_container.empty();
             $("#submit-search").prop("disabled", true).val('Searching ...');
 
             $.ajax({
@@ -371,6 +375,7 @@
                     var { code, message, data } = results;
                     if(code === '0000') {
                         console.log("SUCCESS");
+                        cnt_container.append("Results count # " + data.length.toString());
                         for (i = 0; i < data.length; i++){
                             const summary = "<p>" + data[i].summary + "</p>";
                             const _id = data[i].datamart_id;
