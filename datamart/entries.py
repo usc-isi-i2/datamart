@@ -14,7 +14,7 @@ def search(url: str,
            query: dict,
            data: pd.DataFrame or str or d3m_ds.Dataset=None,
            send_data=True,
-           max_return_docs: int=10,
+           max_return_docs: int=20,
            return_named_entity: bool=False) -> typing.List[Dataset]:
     """
     Follow the API defined by https://datadrivendiscovery.org/wiki/display/work/Python+API
