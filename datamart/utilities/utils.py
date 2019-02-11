@@ -136,7 +136,7 @@ class Utils:
        """
         # Get cache instance
         cache = Cache.get_instance()
-        key = json.dumps(metadata) + json.dumps(constrains)
+        key = json.dumps(metadata["materialization"]) + json.dumps(constrains)
         # Hit cache
         cache_result, reason = cache.get(key)
 

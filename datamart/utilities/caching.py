@@ -73,7 +73,6 @@ class Cache:
         else:
             self._cache_replace(key, entry)
             
-    
     def remove(self, key):
         """ Removes entry referenced by key """
         return self._cache.pop(key, None)
@@ -85,8 +84,7 @@ class Cache:
 
         self._cache[key] = entry
         heappush(self._queue, (entry["time_added"], key))
-
-    
+  
     def dataset_path(self, curr_time):
         name = "cached_dataset_{}.csv".format(int(curr_time*1000))
         path = os.path.join(self._dataset_dir, name)
