@@ -122,14 +122,13 @@ class Dataset:
 
     @property
     def summary(self):
-        return """ - SUMMARY OF THE DATAMART DATASET -
- * Datamart ID: {datamart_id}
- * Score: {score}
- * Title: {title}
- * Description: {description}
- * URL: {url}
- * Columns: {columns}
- * Recommend Join Columns: {recommend_join}
+        return """ - {title} -
+    * Datamart ID: {datamart_id}
+    * Score: {score}
+    * Description: {description}
+    * URL: {url}
+    * Columns: {columns}
+    * Recommend Join Columns: {recommend_join}
         """.format(datamart_id=self.id,
                    score=self.score,
                    title=self.metadata.get('title', ''),
@@ -195,7 +194,16 @@ class Dataset:
         return '\n\t'.join(rows)
 
     def _summary_columns(self):
-        return ''.join([self._summary_column(idx, col) for idx, col in enumerate(self.variables)])
+        if len(self.variables) < 10:
+            return ''.join([self._summary_column(idx, col) for idx, col in enumerate(self.variables)])
+        else:
+            res = []
+            for i in range(5):
+                res.append(self._summary_column(i, self.variables[i]))
+            res.append('\n\t ... ')
+            for i in range(len(self.variables) - 5, len(self.variables)):
+                res.append(self._summary_column(i, self.variables[i]))
+            return ''.join(res)
 
     @staticmethod
     def _summary_column(index, column):

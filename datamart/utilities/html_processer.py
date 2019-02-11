@@ -64,10 +64,12 @@ class HTMLProcesser(object):
         extractions = extractor.extract(self.html_text, extract_title=True, extract_meta=True)
         for extraction in extractions:
             if extraction.tag == 'title':
-                descriptions.append(extraction.value.strip())
+                if extraction.value:
+                    descriptions.append(extraction.value.strip())
             elif extraction.tag == 'meta':
                 meta_description = extraction.value.get('description')
-                descriptions.append(meta_description)
+                if meta_description:
+                    descriptions.append(str(meta_description))
         return '\n'.join(descriptions)
 
     def generate_a_tags_from_html(self):

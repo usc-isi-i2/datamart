@@ -60,7 +60,7 @@ class TestRLTKJoiner(unittest.TestCase):
 12-08-2018,Los Angeles,72,moggy,2,chicago,58.8
 '''
 
-        self.assertEqual(res.to_csv(index=False), expected)
+        self.assertEqual(res.df.to_csv(index=False), expected)
 
     @Utils.test_print
     def test_join_cat_str(self):
@@ -77,7 +77,7 @@ class TestRLTKJoiner(unittest.TestCase):
 12-07-2018,Chicago,43,snow,3,12,5,2018,58.8
 12-08-2018,Los Angeles,72,moggy,2,12,2,2018,22.1
 '''
-        self.assertEqual(res.to_csv(index=False), expected)
+        self.assertEqual(res.df.to_csv(index=False), expected)
 
     @Utils.test_print
     def test_join_date_and_str(self):
@@ -94,4 +94,4 @@ class TestRLTKJoiner(unittest.TestCase):
 12-07-2018,Chicago,43,snow,3,58.8
 12-08-2018,Los Angeles,72,moggy,2,22.1
 '''
-        self.assertEqual(res.to_csv(index=False), expected)
+        self.assertEqual(res.df.to_csv(index=False), expected)

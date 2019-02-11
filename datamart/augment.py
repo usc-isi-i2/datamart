@@ -3,8 +3,10 @@ from datamart.profiler import Profiler
 import pandas as pd
 import typing
 from datamart.utilities.utils import Utils, ES_HOST, ES_PORT
-from datamart.joiners.joiner_base import JoinerPrepare
+from datamart.joiners.joiner_base import JoinerPrepare, JoinerType
+from datamart.joiners.join_result import JoinResult
 import warnings
+from itertools import chain
 
 
 class Augment(object):
@@ -27,7 +29,9 @@ class Augment(object):
 
     def query_by_json(self,
                       json_query: dict,
-                      dataset: pd.DataFrame=None, **kwargs
+                      dataset: pd.DataFrame=None,
+                      return_named_entity: bool=False,
+                      **kwargs
                       ) -> typing.Optional[typing.List[dict]]:
         """
 
@@ -41,7 +45,7 @@ class Augment(object):
         """
 
         if json_query:
-            query_body = self.qm.parse_json_query(json_query, dataset)
+            query_body = self.qm.parse_json_query(json_query, dataset, return_named_entity=return_named_entity)
             if query_body:
                 results = self.qm.search(body=query_body, **kwargs)
                 return results
@@ -144,8 +148,8 @@ class Augment(object):
              right_columns: typing.List[typing.List[int]],
              left_metadata: dict = None,
              right_metadata: dict = None,
-             joiner: str = "default"
-             ) -> typing.Optional[pd.DataFrame]:
+             joiner: JoinerType = JoinerType.DEFAULT
+             ) -> JoinResult:
 
         """Join two dataframes based on different joiner.
 
@@ -159,7 +163,7 @@ class Augment(object):
               joiner: string of joiner, default to be "default"
 
           Returns:
-               Dataframe
+               JoinResult
           """
 
         if joiner not in self.joiners:
@@ -167,23 +171,35 @@ class Augment(object):
 
         if not self.joiners[joiner]:
             warnings.warn("No suitable joiner, return original dataframe")
-            return left_df
+            return JoinResult(left_df, [])
 
-        if not left_metadata:
+        print(" - start profiling")
+        if not (left_metadata and left_metadata.get("variables")):
             # Left df is the user provided one.
             # We will generate metadata just based on the data itself, profiling and so on
-            left_metadata = Utils.generate_metadata_from_dataframe(data=left_df)
+            left_metadata = Utils.generate_metadata_from_dataframe(data=left_df, original_meta=left_metadata)
 
         if not right_metadata:
             right_metadata = Utils.generate_metadata_from_dataframe(data=right_df)
 
-        left_metadata = Utils.calculate_dsbox_features(data=left_df, metadata=left_metadata)
-        right_metadata = Utils.calculate_dsbox_features(data=right_df, metadata=right_metadata)
+        # Only profile the joining columns, otherwise it will be too slow:
+        left_metadata = Utils.calculate_dsbox_features(data=left_df, metadata=left_metadata,
+                                                       selected_columns=set(chain.from_iterable(left_columns)))
 
-        return self.joiners[joiner].join(left_df=left_df,
+        right_metadata = Utils.calculate_dsbox_features(data=right_df, metadata=right_metadata,
+                                                        selected_columns=set(chain.from_iterable(right_columns)))
+
+        # update with implicit_variable on the user supplied dataset
+        if left_metadata.get('implicit_variables'):
+            Utils.append_columns_for_implicit_variables_and_add_meta(left_metadata, left_df)
+
+        print(" - start joining tables")
+        res = self.joiners[joiner].join(left_df=left_df,
                                          right_df=right_df,
                                          left_columns=left_columns,
                                          right_columns=right_columns,
                                          left_metadata=left_metadata,
                                          right_metadata=right_metadata,
                                          )
+
+        return res

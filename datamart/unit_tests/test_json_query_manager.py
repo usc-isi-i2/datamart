@@ -14,7 +14,7 @@ class TestJSONQueryManager(unittest.TestCase):
                 "about": "PG12"
             }
         }
-        parsed = self.qm.parse_json_query(query)
+        parsed = self.qm.parse_json_query(query, return_named_entity=True)
         expected = {"query": {"bool": {"must": [
             {"bool": {"should": [
                 {"query_string": {"query": "PG12"}},
@@ -33,7 +33,7 @@ class TestJSONQueryManager(unittest.TestCase):
                 "url": ["www.wikidata.org", "Property:P2302"]
             }
         }
-        parsed = self.qm.parse_json_query(query)
+        parsed = self.qm.parse_json_query(query, return_named_entity=True)
         expected = {"query": {"bool": {"must": [
             {"bool": {"must": [
                 {"bool": {"should": [

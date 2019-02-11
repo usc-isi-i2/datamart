@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import pandas as pd
 from enum import Enum
 import typing
+from datamart.joiners.join_result import JoinResult
 
 
 class JoinerBase(ABC):
@@ -10,7 +11,7 @@ class JoinerBase(ABC):
     """
 
     @abstractmethod
-    def join(self, **kwargs) -> pd.DataFrame:
+    def join(self, **kwargs) -> JoinResult:
         """Implement join method which returns a pandas Dataframe
 
         """
@@ -20,6 +21,7 @@ class JoinerBase(ABC):
 class JoinerType(Enum):
     DEFAULT = "default"
     RLTK = "rltk"
+    EXACT_MATCH = "exact_match"
 
 
 class DefaultJoiner(JoinerBase):
@@ -33,7 +35,7 @@ class DefaultJoiner(JoinerBase):
              left_columns: typing.List[typing.List[int]],
              right_columns: typing.List[typing.List[int]],
              **kwargs
-             ) -> pd.DataFrame:
+             ) -> JoinResult:
 
         left_columns = [x[0] for x in left_columns]
         right_columns = [x[0] for x in right_columns]
@@ -45,17 +47,19 @@ class DefaultJoiner(JoinerBase):
             right_df.columns[right_columns[idx]]: left_df.columns[left_columns[idx]] for idx in range(len(left_columns))
         })
 
-        return pd.merge(left=left_df,
+        df = pd.merge(left=left_df,
                         right=right_df,
                         left_on=[left_df.columns[idx] for idx in left_columns],
                         right_on=[right_df.columns[idx] for idx in right_columns],
                         how='left')
 
+        return JoinResult(df=df)
+
 
 class JoinerPrepare(object):
 
     @staticmethod
-    def prepare_joiner(joiner: str = "default") -> typing.Optional[JoinerBase]:
+    def prepare_joiner(joiner: JoinerType = JoinerType.DEFAULT) -> typing.Optional[JoinerBase]:
 
         """Prepare joiner, lazy evaluation for joiners,
         should be useful because joiner like RLTK may need many dependency packages.
@@ -79,5 +83,9 @@ class JoinerPrepare(object):
 
         if JoinerType(joiner) == JoinerType.DEFAULT:
             return DefaultJoiner()
+
+        if JoinerType(joiner) == JoinerType.EXACT_MATCH:
+            from datamart.joiners.exact_match_joiner import ExactMatchJoiner
+            return ExactMatchJoiner()
 
         return None

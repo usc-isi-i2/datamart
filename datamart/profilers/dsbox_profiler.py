@@ -61,7 +61,7 @@ class DSboxProfiler(object):
         # list of specified features to compute
         self._specified_features = compute_features if compute_features else default_metafeatures
 
-    def profile(self, inputs: pd.DataFrame, metadata: dict) -> dict:
+    def profile(self, inputs: pd.DataFrame, metadata: dict, selected_columns: set = None) -> dict:
         """Save metadata json to file.
 
         Args:
@@ -72,11 +72,11 @@ class DSboxProfiler(object):
             dict
         """
 
-        metadata = self._profile_data(inputs, metadata)
+        metadata = self._profile_data(inputs, metadata, selected_columns)
 
         return metadata
 
-    def _profile_data(self, data: pd.DataFrame, metadata: dict) -> dict:
+    def _profile_data(self, data: pd.DataFrame, metadata: dict, selected_columns: set = None) -> dict:
 
         """Save metadata json to file.
 
@@ -101,6 +101,8 @@ class DSboxProfiler(object):
         column_counter = -1
         for column_name in data:
             column_counter += 1
+            if selected_columns and column_counter not in selected_columns:
+                continue
             col = data[column_name]
             # dict: map feature name to content
             each_res = dict()

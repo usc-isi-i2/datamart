@@ -68,8 +68,11 @@ class NonCategoricalNumberFeature(FeatureBase):
     def similarity_functions(self):
         def similarity_function(left, right):
             # TODO: calc a convert from differences to similarity by the range/variance etc
-            diff = abs(left-right)/self.max_minus_min
-            return pow((1 - diff), self.sigma)
+            if self.max_minus_min:
+                diff = abs(left-right)/self.max_minus_min
+                return pow((1 - diff), self.sigma)
+            else:
+                return 0
         return [similarity_function]
 
 
@@ -89,6 +92,9 @@ class NonCategoricalStringFeature(FeatureBase):
         # TODO: calc the properties below(or copy from profiler info in metadata)
         self._string_type = StringType.WORD
         # more profiled info needed ...
+
+    def value_merge_func(self, record: Record):
+        return [getattr(record, header).replace('_', ' ') for header in self._headers]
 
     def similarity_functions(self):
         return NonCategoricalStringFeature.function_mapping[self._string_type]
@@ -121,7 +127,10 @@ class DatetimeFeature(FeatureBase):
     def similarity_functions(self):
         def compare_time(x, y):
             delta = x - y
-            return 1 - abs(delta/self._range)
+            if self._range:
+                return 1 - abs(delta/self._range)
+            else:
+                return 0
         # return [lambda x, y: 1 if to_datetime(x) == to_datetime(y) else 0]
         return [compare_time]
 

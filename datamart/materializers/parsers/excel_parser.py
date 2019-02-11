@@ -20,7 +20,7 @@ class ExcelParser(ParserBase):
             - url: (str)
         
         Returns:
-            - dfs: (list) list of dataframes and metadata dicts
+            - dfs: (ParseResult) ParseResult obj containing dataframes and metadata dicts
         """
         url = self.encode_url(url)
         xl = pd.ExcelFile(url)

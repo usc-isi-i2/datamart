@@ -12,6 +12,9 @@ class GeneralMaterializer(MaterializerBase):
             'csv': CSVParser,
             'json': JSONParser,
             'xls': ExcelParser,
+            'xlsb': ExcelParser,
+            'xlsm': ExcelParser,
+            'xlsx': ExcelParser,
             'excel': ExcelParser,
             'asp': HTMLParser,
             'html': HTMLParser
@@ -32,9 +35,6 @@ class GeneralMaterializer(MaterializerBase):
         parser = self.type2parser.get(_type, HTMLParser)()
         res = parser.parse(url)
 
-        # TODO: the index builder is designed for one description - one doc, need to change to support a list of tables
-        # if isinstance(res, list):
-        #     return res[0]
         return res
 
     def get(self,
@@ -53,7 +53,4 @@ class GeneralMaterializer(MaterializerBase):
         parser = self.type2parser.get(_type, HTMLParser)()
         res = parser.get(url, index)
 
-        # TODO: the index builder is designed for one description - one doc, need to change to support a list of tables
-        # if isinstance(res, list):
-        #     return res[0]
         return res

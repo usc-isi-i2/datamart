@@ -36,4 +36,4 @@ class TestAugment(unittest.TestCase):
             left_columns=[[0]],
             right_columns=[[0]],
             joiner="default"
-        ), expected)
+        ).df, expected)
