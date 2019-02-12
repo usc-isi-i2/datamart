@@ -21,9 +21,9 @@ class Cache:
             Cache.__instance = self
     
     def _init_cache(self):
-        self._cache_filename = "cache.json"
+        self._cache_filename = "/tmp/cache/cache.json"
         self._max_cache_size = 10
-        self._dataset_dir = "cache/"
+        self._dataset_dir = "/tmp/cache/"
         self._lifetime_duration = 24*60*60 # 24 hours 
         self._queue = []
 
@@ -38,6 +38,10 @@ class Cache:
 
         else:
             self._cache = {}
+    
+    def _save_cache(self):
+        with open(self._cache_filename, 'w') as f:
+            json.dump(self._cache, f)
     
     def get(self, key):
         entry = self._cache.get(key, None)
@@ -70,12 +74,17 @@ class Cache:
         if len(self._cache) < self._max_cache_size:
             self._cache[key] = entry
             heappush(self._queue, (curr_time, key))
+            self._save_cache()
         else:
-            self._cache_replace(key, entry)
+            self._cache_replace(key, entry)  
+        
             
     def remove(self, key):
         """ Removes entry referenced by key """
-        return self._cache.pop(key, None)
+        popped = self._cache.pop(key, None)
+        self._save_cache()
+        return popped
+
     
     def _cache_replace(self, key, entry):
         """ Replaces oldest entry in cache """
@@ -84,6 +93,8 @@ class Cache:
 
         self._cache[key] = entry
         heappush(self._queue, (entry["time_added"], key))
+    
+        self._save_cache()
   
     def dataset_path(self, curr_time):
         name = "cached_dataset_{}.csv".format(int(curr_time*1000))
