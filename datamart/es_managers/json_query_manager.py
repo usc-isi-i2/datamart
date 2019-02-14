@@ -24,6 +24,7 @@ class JSONQueryManager(QueryManager):
         result = self.es.search(index=self.es_index, body=body, size=size, from_=from_index, **kwargs)
 
         count = result["hits"]["total"]
+        print(f'ES search size={size}, count={count}')
         if count <= 0:
             print("Nothing found")
             return None
