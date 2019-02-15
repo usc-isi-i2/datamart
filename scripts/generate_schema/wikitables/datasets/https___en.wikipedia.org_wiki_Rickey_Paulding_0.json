@@ -1,0 +1,131 @@
+{
+	"title": "Table in Rickey Paulding",
+	"description": "Rickey Paulding (born October 23, 1982) is an American professional basketball player, who currently plays for the EWE Baskets Oldenburg of the Basketball Bundesliga (BBL).  He played college basketball for the University of Missouri.",
+	"url": "https://en.wikipedia.org/wiki/Rickey_Paulding",
+	"keywords": [],
+	"date_updated": "2019-02-14T17:48:34Z",
+	"provenance": {
+		"source": "wikipedia.org"
+	},
+	"materialization": {
+		"python_path": "wikitables_materializer",
+		"arguments": {
+			"url": "https://en.wikipedia.org/wiki/Rickey_Paulding",
+			"xpath": "/html[1]/body[1]/div[3]/div[3]/div[4]/div[1]/table[2]"
+		}
+	},
+	"additional_info": {
+		"categories": [
+			"1982 births",
+			"asvel basket players",
+			"african-american basketball players",
+			"all articles with unsourced statements",
+			"american expatriate basketball people in france",
+			"american expatriate basketball people in germany",
+			"american expatriate basketball people in israel",
+			"american men's basketball players",
+			"articles with unsourced statements from march 2007",
+			"bcm gravelines players",
+			"basketball players at the 2003 pan american games",
+			"basketball players from michigan",
+			"detroit pistons draft picks",
+			"detroit pistons players",
+			"ewe baskets oldenburg players",
+			"hapoel jerusalem b.c. players",
+			"israeli basketball super league players",
+			"living people",
+			"missouri tigers men's basketball players",
+			"parade high school all-americans (boys' basketball)",
+			"s.oliver würzburg players",
+			"sportspeople from detroit",
+			"use mdy dates from january 2019"
+		],
+		"sections": [
+			"Early career",
+			"College career",
+			"Professional career",
+			"Career statistics",
+			"Awards and honors",
+			"References",
+			"External links"
+		],
+		"translations": [
+			"Rickey Paulding",
+			"ريكي بولدينغ"
+		]
+	},
+	"variables": [
+		{
+			"name": "Year",
+			"semantic_type": [
+				"https://metadata.datadrivendiscovery.org/types/Interval"
+			]
+		},
+		{
+			"name": "Team",
+			"semantic_type": [
+				"http://schema.org/Text"
+			]
+		},
+		{
+			"name": "GP",
+			"semantic_type": [
+				"http://schema.org/Float"
+			]
+		},
+		{
+			"name": "MPG",
+			"semantic_type": [
+				"http://schema.org/Float"
+			]
+		},
+		{
+			"name": "FG%",
+			"semantic_type": [
+				"http://schema.org/Float"
+			]
+		},
+		{
+			"name": "3P%",
+			"semantic_type": [
+				"http://schema.org/Float"
+			]
+		},
+		{
+			"name": "FT%",
+			"semantic_type": [
+				"http://schema.org/Float"
+			]
+		},
+		{
+			"name": "RPG",
+			"semantic_type": [
+				"http://schema.org/Float"
+			]
+		},
+		{
+			"name": "APG",
+			"semantic_type": [
+				"http://schema.org/Float"
+			]
+		},
+		{
+			"name": "SPG",
+			"semantic_type": [
+				"http://schema.org/Float"
+			]
+		},
+		{
+			"name": "BPG",
+			"semantic_type": [
+				"http://schema.org/Float"
+			]
+		},
+		{
+			"name": "PPG",
+			"semantic_type": [
+				"http://schema.org/Float"
+			]
+		}
+	]
+}

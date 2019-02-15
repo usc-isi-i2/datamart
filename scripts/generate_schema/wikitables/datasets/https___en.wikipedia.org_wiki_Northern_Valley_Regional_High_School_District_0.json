@@ -1,0 +1,67 @@
+{
+	"title": "Table in Northern Valley Regional High School District",
+	"description": "The Northern Valley Regional High School District is a comprehensive regional public high school district composed of two public high schools serving students in ninth through twelfth grades from Closter, Demarest, Harrington Park, Haworth, Northvale, Norwood and Old Tappan, suburban communities in Bergen County, New Jersey, United States. Students from Rockleigh attend the district as part of a sending/receiving relationship.As of the 2014-15 school year, the district and its two schools had an enrollment of 2,505 students and 233.2 classroom teachers (on an FTE basis), for a student–teacher ratio of 10.7:1.The district is classified by the New Jersey Department of Education as being in District Factor Group \"I\", the second-highest of eight groupings. District Factor Groups organize districts statewide to allow comparison by common socioeconomic characteristics of the local districts. From lowest socioeconomic status to highest, the categories are A, B, CD, DE, FG, GH, I and J.The District's Board of Education consists of nine members. Two members are from Closter and Norwood, and one member each from Demarest, Haworth, Harrington Park, Northvale and Old Tappan.",
+	"url": "https://en.wikipedia.org/wiki/Northern_Valley_Regional_High_School_District",
+	"keywords": [],
+	"date_updated": "2019-02-03T02:00:47Z",
+	"provenance": {
+		"source": "wikipedia.org"
+	},
+	"materialization": {
+		"python_path": "wikitables_materializer",
+		"arguments": {
+			"url": "https://en.wikipedia.org/wiki/Northern_Valley_Regional_High_School_District",
+			"xpath": "/html[1]/body[1]/div[3]/div[3]/div[4]/div[1]/table[1]/tbody[1]/tr[17]/td[1]/table[1]"
+		}
+	},
+	"additional_info": {
+		"categories": [],
+		"sections": [
+			"Awards, recognition and rankings",
+			"Extracurricular activities",
+			"Schools",
+			"Administration",
+			"References",
+			"External links"
+		],
+		"translations": []
+	},
+	"variables": [
+		{
+			"name": "Ind.",
+			"semantic_type": [
+				"http://schema.org/Float"
+			]
+		},
+		{
+			"name": "Per pupil",
+			"semantic_type": [
+				"http://schema.org/Text"
+			]
+		},
+		{
+			"name": "District spending",
+			"semantic_type": [
+				"https://metadata.datadrivendiscovery.org/types/Interval"
+			]
+		},
+		{
+			"name": "Rank (*)",
+			"semantic_type": [
+				"http://schema.org/Float"
+			]
+		},
+		{
+			"name": "9 - 12 average",
+			"semantic_type": [
+				"https://metadata.datadrivendiscovery.org/types/Interval"
+			]
+		},
+		{
+			"name": "%± vs. average",
+			"semantic_type": [
+				"http://schema.org/Text"
+			]
+		}
+	]
+}

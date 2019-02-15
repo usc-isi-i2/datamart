@@ -1,22 +1,15 @@
 from datamart.materializers.materializer_base import MaterializerBase
-from datamart.materializers.wikitables_downloader.wikitables import tables
+from tablextract import tables
 from typing import Optional
 from pandas import DataFrame
+from collections import OrderedDict
 
 
 class WikitablesMaterializer(MaterializerBase):
-    """ WikitablesMaterializer class extended from  Materializer class """
-
     def __init__(self, **kwargs):
-        """ initialization and loading the city name to city id map
-
-        """
         MaterializerBase.__init__(self, **kwargs)
 
-    def get(self,
-            metadata: dict = None,
-            constrains: dict = None
-            ) -> Optional[DataFrame]:
+    def get(self, metadata: dict = None, constrains: dict = None) -> Optional[DataFrame]:
         """ API for get a dataframe.
 
             Args:
@@ -25,8 +18,11 @@ class WikitablesMaterializer(MaterializerBase):
                 constrains: include some constrains like date_range, location and so on
         """
         args = metadata['materialization']['arguments']
-        lang = 'en'
-        if 'lang' in args:
-            lang = args['lang']
-        tab = tables(article=args['url'], lang=lang, store_result=False, xpath=args['xpath'])
-        return tab.dataframe()
+        tabs = tables(args['url'], xpath_filter=args['xpath'])
+        data = OrderedDict()
+        if len(tabs):
+            tab = tabs[0].record
+            data = OrderedDict()
+            for col in tab[0].keys():
+                data[col] = [r[col] for r in tab]
+        return DataFrame(data)
