@@ -15,7 +15,6 @@ class TestWikitablesMaterializer(unittest.TestCase):
         mock_metadata = {
             "materialization": {
                 "arguments": {
-                    "lang": "en",
                     "url": "https://en.wikipedia.org/wiki/Albedo",
                     "xpath": "/html[1]/body[1]/div[3]/div[3]/div[4]/div[1]/table[2]"
                 }
