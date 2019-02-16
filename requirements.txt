@@ -64,6 +64,7 @@ tablextract>=1.1.7
 termcolor==1.1.0
 terminado==0.8.1
 testpath==0.4.2
+thinc==6.12.1
 tld==0.9.1
 tornado==5.1.1
 traitlets==4.3.2
