@@ -1,13 +1,13 @@
 from datamart.materializers.wikitables_materializer import WikitablesMaterializer
-from unittest import TestCase
+from datamart.utilities.utils import Utils
 from os.path import join, dirname
 from pandas import read_csv
-from datamart.utilities.utils import Utils
+from unittest import TestCase
 
-resources_path = os.path.join(os.path.dirname(__file__), "./resources")
+resources_path = join(dirname(__file__), "./resources")
 
 
-class TestWikitablesMaterializer(unittest.TestCase):
+class TestWikitablesMaterializer(TestCase):
     def setUp(self):
         self.wikitables_materializer = WikitablesMaterializer()
 
@@ -23,7 +23,7 @@ class TestWikitablesMaterializer(unittest.TestCase):
         }
 
         result = self.wikitables_materializer.get(metadata=mock_metadata).to_dict(orient="records")
-        sample_result = read_csv(os.path.join(resources_path, 'wikitables_sample.csv'), dtype=str)
+        sample_result = read_csv(join(resources_path, 'wikitables_sample.csv'), dtype=str)
         sample_result = sample_result.fillna('').to_dict(orient="records")
 
         self.assertEqual(result, sample_result)
