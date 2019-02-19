@@ -110,7 +110,7 @@ venv.bak/
 .idea/
 
 # WikiTables logs
-datamart/materializers/wikitables_downloader/resources/
+scripts/generate_schema/wikitables/datasets
 
 # IDE settings
 .vscode/
