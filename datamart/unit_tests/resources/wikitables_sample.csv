@@ -2,7 +2,7 @@ Surface,Typical albedo
 Fresh asphalt,0.04
 Open ocean,0.06
 Worn asphalt,0.12
-Conifer forest (Summer),0.08, 0.09 to 0.15
+Conifer forest (Summer),"0.08, 0.09 to 0.15"
 Deciduous trees,0.15 to 0.18
 Bare soil,0.17
 Green grass,0.25
