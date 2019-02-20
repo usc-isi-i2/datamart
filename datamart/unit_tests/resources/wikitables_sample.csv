@@ -1,9 +1,12 @@
-Planet,Geometric,Bond
-Mercury,0.142,0.088
-Venus,0.689,0.76
-Earth,0.434,0.306
-Mars,0.170,0.25
-Jupiter,0.538,0.503
-Saturn,0.499,0.342
-Uranus,0.488,0.300
-Neptune,0.442,0.290
+Surface,Typical albedo
+Fresh asphalt,0.04
+Open ocean,0.06
+Worn asphalt,0.12
+Conifer forest (Summer),"0.08, 0.09 to 0.15"
+Deciduous trees,0.15 to 0.18
+Bare soil,0.17
+Green grass,0.25
+Desert sand,0.40
+New concrete,0.55
+Ocean ice,0.5–0.7
+Fresh snow,0.80
