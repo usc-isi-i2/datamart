@@ -21,10 +21,22 @@ class Cache:
             Cache.__instance = self
     
     def _init_cache(self):
+        self._config_path = os.path.join(os.path.expanduser("~"), ".config/datamart/caching_config.json")
+        
+        # Default config
         self._cache_filename = "/tmp/cache/cache.json"
         self._max_cache_size = 10
         self._dataset_dir = "/tmp/cache/"
-        self._lifetime_duration = 24*60*60 # 24 hours 
+        self._lifetime_duration = 7*24*60*60 # 1 week
+
+        if os.path.exists(self._config_path):
+            with open(self._config_path,'r') as f:
+                config = json.load(f)
+            self._cache_filename = config.get("cache_filename", self._cache_filename)
+            self._max_cache_size = config.get("max_cache_size", self._max_cache_size)
+            self._dataset_dir = config.get("dataset_dir", self._dataset_dir)
+            self._lifetime_duration = config.get("default_validity", self._lifetime_duration)
+            
         self._queue = []
 
         if not os.path.exists(self._dataset_dir):
