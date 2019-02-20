@@ -4,6 +4,12 @@ import pandas as pd
 import typing
 from time import time
 from heapq import heappop, heappush
+from enum import Enum
+
+class EntryState(Enum):
+    EXPIRED = 1
+    FOUND = 2
+    NOT_FOUND = 3
 
 class Cache:
     __instance = None
@@ -58,22 +64,32 @@ class Cache:
     
     def get(self, 
             key: str,
-            ttl: int) -> typing.Optional[pd.DataFrame]:
+            ttl: int) -> (typing.Optional[pd.DataFrame], EntryState):
         """
         Returns the dataset found in cache
+
+        Args:
+            key: cache key
+            ttl: time to live
+        
+        Returns:
+            tuple: (df, reason)
         """
         entry = self._cache.get(key, None)
 
+        if ttl is None:
+            ttl = self.lifetime_duration
+
         # if entry is stale (past lifetime duration)
         if entry and (time()-entry["time_added"]) > ttl:
-            return pd.read_csv(entry["path"]), "expired"
+            return pd.read_csv(entry["path"]), EntryState.EXPIRED
 
         # if entry exists
         if entry and os.path.exists(entry["path"]):
-            return pd.read_csv(entry["path"]), "success"
+            return pd.read_csv(entry["path"]), EntryState.FOUND
         
         # if entry does not exist
-        return None, "not_found"
+        return None, EntryState.NOT_FOUND
     
     def add(self, key, df):
 
