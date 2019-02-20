@@ -1,8 +1,9 @@
 import json
 import os
 import pandas as pd
+import typing
 from time import time
-from heapq import heapify, heappop, heappush
+from heapq import heappop, heappush
 
 class Cache:
     __instance = None
@@ -55,11 +56,16 @@ class Cache:
         with open(self._cache_filename, 'w') as f:
             json.dump(self._cache, f)
     
-    def get(self, key):
+    def get(self, 
+            key: str,
+            ttl: int) -> typing.Optional[pd.DataFrame]:
+        """
+        Returns the dataset found in cache
+        """
         entry = self._cache.get(key, None)
 
         # if entry is stale (past lifetime duration)
-        if entry and (time()-entry["time_added"]) > self._lifetime_duration:
+        if entry and (time()-entry["time_added"]) > ttl:
             return pd.read_csv(entry["path"]), "expired"
 
         # if entry exists
@@ -90,7 +96,10 @@ class Cache:
         else:
             self._cache_replace(key, entry)  
         
-            
+    @property
+    def lifetime_duration(self):
+        return self._lifetime_duration
+        
     def remove(self, key):
         """ Removes entry referenced by key """
         popped = self._cache.pop(key, None)

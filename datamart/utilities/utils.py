@@ -137,8 +137,10 @@ class Utils:
         # Get cache instance
         cache = Cache.get_instance()
         key = json.dumps(metadata["materialization"]) + json.dumps(constrains)
-        # Hit cache
-        cache_result, reason = cache.get(key)
+        ttl = metadata.get("validity",cache.lifetime_duration)
+
+        # Query cache
+        cache_result, reason = cache.get(key, ttl)
 
         # Cache miss
         if cache_result is None:
