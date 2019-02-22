@@ -112,37 +112,67 @@ def bulk_generate_metadata(html_page: str,
     return successed
 
 
-def check_existence(url: str, index: int, es_index: str=PRODUCTION_ES_INDEX):
+def check_existence(materialization: dict, es_index: str = PRODUCTION_ES_INDEX):
     """
-    Query ElasticSearch with "general_materializer" and the "url",
+    Query ElasticSearch with materializer name and arguments. Currently, only works with
+    "general_materializer" and "wikitables_materializer."
     return the datamart id if exists
     else return None
     :param url:
     :return: datamart_id or None
     """
-    query = {
-        "query": {
-            "bool": {
-                "must": [
-                    {
-                        "match_phrase": {
-                            "materialization.python_path": "general_materializer"
+
+    materializer = materialization['python_path']
+    if materializer == "general_materializer":
+        query = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "match_phrase": {
+                                "materialization.python_path": materializer
+                            }
+                        },
+                        {
+                            "match_phrase": {
+                                "materialization.arguments.url": materialization['arguments']['url']
+                            }
+                        },
+                        {
+                            "match_phrase": {
+                                "materialization.arguments.index": materialization['arguments']['index']
+                            }
                         }
-                    },
-                    {
-                        "match_phrase": {
-                            "materialization.arguments.url": url
-                        }
-                    },
-                    {
-                        "match_phrase": {
-                            "materialization.arguments.index": index
-                        }
-                    }
-                ]
+                    ]
+                }
             }
         }
-    }
+    elif materializer == "wikitables_materializer":
+        query = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "match_phrase": {
+                                "materialization.python_path": materializer
+                            }
+                        },
+                        {
+                            "match_phrase": {
+                                "materialization.arguments.url": materialization['arguments']['url']
+                            }
+                        },
+                        {
+                            "match_phrase": {
+                                "materialization.arguments.xpath": materialization['arguments']['xpath']
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    else:
+        raise Exception(f'Do not know how to perform existence check for materializer: {materializer}')
     qm = QueryManager(es_host=ES_HOST, es_port=ES_PORT, es_index=es_index)
     res = qm.search(dumps(query))
     # TODO: how about return many results, should raise warning
@@ -151,17 +181,17 @@ def check_existence(url: str, index: int, es_index: str=PRODUCTION_ES_INDEX):
 
 
 def upload(meta_list: typing.List[dict],
-           es_index: str=PRODUCTION_ES_INDEX,
-           deduplicate: bool=True,
-           index_builder: IndexBuilder=None) -> typing.List[dict]:
+           es_index: str = PRODUCTION_ES_INDEX,
+           deduplicate: bool = True,
+           index_builder: IndexBuilder = None) -> typing.List[dict]:
     ib = index_builder or IndexBuilder()
     succeeded = []
     for meta in meta_list:
         try:
+            Utils.validate_schema(meta)
+            meta['datamart_status'] = 'not_profiled'
             if deduplicate:
-                url = meta['materialization']['arguments']['url']
-                index = meta['materialization']['arguments']['index']
-                exist_id = check_existence(url, index, es_index)
+                exist_id = check_existence(meta['materialization'], es_index=es_index)
                 if exist_id:
                     success = ib.updating_send_trusted_metadata(metadata=meta,
                                                                 es_index=es_index,
@@ -179,10 +209,10 @@ def upload(meta_list: typing.List[dict],
 
 
 def bulk_upload(list_of_meta_list: typing.List[typing.List[dict]],
-                es_index: str=PRODUCTION_ES_INDEX,
-                deduplicate: bool=True
+                es_index: str = PRODUCTION_ES_INDEX,
+                deduplicate: bool = True
                 ) -> typing.List[typing.List[dict]]:
-    succeeded= []
+    succeeded = []
     ib = IndexBuilder()
     for meta_list in list_of_meta_list:
         success_list = upload(meta_list, es_index, deduplicate, ib)
