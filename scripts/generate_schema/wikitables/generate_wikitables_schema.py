@@ -51,6 +51,18 @@ WIKIPEDIA_IGNORE_CATEGORIES = ['articles', 'cs1', 'page', 'dates', ' use']
 WIKIPEDIA_CSS_FILTER = '#content table:not(.infobox):not(.navbox):not(.navbox-inner):not(.navbox-subgroup):not(.sistersitebox)'
 RANDOM_URL = 'https://%s.wikipedia.org/wiki/Special:Random'
 
+
+def generate_datasets_metadata(url, score_threshold=0.8, xpath=None):
+    print('Downloading %s' % url)
+    result = []
+    tabs = tables(url, xpath_filter=xpath, css_filter=WIKIPEDIA_CSS_FILTER)
+    if xpath is None:
+        tabs = [t for t in tabs if t.score > score_threshold]
+    for table in tabs:
+        result.append(metadata(table))
+    return result
+
+
 def generate_datasets(url, path, score_threshold, xpath=None):
     print('Downloading %s' % url)
     tabs = tables(url, xpath_filter=xpath, css_filter=WIKIPEDIA_CSS_FILTER)
@@ -74,8 +86,9 @@ def metadata(table, min_majority=.8):
         date_updated = dt.now().strftime('%Y-%m-%mT%H:%M:%SZ')
     try:
         categories = [kw.lower().split(':')[-1] for kw in pg.categories]
-        kws = [kw for kw in kws if not any(c in kw for c in WIKIPEDIA_IGNORE_CATEGORIES)]
-        kws = set(word for kw in kws for word in findall(r'\w+', kw) if not len(FIND_STOPWORDS(kw)))
+        kws = categories
+        # kws = [kw for kw in kws if not any(c in kw for c in WIKIPEDIA_IGNORE_CATEGORIES)]
+        # kws = set(word for kw in kws for word in findall(r'\w+', kw) if not len(FIND_STOPWORDS(kw)))
     except:
         categories = []
         kws = []
