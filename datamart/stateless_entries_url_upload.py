@@ -1,12 +1,14 @@
-import typing
 import copy
+import typing
 from json import dumps
+
 from datamart.index_builder import IndexBuilder
 from datamart.utilities.html_processer import HTMLProcesser, FILE_BLACK_LIST, TITLE_BLACK_LIST
 from datamart.utilities.utils import Utils, ES_HOST, ES_PORT, PRODUCTION_ES_INDEX
 from datamart.materializers.general_materializer import GeneralMaterializer
 from datamart.materializers.parsers.html_parser import HTMLParser
 from datamart.es_managers.query_manager import QueryManager
+from scripts.generate_schema.wikitables.generate_wikitables_schema import generate_datasets_metadata as generate_wikitables_metadata
 
 
 def generate_metadata(description: dict, ignore_html=False, enable_two_ravens_profiler=False) -> typing.List[dict]:
@@ -219,3 +221,8 @@ def bulk_upload(list_of_meta_list: typing.List[typing.List[dict]],
         if success_list:
             succeeded.append(success_list)
     return succeeded
+
+
+def wikipedia_tables_metadata(url: str) -> typing.List[typing.Dict]:
+    result = generate_wikitables_metadata(url)
+    return result

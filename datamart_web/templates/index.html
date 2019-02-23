@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>ISI-datamart</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='jquery.csv.min.js') }}"></script>
 </head>
 <body>
 <style>
@@ -138,7 +139,7 @@
 
             <span>
               <input type="checkbox" id="multi-checkbox" name="multi-checkbox" value="multi" onclick="toggleMulti()">
-              <label for="multi-checkbox">Upload Multiple Files</label>
+              <label for="multi-checkbox">Upload Multiple Tables</label>
             </span>
 
             <span>
@@ -245,9 +246,10 @@
 
         <div class="row" id="multi-row">
             <div class="left">
-            <h3> Upload Multiple Files </h3>
+            <h3> Upload Multiple Tables </h3>
 
-            <form id="uploadmultibanner" enctype="application/json" method="post" action="/new/get_metadata_extract_links">
+            <!-- <form id="uploadmultibanner" enctype="application/json" method="post" action="/new/get_metadata_extract_links"> -->
+	    <form id="uploadmultibanner" enctype="application/json" method="post" action="/new/get_multiple_dataset_metadata">
                 <ul>
                     <li>
                         <p>
@@ -575,6 +577,41 @@
 
 
         function parseCSV(data, matches) {
+            // start the table
+            var html = "<table>";
+
+            // split into lines
+            var rows = data.split("\n");
+
+            // parse lines
+            rows.forEach( function getvalues(ourrow, idx) {
+
+                // start a table row
+                if (idx > 0 && Array.isArray(matches) && matches[idx-1]) {
+                    html += '<tr style="background: #ffefef;">'
+                } else {
+                    html += "<tr>";
+                }
+
+
+                // split line into columns
+                var columns = $.csv.toArray(ourrow)
+
+                columns.forEach(function(col){
+                    html += "<td>" + col + "</td>";
+                });
+
+                // close row
+                html += "</tr>";
+            });
+            // close table
+            html += "</table>";
+
+            return html;
+        }
+
+        function parseCSVOld(data, matches) {
+	    var table = $.csv.toArrays(data)
             // start the table
             var html = "<table>";
 

@@ -12,7 +12,7 @@ from flask import Flask, request, render_template
 from datamart_web.src.search_metadata import SearchMetadata
 from datamart_web.src.join_datasets import JoinDatasets
 
-from datamart import search, join, generate_metadata, upload, bulk_generate_metadata, bulk_upload
+from datamart import search, join, generate_metadata, upload, bulk_generate_metadata, bulk_upload, wikipedia_tables_metadata
 from datamart.utilities.utils import SEARCH_URL, PRODUCTION_ES_INDEX, TEST_ES_INDEX
 
 from datamart.data_loader import DataLoader
@@ -162,20 +162,39 @@ class WebApp(Flask):
             except Exception as e:
                 return self.wrap_response('1000', msg="FAIL GENERATE DATA FOR SINGLE FILE - %s \n %s" %(str(e), str(traceback.format_exc())))
 
-        @self.route('/new/get_metadata_extract_links', methods=['POST'])
-        def get_metadata_extract_links():
+        @self.route('/new/get_multiple_dataset_metadata', methods=['POST'])
+        def get_multiple_dataset_metadata():
             try:
-                enable_two_ravens_profiler = False
-                if request.args.get('enable_two_ravens_profiler') and request.args.get(
-                        'enable_two_ravens_profiler').lower() != "false":
-                    enable_two_ravens_profiler = True
                 url = request.json.get('url')
-                description = request.json.get('description')
-                metadata_lists = bulk_generate_metadata(html_page=url, description=description,
-                                                        enable_two_ravens_profiler=enable_two_ravens_profiler)
+                if 'wikipedia.org' in url:
+                    metadata_lists = [[dataset_meta] for dataset_meta in wikipedia_tables_metadata(url)]
+                else:
+                    enable_two_ravens_profiler = False
+                    if request.args.get('enable_two_ravens_profiler') and request.args.get(
+                            'enable_two_ravens_profiler').lower() != "false":
+                        enable_two_ravens_profiler = True
+                    url = request.json.get('url')
+                    description = request.json.get('description')
+                    metadata_lists = bulk_generate_metadata(html_page=url, description=description,
+                                                            enable_two_ravens_profiler=enable_two_ravens_profiler)
                 return self.wrap_response('0000', data=metadata_lists)
             except Exception as e:
                 return self.wrap_response('1000', msg="FAIL GENERATE META FROM LINKS - %s \n %s" %(str(e), str(traceback.format_exc())))
+
+        # @self.route('/new/get_metadata_extract_links', methods=['POST'])
+        # def get_metadata_extract_links():
+        #     try:
+        #         enable_two_ravens_profiler = False
+        #         if request.args.get('enable_two_ravens_profiler') and request.args.get(
+        #                 'enable_two_ravens_profiler').lower() != "false":
+        #             enable_two_ravens_profiler = True
+        #         url = request.json.get('url')
+        #         description = request.json.get('description')
+        #         metadata_lists = bulk_generate_metadata(html_page=url, description=description,
+        #                                                 enable_two_ravens_profiler=enable_two_ravens_profiler)
+        #         return self.wrap_response('0000', data=metadata_lists)
+        #     except Exception as e:
+        #         return self.wrap_response('1000', msg="FAIL GENERATE META FROM LINKS - %s \n %s" %(str(e), str(traceback.format_exc())))
 
         @self.route('/new/upload_metadata_list', methods=['POST'])
         def upload_list_of_metadata():
