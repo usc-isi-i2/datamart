@@ -35,7 +35,7 @@ class IndexBuilder(object):
                                    save_to_file: str = None,
                                    save_to_file_mode: str = "a+",
                                    cache_dataset_path: str = None,
-                                   enable_two_ravens_profiler: bool=False
+                                   enable_two_ravens_profiler: bool = False
                                    ) -> dict:
 
         description, data = self._read_data(description_path, data_path)
@@ -44,7 +44,7 @@ class IndexBuilder(object):
                 data = Utils.materialize(metadata=description).infer_objects()
                 if cache_dataset_path:
                     data.to_csv(cache_dataset_path, index=False)
-            except:
+            except Exception:
                 traceback.print_exc()
                 warnings.warn("Materialization Failed, index based on schema json only. (%s)" % description_path)
 
@@ -184,7 +184,7 @@ class IndexBuilder(object):
         if not data and query_data_for_updating:
             try:
                 data = Utils.materialize(metadata=description).infer_objects()
-            except:
+            except Exception:
                 traceback.print_exc()
                 warnings.warn("Materialization Failed, index based on schema json only. (%s)" % description_path)
 
@@ -437,5 +437,7 @@ class IndexBuilder(object):
     def update_datamart_id(metadata: dict, datamart_id: int):
         metadata['datamart_id'] = datamart_id
         if metadata.get('variables'):
-            for v in metadata.get('variables'):
-                v['datamart_id'] += metadata['datamart_id']
+            for index, v in enumerate(metadata.get('variables')):
+                # kyao: this is the old code, but it looks wrong
+                # v['datamart_id'] += metadata['datamart_id']
+                v['datamart_id'] = metadata['datamart_id'] + index + 1
