@@ -85,8 +85,11 @@ class Cache:
             return pd.read_csv(entry["path"]), EntryState.EXPIRED
 
         # if entry exists
-        if entry and os.path.exists(entry["path"]):
-            return pd.read_csv(entry["path"]), EntryState.FOUND
+        if entry:
+            if os.path.exists(entry["path"]):
+                return pd.read_csv(entry["path"]), EntryState.FOUND
+            else:
+                self.remove(key)
         
         # if entry does not exist
         return None, EntryState.NOT_FOUND
@@ -119,6 +122,8 @@ class Cache:
     def remove(self, key):
         """ Removes entry referenced by key """
         popped = self._cache.pop(key, None)
+        if os.path.exists(popped["path"]):
+            os.remove(popped["path"])
         self._save_cache()
         return popped
 
