@@ -135,12 +135,21 @@ class Utils:
             pandas dataframe
        """
         # Get cache instance
-        cache = Cache.get_instance()
-        key = json.dumps(metadata["materialization"]) + json.dumps(constrains)
-        ttl = metadata.get("validity",cache.lifetime_duration)
+        try:
+            cache = Cache.get_instance()
+        except:
+            print("ERR: Unable to get cache instance")
+            cache = None
+        
+        if cache:
+            key = json.dumps(metadata["materialization"]) + json.dumps(constrains)
+            ttl = metadata.get("validity",cache.lifetime_duration)
 
-        # Query cache
-        cache_result, reason = cache.get(key, ttl)
+            # Query cache
+            cache_result, reason = cache.get(key, ttl)
+        else:
+            cache_result = None
+            reason = EntryState.ERROR
 
         # Cache miss
         if cache_result is None:
@@ -148,7 +157,8 @@ class Utils:
             df = materializer.get(metadata=metadata, constrains=constrains)
 
             if isinstance(df, pd.DataFrame):
-                cache.add(key, df)
+                if cache is not None:
+                    cache.add(key, df) 
                 return df
                 
             return None

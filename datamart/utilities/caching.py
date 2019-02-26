@@ -10,6 +10,42 @@ class EntryState(Enum):
     EXPIRED = 1
     FOUND = 2
     NOT_FOUND = 3
+    ERROR = -1
+
+class CacheConfig():
+    def __init__(self, config: dict):
+        # Default config
+        if config is not None:
+            self._config = config
+        else:
+            self._config = {
+            "cache_filename": "cache.json",
+            "max_cache_size":10,
+            "dataset_dir":"/nfs1/dsbox-repo/datamart/cache",
+            "default_validity": 604800
+            }
+    
+    @property
+    def cache_filename(self):
+        name = os.path.join(self.dataset_dir, self._config.get("cache_filename", "cache.json"))
+        return name
+   
+    @property
+    def max_cache_size(self):
+        return self._config.get("max_cache_size", 10)
+    
+    @property
+    def dataset_dir(self):
+        return self._config.get("dataset_dir", "/nfs1/dsbox-repo/datamart/cache")
+    
+    @property
+    def lifetime_duration(self):
+        return self._config.get("default_validity", 7*24*60*60)
+    
+    def save(self, config_path):
+        with open(config_path, 'w+') as f:
+            json.dump(self._config, f)
+        
 
 class Cache:
     __instance = None
@@ -29,28 +65,23 @@ class Cache:
     
     def _init_cache(self):
         self._config_path = os.path.join(os.path.expanduser("~"), ".config/datamart/caching_config.json")
-        
-        # Default config
-        self._cache_filename = "/tmp/cache/cache.json"
-        self._max_cache_size = 10
-        self._dataset_dir = "/tmp/cache/"
-        self._lifetime_duration = 7*24*60*60 # 1 week
 
         if os.path.exists(self._config_path):
             with open(self._config_path,'r') as f:
-                config = json.load(f)
-            self._cache_filename = config.get("cache_filename", self._cache_filename)
-            self._max_cache_size = config.get("max_cache_size", self._max_cache_size)
-            self._dataset_dir = config.get("dataset_dir", self._dataset_dir)
-            self._lifetime_duration = config.get("default_validity", self._lifetime_duration)
+                config_dict = json.load(f)
+                self.config = CacheConfig(config_dict)
+        else:
+            config_dict = None
+            self.config = CacheConfig(config_dict)
+            self.config.save(self._config_path)
             
         self._queue = []
 
-        if not os.path.exists(self._dataset_dir):
-            os.makedirs(self._dataset_dir)
-
-        if os.path.exists(self._cache_filename):
-            with open(self._cache_filename, 'r') as f:
+        if not os.path.exists(self.config.dataset_dir):
+            os.makedirs(self.config.dataset_dir)
+                
+        if os.path.exists(self.config.cache_filename):
+            with open(self.config.cache_filename, 'r') as f:
                 self._cache = json.load(f)
                 for key in self._cache:
                     heappush(self._queue, (self._cache[key]["time_added"], key))
@@ -59,7 +90,7 @@ class Cache:
             self._cache = {}
     
     def _save_cache(self):
-        with open(self._cache_filename, 'w') as f:
+        with open(self.config.cache_filename, 'w') as f:
             json.dump(self._cache, f)
     
     def get(self, 
@@ -108,7 +139,7 @@ class Cache:
             "time_added":curr_time
         }
 
-        if len(self._cache) < self._max_cache_size:
+        if len(self._cache) < self.config.max_cache_size:
             self._cache[key] = entry
             heappush(self._queue, (curr_time, key))
             self._save_cache()
@@ -117,7 +148,7 @@ class Cache:
         
     @property
     def lifetime_duration(self):
-        return self._lifetime_duration
+        return self.config.lifetime_duration
         
     def remove(self, key):
         """ Removes entry referenced by key """
@@ -140,7 +171,7 @@ class Cache:
   
     def dataset_path(self, curr_time):
         name = "cached_dataset_{}.csv".format(int(curr_time*1000))
-        path = os.path.join(self._dataset_dir, name)
+        path = os.path.join(self.config.dataset_dir, name)
         return path
 
 
