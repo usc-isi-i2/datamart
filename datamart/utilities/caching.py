@@ -1,35 +1,47 @@
+"""
+Contains classes for Cache, EntryState, CacheConfig
+"""
+
 import json
 import os
-import pandas as pd
 import typing
+
 from time import time
 from heapq import heappop, heappush
 from enum import Enum
 
+import pandas as pd
+
 class EntryState(Enum):
+    """
+    Enum to keep track of different possible states of a cache entry
+    """
     EXPIRED = 1
     FOUND = 2
     NOT_FOUND = 3
     ERROR = -1
 
 class CacheConfig():
+    """
+    Contains configuration data for the cache
+    """
     def __init__(self, config: dict):
         # Default config
         if config is not None:
             self._config = config
         else:
             self._config = {
-            "cache_filename": "cache.json",
-            "max_cache_size":10,
-            "dataset_dir":"/nfs1/dsbox-repo/datamart/cache",
-            "default_validity": 604800
+                "cache_filename": "cache.json",
+                "max_cache_size":10,
+                "dataset_dir":"/nfs1/dsbox-repo/datamart/cache",
+                "default_validity": 604800
             }
-    
+
     @property
     def cache_filename(self):
         name = os.path.join(self.dataset_dir, self._config.get("cache_filename", "cache.json"))
         return name
-   
+
     @property
     def max_cache_size(self):
         return self._config.get("max_cache_size", 10)
@@ -48,6 +60,9 @@ class CacheConfig():
         
 
 class Cache:
+    """
+    Contains implementation of Cache. Modeled as singleton.
+    """
     __instance = None
 
     @staticmethod
