@@ -6,12 +6,12 @@ from datamart.utilities.utils import Utils
 resources_path = os.path.join(os.path.dirname(__file__), "./resources")
 
 
-class TestWikidataMaterializer(unittest.TestCase):
+class TestEIAGovMaterializer(unittest.TestCase):
     def setUp(self):
         self.eia_gov_materializer = EIAGovMaterializer()
 
     @Utils.test_print
-    def test_get(self):
+    def test_get_eia_brent_cruide_test(self):
         mock_metadata = {
             "url": "http://api.eia.gov/series/?series_id=PET.RBRTE.D&api_key=5c444b278ff431a31037ba48808c3144&out=json"
         }
