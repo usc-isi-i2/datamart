@@ -128,16 +128,21 @@ class Cache:
 
         # if entry is stale (past lifetime duration)
         if entry and (time()-entry["time_added"]) > ttl:
+            print("cache expired")
             return pd.read_csv(entry["path"]), EntryState.EXPIRED
 
         # if entry exists
         if entry:
             if os.path.exists(entry["path"]):
+                print("cache hit")
                 return pd.read_csv(entry["path"]), EntryState.FOUND
+            # No file found at entry
             else:
+                print("cache: no file found")
                 self.remove(key)
         
         # if entry does not exist
+        print("cache: no entry")
         return None, EntryState.NOT_FOUND
     
     def add(self, key, df):
