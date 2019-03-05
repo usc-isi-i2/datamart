@@ -5,6 +5,7 @@ Contains classes for Cache, EntryState, CacheConfig
 import json
 import os
 import typing
+import threading
 
 from time import time
 from heapq import heappop, heappush
@@ -64,11 +65,15 @@ class Cache:
     Contains implementation of Cache. Modeled as singleton.
     """
     __instance = None
+    __lock = threading.RLock()
 
     @staticmethod
     def get_instance():
         if Cache.__instance is None:
-            Cache()
+            Cache.__lock.acquire()
+            if Cache.__instance is None:
+                Cache()
+            Cache.__lock.release()
         return Cache.__instance
     
     def __init__(self):
