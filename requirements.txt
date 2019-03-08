@@ -4,6 +4,7 @@ bleach==3.0.0
 chardet==3.0.4
 Click==7.0
 cycler==0.10.0
+d3m==2019.2.18
 decorator==4.3.0
 defusedxml==0.5.0
 elasticsearch==6.3.1
