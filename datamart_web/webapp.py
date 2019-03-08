@@ -4,14 +4,32 @@ import sys
 import pandas as pd
 # When load spacy in a route, it will raise error. So do not remove "import spacy" here:
 import spacy
+import traceback
 
 sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 from datamart_web.src.search_metadata import SearchMetadata
 from datamart_web.src.join_datasets import JoinDatasets
 
-from datamart.entries import search, upload
+from datamart import search, join, generate_metadata, upload, bulk_generate_metadata, bulk_upload, wikipedia_tables_metadata
+from datamart.utilities.utils import SEARCH_URL, PRODUCTION_ES_INDEX, TEST_ES_INDEX
+
+from datamart.data_loader import DataLoader
+from datamart.joiners.joiner_base import JoinerType
+
+
+class Renamer:
+    def __init__(self):
+        self.d = dict()
+
+    def __call__(self, x):
+        if x not in self.d:
+            self.d[x] = 0
+            return x
+        else:
+            self.d[x] += 1
+            return "%s.%d" % (x, self.d[x])
 
 
 class WebApp(Flask):
@@ -25,7 +43,7 @@ class WebApp(Flask):
 
     @staticmethod
     def read_file(files, key, _type):
-        if key in files:
+        if files and key in files:
             try:
                 if _type == 'csv':
                     return pd.read_csv(files[key]).infer_objects()
@@ -56,125 +74,178 @@ class WebApp(Flask):
 
         @self.route('/')
         def hello():
-            return 'Datamart Web Service!'
-
-        @self.route('/search/default_search', methods=['POST'])
-        def default_search():
-            print(request.files['file'])
-            old_df = pd.read_csv(request.files['file']).infer_objects()
-            if old_df is None or old_df.empty:
-                return json.dumps({
-                    "message": "Failed to create Dataframe from csv, nothing found"
-                })
-            self.old_df = old_df
-            print('returning')
-            return json.dumps(self.search_metadata.default_search_by_csv(request=request, old_df=self.old_df))
-
-        @self.route('/augment/default_join', methods=['POST'])
-        def default_join():
-            if self.old_df is None or self.old_df.empty:
-                return json.dumps({
-                    "message": "Failed to join, no dataset uploaded"
-                })
-            return self.join_datasets.default_join(request=request, old_df=self.old_df)
-
-        @self.route('/new/upload_data', methods=['POST'])
-        def upload_data():
-            try:
-                description = self.read_file(request.files, 'file', 'json')
-                es_index = 'datamart_tmp' if request.form.get('test') == 'true' else 'datamart_all'
-                print(description, es_index)
-                res = upload(description, es_index)
-                return self.wrap_response('0000', data=res)
-            except Exception as e:
-                return self.wrap_response('1000', msg="FAIL - " + str(e))
+            return 'Datamart Web Service!<a href="/gui">gui</a>'
 
         @self.route('/new/search_data', methods=['POST'])
         def search_data():
-            self.results = []
             try:
                 query = self.read_file(request.files, 'query', 'json')
                 data = self.read_file(request.files, 'data', 'csv')
-                res = search(query, data)
-                self.results = res
-                return self.wrap_response('0000', data=[r._es_raw_object for r in res])
+                if not query and request.form.get('query_json'):
+                    query = json.loads(request.form.get('query_json'))
+                max_return_docs = int(request.args.get('max_return_docs')) if request.args.get('max_return_docs') else 10
+                return_named_entity = False
+                if request.args.get('return_named_entity') and request.args.get('return_named_entity').lower() != "false":
+                    return_named_entity = True
+                res = search(SEARCH_URL, query, data, max_return_docs=max_return_docs,
+                             return_named_entity=return_named_entity)
+                results = []
+                for r in res:
+                    cur = {
+                        'summary': r.summary,
+                        'score': r.score,
+                        'metadata': r.metadata,
+                        'datamart_id': r.id,
+                    }
+                    results.append(cur)
+                return self.wrap_response(code='0000',
+                                          msg='Success',
+                                          data=results)
             except Exception as e:
-                return self.wrap_response('1000', msg="FAIL - " + str(e))
+                return self.wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" %(str(e), str(traceback.format_exc())))
 
         @self.route('/new/materialize_data', methods=['GET'])
         def materialize_data():
             try:
-                index = int(request.args.get('index'))
-                dataset = self.results[index]
-                return self.wrap_response('0000', data=dataset.materialize().to_csv(index=False))
+                datamart_id = int(request.args.get('datamart_id'))
+                first_n_rows = None
+                try:
+                    first_n_rows = int(request.args.get('first_n_rows'))
+                except:
+                    pass
+                meta, df = DataLoader.load_meta_and_data_by_id(datamart_id, first_n_rows)
+                csv = df.to_csv(index=False)
+                return self.wrap_response('0000', data=csv)
             except Exception as e:
-                return self.wrap_response('1000', msg="FAIL - " + str(e))
+                return self.wrap_response('1000', msg="FAIL MATERIALIZE - %s \n %s" %(str(e), str(traceback.format_exc())))
 
-        @self.route('/temp_gui', methods=['GET'])
-        def temp_gui():
-            return '''
-<div>
-    <h3> Upload </h3>
-    <form id="uploadbanner" enctype="multipart/form-data" method="post" action="/new/upload_data">
-        <ul>
-            <li>
-                <p>Please upload a description json for your dataset
-                    <a href="https://datadrivendiscovery.org/wiki/display/work/Datamart+user+upload+dataset+API">(see explain)</a>:
-                </p>
-                <input name="file" type="file" />
-                <br />
-            </li>
-            <li>
-                <p>If checked, the data will not be uploaded to the in-use endpoint but the one for test: </p>
-                <input name="test" type="checkbox" value="true" checked>Just for test</input>
-                <br />
-            </li>
-            <li>
-                <p>When submitted, please wait for a while until you got a json response with success/fail message and the metadata put in Datamart:</p>
-                <input type="submit" value="submit" id="submit" />
-            </li>
-        </ul>
-    </form>
-    
-    <br />
-    <br />
-    
-    <h3> Search </h3>
-    <form id="searchbanner" enctype="multipart/form-data" method="post" action="/new/search_data">
-        <ul>
-            <li>
-                <p>Please upload a description json for your target datasets
-                    <a href="https://datadrivendiscovery.org/wiki/display/work/Query+input+samples">(see examples)</a>:
-                </p>
-                <input name="query" type="file" />
-                <br />
-            </li>
-            <li>
-                <p>
-                    Please upload the data(csv file) you would like to argument:
-                </p>
-                <input name="data" type="file" />
-                <br />
-            </li>
-            <li>
-                <input type="submit" value="submit" id="submit" />
-                <br />It will return the search results(a list of dataset description documents). 
-            </li>
-        </ul>
-    </form>
-</div>
-'''
+        @self.route('/new/join_data', methods=['POST'])
+        def join_data():
+            try:
+                left_df = self.read_file(request.files, 'left_data', 'csv')
+                right_id = int(request.form.get('right_data'))
+                left_columns = json.loads(request.form.get('left_columns'))
+                right_columns = json.loads(request.form.get('right_columns'))
+                left_meta = json.loads(request.form.get('left_meta')) if request.form.get('left_meta') else None
+                exact_match = request.args.get('exact_match') or request.form.get('exact_match')
+                if exact_match and exact_match.lower() == 'true':
+                    joiner = JoinerType.EXACT_MATCH
+                else:
+                    joiner = JoinerType.RLTK
+                join_res = join(left_data=left_df,
+                                 right_data=right_id,
+                                 left_columns=left_columns,
+                                 right_columns=right_columns,
+                                 left_meta=left_meta,
+                                 joiner=joiner)
+                if join_res.df is not None:
+                    join_res.df.rename(columns=Renamer(), inplace=True)
+                    joined_csv = join_res.df.to_csv(index=False)
+                    return self.wrap_response('0000', data=joined_csv,
+                                              matched_rows=join_res.matched_rows,
+                                              cover_ratio=join_res.cover_ratio)
+                else:
+                    return self.wrap_response('2000', msg="Failed, invalid inputs")
+            except Exception as e:
+                return self.wrap_response('1000', msg="FAIL JOIN - %s \n %s" %(str(e), str(traceback.format_exc())))
+
+        @self.route('/new/get_metadata_single_file', methods=['POST'])
+        def get_metadata_single_file():
+            try:
+                description = request.json
+                enable_two_ravens_profiler = False
+                if request.args.get('enable_two_ravens_profiler') and request.args.get(
+                        'enable_two_ravens_profiler').lower() != "false":
+                    enable_two_ravens_profiler = True
+                metadata_list = generate_metadata(description, enable_two_ravens_profiler=enable_two_ravens_profiler)
+                return self.wrap_response('0000', data=metadata_list)
+            except Exception as e:
+                return self.wrap_response('1000', msg="FAIL GENERATE DATA FOR SINGLE FILE - %s \n %s" %(str(e), str(traceback.format_exc())))
+
+        @self.route('/new/get_multiple_dataset_metadata', methods=['POST'])
+        def get_multiple_dataset_metadata():
+            try:
+                url = request.json.get('url')
+                if 'wikipedia.org' in url:
+                    metadata_lists = [[dataset_meta] for dataset_meta in wikipedia_tables_metadata(url)]
+                else:
+                    enable_two_ravens_profiler = False
+                    if request.args.get('enable_two_ravens_profiler') and request.args.get(
+                            'enable_two_ravens_profiler').lower() != "false":
+                        enable_two_ravens_profiler = True
+                    url = request.json.get('url')
+                    description = request.json.get('description')
+                    metadata_lists = bulk_generate_metadata(html_page=url, description=description,
+                                                            enable_two_ravens_profiler=enable_two_ravens_profiler)
+                return self.wrap_response('0000', data=metadata_lists)
+            except Exception as e:
+                return self.wrap_response('1000', msg="FAIL GENERATE META FROM LINKS - %s \n %s" %(str(e), str(traceback.format_exc())))
+
+        # @self.route('/new/get_metadata_extract_links', methods=['POST'])
+        # def get_metadata_extract_links():
+        #     try:
+        #         enable_two_ravens_profiler = False
+        #         if request.args.get('enable_two_ravens_profiler') and request.args.get(
+        #                 'enable_two_ravens_profiler').lower() != "false":
+        #             enable_two_ravens_profiler = True
+        #         url = request.json.get('url')
+        #         description = request.json.get('description')
+        #         metadata_lists = bulk_generate_metadata(html_page=url, description=description,
+        #                                                 enable_two_ravens_profiler=enable_two_ravens_profiler)
+        #         return self.wrap_response('0000', data=metadata_lists)
+        #     except Exception as e:
+        #         return self.wrap_response('1000', msg="FAIL GENERATE META FROM LINKS - %s \n %s" %(str(e), str(traceback.format_exc())))
+
+        @self.route('/new/upload_metadata_list', methods=['POST'])
+        def upload_list_of_metadata():
+            try:
+                all_metadata = request.json.get('metadata')
+                for_test = request.json.get('for_test')
+                allow_duplicates = request.json.get('allow_duplicates')
+                es_index = TEST_ES_INDEX if for_test else PRODUCTION_ES_INDEX
+                deduplicate = not allow_duplicates
+                succeed = []
+                if isinstance(all_metadata, dict):
+                    succeed = upload(meta_list=[all_metadata],
+                           es_index=es_index,
+                           deduplicate=deduplicate)
+                elif all_metadata and isinstance(all_metadata[0], dict):
+                    succeed = upload(meta_list=all_metadata,
+                           es_index=es_index,
+                           deduplicate=deduplicate)
+                elif all_metadata and isinstance(all_metadata[0], list):
+                    succeed = bulk_upload(list_of_meta_list=all_metadata,
+                                es_index=es_index,
+                                deduplicate=deduplicate)
+                return self.wrap_response('0000', data=succeed)
+            except Exception as e:
+                return self.wrap_response('1000', msg="FAIL UPLOAD - %s \n %s" %(str(e), str(traceback.format_exc())))
+
+        # ----- gui for upload -----
+        @self.route('/gui', methods=['GET'])
+        def gui_index():
+            return render_template("index.html")
+
+        # def get_metadata_extract_links():
+        #     try:
+        #         url = request.json.get('url')
+        #         description = request.json.get('description')
+        #         metadata_lists = bulk_generate_metadata(html_page=url, description=description)
+        #         return self.wrap_response('0000', data=metadata_lists)
+        #     except Exception as e:
+        #         return self.wrap_response('1000', msg="FAIL METADATA GENERATION - " + str(e))
 
         return self
 
     @staticmethod
-    def wrap_response(code, msg='', data=None):
+    def wrap_response(code, msg='', data=None, **kwargs):
         return json.dumps({
             'code': code,
             'message': msg or ('Success' if code == '0000' else 'Failed'),
-            'data': data
+            'data': data,
+            **kwargs
         }, indent=2, default=lambda x: str(x))
 
 
 if __name__ == '__main__':
-    WebApp().create_app().run(host="0.0.0.0", port=9001, debug=False, ssl_context='adhoc')
+    WebApp().create_app().run(host="0.0.0.0", port=9000, debug=False, ssl_context=('cert.pem', 'key.pem'), threaded=True)

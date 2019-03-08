@@ -1,0 +1,193 @@
+{
+  "datamart_id": null,
+  "materialization": {
+    "python_path": "default_materializer",
+    "arguments": null
+  },
+  "variables": [
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Age",
+      "description": "column name: Age, dtype: int64",
+      "two_ravens_variables": {
+        "variableName": "Age",
+        "description": "",
+        "numchar": "numeric",
+        "nature": "ordinal",
+        "binary": false,
+        "interval": "discrete",
+        "time": "unknown",
+        "invalidCount": 0,
+        "validCount": 3,
+        "uniqueCount": 3,
+        "median": "29.0",
+        "mean": "30.333333333333332",
+        "max": 34,
+        "min": 28,
+        "mode": [
+          28,
+          29,
+          34
+        ],
+        "modeFreq": 1,
+        "fewestValues": [
+          28,
+          29,
+          34
+        ],
+        "fewestFreq": 1,
+        "midpoint": null,
+        "midpointFreq": null,
+        "stdDev": "3.2145502536643185",
+        "herfindahlIndex": "0.3358290061586765",
+        "plotValues": {
+          "34": 1,
+          "29": 1,
+          "28": 1
+        },
+        "pdfPlotType": null,
+        "pdfPlotX": null,
+        "pdfPlotY": null,
+        "cdfPlotType": "bar",
+        "cdfPlotX": [
+          "28.0",
+          "31.0",
+          "34.0"
+        ],
+        "cdfPlotY": [
+          "0.3333333333333333",
+          "0.6666666666666666",
+          "1.0"
+        ]
+      }
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Date",
+      "description": "column name: Date, dtype: object",
+      "temporal_coverage": {
+        "start": "2014-02-23T00:00:00",
+        "end": "2020-09-23T00:00:00"
+      },
+      "two_ravens_variables": {
+        "variableName": "Date",
+        "description": "",
+        "numchar": "character",
+        "nature": "nominal",
+        "binary": false,
+        "interval": "discrete",
+        "time": "unknown",
+        "invalidCount": 0,
+        "validCount": 3,
+        "uniqueCount": 3,
+        "median": "NA",
+        "mean": "NA",
+        "max": "NA",
+        "min": "NA",
+        "mode": [
+          "2020-09-23",
+          "2014-02-23",
+          "2018-10-05"
+        ],
+        "modeFreq": 1,
+        "fewestValues": [
+          "2020-09-23",
+          "2014-02-23",
+          "2018-10-05"
+        ],
+        "fewestFreq": 1,
+        "midpoint": null,
+        "midpointFreq": null,
+        "stdDev": "NA",
+        "herfindahlIndex": "0.3333333333333333",
+        "plotValues": {
+          "2014-02-23": 1,
+          "2020-09-23": 1,
+          "2018-10-05": 1
+        },
+        "pdfPlotType": null,
+        "pdfPlotX": null,
+        "pdfPlotY": null,
+        "cdfPlotType": null,
+        "cdfPlotX": null,
+        "cdfPlotY": null
+      }
+    },
+    {
+      "datamart_id": null,
+      "semantic_type": [],
+      "name": "Name",
+      "description": "column name: Name, dtype: object",
+      "named_entity": [
+        "Tom",
+        "Jack",
+        "Steve"
+      ],
+      "two_ravens_variables": {
+        "variableName": "Name",
+        "description": "",
+        "numchar": "character",
+        "nature": "nominal",
+        "binary": false,
+        "interval": "discrete",
+        "time": "unknown",
+        "invalidCount": 0,
+        "validCount": 3,
+        "uniqueCount": 3,
+        "median": "NA",
+        "mean": "NA",
+        "max": "NA",
+        "min": "NA",
+        "mode": [
+          "Tom",
+          "Jack",
+          "Steve"
+        ],
+        "modeFreq": 1,
+        "fewestValues": [
+          "Tom",
+          "Jack",
+          "Steve"
+        ],
+        "fewestFreq": 1,
+        "midpoint": null,
+        "midpointFreq": null,
+        "stdDev": "NA",
+        "herfindahlIndex": "0.3333333333333333",
+        "plotValues": {
+          "Tom": 1,
+          "Jack": 1,
+          "Steve": 1
+        },
+        "pdfPlotType": null,
+        "pdfPlotX": null,
+        "pdfPlotY": null,
+        "cdfPlotType": null,
+        "cdfPlotX": null,
+        "cdfPlotY": null
+      }
+    }
+  ],
+  "title": "Age Date Name",
+  "description": "Age : int64, Date : object, Name : object",
+  "keywords": [
+    "Age",
+    "Date",
+    "Name"
+  ],
+  "two_ravens_dataset": {
+    "description": "",
+    "unitOfAnalysis": "",
+    "structure": "long",
+    "rowCount": 3,
+    "variableCount": 3,
+    "dataSource": {
+      "name": "datamart_temp.csv",
+      "type": "File",
+      "format": "text/csv",
+      "filesize": 71
+    }
+  }
+}

@@ -20,8 +20,7 @@ class BasicProfiler(object):
         Returns:
             list of named entities string
         """
-
-        return column.dropna().unique().tolist()
+        return column.dropna().unique().astype(str).tolist()
 
     @staticmethod
     def named_entity_column_recognize(column: pd.Series) -> bool:
@@ -41,6 +40,11 @@ class BasicProfiler(object):
                 pd.to_datetime(column)
                 return False
             except:
+                all_ = column.dropna()
+                nums = pd.to_numeric(all_, errors='coerce').dropna()
+                all_ = all_.unique()
+                if len(all_) == 0 or len(nums)/len(all_) > 0.5:
+                    return False
                 return True
         return False
 
@@ -67,11 +71,13 @@ class BasicProfiler(object):
             }
 
         for element in column:
+            # TODO: now pure time will be treat as "today"'s time, and generate a range
+            # TODO: improve date/time detection and parse
             try:
                 if isinstance(element, str):
                     this_datetime = dateutil.parser.parse(element)
                 else:
-                    if len(str(element)) == 4:
+                    if len(str(element)) == 4 and column.name.lower() == 'year':
                         this_datetime = dateutil.parser.parse(str(element))
                     else:
                         break
@@ -156,7 +162,7 @@ class BasicProfiler(object):
             list of keywords
         """
 
-        return data.columns.tolist()
+        return data.columns.astype(str).tolist()
 
     @classmethod
     def basic_profiling_column(cls,
@@ -176,7 +182,7 @@ class BasicProfiler(object):
         """
 
         if not variable_metadata.name:
-            variable_metadata.name = column.name
+            variable_metadata.name = str(column.name)
 
         if not variable_metadata.description:
             variable_metadata.description = cls.construct_variable_description(column)

@@ -9,8 +9,32 @@ class JSONQueryManager(QueryManager):
     GEOSPATIAL_ENTITY = "geospatial_entity"
     GENERIC_ENTITY = "generic_entity"
 
+    def search(self, body: str, size: int = 5000, from_index: int = 0, **kwargs) -> typing.Optional[typing.List[dict]]:
+        """Entry point for querying.
+
+        Args:
+            body: query body.
+            size: query return size.
+            from_index: from index.
+
+        Returns:
+            match result
+        """
+
+        result = self.es.search(index=self.es_index, body=body, size=size, from_=from_index, **kwargs)
+
+        count = result["hits"]["total"]
+        print(f'ES search size={size}, count={count}')
+        if count <= 0:
+            print("Nothing found")
+            return None
+        return result["hits"]["hits"]
+        # return self.scroll_search(body=body, size=size, count=count)
+
     @classmethod
-    def parse_json_query(cls, json_query: dict, df: DataFrame=None) -> typing.Optional[str]:
+    def parse_json_query(cls, json_query: dict,
+                         df: DataFrame=None,
+                         return_named_entity: bool=False) -> typing.Optional[str]:
         # conjunction of dataset constrains and required_variables hit and desired_variable hit:
         outer_must = []
 
@@ -20,14 +44,22 @@ class JSONQueryManager(QueryManager):
             if about:
                 # match any fields/values ...
                 # TODO: preference on phrases matching
-                outer_must.append(cls.match_any(about))
+                match_about_outer = cls.match_any(about)
+                match_about_inner = {
+                    "nested": {
+                        "path": "variables",
+                        "query": match_about_outer
+                    }
+                }
+                match_about = {"bool": {"should": [match_about_outer, match_about_inner]}}
+                outer_must.append(match_about)
             keys_mapping = [
                 ('name', 'title'),
                 ('description', 'description'),
                 ('keywords', 'keywords'),
                 ('url', 'url')
             ]
-            string_arrays = cls.match_key_value_pairs_by_query_mapping(keys_mapping, dataset)
+            string_arrays = cls.match_key_value_pairs_by_query_mapping(keys_mapping, dataset, "match_phrase")
             if string_arrays:
                 outer_must.append(string_arrays)
 
@@ -46,21 +78,32 @@ class JSONQueryManager(QueryManager):
                             }
                         })
 
-        # deal with variable list:
-        for variables_key in ('required_variables', 'desired_variables'):
-            nested_queries = []
-            variables = json_query.get(variables_key, [])
-            for idx, variable in enumerate(variables):
-                nested_query = cls.parse_a_variable(variable, variables_key, idx, df)
-                if nested_query:
-                    nested_queries.append(nested_query)
-            if nested_queries:
-                outer_must.append(cls.disjunction_query(nested_queries))
+        required = json_query.get('required_variables', [])
+        required_queries = []
+        for idx, variable in enumerate(required):
+            nested_query = cls.parse_a_variable(variable, 'required_variables', idx, df)
+            if nested_query:
+                required_queries.append(nested_query)
+        if required_queries:
+            outer_must.append(cls.conjunction_query(required_queries))
+
+        desired_queries = []
+        variables = json_query.get('desired_variables', [])
+        for idx, variable in enumerate(variables):
+            nested_query = cls.parse_a_variable(variable, 'desired_variables', idx, df)
+            if nested_query:
+                desired_queries.append(nested_query)
+        if desired_queries:
+            outer_must.append(cls.disjunction_query(desired_queries))
 
         if outer_must:
             full_query = {
                 "query": cls.conjunction_query(outer_must)
             }
+            if not return_named_entity:
+                full_query['_source'] = {
+                    "excludes": [ "variables.named_entity" ]
+                }
             # print(json.dumps(full_query, indent=2))
             return json.dumps(full_query)
 
@@ -82,7 +125,7 @@ class JSONQueryManager(QueryManager):
         entity_type = entity.get('type')
         inner_match_name = '%s.%d.%s' % (key, index, entity_type)
         nested_query = None
-        if entity_type == cls.DATAFRAME_COLUMNS:
+        if entity_type == cls.DATAFRAME_COLUMNS and isinstance(df, DataFrame):
             nested_query = cls.parse_dataframe_columns(entity, df)
         elif entity_type == cls.TEMPORAL_ENTITY:
             nested_query = cls.parse_temporal_entity(entity)
@@ -159,7 +202,8 @@ class JSONQueryManager(QueryManager):
             ('named_entities', 'variables.named_entity'),
             ('column_values', None)
         ]
-        matches = cls.match_key_value_pairs_by_query_mapping(keys_mapping, entity)
+        # if the value is array of strings, should be "match_phrase", else "match" ?
+        matches = cls.match_key_value_pairs_by_query_mapping(keys_mapping, entity, "match_phrase")
         if matches:
             queries.append(matches)
         if queries:
@@ -179,8 +223,8 @@ class JSONQueryManager(QueryManager):
         return range_query
 
     @classmethod
-    def match_key_value_pairs_by_query_mapping(cls, query2index: typing.List[tuple], query_object: dict) \
-            -> typing.Optional[dict]:
+    def match_key_value_pairs_by_query_mapping(cls, query2index: typing.List[tuple], query_object: dict,
+                                               match_method: str="match") -> typing.Optional[dict]:
         k_v_pairs = []
         for query_key, target_key in query2index:
             value = query_object.get(query_key)
@@ -188,7 +232,7 @@ class JSONQueryManager(QueryManager):
                 continue
             k_v_pairs.append((target_key, value))
         if k_v_pairs:
-            return cls.match_key_value_pairs(k_v_pairs, disjunctive_array_value=True)
+            return cls.match_key_value_pairs(k_v_pairs, disjunctive_array_value=True, match_method=match_method)
 
     @classmethod
     def add_inner_hits_name(cls, root, name):

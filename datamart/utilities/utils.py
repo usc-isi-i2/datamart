@@ -12,11 +12,16 @@ import pandas as pd
 import tempfile
 from datetime import datetime
 from datamart.utilities.timeout import timeout
+import re
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../materializers'))
 
+ES_HOST = 'dsbox02.isi.edu'
+ES_PORT = 9200
+PRODUCTION_ES_INDEX = 'datamart_all'
+TEST_ES_INDEX = 'datamart_tmp'
 
-DEFAULT_ES = 'datamart_all'
+SEARCH_URL = 'https://isi-datamart.edu'
 
 
 class Utils:
@@ -259,9 +264,34 @@ class Utils:
               Dataframe with appended implicit_variables columns
          """
 
-        for implicit_variable in implicit_variables:
-            df[implicit_variable["name"]] = implicit_variable["value"]
+        for idx, implicit_variable in enumerate(implicit_variables):
+            if implicit_variable.get("value"):
+                df[implicit_variable.get("name") or "implicit_variable_%d" % idx] = implicit_variable["value"]
         return df
+
+    @staticmethod
+    def append_columns_for_implicit_variables_and_add_meta(meta: dict, df: pd.DataFrame) -> None:
+        """Append implicit_variables as new column with same value across all rows of the dataframe
+
+         Args:
+             implicit_variables: list of implicit_variables in metadata
+             df: Dataframe that implicit_variables will be appended on
+
+         Returns:
+              Dataframe with appended implicit_variables columns
+         """
+        implicit_variables = meta.get("implicit_variables", [])
+        for idx, implicit_variable in enumerate(implicit_variables):
+            if implicit_variable.get("value"):
+                header = implicit_variable.get("name") or "implicit_variable_%d" % idx
+                df[header] = implicit_variable["value"]
+                if meta.get("variables"):
+                    meta["variables"].append({
+                        "name": header,
+                        "description": header,
+                        "named_entity": [implicit_variable["value"]],
+                        "semantic_type": implicit_variable.get("semantic_type") or []
+                    })
 
     @staticmethod
     def get_metadata_intersection(*metadata_lst) -> list:
@@ -325,7 +355,8 @@ class Utils:
         return df.infer_objects()
 
     @staticmethod
-    def calculate_dsbox_features(data: pd.DataFrame, metadata: typing.Union[dict, None]) -> dict:
+    def calculate_dsbox_features(data: pd.DataFrame, metadata: typing.Union[dict, None],
+                                 selected_columns: typing.Set[int] = None) -> dict:
         """Calculate dsbox features, add to metadata dictionary
 
          Args:
@@ -339,10 +370,10 @@ class Utils:
         from datamart.profilers.dsbox_profiler import DSboxProfiler
         if not metadata:
             return metadata
-        return DSboxProfiler().profile(inputs=data, metadata=metadata)
+        return DSboxProfiler().profile(inputs=data, metadata=metadata, selected_columns=selected_columns)
 
     @classmethod
-    def generate_metadata_from_dataframe(cls, data: pd.DataFrame) -> dict:
+    def generate_metadata_from_dataframe(cls, data: pd.DataFrame, original_meta: dict=None) -> dict:
         """Generate a default metadata just from the data, without the dataset schema
 
          Args:
@@ -362,6 +393,21 @@ class Utils:
             )
             global_metadata.add_variable_metadata(variable_metadata)
         global_metadata = BasicProfiler.basic_profiling_entire(global_metadata=global_metadata,
-                                                                              data=data)
-
+                                                               data=data)
+        if original_meta:
+            global_metadata.value.update(original_meta)
         return global_metadata.value
+
+    @staticmethod
+    def validate_url(url):
+        try:
+            regex = re.compile(
+                r'^(?:http|ftp)s?://'  # http:// or https://
+                r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
+                r'localhost|'  # localhost...
+                r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+                r'(?::\d+)?'  # optional port
+                r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+            return re.match(regex, url)
+        except:
+            return False

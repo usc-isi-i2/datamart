@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ISI-datamart</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='jquery.csv.min.js') }}"></script>
+</head>
+<body>
+<style>
+    body {
+        font-family: sans-serif;
+    }
+    #togglebanner {
+        position: sticky;
+        top: 0;
+        background: #eee;
+    }
+    textarea#query_json, textarea#left_meta {
+        width: 90%;
+        height: 200px;
+        font-size: 14px;
+        font-weight: bold;
+        color: #0f0f54;
+    }
+    div.meta-container {
+        margin-bottom: 20px;
+    }
+    textarea.meta {
+        height: 200px;
+        width: 90%;
+    }
+    .uploadBtn {
+        width: 65%;
+        display: inline-block;
+    }
+    .enlargeBtn {
+        width: 25%;
+        display: inline-block;
+    }
+    input {
+        font-size: 15px;
+        font-weight: bolder;
+        width: 340px;
+    }
+    p {
+        margin-bottom: 3px;
+        margin-top: 5px;
+    }
+    div.row {
+        width: 100%;
+        border: 1px solid #eeeeee;
+    }
+
+    div.left, div.right {
+        display: inline-block;
+        height: 90vh;
+        vertical-align: top;
+    }
+    div.left {
+        width: 400px;
+    }
+    div.right {
+        width: calc(100% - 420px);
+        white-space: pre-wrap;
+        overflow: scroll;
+        border: 1px solid #eee;
+    }
+    h4 {
+        margin-top: 10px;
+        margin-bottom: 3px;
+    }
+    button {
+        font-size: 14px;
+        font-weight: bold;
+    }
+    input:disabled, button:disabled {
+        color: #888;
+        cursor: not-allowed;
+    }
+
+    div#popup-window {
+        width: 90%;
+        background-color: #555;
+        color: #fff;
+        padding: 30px;
+        position: absolute;
+        z-index: 1;
+        left: 2%;
+        top: 2%;
+        height: 90%;
+        overflow: scroll;
+    }
+
+    button#popup-close {
+        position: fixed;
+        z-index: 2;
+        right: 0;
+        top: 0;
+        font-size: 22px;
+    }
+
+    div#top-container {
+        height: 100vh;
+        width: 100vw;
+        overflow: scroll;
+        margin: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 5px;
+    }
+    div#togglebanner input {
+        width: 20px;
+    }
+    div#togglebanner label {
+        padding-right: 30px;
+    }
+    input[type="submit"], input[type="file"] {
+        font-size: 16px;
+        padding: 5px;
+    }
+
+
+
+
+</style>
+    <div id="top-container">
+        <div id="togglebanner">
+            <span>
+              <input type="checkbox" id="search-checkbox" name="search-checkbox" value="search" onclick="toggleSearch()">
+              <label for="search-checkbox">Search</label>
+            </span>
+
+            <span>
+              <input type="checkbox" id="join-checkbox" name="join-checkbox" value="join" onclick="toggleJoin()">
+              <label for="join-checkbox">Join</label>
+            </span>
+
+            <span>
+              <input type="checkbox" id="multi-checkbox" name="multi-checkbox" value="multi" onclick="toggleMulti()">
+              <label for="multi-checkbox">Upload Multiple Tables</label>
+            </span>
+
+            <span>
+              <input type="checkbox" id="single-checkbox" name="single-checkbox" value="single" onclick="toggleSingle()">
+              <label for="single-checkbox">Upload Single File</label>
+            </span>
+        </div>
+        <div class="row" id="search-row">
+            <div class="left">
+                <h3> Search </h3>
+                <form id="searchbanner" enctype="multipart/form-data" method="post" action="/new/search_data">
+                    <ul>
+{#                        <li>#}
+{#                            <h4>Query JSON</h4>#}
+{#                            <p>Please upload a description json for your target datasets#}
+{#                                <a href="https://datadrivendiscovery.org/wiki/display/work/Query+input+samples">(see examples)</a>:#}
+{#                            </p>#}
+{#                            <input name="query" type="file" />#}
+{#                            <br />#}
+{#                        </li>#}
+                        <li>
+                            <h4>Query JSON</h4>
+                            <p>Please construct the query json here
+                                <a href="https://datadrivendiscovery.org/wiki/display/work/Query+input+samples" target="_blank">(see examples)</a>:
+                            </p>
+                            <textarea name="query_json" id="query_json"></textarea>
+                            <br />
+                        </li>
+                        <li>
+                            <h4>Supplied DATA</h4>
+                            <p>
+                                Please upload the data(csv file) you would like to augment:
+                            </p>
+                            <input name="data" type="file" />
+                            <br />
+                        </li>
+                        <li>
+                            <input type="submit" value="Search" id="submit-search" />
+                        </li>
+                    </ul>
+                </form>
+                <ul>
+                    <li><span>Return named entity(might be very slow)</span> <input type="checkbox" value="true" id="return_named_entity"/></li>
+                    <li><span>Max return docs(default is 10)</span><input type="text" id="max_return_docs"></li>
+                </ul>
+                <br />
+                <div id="search-cnt"></div>
+
+            </div>
+            <div class="right" id="search-results" >
+            </div>
+        </div>
+
+        <div class="row" id="join-row">
+            <div class="left">
+                <h3> Join </h3>
+                <form id="joinbanner" enctype="multipart/form-data" method="post" action="/new/join_data">
+                    <ul>
+                        <li>
+                            <h4>Supplied DATA</h4>
+                            <p>
+                                The supplied data(csv file you would like to augment):
+                            </p>
+                            <input name="left_data" type="file" />
+                            <br />
+                        </li>
+                        <li>
+                            <h4>Supplied Data Implicit Variables</h4>
+                            <p>
+                                If specify the "name" and "value", a new column with the "name" as header and with "value" for every cell, will be appended to the original dataset to do the joining.
+                            </p>
+                            <span><textarea form="joinbanner" name="left_meta" id="left_meta"></textarea></span>
+                        </li>
+                        <li>
+                            <h4>Augment Data "datamart_id"</h4>
+                            <p>The Datamart ID for the augmentation data</p>
+                            <input type="text" name="right_data" />
+                        </li>
+                        <li>
+                            <h4>Supplied Data Joining Columns</h4>
+                            <p>The columns indices sequence to join(e.g. <strong>[[0]]</strong>)</p>
+                            <input type="text" name="left_columns" />
+                        </li>
+                        <li>
+                            <h4>Augment Data Joining Columns</h4>
+                            <p>The columns indices sequence to join(e.g. <strong>[[0]]</strong>)</p>
+                            <input type="text" name="right_columns" />
+                        </li>
+                        <li>
+                            <input type="submit" value="submit" id="submit-join" />
+                        </li>
+                    </ul>
+                </form>
+                <ul>
+                    <li><span>Exact Match</span><input type="checkbox" value="true" id="exact_match" style="display: inline-block"></li>
+                </ul>
+                <br/>
+                <div id="cover-ratio"></div>
+
+            </div>
+            <div class="right" id="join-results">
+            </div>
+        </div>
+
+        <div class="row" id="multi-row">
+            <div class="left">
+            <h3> Upload Multiple Tables </h3>
+
+            <!-- <form id="uploadmultibanner" enctype="application/json" method="post" action="/new/get_metadata_extract_links"> -->
+	    <form id="uploadmultibanner" enctype="application/json" method="post" action="/new/get_multiple_dataset_metadata">
+                <ul>
+                    <li>
+                        <p>
+                            <h4>URL</h4>
+                            <p>Please input the url you would like to extract file links from:
+                            <strong>[Required]</strong>
+                            </p>
+                        </p>
+                        <input name="url" />
+                    </li>
+                    <li>
+                        <p>When submitted, please wait for a while until you got a json response with
+                            success/fail message and the metadata generated</p>
+                        <input type="submit" value="submit" id="submit-multi" />
+                    </li>
+                    <li>
+                        <p>Check or modify the returned metadata, if you would like to index it into ISI-Datamart,
+                            click on the corresponding <strong>upload</strong> button.</p>
+                    </li>
+                </ul>
+            </form>
+
+            </div>
+            <div class="right" id="multi-results">
+            </div>
+        </div>
+
+        <div class="row" id="single-row">
+            <div class="left">
+                <h3> Upload Single File </h3>
+                <form id="uploadsinglebanner" enctype="application/json" method="post" action="/new/get_metadata_single_file">
+                    <p>
+                        <span>Please upload a description json for your dataset</span>
+                        <a
+                                href="https://datadrivendiscovery.org/wiki/display/work/Datamart+user+upload+dataset+API"
+                                target="_blank"
+                        >(see explanation)</a>:
+                    </p>
+                    <ul>
+                        <li>
+                            <h4>URL[Required]</h4>
+                            <p>The url for downloading the data file(or extracting the html table)
+                            </p>
+                            <input name="url" />
+                        </li>
+                        <li>
+                            <h4>File Type[Optional]</h4>
+                            <p>one of <strong>"csv", "excel", "html", "json"</strong>
+                            </p>
+                            <input name="file_type" />
+                        </li>
+                        <li>
+                            <h4>Title[Optional]</h4>
+                            <input name="title" />
+                        </li>
+                        <li>
+                            <h4>Description[Optional]</h4>
+                            <input name="description" />
+                        </li>
+                        <li>
+                            <h4>Keywords(split by "|")[Optional]</h4>
+                            <input name="keywords" />
+                        </li>
+                        <li>
+                            <p>When submitted, please wait for a while until you got a json response with
+                                success/fail message and the metadata generated</p>
+                            <input type="submit" value="submit" id="submit-single" />
+                        </li>
+                        <li>
+                            <p>Check or modify the returned metadata, if you would like to index it into ISI-Datamart,
+                                click on the corresponding <strong>upload</strong> button.</p>
+                        </li>
+                    </ul>
+                </form>
+                </div>
+            <div class="right" id="single-results">
+            </div>
+
+        </div>
+    </div>
+
+    <div id="popup-container"></div>
+
+    <script>
+        var materialized = {};
+
+        $("#query_json").val('{\n\t"dataset": {\n\t\t"about": "gold"\n\t}\n}');
+        $("#left_meta").val('{\n\t"implicit_variables": [\n\t\t{\n\t\t\t"name": "",\n\t\t\t"value": "",\n\t\t\t"semantic_type": []\n\t\t}\n\t]\n}');
+
+
+        $("#searchbanner").submit(function(e) {
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+
+            // disabled the submit button
+            var url_ = $(this).attr('action');
+            const rne = $("#return_named_entity").is(':checked');
+            const mrd = $("#max_return_docs").val();
+            if (rne && mrd) {
+                url_ += "?return_named_entity=true";
+                url_ += "&max_return_docs=";
+                url_ += mrd;
+            }
+            else if (rne) {
+                url_ += "?return_named_entity=true";
+            }
+            else if (mrd) {
+                url_ += "?max_return_docs=";
+                url_ += mrd;
+            }
+            console.log('SUBMIT', url_);
+            var result_container = $("#search-results");
+            var cnt_container = $("#search-cnt");
+            result_container.empty();
+            cnt_container.empty();
+            $("#submit-search").prop("disabled", true).val('Searching ...');
+
+            $.ajax({
+                type: $(this).attr('method'),
+                enctype: $(this).attr('enctype'),
+                url: url_,
+                data: new FormData($(this)[0]),
+                processData: false,
+                cache: false,
+                contentType: false,
+                timeout: 600000,
+                complete: function (response) {
+                    var results = JSON.parse(response.responseText);
+                    console.log(results);
+                    var { code, message, data } = results;
+                    if(code === '0000') {
+                        console.log("SUCCESS");
+                        cnt_container.append("Results count # " + data.length.toString());
+                        for (i = 0; i < data.length; i++){
+                            const summary = "<p>" + data[i].summary + "</p>";
+                            const metadata_text = '<p style="white-space: pre-wrap;">' + JSON.stringify(data[i].metadata, null, 4) + "</p>";
+                            const _id = data[i].datamart_id;
+                            const _url = `/new/materialize_data?datamart_id=${_id}&first_n_rows=30`;
+                            const materialize = `<button id="materialize${_id}" value="${_url}" >materialize the first 30 rows</button>`;
+                            const metadata = `<button id="metadata${_id}" value="${_url}" >show the metadata</button>`;
+                            result_container.append(materialize + metadata + "<br/>" + summary);
+
+                            const button_selecter = `#materialize${_id}`;
+                            $(button_selecter).click(function (e) {
+                                console.log('materialize');
+                                e.preventDefault(); // avoid to execute the actual submit of the form.
+                                if(materialized[_id]) {
+                                    expandPopup(materialized[_id]);
+                                } else {
+                                    $(this).prop("disabled", true).text('materializing ...');
+                                    $.ajax({
+                                        type: "GET",
+                                        url: _url,
+                                        complete: function(response) {
+                                            var results = JSON.parse(response.responseText);
+                                            console.log("success", results);
+                                            var { code, message, data } = results;
+                                            if(code === '0000') {
+                                                materialized[_id] = parseCSV(data);
+                                                expandPopup(materialized[_id]);
+                                            }
+                                            $(button_selecter).prop("disabled", false).text('materialize the first 30 rows');
+                                        }
+                                    })
+                                }
+                            });
+
+                            const metadata_button_selecter = `#metadata${_id}`;
+                            $(metadata_button_selecter).click(function (e) {
+                                console.log('metadata', metadata_text);
+                                e.preventDefault(); // avoid to execute the actual submit of the form.
+                                expandPopup(metadata_text);
+                            });
+                        }
+                    } else {
+                        result_container.append(response.responseText);
+                    }
+
+                    $("#submit-search").prop("disabled", false).val('Search');
+                }
+            });
+
+        });
+
+
+
+        $("#joinbanner").submit(function(e) {
+            console.log('SUBMIT JOIN');
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+
+            // disabled the submit button
+            $("#submit-join").prop("disabled", true).text('Joining ...');
+            var url_ = $(this).attr('action');
+            const em = $("#exact_match").is(':checked');
+            if (em) {
+                url_ += "?exact_match=true";
+            }
+
+            var result_container = $("#join-results");
+            var cover_ratio_container = $("#cover-ratio");
+            cover_ratio_container.empty();
+            result_container.empty();
+
+            $.ajax({
+                type: $(this).attr('method'),
+                enctype: $(this).attr('enctype'),
+                url: url_,
+                data: new FormData($(this)[0]),
+                processData: false,
+                cache: false,
+                contentType: false,
+                timeout: 600000,
+                complete: function (response) {
+                    var results = JSON.parse(response.responseText);
+                    console.log(results);
+                    var { code, message, data } = results;
+                    if(code === '0000') {
+                        console.log("SUCCESS");
+                        if (results.cover_ratio) {
+                            cover_ratio_container.append(`<div><strong>Cover Ratio: ${results.cover_ratio}</strong></div>`)
+                        }
+                        result_container.append(parseCSV(data, results.matched_rows));
+                    } else {
+                        result_container.append(response.responseText);
+                    }
+
+                    $("#submit-join").prop("disabled", false).text('submit');
+                }
+            });
+
+        });
+
+
+
+        $("#uploadmultibanner").submit(function(e) {
+            console.log('SUBMIT upload multi');
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+
+            // disabled the submit button
+            $("#submit-multi").prop("disabled", true).val('Generating metadata ...');
+            var result_container = $("#multi-results");
+            result_container.empty();
+
+            var kv = $(this).serializeArray()[0];
+            var data_payload = {};
+            data_payload[kv.name] = kv.value;
+
+
+            $.ajax({
+                type: $(this).attr('method'),
+                enctype: $(this).attr('enctype'),
+                url: $(this).attr('action'),
+                data: JSON.stringify(data_payload),
+                dataType: "json",
+                contentType: "application/json",
+                timeout: 600000,
+                complete: function (response) {
+                    var results = JSON.parse(response.responseText);
+                    console.log(results);
+                    var { code, message, data } = results;
+                    if(code === '0000') {
+                        console.log("SUCCESS", data);
+                        result_container.append(parseMetaList(data));
+                    } else {
+                        result_container.append(response.responseText);
+                    }
+
+                    $("#submit-multi").prop("disabled", false).val('submit');
+                }
+            });
+
+        });
+
+        $("#uploadsinglebanner").submit(function(e) {
+            console.log('SUBMIT upload single');
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+
+            // disabled the submit button
+            $("#submit-single").prop("disabled", true).val('Generating metadata ...');
+            var result_container = $("#single-results");
+            result_container.empty();
+
+            var kv = $(this).serializeArray();
+
+            var data_payload = {"materialization_arguments": {}};
+            kv.forEach(function(single_kv){
+                if(single_kv.value && single_kv.value.length) {
+                    if(single_kv.name === "url" || single_kv.name === "file_type"){
+                        data_payload.materialization_arguments[single_kv.name] = single_kv.value;
+                    } else {
+                        if (single_kv.name === "keywords") {
+                            data_payload[single_kv.name] = single_kv.value.split('|');
+                        } else {
+                            data_payload[single_kv.name] = single_kv.value;
+                        }
+
+                    }
+                }
+            });
+            console.log(data_payload);
+
+            $.ajax({
+                type: $(this).attr('method'),
+                enctype: $(this).attr('enctype'),
+                url: $(this).attr('action'),
+                data: JSON.stringify(data_payload),
+                dataType: "json",
+                contentType: "application/json",
+                timeout: 600000,
+                complete: function (response) {
+                    var results = JSON.parse(response.responseText);
+                    console.log(results);
+                    var { code, message, data } = results;
+                    if(code === '0000') {
+                        console.log("SUCCESS", data);
+                        result_container.append(parseMetaList(data));
+                    } else {
+                        result_container.append(response.responseText);
+                    }
+
+                    $("#submit-single").prop("disabled", false).val('submit');
+                }
+            });
+
+        });
+
+
+        function parseCSV(data, matches) {
+            // start the table
+            var html = "<table>";
+
+            // split into lines
+            var rows = data.split("\n");
+
+            // parse lines
+            rows.forEach( function getvalues(ourrow, idx) {
+
+                // start a table row
+                if (idx > 0 && Array.isArray(matches) && matches[idx-1]) {
+                    html += '<tr style="background: #ffefef;">'
+                } else {
+                    html += "<tr>";
+                }
+
+
+                // split line into columns
+                var columns = $.csv.toArray(ourrow)
+
+                columns.forEach(function(col){
+                    html += "<td>" + col + "</td>";
+                });
+
+                // close row
+                html += "</tr>";
+            });
+            // close table
+            html += "</table>";
+
+            return html;
+        }
+
+        function parseCSVOld(data, matches) {
+	    var table = $.csv.toArrays(data)
+            // start the table
+            var html = "<table>";
+
+            // split into lines
+            var rows = data.split("\n");
+
+            // parse lines
+            rows.forEach( function getvalues(ourrow, idx) {
+
+                // start a table row
+                if (idx > 0 && Array.isArray(matches) && matches[idx-1]) {
+                    html += '<tr style="background: #ffefef;">'
+                } else {
+                    html += "<tr>";
+                }
+
+
+                // split line into columns
+                var columns = ourrow.split(",");
+
+                columns.forEach(function(col){
+                    html += "<td>" + col + "</td>";
+                });
+
+                // close row
+                html += "</tr>";
+            });
+            // close table
+            html += "</table>";
+
+            return html;
+        }
+
+        function uploadMeta(idx) {
+            console.log(`textarea#meta${idx}`);
+            var selecterStr = `textarea#meta${idx}`;
+            var metaStr = $(selecterStr).val();
+            var data_payload = `{"metadata": [${metaStr}]}`;
+
+            $(`#upload${idx}`).prop("disabled", true).text('UPLOADING ... ');
+
+            $.ajax({
+                type: 'post',
+                url: '/new/upload_metadata_list',
+                data: data_payload,
+                dataType: "json",
+                contentType: "application/json",
+                timeout: 600000,
+                complete: function (response) {
+                    var results = JSON.parse(response.responseText);
+                    var { code, message, data } = results;
+                    if(code === '0000') {
+                        console.log("SUCCESS", data);
+                        $(selecterStr).val(JSON.stringify(data[0], null, 2));
+                        $(`#upload${idx}`).prop("disabled", true)
+                            .text(`UPLOADED SUCCESSFULLY [datamart_id: ${data[0].datamart_id}]`);
+                    } else {
+                        $(`#upload${idx}`).prop("disabled", false).text('failed - retry upload');
+                    }
+
+                }
+            });
+
+        }
+
+
+        function parseMeta(data, idx) {
+            // start the table
+            const textareaId = `meta${idx}`;
+            const textareaHTML = `<textarea id="${textareaId}" class="meta">` + JSON.stringify(data, null, 2) + "</textarea>";
+            var html = `<div class="meta-container">` + textareaHTML;
+
+            const uploadButton = `<button onclick="uploadMeta(${idx})" id="upload${idx}" class="uploadBtn">upload</button>`;
+            const enlargeButton = `<button onclick="enlargeMeta(${textareaId})" class="enlargeBtn">enlarge</button>`;
+            html += `${uploadButton}${enlargeButton}</div>`;
+
+            return html;
+        }
+
+        function enlargeMeta(ele) {
+            {#const selectID = "#" + _id;#}
+            {#console.log(selectID)#}
+            {#const ele = $(selectID);#}
+            {#console.log(selectID, ele);#}
+            expandPopup(ele.outerHTML);
+            let container = $("#popup-container");
+            container.find("textarea")[0].style.cssText = "width:100%; height: 100%; font-size:16px;";
+        }
+
+        function parseMetaList(data) {
+            var metalist = data.flat();
+            var html = "<div>";
+            metalist.forEach(function(meta, idx) {
+                html += parseMeta(meta, idx);
+            });
+            html += "</div>";
+            return html;
+        }
+
+        function closePopup() {
+            let container = $("#popup-container");
+            container.empty();
+        }
+
+        function expandPopup(content) {
+            {#alert(materialized[_id]);#}
+            let container = $("#popup-container");
+            container.empty();
+            container.append(`<div class="popup" id="popup-window">${content}<button id="popup-close" onclick="closePopup()" >close</button></div>`);
+        }
+
+        function toggleSearch() {
+          // Get the checkbox
+          let checkBox = document.getElementById("search-checkbox");
+          // Get the output text
+          let row = document.getElementById("search-row");
+
+          // If the checkbox is checked, display the output text
+          if (checkBox.checked === true){
+            row.style.display = "block";
+          } else {
+            row.style.display = "none";
+          }
+        }
+
+        function toggleJoin() {
+          // Get the checkbox
+          let checkBox = document.getElementById("join-checkbox");
+          // Get the output text
+          let row = document.getElementById("join-row");
+
+          // If the checkbox is checked, display the output text
+          if (checkBox.checked === true){
+            row.style.display = "block";
+          } else {
+            row.style.display = "none";
+          }
+        }
+
+        function toggleMulti() {
+          // Get the checkbox
+          let checkBox = document.getElementById("multi-checkbox");
+          // Get the output text
+          let row = document.getElementById("multi-row");
+
+          // If the checkbox is checked, display the output text
+          if (checkBox.checked === true){
+            row.style.display = "block";
+          } else {
+            row.style.display = "none";
+          }
+        }
+
+        function toggleSingle() {
+          // Get the checkbox
+          let checkBox = document.getElementById("single-checkbox");
+          // Get the output text
+          let row = document.getElementById("single-row");
+
+          // If the checkbox is checked, display the output text
+          if (checkBox.checked === true){
+            row.style.display = "block";
+          } else {
+            row.style.display = "none";
+          }
+        }
+        toggleSearch();
+        toggleJoin();
+        toggleMulti();
+        toggleSingle();
+
+    </script>
+
+</body>
+</html>

@@ -46,7 +46,7 @@ class QueryManager(ESManager):
             return result["hits"]["hits"]
         return self.scroll_search(body=body, size=size, count=count)
 
-    def scroll_search(self, body: str, size: int, count: int, scroll: str = '1m', **kwargs) -> typing.List[dict]:
+    def scroll_search(self, body: str, size: int, count: int, scroll: str = '5m', **kwargs) -> typing.List[dict]:
         """Scroll search for the case that the result from es is too long.
 
         Args:
@@ -69,6 +69,15 @@ class QueryManager(ESManager):
             ret += result["hits"]["hits"]
             from_index += size
         return ret
+
+    def get_by_id(self, id: int) -> dict:
+        """get the document by the unique id(the datamart_id, same as the elasticsearch doc "_id")
+
+        :param id: the datamart_id
+        :return: a single doc
+        """
+        result = self.es.get(index=self.es_index, id=id, doc_type='_doc')
+        return result
 
     @classmethod
     def match_some_terms_from_variables_array(cls,
@@ -119,7 +128,11 @@ class QueryManager(ESManager):
             }
         }
 
-        for term in terms:
+        # TODO: maybe change the configuration of ES and support longer query will be better
+        max_terms = 1000
+        for term in terms[: max_terms]:
+            if not isinstance(term, str):
+                continue
             body["nested"]["query"]["bool"]["should"].append(
                 {
                     "match_phrase": {
@@ -130,12 +143,19 @@ class QueryManager(ESManager):
                     }
                 }
             )
-
+            # body["nested"]["query"]["bool"]["should"].append(
+            #     {
+            #         "match_phrase": {
+            #             key: term.lower()
+            #         }
+            #     }
+            # )
+        total_len = min(len(terms), max_terms)
         if minimum_should_match:
-            body["nested"]["query"]["bool"]["minimum_should_match"] = math.ceil(minimum_should_match * len(terms))
+            body["nested"]["query"]["bool"]["minimum_should_match"] = math.ceil(minimum_should_match * total_len)
         else:
             body["nested"]["query"]["bool"]["minimum_should_match"] = math.ceil(
-                QueryManager.MINIMUM_SHOULD_MATCH_RATIO * len(terms))
+                QueryManager.MINIMUM_SHOULD_MATCH_RATIO * total_len)
 
         return body
 
@@ -255,12 +275,14 @@ class QueryManager(ESManager):
         return body
 
     @classmethod
-    def match_key_value_pairs(cls, key_value_pairs: typing.List[tuple], disjunctive_array_value=False) -> dict:
+    def match_key_value_pairs(cls, key_value_pairs: typing.List[tuple], disjunctive_array_value=False,
+                              match_method: str="match") -> dict:
         """Generate query body for query by multiple key value pairs.
 
         Args:
             key_value_pairs: list of (key, value) tuples.
             disjunctive_array_value: bool. if True, when the "value" is an array, use their disjunctive match
+            match_method: can be "match", "match_phrase" etc. any ES supported key
 
         Returns:
             dict of query body
@@ -296,7 +318,7 @@ class QueryManager(ESManager):
                         body["bool"]["must"].append({
                             "bool": {
                                 "should": [{
-                                    "match": {
+                                    match_method: {
                                         key: v
                                     }
                                 } for v in value],
@@ -307,15 +329,29 @@ class QueryManager(ESManager):
                         for v in value:
                             body["bool"]["must"].append(
                                 {
-                                    "match": {
+                                    match_method: {
                                         key: v
                                     }
                                 }
                             )
+                elif key == "url":
+                    url_query = {
+                        "multi_match": {
+                            "query": value,
+                            "fields": ["url",
+                                       "materialization.arguments.url.keyword",
+                                       "materialization.arguments.url",
+                                       "uri"
+                                       ]
+                        }
+                    }
+                    if match_method == "match_phrase":
+                        url_query["multi_match"]["type"] = "phrase"
+                    body["bool"]["must"].append(url_query)
                 else:
                     body["bool"]["must"].append(
                         {
-                            "match": {
+                            match_method: {
                                 key: value
                             }
                         }
@@ -323,9 +359,8 @@ class QueryManager(ESManager):
             else:
                 nested["nested"]["inner_hits"]["_source"].append(key.split(".")[1])
                 if key.split(".")[1] == "named_entity":
+                    # for named_entity, force the matched method to be "match_phrase":
                     match_method = "match_phrase"
-                else:
-                    match_method = "match"
                 if isinstance(value, list):
                     if disjunctive_array_value:
                         nested["nested"]["query"]["bool"]["must"].append({
@@ -370,12 +405,12 @@ class QueryManager(ESManager):
         Returns:
             dict of query body
         """
-
         body = {
             "query_string": {
-                "query": query_string
+                "query": query_string.replace('/', '//')
             }
         }
+
         return body
 
     @staticmethod

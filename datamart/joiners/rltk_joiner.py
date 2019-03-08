@@ -2,6 +2,7 @@ import pandas as pd
 import typing
 from datamart.joiners.joiner_base import JoinerBase
 from datamart.joiners.join_feature.feature_pairs import FeaturePairs
+from datamart.joiners.join_result import JoinResult
 import rltk
 
 """
@@ -13,6 +14,7 @@ Implement RLTK joiner
 class RLTKJoiner(JoinerBase):
 
     def __init__(self):
+        self.exact_match = False
         pass
 
     def join(self,
@@ -21,8 +23,8 @@ class RLTKJoiner(JoinerBase):
              left_columns: typing.List[typing.List[int]],
              right_columns: typing.List[typing.List[int]],
              left_metadata: dict,
-             right_metadata: dict,
-             ) -> pd.DataFrame:
+             right_metadata: dict
+             ) -> JoinResult:
         # print(left_metadata)
 
         # step 1 : transform columns
@@ -32,7 +34,8 @@ class RLTKJoiner(JoinerBase):
         """
 
         fp = FeaturePairs(left_df, right_df, left_columns, right_columns, left_metadata, right_metadata)
-        record_pairs = rltk.get_record_pairs(fp.left_rltk_dataset, fp.right_rltk_dataset)
+
+        record_pairs = rltk.get_record_pairs(fp.left_rltk_dataset, fp.right_rltk_dataset, block=fp.get_rltk_block())
         sim = [[0 for __ in range(len(right_df))] for _ in range(len(left_df))]
 
         for r1, r2 in record_pairs:
@@ -40,6 +43,9 @@ class RLTKJoiner(JoinerBase):
             for f1, f2 in fp.pairs:
                 v1 = f1.value_merge_func(r1)
                 v2 = f2.value_merge_func(r2)
+                if self.exact_match:
+                    similarities.append(1 if v1 == v2 else 0)
+                    continue
                 # print(v1, v2, type(f1), type(f2))
                 for similarity_func in f1.similarity_functions():
                     similarity = similarity_func(v1, v2)
@@ -61,7 +67,7 @@ class RLTKJoiner(JoinerBase):
         # step 3 : check if 1-1, 1-n, n-1, or m-n relations,
         # based on the analyze in step 2 we can basically know if it is one-to-one relation
 
-        return res
+        return JoinResult(res, matched_rows)
 
     def one_to_one_concat(self, matched_rows, left_df, right_df, right_columns):
         right_remain = self.get_remain_list(right_df, right_columns)
@@ -93,7 +99,7 @@ class RLTKJoiner(JoinerBase):
         return res
 
     @staticmethod
-    def simple_best_matches(sim: typing.List[typing.List[float]], threshold=0.8):
+    def simple_best_matches(sim: typing.List[typing.List[float]], threshold=0.5):
         res = []
         for idx, v in enumerate(sim):
             cur = []
@@ -107,8 +113,8 @@ class RLTKJoiner(JoinerBase):
     def get_remain_list(df: pd.DataFrame, columns_2d: typing.List[typing.List[int]]):
         all_columns = list(range(df.shape[1]))
         columns_1d = [item for sublist in columns_2d for item in sublist]
-        remianing = [_ for _ in all_columns if _ not in columns_1d]
-        return remianing
+        remaining = [_ for _ in all_columns if _ not in columns_1d]
+        return remaining
 
 
 

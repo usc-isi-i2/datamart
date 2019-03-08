@@ -63,6 +63,45 @@ class FeaturePairs:
     def pairs(self):
         return self._pairs
 
+    def get_rltk_block(self) -> typing.Optional[rltk.BlockGenerator]:
+        prime_key_l = []
+        prime_key_r = []
+        str_key_l = []
+        str_key_r = []
+        for f1, f2 in self.pairs:
+             if f1.data_type == DataType.STRING:
+                if f1.distribute_type == DistributeType.CATEGORICAL:
+                    prime_key_l.append(f1.name)
+                    prime_key_r.append(f2.name)
+                elif f1.distribute_type == DistributeType.NON_CATEGORICAL:
+                    str_key_l.append(f1.name)
+                    str_key_r.append(f2.name)
+
+        if prime_key_l and prime_key_r:
+            try:
+                bg = rltk.HashBlockGenerator()
+                block = bg.generate(
+                    bg.block(self.left_rltk_dataset, function_=lambda r: ''.join([getattr(r, pk).lower()
+                                                                                  for pk in prime_key_l])),
+                    bg.block(self.right_rltk_dataset, function_=lambda r: ''.join([getattr(r, pk).lower()
+                                                                                   for pk in prime_key_r])))
+                return block
+            except Exception as e:
+                print(' - BLOCKING EXCEPTION: %s' % str(e))
+
+        # if the datasets are too large, use each key's first char as blocking key
+        if str_key_l and str_key_r and len(self._left_df) * len(self._right_df) > 10000:
+            try:
+                bg = rltk.HashBlockGenerator()
+                block = bg.generate(
+                    bg.block(self.left_rltk_dataset, function_=lambda r: ''.join([getattr(r, pk)[0].lower()
+                                                                                  for pk in str_key_l])),
+                    bg.block(self.right_rltk_dataset, function_=lambda r: ''.join([getattr(r, pk)[0].lower()
+                                                                                   for pk in str_key_r])))
+                return block
+            except Exception as e:
+                print(' - BLOCKING EXCEPTION: %s' % str(e))
+
     def __len__(self):
         return self._length
 
@@ -75,3 +114,4 @@ class FeaturePairs:
     def _init_rltk_dataset(df, record_class):
         rltk_dataset = rltk.Dataset(reader=DataFrameReader(df, True), record_class=record_class)
         return rltk_dataset
+

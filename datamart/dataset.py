@@ -10,19 +10,19 @@ class Dataset:
     Contains the meta info and the way to materialize the dataset.
     Follow the API defined by https://datadrivendiscovery.org/wiki/display/work/Python+API
     """
-    def __init__(self, es_raw_object, original_data, query_json):
+    def __init__(self, es_raw_object, original_data=None, query_json=None):
         self.__es_raw_object = es_raw_object
         self._metadata = es_raw_object['_source']
         self._score = es_raw_object['_score']
         self._id = es_raw_object['_id']
-        self._matched_cols = []
+        self._join_columns = ((), ())
         self._inner_hits = es_raw_object.get('inner_hits', {})
 
         self._original_data = original_data
         self._query_json = query_json
 
         try:
-            self.auto_set_match()
+            self.auto_set_join_columns()
         except Exception as e:
             print(str(e))
 
@@ -87,6 +87,10 @@ class Dataset:
         return self._metadata
 
     @property
+    def variables(self):
+        return self.metadata.get('variables', [])
+
+    @property
     def score(self):
         """
         Floating-point value measuring how well this dataset matches the query parameters. Higher is better.
@@ -97,7 +101,7 @@ class Dataset:
         return self._score
 
     @property
-    def match(self):
+    def join_columns(self):
         """
         (TODO better name?)
         Metadata indicating which column of this dataset matches which requested column from the query. \
@@ -106,19 +110,7 @@ class Dataset:
         Returns:
 
         """
-        return None
-
-    @property
-    def matched_cols(self):
-        """
-        (TODO better name?)
-        Metadata indicating which column of this dataset matches which requested column from the query. \
-        This explains why this dataset matches the query, and can be used for joining.
-
-        Returns:
-
-        """
-        return self._matched_cols
+        return self._join_columns
 
     @property
     def original_data(self):
@@ -128,11 +120,36 @@ class Dataset:
     def query_json(self):
         return self._query_json
 
-    def set_match(self, left_cols, right_cols):
-        if len(left_cols) == len(right_cols):
-            self._matched_cols = (left_cols, right_cols)
+    @property
+    def summary(self):
+        return """ - {title} -
+    * Datamart ID: {datamart_id}
+    * Score: {score}
+    * Description: {description}
+    * URL: {url}
+    * Columns: {columns}
+    * Recommend Join Columns: {recommend_join}
+        """.format(datamart_id=self.id,
+                   score=self.score,
+                   title=self.metadata.get('title', ''),
+                   description=self.metadata.get('description', ''),
+                   url=self.metadata.get('url', ''),
+                   columns=self._summary_columns(),
+                   recommend_join=self._summary_join())
 
-    def auto_set_match(self):
+    def set_join_columns(self, left_cols: typing.List[typing.List[int or str]],
+                  right_cols: typing.List[typing.List[int or str]]):
+        if left_cols and left_cols[0] and isinstance(left_cols[0][0], str):
+            # convert to int indices
+            left_cols = [[self.original_data.columns.get_loc(name) for name in feature] for feature in left_cols]
+            right_var_names = [_.get('name') for _ in self.variables]
+            right_cols = [[right_var_names.index(name) for name in feature] for feature in right_cols]
+        if len(left_cols) == len(right_cols):
+            self._join_columns = (left_cols, right_cols)
+
+    def auto_set_join_columns(self):
+        if not (isinstance(self.original_data, DataFrame) and self.query_json):
+            return
         used = set()
         left = []
         right = []
@@ -165,7 +182,36 @@ class Dataset:
                 right.append(right_index)
 
         if left and right:
-            self._matched_cols = (left, right)
+            self._join_columns = (left, right)
+
+    def _summary_join(self):
+        left, right = self.join_columns
+        if not left or not right or len(left) != len(right):
+            return 'None'
+        rows = ['\n\t{:>20} <-> {:<20}'.format('Original Columns', 'datamart.Dataset Columns')]
+        for i in range(len(left)):
+            rows.append('{:>20} <-> {:<20}'.format(str(left[i]), str(right[i])))
+        return '\n\t'.join(rows)
+
+    def _summary_columns(self):
+        if len(self.variables) < 10:
+            return ''.join([self._summary_column(idx, col) for idx, col in enumerate(self.variables)])
+        else:
+            res = []
+            for i in range(5):
+                res.append(self._summary_column(i, self.variables[i]))
+            res.append('\n\t ... ')
+            for i in range(len(self.variables) - 5, len(self.variables)):
+                res.append(self._summary_column(i, self.variables[i]))
+            return ''.join(res)
+
+    @staticmethod
+    def _summary_column(index, column):
+        samples_str = ''
+        if column.get('named_entity'):
+            samples = column.get('named_entity')[:3]
+            samples_str = '(%s ...)' % ', '.join(samples)
+        return '\n\t[%d] %s %s' % (index, column.get('name', ''), samples_str)
 
 
 
