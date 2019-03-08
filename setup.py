@@ -14,10 +14,10 @@ with open('requirements.txt', 'r') as f:
 
 
 setup(name='Datamart',
-      version='1.0dev',
+      version='1.1',
       description='Data Augmentation',
       author='ISI',
-      url='https://github.com/usc-isi-i2/datamart/tree/development',
+      url='https://github.com/usc-isi-i2/datamart/tree/master',
       packages=['datamart'],
       install_requires=install_requires,
       dependency_links=dependency_links)
