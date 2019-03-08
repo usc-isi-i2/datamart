@@ -13,6 +13,7 @@ import tempfile
 from datetime import datetime
 from datamart.utilities.timeout import timeout
 import re
+from datamart.utilities.caching import Cache, EntryState
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../materializers'))
 
@@ -133,12 +134,55 @@ class Utils:
        Returns:
             pandas dataframe
        """
-        materializer = cls.load_materializer(materializer_module=metadata["materialization"]["python_path"])
-        df = materializer.get(metadata=metadata, constrains=constrains)
-        if isinstance(df, pd.DataFrame):
-            return df
-        return None
+        # Get cache instance
+        try:
+            cache = Cache.get_instance()
+        except:
+            print("ERR: Unable to get cache instance")
+            cache = None
+        
+        if cache:
+            key = json.dumps(metadata["materialization"]) + json.dumps(constrains)
+            ttl = metadata.get("validity",cache.lifetime_duration)
 
+            # Query cache
+            cache_result, reason = cache.get(key, ttl)
+        else:
+            cache_result = None
+            reason = EntryState.ERROR
+
+        # Cache miss
+        if cache_result is None:
+            materializer = cls.load_materializer(materializer_module=metadata["materialization"]["python_path"])
+            df = materializer.get(metadata=metadata, constrains=constrains)
+
+            if isinstance(df, pd.DataFrame):
+                if cache is not None:
+                    cache.add(key, df) 
+                return df
+                
+            return None
+        
+        if cache_result is not None:
+            # Entry expired - too stale
+            if reason == EntryState.EXPIRED:
+                # Rematerialize
+                materializer = cls.load_materializer(materializer_module=metadata["materialization"]["python_path"])
+                df = materializer.get(metadata=metadata, constrains=constrains)
+                if isinstance(df, pd.DataFrame):
+                    cache.remove(key)
+                    cache.add(key, df)
+                    return df
+
+                # Else return cached entry
+                return cache_result
+            
+            # Cache hit
+            elif reason == EntryState.FOUND:
+                return cache_result
+        
+        return None
+        
     @classmethod
     def validate_schema(cls, description: dict) -> bool:
         """Validate dict against json schema.
