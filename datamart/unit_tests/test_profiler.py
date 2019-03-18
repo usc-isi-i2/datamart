@@ -12,7 +12,7 @@ class TestProfiler(unittest.TestCase):
             'Age': [28, 34, 29, 42],
             'Date': ["2018-10-05", "2014-02-23", "2020-09-23T00:10:00", "2023213"]
         }
-        self.df = pd.DataFrame(data)
+        self.df = pd.DataFrame(data, columns=['Age', 'Date', 'Name'])
         self.profiler = BasicProfiler
 
     @Utils.test_print
