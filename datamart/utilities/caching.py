@@ -42,18 +42,34 @@ class CacheConfig():
     def cache_filename(self):
         name = os.path.join(self.dataset_dir, self._config.get("cache_filename", "cache.json"))
         return name
+    
+    @cache_filename.setter
+    def cache_filename(self, value):
+        self._config["cache_filename"] = value
 
     @property
     def max_cache_size(self):
         return self._config.get("max_cache_size", 10)
     
+    @max_cache_size.setter
+    def max_cache_size(self, value):
+        self._config["max_cache_size"] = value
+    
     @property
     def dataset_dir(self):
         return self._config.get("dataset_dir", "/nfs1/dsbox-repo/datamart/cache")
     
+    @dataset_dir.setter
+    def dataset_dir(self, value):
+        self._config["dataset_dir"] = value
+    
     @property
     def lifetime_duration(self):
         return self._config.get("default_validity", 7*24*60*60)
+    
+    @lifetime_duration.setter
+    def lifetime_duration(self, value):
+        self._config["default_validity"] = value
     
     def save(self, config_path):
         with open(config_path, 'w+') as f:
@@ -91,8 +107,7 @@ class Cache:
                 config_dict = json.load(f)
                 self.config = CacheConfig(config_dict)
         else:
-            config_dict = None
-            self.config = CacheConfig(config_dict)
+            self.config = CacheConfig(None)
             self.config.save(self._config_path)
 
         if not os.path.exists(self.config.dataset_dir):
