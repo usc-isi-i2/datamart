@@ -8,7 +8,7 @@ with open('requirements.txt', 'r') as f:
         re = line.strip()
         if re:
             if re.startswith('-e git+'):
-                dependency_links.append(re)
+                dependency_links.append(re[3:])
             else:
                 install_requires.append(re)
 
