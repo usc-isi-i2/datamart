@@ -8,7 +8,7 @@ import typing
 import threading
 
 from time import time
-from heapq import heappop, heappush
+from collections import OrderedDict
 from enum import Enum
 
 import pandas as pd
@@ -94,20 +94,15 @@ class Cache:
             config_dict = None
             self.config = CacheConfig(config_dict)
             self.config.save(self._config_path)
-            
-        self._queue = []
 
         if not os.path.exists(self.config.dataset_dir):
             os.makedirs(self.config.dataset_dir)
                 
         if os.path.exists(self.config.cache_filename):
             with open(self.config.cache_filename, 'r') as f:
-                self._cache = json.load(f)
-                for key in self._cache:
-                    heappush(self._queue, (self._cache[key]["time_added"], key))
-
+                self._cache = json.load(f, object_pairs_hook=OrderedDict)
         else:
-            self._cache = {}
+            self._cache = OrderedDict()
     
     def _save_cache(self):
         with open(self.config.cache_filename, 'w') as f:
@@ -166,7 +161,6 @@ class Cache:
 
         if len(self._cache) < self.config.max_cache_size:
             self._cache[key] = entry
-            heappush(self._queue, (curr_time, key))
             self._save_cache()
         else:
             self._cache_replace(key, entry)  
@@ -182,15 +176,16 @@ class Cache:
             os.remove(popped["path"])
         self._save_cache()
         return popped
-
     
     def _cache_replace(self, key, entry):
         """ Replaces oldest entry in cache """
-        _, old_key = heappop(self._queue)
-        self.remove(old_key)
+        # Remove oldest entry
+        popped = self._cache.popitem(False)
+        if os.path.exists(popped["path"]):
+            os.remove(popped["path"])
 
+        # Save new entry
         self._cache[key] = entry
-        heappush(self._queue, (entry["time_added"], key))
     
         self._save_cache()
   
