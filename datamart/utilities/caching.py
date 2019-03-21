@@ -42,8 +42,8 @@ class CacheConfig():
             self._config_path = config_path
         
         # Create folder if not exists
-        if not os.path.exists(os.path.basename(self._config_path)):
-            os.makedirs(os.path.basename(self._config_path))
+        if not os.path.exists(os.path.dirname(self._config_path)):
+            os.makedirs(os.path.dirname(self._config_path))
 
         # Open file if it exists
         if os.path.exists(self._config_path):
