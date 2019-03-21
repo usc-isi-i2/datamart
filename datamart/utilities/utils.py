@@ -137,8 +137,9 @@ class Utils:
         # Get cache instance
         try:
             cache = Cache.get_instance()
-        except:
+        except Exception as e:
             print("ERR: Unable to get cache instance")
+            print(e)
             cache = None
         
         if cache:

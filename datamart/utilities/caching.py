@@ -27,23 +27,31 @@ class CacheConfig():
     Contains configuration data for the cache
     """
     def __init__(self, config_path: str):
+        # Default configuration
         self._config = {
-                "cache_filename": "cache.json",
-                "max_cache_size":10,
-                "dataset_dir":"/nfs1/dsbox-repo/datamart/cache",
-                "default_validity": 604800
-            }
+            "cache_filename": "cache.json",
+            "max_cache_size":10,
+            "dataset_dir":"/nfs1/dsbox-repo/datamart/cache",
+            "default_validity": 604800
+        }
 
-        if config_path is not None:
-            self._config_path = config_path
-            if os.path.exists(config_path):
-                with open(config_path,'r') as f:
-                    self._config = json.load(f)
-        else:
+        # Create default location for config file (~/.config/datamart/caching_config.json)
+        if config_path is None:
             self._config_path = os.path.join(os.path.expanduser("~"), ".config/datamart/caching_config.json")
-            if not os.path.exists(os.path.basename(self._config_path)):
-                os.makedirs(os.path.basename(self._config_path))
-            self.save()
+        else:
+            self._config_path = config_path
+        
+        # Create folder if not exists
+        if not os.path.exists(os.path.basename(self._config_path)):
+            os.makedirs(os.path.basename(self._config_path))
+
+        # Open file if it exists
+        if os.path.exists(self._config_path):
+            with open(self._config_path,'r') as f:
+                self._config = json.load(f)
+        
+        # Save config
+        self.save()
 
     @property
     def cache_filename(self):
@@ -150,21 +158,21 @@ class Cache:
 
         # if entry is stale (past lifetime duration)
         if entry and (time()-entry["time_added"]) > ttl:
-            print("cache expired")
+            #print("cache expired")
             return pd.read_csv(entry["path"]), EntryState.EXPIRED
 
         # if entry exists
         if entry:
             if os.path.exists(entry["path"]):
-                print("cache hit")
+                #print("cache hit")
                 return pd.read_csv(entry["path"]), EntryState.FOUND
             # No file found at entry
             else:
-                print("cache: no file found")
+                #print("cache: no file found")
                 self.remove(key)
         
         # if entry does not exist
-        print("cache: no entry")
+        #print("cache: no entry")
         return None, EntryState.NOT_FOUND
     
     def add(self, key, df):
