@@ -26,17 +26,24 @@ class CacheConfig():
     """
     Contains configuration data for the cache
     """
-    def __init__(self, config: dict):
-        # Default config
-        if config is not None:
-            self._config = config
-        else:
-            self._config = {
+    def __init__(self, config_path: str):
+        self._config = {
                 "cache_filename": "cache.json",
                 "max_cache_size":10,
                 "dataset_dir":"/nfs1/dsbox-repo/datamart/cache",
                 "default_validity": 604800
             }
+
+        if config_path is not None:
+            self._config_path = config_path
+            if os.path.exists(config_path):
+                with open(config_path,'r') as f:
+                    self._config = json.load(f)
+        else:
+            self._config_path = os.path.join(os.path.expanduser("~"), ".config/datamart/caching_config.json")
+            if not os.path.exists(os.path.basename(self._config_path)):
+                os.makedirs(os.path.basename(self._config_path))
+            self.save()
 
     @property
     def cache_filename(self):
@@ -71,8 +78,8 @@ class CacheConfig():
     def lifetime_duration(self, value):
         self._config["default_validity"] = value
     
-    def save(self, config_path):
-        with open(config_path, 'w+') as f:
+    def save(self):
+        with open(self._config_path, 'w+') as f:
             json.dump(self._config, f)
         
 
@@ -92,23 +99,23 @@ class Cache:
             Cache.__lock.release()
         return Cache.__instance
     
-    def __init__(self):
+    def __init__(self, test=False, config=None):
+        if test:
+            self._init_cache(config)
+            return
+
         if Cache.__instance != None:
             raise Exception("This class is a singleton! Please create instance using get_instance()")
         else:
             self._init_cache()
             Cache.__instance = self
     
-    def _init_cache(self):
-        self._config_path = os.path.join(os.path.expanduser("~"), ".config/datamart/caching_config.json")
-
-        if os.path.exists(self._config_path):
-            with open(self._config_path,'r') as f:
-                config_dict = json.load(f)
-                self.config = CacheConfig(config_dict)
+    def _init_cache(self, config: CacheConfig = None):
+        if config:
+            self.config = config
         else:
             self.config = CacheConfig(None)
-            self.config.save(self._config_path)
+            self.config.save()
 
         if not os.path.exists(self.config.dataset_dir):
             os.makedirs(self.config.dataset_dir)
@@ -162,6 +169,9 @@ class Cache:
     
     def add(self, key, df):
 
+        if key in self._cache:
+            return 
+        
         # Get time
         curr_time = time()
 
@@ -195,9 +205,9 @@ class Cache:
     def _cache_replace(self, key, entry):
         """ Replaces oldest entry in cache """
         # Remove oldest entry
-        popped = self._cache.popitem(False)
-        if os.path.exists(popped["path"]):
-            os.remove(popped["path"])
+        old_key, old_entry = self._cache.popitem(last=False)
+        if os.path.exists(old_entry["path"]):
+            os.remove(old_entry["path"])
 
         # Save new entry
         self._cache[key] = entry
