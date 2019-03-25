@@ -2,11 +2,9 @@ from datamart.materializers.materializer_base import MaterializerBase
 
 import pandas as pd
 import typing
-import os
 import sys
 import traceback
 import datetime
-import shutil
 
 LOCATION_COLUMN_INDEX = 0
 

@@ -1,13 +1,9 @@
 from datamart.materializers.materializer_base import MaterializerBase
 
-import os
 import urllib.request
-import sys
-import csv
 import copy
 import json
 from typing import List
-from pprint import pprint
 import re
 import typing
 from pandas import DataFrame
