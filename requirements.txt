@@ -1,9 +1,9 @@
 d3m==2019.2.18
+spacy==2.0.17
 etk==2.1.5
 defusedxml==0.5.0
 elasticsearch==6.3.1
 entrypoints==0.2.3
-spacy==2.0.17
 Flask==1.0.2
 idna==2.7
 ipykernel==5.0.0

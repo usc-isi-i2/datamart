@@ -21,7 +21,7 @@ class HTMLParser(ParserBase):
         try:
             if not rows[0]['cells'][0]['cell'].startswith('<td>'):
                 headers = cells.pop(0)
-        except IndexError or KeyError or SyntaxError or AttributeError:
+        except (IndexError, KeyError, SyntaxError, AttributeError):
             pass
         return [pd.DataFrame(cells, columns=headers)]
 
