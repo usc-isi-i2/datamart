@@ -51,6 +51,18 @@ WIKIPEDIA_IGNORE_CATEGORIES = ['articles', 'cs1', 'page', 'dates', ' use']
 WIKIPEDIA_CSS_FILTER = '#content table:not(.infobox):not(.navbox):not(.navbox-inner):not(.navbox-subgroup):not(.sistersitebox)'
 RANDOM_URL = 'https://%s.wikipedia.org/wiki/Special:Random'
 
+
+def generate_datasets_metadata(url, score_threshold=0.8, xpath=None):
+    print('Downloading %s' % url)
+    result = []
+    tabs = tables(url, xpath_filter=xpath, css_filter=WIKIPEDIA_CSS_FILTER)
+    if xpath is None:
+        tabs = [t for t in tabs if t.score > score_threshold]
+    for table in tabs:
+        result.append(metadata(table))
+    return result
+
+
 def generate_datasets(url, path, score_threshold, xpath=None):
     print('Downloading %s' % url)
     tabs = tables(url, xpath_filter=xpath, css_filter=WIKIPEDIA_CSS_FILTER)

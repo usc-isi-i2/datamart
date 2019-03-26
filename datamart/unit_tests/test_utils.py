@@ -18,7 +18,7 @@ class TestUtils(unittest.TestCase):
             'Age': [28, 34, 29, 42],
             'Date': ["2018-10-05", "2014-02-23", "2020-09-23", "2023-02-13"]
         }
-        self.df = pd.DataFrame(data).infer_objects()
+        self.df = pd.DataFrame(data, columns=['Age', 'Date', 'Name']).infer_objects()
 
     @Utils.test_print
     def test_validate_schema(self):
