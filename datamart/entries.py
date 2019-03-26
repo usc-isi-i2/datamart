@@ -8,7 +8,7 @@ import d3m.container.dataset as d3m_ds
 from datamart.utilities.utils import Utils
 from datamart.joiners.join_result import JoinResult
 from datamart.joiners.joiner_base import JoinerType
-
+import traceback
 
 def search(url: str,
            query: dict,
@@ -85,8 +85,22 @@ def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset,
     Returns:
 
     """
-
     loaded_data = DataLoader.load_data(original_data)
+
+    # 2019.3.25 temoprary hack here
+    if joining_columns and joiner == JoinerType.RLTK:
+        from datamart.joiners.rltk_joiner import RLTKJoiner_new
+        try:
+            joiner = RLTKJoiner_new()
+            joiner.set_join_target_column_name(joining_columns)
+            augmented_data = joiner.join(left_df = original_data, right_df = augment_data.materialize())
+            return augmented_data
+        except:
+            traceback.print_exc()
+            print("Augment failed!")
+            return original_data
+    # end temporary hack
+    
     if joining_columns:
         try:
             augment_data.set_join_columns(*joining_columns)
@@ -108,6 +122,7 @@ def augment(original_data: pd.DataFrame or str or d3m_ds.Dataset,
             right_metadata=augment_data.metadata,
             joiner=joiner
     )
+
     return augmented_data
 
 
