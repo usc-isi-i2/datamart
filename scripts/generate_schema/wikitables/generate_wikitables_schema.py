@@ -6,10 +6,16 @@ from json import dump
 from os import makedirs, listdir, remove
 from os.path import join, exists
 from pandas import DataFrame
+try:
+    from etk.extractors.spacy_ner_extractor import SpacyNerExtractor
+except OSError:
+    from spacy.cli import download
+    download('en_core_web_sm')
+    from etk.extractors.spacy_ner_extractor import SpacyNerExtractor
 from regex import compile as rx_compile, search, sub, DOTALL, MULTILINE, VERBOSE
 from requests import head, get
 from tablextract import tables, BOOLEAN_SYNTAX_PROPERTIES
-from tablextract.utils import find_dates, find_entities, download_file
+from tablextract.utils import find_dates, download_file
 from time import time
 from urllib.parse import urljoin
 from wikipediaapi import Wikipedia
@@ -251,6 +257,13 @@ def generate_csv(input_fname, output_fname, lang):
             with open(output_fname, 'a', encoding='utf-8') as out:
                 out.write('\n'.join(to_write + ['']))
 
+_find_entities_extractor = SpacyNerExtractor('dummy_parameter')
+def find_entities(text):
+    try:
+        return {ext.value: ext.tag for ext in _find_entities_extractor.extract(text)}
+    except:
+        log('info', f'ETK SpacyNerExtractor raised an error on value {text}.')
+        return {}
 
 # --- initial call ------------------------------------------------------------
 
