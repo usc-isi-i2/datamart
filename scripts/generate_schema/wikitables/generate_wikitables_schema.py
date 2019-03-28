@@ -86,9 +86,8 @@ def metadata(table, min_majority=.8):
         date_updated = dt.now().strftime('%Y-%m-%mT%H:%M:%SZ')
     try:
         categories = [kw.lower().split(':')[-1] for kw in pg.categories]
-        kws = categories
-        # kws = [kw for kw in kws if not any(c in kw for c in WIKIPEDIA_IGNORE_CATEGORIES)]
-        # kws = set(word for kw in kws for word in findall(r'\w+', kw) if not len(FIND_STOPWORDS(kw)))
+        kws = [kw for kw in categories if not any(c in kw for c in WIKIPEDIA_IGNORE_CATEGORIES)]
+        kws = set(word for kw in kws for word in findall(r'\w+', kw) if not len(FIND_STOPWORDS(kw)))
     except:
         categories = []
         kws = []

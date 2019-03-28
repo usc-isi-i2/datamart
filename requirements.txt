@@ -54,7 +54,7 @@ rltk @ git+https://github.com/usc-isi-i2/rltk.git@85f12555eda16cb8af810acd4648a8
 selenium==3.141.0
 Send2Trash==1.5.0
 simplegeneric==0.8.1
-tablextract>=1.1.8
+tablextract>=1.2.3
 termcolor==1.1.0
 terminado==0.8.1
 testpath==0.4.2
