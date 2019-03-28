@@ -76,6 +76,7 @@ def generate_datasets(url, path, score_threshold, xpath=None):
         tabs = [t for t in tabs if t.score > score_threshold]
     name = sub(r'[/\\\*;\[\]\':=,<>]', '_', url)
     for t, table in enumerate(tabs):
+        print(metadata(table))
         with open(join(path, '%s_%d.json' % (name, t)), 'w', encoding='utf-8') as fp:
             dump(metadata(table), fp, ensure_ascii=False, indent='\t')
     print('\t%d datasets found.' % len(tabs))
@@ -135,7 +136,10 @@ def metadata(table, min_majority=.8):
         dates = [d for d in map(find_dates, values) if d != None]
         if len(dates) >= min_sample:
             var['semantic_type'].append('https://metadata.datadrivendiscovery.org/types/Time')
-            var['temporal_coverage'] = {'start': min(dates), 'end': max(dates)}
+            var['temporal_coverage'] = {
+                'start': min(dates).isoformat(),
+                'end': max(dates).isoformat()
+            }
         entities = {v: t for v in values for v, t in find_entities(v).items()}
         locations = [v for v, t in entities.items() if t == 'GPE']
         if len(locations) >= min_sample:
