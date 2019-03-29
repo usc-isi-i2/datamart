@@ -123,7 +123,6 @@ class Cache:
             self.config = config
         else:
             self.config = CacheConfig(None)
-            self.config.save()
 
         if not os.path.exists(self.config.dataset_dir):
             os.makedirs(self.config.dataset_dir)
@@ -165,7 +164,12 @@ class Cache:
         if entry:
             if os.path.exists(entry["path"]):
                 #print("cache hit")
-                return pd.read_csv(entry["path"]), EntryState.FOUND
+                df = pd.read_csv(entry["path"])
+                # Remove old entry
+                self.remove(key)
+                # Add new entry 
+                self.add(key, df)
+                return df, EntryState.FOUND
             # No file found at entry
             else:
                 #print("cache: no file found")

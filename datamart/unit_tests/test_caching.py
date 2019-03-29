@@ -20,6 +20,11 @@ class TestCaching(unittest.TestCase):
         cls.cache.add("first", pd.DataFrame(['first']))
         cls.cache.add("second", pd.DataFrame(['second']))
         cls.cache.add("third", pd.DataFrame(['third']))
+    
+    def setUp(self):
+        TestCaching.cache.add("first", pd.DataFrame(['first']))
+        TestCaching.cache.add("second", pd.DataFrame(['second']))
+        TestCaching.cache.add("third", pd.DataFrame(['third']))
 
     @Utils.test_print
     def test_get(self):
@@ -39,13 +44,6 @@ class TestCaching(unittest.TestCase):
         os.remove("tmp.csv") 
     
     @Utils.test_print
-    def test_replace(self):
-        TestCaching.cache.add("fourth", pd.DataFrame(['fourth']))
-        result, reason = TestCaching.cache.get("first", None)
-        self.assertEqual(result, None)
-        self.assertEqual(reason, EntryState.NOT_FOUND)
-    
-    @Utils.test_print
     def test_expired(self):
         result, reason = TestCaching.cache.get("second", 0)
         pd.DataFrame(['second']).to_csv("tmp.csv", index=None)
@@ -53,6 +51,14 @@ class TestCaching(unittest.TestCase):
         assert_frame_equal(expected, result)
         self.assertEqual(reason, EntryState.EXPIRED)
         os.remove("tmp.csv") 
+    
+    @Utils.test_print
+    def test_lru(self):
+        TestCaching.cache.get("first", None)
+        TestCaching.cache.add("fourth", pd.DataFrame(['fourth']))
+        result, reason = TestCaching.cache.get("second", None)
+        self.assertEqual(result, None)
+        self.assertEqual(reason, EntryState.NOT_FOUND)
 
     @classmethod
     def tearDownClass(cls):
