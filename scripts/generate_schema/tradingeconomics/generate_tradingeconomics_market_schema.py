@@ -54,12 +54,14 @@ def generate_json_schema(dst_path):
                 schema = dict()
                 schema['title'] = data[0]['Symbol']
                 schema['description'] = path + " : " + name +' '+ country
-                schema['url'] = "https://api.tradingeconomics.com/markets/historical/" + path.lower() + "?c=" + DEFAULT_KEY["KEY"] +'&d1=1700-08-01'+ "&format=" + materialiseFormat
+                schema['url'] = "https://api.tradingeconomics.com/markets/historical/" + path.lower() + "?c=guest:guest" +'&d1=1700-08-01'+ "&format=" + materialiseFormat
                 schema['date_updated'] = data[0]['Date']
                 schema['provenance'] = {'source':'tradingeconomics.com'}
                 schema['materialization'] = {
                     "python_path": 'tradingeconomics_market_materializer',
-                    "arguments": {}
+                    "arguments": {
+                        "url": schema['url']
+                    }
                 }
                 schema['variables'] = []
                 first_col = {

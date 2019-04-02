@@ -17,7 +17,6 @@ class TradingEconomicsMarketMaterializer(MaterializerBase):
 
         """
         MaterializerBase.__init__(self, **kwargs)
-        self.key = None
 
     def get(self,
             metadata: dict = None,
@@ -34,12 +33,22 @@ class TradingEconomicsMarketMaterializer(MaterializerBase):
         """
         if not constrains:
             constrains = dict()
+        materialization_arguments = metadata["materialization"].get("arguments", {})
+        #https://api.tradingeconomics.com/markets/historical/lb1:com?c=guest:guest&d1=1700-08-01&format=csv
+        getUrl = materialization_arguments['arguments']['url']
+        key="guest:guest"
+        try:
+            keyFile = open("tradingeconomics.txt", "r")
+            key = keyFile.read()
+        except:
+            print("file not found")
 
-        getUrl = metadata['url']
-        if "key" in constrains:
-            self.key = {"key": constrains["key"]}
-        else:
-            self.headers = {"key": "guest:guest"}
+        urlStrs=getUrl.split("?c=")
+        keyStr=urlStrs[1].split('&')
+        keyStr[1]=key
+        urlStrs[1]='&'.join(keyStr)
+        getUrl="?c=".join(urlStrs)
+
         date_range = constrains.get("date_range", {})
         datestr = ""
 
@@ -62,21 +71,9 @@ class TradingEconomicsMarketMaterializer(MaterializerBase):
         path[1] = datestr
         getUrl = "&".join(path)
 
-        datasetConfig = {
-            "where_to_download": {
-                "frequency": "quarterly",
-                "method": "get",
-                "file_type": "csv",
-                "template": getUrl,
-                "replication": {
-                },
-                "identifier": metadata['title'].replace(' ', '_')
-            },
-        }
+        return self.fetch_data(getUrl)
 
-        return self.fetch_data(getUrl, datasetConfig)
-
-    def fetch_data(self, getUrl, datasetConfig):
+    def fetch_data(self, getUrl):
         """
         Returns:
              result: A pd.DataFrame;

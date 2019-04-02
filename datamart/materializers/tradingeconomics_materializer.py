@@ -38,12 +38,20 @@ class TradingEconomicsMaterializer(MaterializerBase):
         """
         if not constrains:
             constrains = dict()
+        materialization_arguments = metadata["materialization"].get("arguments", {})
+        getUrl = materialization_arguments['arguments']['url']
+        key = "guest:guest"
+        try:
+            keyFile = open("tradingeconomics.txt", "r")
+            key = keyFile.read()
+        except:
+            print("file not found")
+        urlStrs = getUrl.split("?c=")
+        keyStr = urlStrs[1].split('&')
+        keyStr[1] = key
+        urlStrs[1] = '&'.join(keyStr)
+        getUrl = "?c=".join(urlStrs)
 
-        getUrl = metadata['url']
-        if "key" in constrains:
-            self.key = {"key": constrains["key"]}
-        else:
-            self.headers = {"key": "guest:guest"}
         date_range = constrains.get("date_range", {})
         datestr = ""
         if date_range.get("start", None) or date_range.get("end", None):
@@ -57,7 +65,6 @@ class TradingEconomicsMaterializer(MaterializerBase):
             else:
                 datestr += "{}-{}-{}".format("1900", "01", "01")
                 datestr += '/' + date_range["end"]
-
             path1, path2 = getUrl.split("?c=")
             getUrl = path1 + "/" + datestr + "?c=" + path2
         if "named_entity" in constrains and LOCATION_COLUMN_INDEX in constrains["named_entity"] and \
@@ -65,21 +72,11 @@ class TradingEconomicsMaterializer(MaterializerBase):
             locations = constrains["named_entity"][LOCATION_COLUMN_INDEX]
             getUrl = getUrl.replace("all", ",".join([x.replace(' ', '%20') for x in locations]))
 
-        datasetConfig = {
-            "where_to_download": {
-                "frequency": "quarterly",
-                "method": "get",
-                "file_type": "csv",
-                "template": metadata['url'],
-                "replication": {
-                },
-                "identifier": metadata['title'].replace(' ', '_')
-            },
-        }
 
-        return self.fetch_data(getUrl, datasetConfig)
 
-    def fetch_data(self, getUrl, datasetConfig):
+        return self.fetch_data(getUrl)
+
+    def fetch_data(self, getUrl):
         """
         Returns:
              result: A pd.DataFrame;
