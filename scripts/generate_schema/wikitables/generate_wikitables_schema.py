@@ -1,3 +1,4 @@
+from traceback import print_exc
 from argparse import ArgumentParser
 from bs4 import BeautifulSoup as soup
 from bz2 import BZ2File
@@ -12,9 +13,9 @@ except OSError:
     from spacy.cli import download
     download('en_core_web_sm')
     from etk.extractors.spacy_ner_extractor import SpacyNerExtractor
-from regex import compile as rx_compile, search, sub, DOTALL, MULTILINE, VERBOSE
+from regex import compile as rx_compile, findall, search, sub, DOTALL, MULTILINE, VERBOSE
 from requests import head, get
-from tablextract import tables, BOOLEAN_SYNTAX_PROPERTIES
+from tablextract import tables, BOOLEAN_SYNTAX_PROPERTIES, STOPWORDS
 from tablextract.utils import find_dates, download_file
 from time import time
 from urllib.parse import urljoin
@@ -53,7 +54,7 @@ def main():
 
 # --- table downloading -------------------------------------------------------
 
-WIKIPEDIA_IGNORE_CATEGORIES = ['articles', 'cs1', 'page', 'dates', ' use']
+WIKIPEDIA_IGNORE_CATEGORIES = ['articles', 'cs1', 'page', 'dates', ' use', 'wikipedia', 'links']
 WIKIPEDIA_CSS_FILTER = '#content table:not(.infobox):not(.navbox):not(.navbox-inner):not(.navbox-subgroup):not(.sistersitebox)'
 RANDOM_URL = 'https://%s.wikipedia.org/wiki/Special:Random'
 
@@ -92,12 +93,13 @@ def metadata(table, min_majority=.8):
     except:
         date_updated = dt.now().strftime('%Y-%m-%mT%H:%M:%SZ')
     try:
-        categories = [kw.lower().split(':')[-1] for kw in pg.categories]
-        kws = [kw for kw in categories if not any(c in kw for c in WIKIPEDIA_IGNORE_CATEGORIES)]
-        kws = set(word for kw in kws for word in findall(r'\w+', kw) if not len(FIND_STOPWORDS(kw)))
+        categories = {kw.lower().split(':', 1)[-1].strip() for kw in pg.categories}
+        categories = {c for c in categories if not any(i in c for i in WIKIPEDIA_IGNORE_CATEGORIES)}
+        keywords = {kw for cat in categories for kw in findall(r'\w+', cat)}
+        keywords = {kw for kw in keywords if kw not in STOPWORDS}
     except:
         categories = []
-        kws = []
+        keywords = []
     try:
         description = pg.summary.split('\n', 1)[0]
     except:
@@ -106,26 +108,29 @@ def metadata(table, min_majority=.8):
         langlinks = list({v.title for v in pg.langlinks.values()})
     except:
         langlinks = []
+    headings = [(k[2:], v.replace('[edit]', '')) for k, v in table.context.items() if k.startswith('h')]
     res = {
-        "title": table.context['r0'] if 'r0' in table.context else 'Table in %s' % pg.title,
-        "description": description,
-        "url": table.url,
-        "keywords": list(kws),
-        "date_updated": date_updated,
-        "provenance": {
-            "source": "wikipedia.org"
+        'title': table.context['r0'] if 'r0' in table.context else 'Table in %s' % pg.title,
+        'description': description,
+        'url': table.url,
+        'keywords': list(keywords),
+        'date_updated': date_updated,
+        'provenance': {
+            'source': 'wikipedia.org'
         },
-        "materialization": {
-            "python_path": "wikitables_materializer",
-            "arguments": {
-                "url": table.url,
-                "xpath": table.xpath
+        'materialization': {
+            'python_path': 'wikitables_materializer',
+            'arguments': {
+                'url': table.url,
+                'xpath': table.xpath
             }
         },
-        "additional_info": {
-            "categories": categories,
-            "sections": [s.title for s in pg.sections],
-            "translations": langlinks
+        'additional_info': {
+            'categories': list(categories),
+            'sections': [s.title for s in pg.sections],
+            'translations': langlinks,
+            'context_data': {k: v for k, v in table.context.items() if not k.startswith('h')},
+            'headings': [h[1] for h in sorted(headings)]
         }
     }
     res['variables'] = []
@@ -166,7 +171,7 @@ def metadata(table, min_majority=.8):
 def random_article(lang='en'):
     return head(RANDOM_URL % lang, allow_redirects=True).url
 
-# --- wikipedia exploration ---------------------------------------------------
+# --- Wikipedia exploration ---------------------------------------------------
 
 PATTERN_FIND_ARTICLES = r'%s_(\d+)_articles.csv'
 PATTERN_FIND_TABLES = rx_compile(r'^([ :]*+){\|(?:(?!^\ *+\{\|).)*?\n\s*+(?> \|} | \Z )', DOTALL | MULTILINE | VERBOSE).findall  # From wikitextparser source
@@ -200,7 +205,7 @@ def articles_with_tables(resources_path, lang='en', download='recent'):
             print('info', f'Done. Deleting Wikipedia dump')
             remove(input_fname)
     with open(path_csv, 'r', encoding='utf-8') as fp:
-        articles = fp.read().strip().split("\n")[2:]
+        articles = fp.read().strip().split('\n')[2:]
         articles = [a.rsplit(',', 1) for a in articles]
         articles = {a[0][1:-1].replace('\\"', '"'): int(a[1]) for a in articles}
     return articles
@@ -219,8 +224,8 @@ def locate_dump(lang, mirror):
 
 def number_of_pages(lang):
     count = get(URL_WIKIPEDIA_PAGES_COUNT % lang).json()
-    count = soup(count['parse']['text']['*'], "html.parser").text
-    return int(sub(r"\D", "", count))
+    count = soup(count['parse']['text']['*'], 'html.parser').text
+    return int(sub(r'\D', '', count))
 
 def generate_csv(input_fname, output_fname, lang):
     ''' Iteratively parse Wikipedia xml.bz2 file and generate a CSV with the
