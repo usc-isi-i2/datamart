@@ -6,6 +6,9 @@ from unittest import TestCase
 
 resources_path = join(dirname(__file__), "./resources")
 
+# DISCLAIMER: This unit test depends on the first table of the Wikipedia page
+# for Albedo. It will work as long as such table doesn't change. If that
+# happens, wikitables_sample.csv should be updated accordingly.
 
 class TestWikitablesMaterializer(TestCase):
     def setUp(self):

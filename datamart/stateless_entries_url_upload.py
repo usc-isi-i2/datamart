@@ -114,7 +114,7 @@ def bulk_generate_metadata(html_page: str,
     return successed
 
 
-def check_existence(materialization: dict, es_index: str = PRODUCTION_ES_INDEX):
+def check_existence(materialization: dict, es_index: str = PRODUCTION_ES_INDEX, dataset_metadata: dict = {}):
     """
     Query ElasticSearch with materializer name and arguments. Currently, only works with
     "general_materializer" and "wikitables_materializer."
@@ -173,6 +173,28 @@ def check_existence(materialization: dict, es_index: str = PRODUCTION_ES_INDEX):
                 }
             }
         }
+    elif materializer == "tradingeconomics_market_materializer":
+        # This materializer is broken, because it does not store its materialization
+        # values inside the "materialization" section of json
+        query = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "match_phrase": {
+                                "materialization.python_path": materializer
+                            }
+                        },
+                        {
+                            "match_phrase": {
+                                "url": dataset_metadata['url']
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+
     else:
         raise Exception(f'Do not know how to perform existence check for materializer: {materializer}')
     qm = QueryManager(es_host=ES_HOST, es_port=ES_PORT, es_index=es_index)
@@ -193,7 +215,7 @@ def upload(meta_list: typing.List[dict],
             Utils.validate_schema(meta)
             meta['datamart_status'] = 'not_profiled'
             if deduplicate:
-                exist_id = check_existence(meta['materialization'], es_index=es_index)
+                exist_id = check_existence(meta['materialization'], es_index=es_index, dataset_metadata=meta)
                 if exist_id:
                     success = ib.updating_send_trusted_metadata(metadata=meta,
                                                                 es_index=es_index,

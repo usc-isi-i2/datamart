@@ -6,10 +6,16 @@ from json import dump
 from os import makedirs, listdir, remove
 from os.path import join, exists
 from pandas import DataFrame
+try:
+    from etk.extractors.spacy_ner_extractor import SpacyNerExtractor
+except OSError:
+    from spacy.cli import download
+    download('en_core_web_sm')
+    from etk.extractors.spacy_ner_extractor import SpacyNerExtractor
 from regex import compile as rx_compile, search, sub, DOTALL, MULTILINE, VERBOSE
 from requests import head, get
 from tablextract import tables, BOOLEAN_SYNTAX_PROPERTIES
-from tablextract.utils import find_dates, find_entities, download_file
+from tablextract.utils import find_dates, download_file
 from time import time
 from urllib.parse import urljoin
 from wikipediaapi import Wikipedia
@@ -70,6 +76,7 @@ def generate_datasets(url, path, score_threshold, xpath=None):
         tabs = [t for t in tabs if t.score > score_threshold]
     name = sub(r'[/\\\*;\[\]\':=,<>]', '_', url)
     for t, table in enumerate(tabs):
+        print(metadata(table))
         with open(join(path, '%s_%d.json' % (name, t)), 'w', encoding='utf-8') as fp:
             dump(metadata(table), fp, ensure_ascii=False, indent='\t')
     print('\t%d datasets found.' % len(tabs))
@@ -86,9 +93,8 @@ def metadata(table, min_majority=.8):
         date_updated = dt.now().strftime('%Y-%m-%mT%H:%M:%SZ')
     try:
         categories = [kw.lower().split(':')[-1] for kw in pg.categories]
-        kws = categories
-        # kws = [kw for kw in kws if not any(c in kw for c in WIKIPEDIA_IGNORE_CATEGORIES)]
-        # kws = set(word for kw in kws for word in findall(r'\w+', kw) if not len(FIND_STOPWORDS(kw)))
+        kws = [kw for kw in categories if not any(c in kw for c in WIKIPEDIA_IGNORE_CATEGORIES)]
+        kws = set(word for kw in kws for word in findall(r'\w+', kw) if not len(FIND_STOPWORDS(kw)))
     except:
         categories = []
         kws = []
@@ -130,7 +136,10 @@ def metadata(table, min_majority=.8):
         dates = [d for d in map(find_dates, values) if d != None]
         if len(dates) >= min_sample:
             var['semantic_type'].append('https://metadata.datadrivendiscovery.org/types/Time')
-            var['temporal_coverage'] = {'start': min(dates), 'end': max(dates)}
+            var['temporal_coverage'] = {
+                'start': min(dates).isoformat(),
+                'end': max(dates).isoformat()
+            }
         entities = {v: t for v in values for v, t in find_entities(v).items()}
         locations = [v for v, t in entities.items() if t == 'GPE']
         if len(locations) >= min_sample:
@@ -252,6 +261,13 @@ def generate_csv(input_fname, output_fname, lang):
             with open(output_fname, 'a', encoding='utf-8') as out:
                 out.write('\n'.join(to_write + ['']))
 
+_find_entities_extractor = SpacyNerExtractor('dummy_parameter')
+def find_entities(text):
+    try:
+        return {ext.value: ext.tag for ext in _find_entities_extractor.extract(text)}
+    except:
+        log('info', f'ETK SpacyNerExtractor raised an error on value {text}.')
+        return {}
 
 # --- initial call ------------------------------------------------------------
 

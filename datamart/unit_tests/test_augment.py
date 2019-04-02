@@ -13,11 +13,11 @@ class TestAugment(unittest.TestCase):
         self.assertDataframeEqual = assert_frame_equal
 
         data = {
-            'Name': ['Tom', 'Jack', 'Steve', 'Ricky'],
             'Age': [28, 34, 29, 42],
-            'Date': ["2018-10-05", "2014-02-23", "2020-09-23", "2023-02-13"]
+            'Date': ["2018-10-05", "2014-02-23", "2020-09-23", "2023-02-13"],
+            'Name': ['Tom', 'Jack', 'Steve', 'Ricky']
         }
-        self.df = pd.DataFrame(data).infer_objects()
+        self.df = pd.DataFrame(data, columns=data.keys()).infer_objects()
 
     @Utils.test_print
     def test_joiner(self):

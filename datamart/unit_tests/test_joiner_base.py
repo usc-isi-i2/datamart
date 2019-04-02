@@ -23,19 +23,19 @@ class TestJoinerBase(unittest.TestCase):
         left_df = pd.DataFrame(data={
             'city': ["los angeles", "New york", "Shanghai", "SAFDA", "manchester"],
             'country': ["US", "US", "China", "fwfb", "UK"],
-        })
+        }, columns=['city', 'country'])
 
         right_df = pd.DataFrame(data={
             'a_city': ["los angeles", "New york", "Shanghai", "SAFDA", "manchester"],
             'extra': [1, 2, 3, 4, 5],
             'z_country': ["US", "US", "China", "fwfb", "UK"]
-        })
+        }, columns=['a_city', 'extra', 'z_country'])
 
         expected = pd.DataFrame(data={
             'city': ["los angeles", "New york", "Shanghai", "SAFDA", "manchester"],
-            'extra': [1, 2, 3, 4, 5],
-            'country': ["US", "US", "China", "fwfb", "UK"]
-        })
+            'country': ["US", "US", "China", "fwfb", "UK"],
+            'extra': [1, 2, 3, 4, 5]
+        }, columns=['city', 'country', 'extra'])
         assert_frame_equal(
             joiner.join(left_df=left_df, right_df=right_df, left_columns=[[0], [1]], right_columns=[[0], [2]]).df,
             expected)
