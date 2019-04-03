@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 
 with open('requirements.txt', 'r') as f:
@@ -7,12 +7,9 @@ with open('requirements.txt', 'r') as f:
     for line in f:
         re = line.strip()
         if re:
-            if re.startswith('-e git+'):
-                dependency_links.append(re[3:])
-            else:
-                install_requires.append(re)
+            install_requires.append(re)
 
-
+print(dependency_links)
 setup(name='Datamart',
       version='1.0dev',
       description='Data Augmentation',
