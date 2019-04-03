@@ -12,16 +12,13 @@ class TestCaching(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.test_config = CacheConfig("/tmp/datamart_test_config.json")
+        cls.test_config.dbname = "cache.db"
         cls.test_config.max_cache_size = 3
         cls.test_config.dataset_dir = "/tmp/datamart_test_cache/"
         cls.test_config.save()
-
-        cls.cache = Cache(test=True, config=cls.test_config)
-        cls.cache.add("first", pd.DataFrame(['first']))
-        cls.cache.add("second", pd.DataFrame(['second']))
-        cls.cache.add("third", pd.DataFrame(['third']))
     
     def setUp(self):
+        TestCaching.cache = Cache(test=True, config=TestCaching.test_config) 
         TestCaching.cache.add("first", pd.DataFrame(['first']))
         TestCaching.cache.add("second", pd.DataFrame(['second']))
         TestCaching.cache.add("third", pd.DataFrame(['third']))
@@ -45,7 +42,7 @@ class TestCaching(unittest.TestCase):
     
     @Utils.test_print
     def test_expired(self):
-        result, reason = TestCaching.cache.get("second", 0)
+        result, reason = TestCaching.cache.get("second", -1)
         pd.DataFrame(['second']).to_csv("tmp.csv", index=None)
         expected = pd.read_csv("tmp.csv")
         assert_frame_equal(expected, result)
@@ -57,11 +54,9 @@ class TestCaching(unittest.TestCase):
         TestCaching.cache.get("first", None)
         TestCaching.cache.add("fourth", pd.DataFrame(['fourth']))
         result, reason = TestCaching.cache.get("second", None)
-        self.assertEqual(result, None)
         self.assertEqual(reason, EntryState.NOT_FOUND)
+        self.assertEqual(result, None)
 
-    @classmethod
-    def tearDownClass(cls):
+    def tearDown(self):
         for f in os.listdir(TestCaching.test_config.dataset_dir):
             os.remove(os.path.join(TestCaching.test_config.dataset_dir,f))
-        

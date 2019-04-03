@@ -6,10 +6,11 @@ import json
 import os
 import typing
 import threading
+import uuid
 
-from time import time
-from collections import OrderedDict
 from enum import Enum
+from peewee import *
+from time import time
 
 import pandas as pd
 
@@ -29,7 +30,7 @@ class CacheConfig():
     def __init__(self, config_path: str):
         # Default configuration
         self._config = {
-            "cache_filename": "cache.json",
+            "dbname": "cache.db",
             "max_cache_size":10,
             "dataset_dir":"/nfs1/dsbox-repo/datamart/cache",
             "default_validity": 604800
@@ -54,13 +55,13 @@ class CacheConfig():
         self.save()
 
     @property
-    def cache_filename(self):
-        name = os.path.join(self.dataset_dir, self._config.get("cache_filename", "cache.json"))
+    def dbname(self):
+        name = os.path.join(self.dataset_dir, self._config.get("dbname", "cache.db"))
         return name
     
-    @cache_filename.setter
-    def cache_filename(self, value):
-        self._config["cache_filename"] = value
+    @dbname.setter
+    def dbname(self, value):
+        self._config["dbname"] = value
 
     @property
     def max_cache_size(self):
@@ -89,7 +90,20 @@ class CacheConfig():
     def save(self):
         with open(self._config_path, 'w+') as f:
             json.dump(self._config, f)
-        
+
+# DB Models START
+db_proxy = Proxy()
+
+class BaseModel(Model):
+    class Meta:
+        database = db_proxy
+
+class CacheEntry(BaseModel):
+    key = TextField(primary_key=True)
+    file_path = TextField(unique=True)
+    time_added = BigIntegerField()
+    last_accessed = BigIntegerField()
+# DB Models END
 
 class Cache:
     """
@@ -126,16 +140,10 @@ class Cache:
 
         if not os.path.exists(self.config.dataset_dir):
             os.makedirs(self.config.dataset_dir)
-                
-        if os.path.exists(self.config.cache_filename):
-            with open(self.config.cache_filename, 'r') as f:
-                self._cache = json.load(f, object_pairs_hook=OrderedDict)
-        else:
-            self._cache = OrderedDict()
-    
-    def _save_cache(self):
-        with open(self.config.cache_filename, 'w') as f:
-            json.dump(self._cache, f)
+        
+        self.db = SqliteDatabase(self.config.dbname)
+        db_proxy.initialize(self.db)    
+        self.db.create_tables([CacheEntry])
     
     def get(self, 
             key: str,
@@ -150,84 +158,81 @@ class Cache:
         Returns:
             tuple: (df, reason)
         """
-        entry = self._cache.get(key, None)
+        try:
+            entry = CacheEntry.get_by_id(key)
+        except DoesNotExist:
+            entry = None
 
         if ttl is None:
             ttl = self.lifetime_duration
 
         # if entry is stale (past lifetime duration)
-        if entry and (time()-entry["time_added"]) > ttl:
-            #print("cache expired")
-            return pd.read_csv(entry["path"]), EntryState.EXPIRED
+        if entry and (int(time()*1000)-entry.time_added) > ttl:
+            print("cache expired")
+            #TODO set last accessed
+            return pd.read_csv(entry.file_path), EntryState.EXPIRED
 
         # if entry exists
         if entry:
-            if os.path.exists(entry["path"]):
-                #print("cache hit")
-                df = pd.read_csv(entry["path"])
-                # Remove old entry
-                self.remove(key)
-                # Add new entry 
-                self.add(key, df)
-                return df, EntryState.FOUND
+            if os.path.exists(entry.file_path):
+                print("cache hit")
+                CacheEntry.set_by_id(key, {"last_accessed": int(time()*1000)})
+                return pd.read_csv(entry.file_path), EntryState.FOUND
             # No file found at entry
             else:
-                #print("cache: no file found")
-                self.remove(key)
+                print("cache: no file found")
+                CacheEntry.delete_by_id(key)
         
         # if entry does not exist
-        #print("cache: no entry")
+        print("cache: no entry")
         return None, EntryState.NOT_FOUND
     
     def add(self, key, df):
+        with self.db.atomic() as txn:
+            # Get time
+            curr_time = int(time()*1000)
 
-        if key in self._cache:
-            return 
-        
-        # Get time
-        curr_time = time()
+            # Save df to csv
+            path = self.dataset_path()
+            try:
+                df.to_csv(path,index=None)
+                entry = CacheEntry.create(key=key, file_path=path, time_added=curr_time, last_accessed=curr_time)
+                cache_size = CacheEntry.select().count()
 
-        # Save df to csv
-        path = self.dataset_path(curr_time)
-        df.to_csv(path,index=None)
+                if cache_size > self.config.max_cache_size:
+                    last_entry = CacheEntry.select().order_by(CacheEntry.last_accessed).get()
+                    last_entry.delete_instance()
+                
+                entry.save()
+            except Exception as e:
+                print("ADD Err: {}".format(e))
+                if os.path.exists(path):
+                    os.remove(path)
+                txn.rollback()
+                
 
-        entry = {
-            "path":path,
-            "time_added":curr_time
-        }
-
-        if len(self._cache) < self.config.max_cache_size:
-            self._cache[key] = entry
-            self._save_cache()
-        else:
-            self._cache_replace(key, entry)  
+    def remove(self, key):
+        with self.db.atomic() as txn:
+            try:
+                try:
+                    entry = CacheEntry.get_by_id(key)
+                except DoesNotExist:
+                    entry = None
+                if entry:
+                    if os.path.exists(entry.file_path):
+                        os.remove(entry.file_path)
+                    entry.delete_instance()
+            except Exception as e:
+                print(e)
+                txn.rollback()
+                
         
     @property
     def lifetime_duration(self):
         return self.config.lifetime_duration
-        
-    def remove(self, key):
-        """ Removes entry referenced by key """
-        popped = self._cache.pop(key, None)
-        if os.path.exists(popped["path"]):
-            os.remove(popped["path"])
-        self._save_cache()
-        return popped
     
-    def _cache_replace(self, key, entry):
-        """ Replaces oldest entry in cache """
-        # Remove oldest entry
-        old_key, old_entry = self._cache.popitem(last=False)
-        if os.path.exists(old_entry["path"]):
-            os.remove(old_entry["path"])
-
-        # Save new entry
-        self._cache[key] = entry
-    
-        self._save_cache()
-  
-    def dataset_path(self, curr_time):
-        name = "cached_dataset_{}.csv".format(int(curr_time*1000))
+    def dataset_path(self):
+        name = "cached_dataset_{}.csv".format(uuid.uuid1())
         path = os.path.join(self.config.dataset_dir, name)
         return path
 

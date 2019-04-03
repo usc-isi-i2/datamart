@@ -143,7 +143,7 @@ class Utils:
             cache = None
         
         if cache:
-            key = json.dumps(metadata["materialization"]) + json.dumps(constrains)
+            key = json.dumps(metadata["materialization"], sort_keys=True) + json.dumps(constrains, sort_keys=True)
             ttl = metadata.get("validity",cache.lifetime_duration)
 
             # Query cache
