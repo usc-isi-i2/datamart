@@ -121,7 +121,7 @@ class Cache:
             Cache.__lock.release()
         return Cache.__instance
     
-    def __init__(self, test=False, config=None):
+    def __init__(self, test: bool=False, config: CacheConfig=None):
         if test:
             self._init_cache(config)
             return
@@ -142,8 +142,10 @@ class Cache:
             os.makedirs(self.config.dataset_dir)
         
         self.db = SqliteDatabase(self.config.dbname)
-        db_proxy.initialize(self.db)    
+        db_proxy.initialize(self.db)
+        self.db.connect(reuse_if_open=True)
         self.db.create_tables([CacheEntry])
+        self.db.close()
     
     def get(self, 
             key: str,
@@ -159,9 +161,12 @@ class Cache:
             tuple: (df, reason)
         """
         try:
+            self.db.connect(reuse_if_open=True)
             entry = CacheEntry.get_by_id(key)
         except DoesNotExist:
             entry = None
+        finally:
+            self.db.close()
 
         if ttl is None:
             ttl = self.lifetime_duration
@@ -174,21 +179,35 @@ class Cache:
 
         # if entry exists
         if entry:
+            self.db.connect(reuse_if_open=True)
             if os.path.exists(entry.file_path):
-                print("cache hit")
-                CacheEntry.set_by_id(key, {"last_accessed": int(time()*1000)})
+                print("cache hit") 
+                try:
+                    CacheEntry.set_by_id(key, {"last_accessed": int(time()*1000)})
+                except OperationalError as e:
+                    # Operation timed out, failed to get lock
+                    # TODO: Might need to increase retry time?
+                    print("GET Err: {}".format(e))
+                self.db.close()
                 return pd.read_csv(entry.file_path), EntryState.FOUND
             # No file found at entry
             else:
-                print("cache: no file found")
-                CacheEntry.delete_by_id(key)
+                print("cache: no file found")  
+                try:
+                    CacheEntry.delete_by_id(key)
+                except OperationalError as e:
+                    # Operation timed out, failed to get lock
+                    # TODO: Might need to increase retry time?
+                    print("GET Err: {}".format(e))
+                self.db.close()
         
         # if entry does not exist
         print("cache: no entry")
         return None, EntryState.NOT_FOUND
     
     def add(self, key, df):
-        with self.db.atomic() as txn:
+        self.db.connect(reuse_if_open=True)
+        with self.db.atomic('IMMEDIATE') as txn:
             # Get time
             curr_time = int(time()*1000)
 
@@ -209,10 +228,12 @@ class Cache:
                 if os.path.exists(path):
                     os.remove(path)
                 txn.rollback()
+        self.db.close()
                 
 
     def remove(self, key):
-        with self.db.atomic() as txn:
+        self.db.connect(reuse_if_open=True)
+        with self.db.atomic('IMMEDIATE') as txn:
             try:
                 try:
                     entry = CacheEntry.get_by_id(key)
@@ -225,6 +246,7 @@ class Cache:
             except Exception as e:
                 print(e)
                 txn.rollback()
+        self.db.close()   
                 
         
     @property
