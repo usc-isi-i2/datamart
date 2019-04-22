@@ -1,6 +1,8 @@
+"""
+Abstract class definition for D3MDataMart, DatamartSearchResult and D3MJoinSpec
+"""
 
-
-class D3MDatamart(object):
+class D3MDataMart(object):
     self.url = DEFAULT_URL
 
     def search(self, query=None, supplied_data=None, timeout=None, limit: int=20) -> typing.List[DatamartSearchResult]:
