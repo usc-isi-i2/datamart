@@ -9,6 +9,7 @@ from datamart.utilities.utils import Utils
 from datamart.profiler import Profiler
 import typing
 import traceback
+import requests
 from elasticsearch.exceptions import TransportError
 
 GLOBAL_INDEX_INTERVAL = 10000
@@ -53,11 +54,45 @@ class IndexBuilder(object):
 
         if data is not None:
             metadata = self.profile(data=data, metadata=metadata, enable_two_ravens_profiler=enable_two_ravens_profiler)
+
+        # update v2019.4.17: add metadata keywords augmentation
+        metadata = self.augment_metadata(metadata)
+
         Utils.validate_schema(metadata)
 
         if save_to_file:
             self._save_data(save_to_file=save_to_file, save_mode=save_to_file_mode, metadata=metadata)
 
+        return metadata
+
+    @staticmethod
+    def augment_metadata(metadata):
+        """
+        augment metadata with more keywords, it will return the metadata with an extra key-value pair "augmented_keywords"
+        example:
+        $ curl "dsbox02.isi.edu:5000/linking/linking_config/symbol,open,close?wordmap=true"
+        --> get returned as:
+        {
+        "symbol": {"symbol": 1, "symbols": 1, "emblem": 1, "symbolizes": 1, "symbolize": 1, "symbolized": 1,"symbolizing": 1, "emblems": 1, "signifier": 1, "embodiment": 1},
+        "open": {"open": 1, "opened": 1, "closed": 1, "opens": 1, "opening": 1, "reopen": 1, "closes": 1, "close": 1, "reopened": 1, "ajar": 1},
+        "close": {"close": 1, "closed": 1, "closing": 1, "closest": 1, "closer": 1, "open": 1, "closes": 1, "between": 1, "nearer": 1, "near": 1}
+        }
+        """
+        if "keywords" in metadata:
+            try:
+                augment_keywords = []
+                keywords = metadata["keywords"]
+                request_keywords = ",".join(keywords)
+                http_address = "http://dsbox02.isi.edu:5000/linking/linking_config/" + request_keywords + "?wordmap=true"
+                r = requests.get(http_address).json()
+                for value in r.values():
+                    augment_keywords.extend(list(value.keys()))
+                metadata["augmented_keywords"] = augment_keywords
+            except:
+                print("Metadata keywords augmenting on " + str(metadata["datamart_id"]) + " failed")
+                traceback.print_exc()
+        else:
+            print("No keywords given for datamart_id " + str(metadata["datamart_id"]))
         return metadata
 
     def indexing_send_to_es(self,

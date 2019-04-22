@@ -137,17 +137,32 @@ class Dataset:
                    columns=self._summary_columns(),
                    recommend_join=self._summary_join())
 
-    def set_join_columns(self, left_cols: typing.List[typing.List[int or str]],
-                  right_cols: typing.List[typing.List[int or str]]):
+    def set_join_columns(self, join_columns:typing.Tuple[typing.List[typing.List[typing.Union[str, int]]],\
+                                            typing.List[typing.List[typing.Union[str, int]]]]):
+        """
+            function to set up the joining columns manually
+        """
+
+        # the input join_columns have 2 parts, first for left dataFrame, second for right dataFrame
+        left_cols = join_columns[0]
+        right_cols = join_columns[1]
+        if len(left_cols) != len(right_cols):
+            raise ValueError("The length of left_join_columns and right_join_columns are different!")
+
         if left_cols and left_cols[0] and isinstance(left_cols[0][0], str):
-            # convert to int indices
             left_cols = [[self.original_data.columns.get_loc(name) for name in feature] for feature in left_cols]
+
+        if right_cols and right_cols[0] and isinstance(right_cols[0][0], str):
             right_var_names = [_.get('name') for _ in self.variables]
             right_cols = [[right_var_names.index(name) for name in feature] for feature in right_cols]
-        if len(left_cols) == len(right_cols):
-            self._join_columns = (left_cols, right_cols)
+        
+        self._join_columns = (left_cols, right_cols)
 
     def auto_set_join_columns(self):
+        """
+        function that try to automatically generate the join columns
+        It bases on the requried_variables from query json, if no required variable given, it will failed
+        """
         if not (isinstance(self.original_data, DataFrame) and self.query_json):
             return
         used = set()

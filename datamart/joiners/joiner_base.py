@@ -25,8 +25,9 @@ class JoinerType(Enum):
 
 
 class DefaultJoiner(JoinerBase):
-    """Default join class.
-
+    """
+    Default join class.
+    Do exact join by using pandas merge join function
     """
 
     @staticmethod
