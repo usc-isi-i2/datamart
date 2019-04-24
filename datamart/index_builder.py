@@ -52,7 +52,9 @@ class IndexBuilder(object):
         # construct global metadata without generating valid datamart_id
         metadata = self.construct_global_metadata(description=description, data=data, overwrite_datamart_id=0)
 
-        if data is not None:
+        if data is None:
+            metadata['datamart_status'] = 'not_profiled'
+        else:
             metadata = self.profile(data=data, metadata=metadata, enable_two_ravens_profiler=enable_two_ravens_profiler)
 
         # update v2019.4.17: add metadata keywords augmentation

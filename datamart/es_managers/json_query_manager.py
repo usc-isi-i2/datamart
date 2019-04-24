@@ -31,6 +31,7 @@ class JSONQueryManager(QueryManager):
         return result["hits"]["hits"]
         # return self.scroll_search(body=body, size=size, count=count)
 
+
     @classmethod
     def parse_json_query(cls, json_query: dict,
                          df: DataFrame=None,

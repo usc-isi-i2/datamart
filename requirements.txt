@@ -1,9 +1,16 @@
 d3m==2019.4.4
 spacy==2.0.17
-etk==2.1.5
+etk>=2.1.5
 defusedxml==0.5.0
 elasticsearch==6.3.1
 entrypoints==0.2.3
+appnope==0.1.0
+backcall==0.1.0
+bleach==3.0.0
+chardet==3.0.4
+Click==7.0
+cycler==0.10.0
+decorator==4.3.0
 Flask==1.0.2
 idna==2.7
 jedi==0.13.1
@@ -24,9 +31,10 @@ Pygments==2.2.0
 pyparsing==2.3.0
 python-dateutil==2.7.3
 qtconsole==4.4.1
-rltk @ git+https://github.com/ckxz105/rltk.git@patch-plyvel
+rltk @ git+https://github.com/usc-isi-i2/rltk.git@master
 Send2Trash==1.5.0
-tablextract==1.1.10
+simplegeneric==0.8.1
+tablextract>=1.2.5
 termcolor==1.1.0
 testpath==0.4.2
 urllib3==1.23

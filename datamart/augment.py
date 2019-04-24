@@ -49,6 +49,8 @@ class Augment(object):
         if json_query:
             query_body = self.qm.parse_json_query(json_query, dataset, return_named_entity=return_named_entity)
             if query_body:
+                import pdb
+                pdb.set_trace()
                 results = self.qm.search(body=query_body, **kwargs)
                 return results
 
