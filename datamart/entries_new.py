@@ -1,6 +1,7 @@
 import pandas as pd
 # import os
 import copy
+import random
 import frozendict
 import collections
 import typing
@@ -19,119 +20,270 @@ from datamart.joiners.joiner_base import JoinerType
 from itertools import chain
 from datamart.joiners.rltk_joiner import RLTKJoiner
 from SPARQLWrapper import SPARQLWrapper, JSON
-from d3m.metadata.base import ALL_ELEMENTS
+from d3m.metadata.base import Metadata, DataMetadata, ALL_ELEMENTS
 from datamart.joiners.rltk_joiner import RLTKJoiner_new
 import requests
 import traceback
 import logging
+import datetime
+import enum
 
 Q_NODE_SEMANTIC_TYPE = "http://wikidata.org/qnode"
 DEFAULT_URL = "https://isi-datamart.edu"
-__ALL__ = ('D3MDataMart', 'DataMartSearchResult', '')
-SEARCH_RESULT = typing.TypeVar('RESULT', bound='DataMartSearchResult')
-JOIN_SPEC = typing.TypeVar('D3MJoinSpec', bound='DataMartSearchResult')
+__ALL__ = ('D3MDatamart', 'DatamartSearchResult', 'D3MJoinSpec')
+DatamartSearchResult = typing.TypeVar('DatamartSearchResult', bound='DatamartSearchResult')
+D3MJoinSpec = typing.TypeVar('D3MJoinSpec', bound='D3MJoinSpec')
+DatamartQuery = typing.TypeVar('DatamartQuery', bound='DatamartQuery')
+MAX_ENTITIES_LENGTH = 200
+CONTAINER_SCHEMA_VERSION = 'https://metadata.datadrivendiscovery.org/schemas/v0/container.json'
+AUGMENT_RESOURCE_ID = "augmentData"
 
 
-class D3MDataMart:
+class D3MDatamart:
     """
-    ISI implementation of D3MDataMart
+    ISI implementation of D3MDatamart
     """
     def __init__(self):
         self.url = DEFAULT_URL
         self._logger = logging.getLogger(__name__)
 
-    def search(self, query=None, supplied_data: d3m_Dataset=None, timeout=None, limit: int=20) \
-            -> typing.List[SEARCH_RESULT]:
+    def search(self, query: DatamartQuery, timeout=None, limit: int = 20) -> typing.List[DatamartSearchResult]:
         """
-        :param query: JSON object describing the query.
-        :param supplied_data: the data you are trying to augment.
-        :param timeout: allowed time spent on searching
-        :param limit: the limitation on the return amount of DataMartSearchResult
-        :return: list of search results of DataMartSearchResult
+        This entry point supports search using a query specification.
+        The query spec is rich enough to enable query by example. The caller can select
+        values from a column in a dataset and use the query spec to find datasets that can join with the values
+        provided. Use of the query spec enables callers to compose their own "smart search" implementations.
+
+        Parameters
+        ----------
+        query: DatamartQuery
+            Query specification.
+        timeout: int
+            Maximum number of seconds before returning results.
+        limit: int
+            Maximum number of search results to return.
+
+        returns
+        -------
+        typing.List[DatamartSearchResult]
+            List of search results, combined from multiple datamarts. In the baseline implementation the list of
+            datamarts will be randomized on each call, and the results from multiple datamarts will be interleaved
+            accordingly. There will be an attempt to deduplicate results from multiple datamarts.
         """
         if not self.url.startswith(SEARCH_URL):
             return []
+        query_json = query.to_json()
+        return self.search_general(query=query_json, supplied_data=None, timeout=timeout, limit=limit)
 
-        res_id, suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
+    def search_with_data(self, supplied_data: typing.Union[d3m_Dataset, d3m_DataFrame], query: DatamartQuery = None,
+                         timeout=None, limit: int = 20) -> typing.List[DatamartSearchResult]:
+        """
+        This entry point supports search based on a supplied datasets.
+
+        *) Smart search: the caller provides supplied_data (a D3M dataset), and a query containing
+        keywords from the D3M problem specification. The search will analyze the supplied data and look for datasets
+        that can augment the supplied data in some way. The keywords are used for further filtering and ranking.
+        For example, a datamart may try to identify named entities in the supplied data and search for companion
+        datasets that contain these entities.
+
+        *) Columns search: this search is similar to smart search in that it uses both query spec and the supplied_data.
+        The difference is that only the data in the columns listed in query_by_example_columns is used to identify
+        companion datasets.
+
+        Paramters
+        ---------
+        query: DatamartQuery
+            Query specification
+        supplied_data: d3m.container.Dataset or d3m.container.DataFrame
+            The data you are trying to augment.
+        query_by_example_columns:
+            A list of column identifiers or column names.
+        timeout: int
+            Maximum number of seconds before returning results.
+        limit: int
+            Maximum number of search results to return.
+
+
+        Returns
+        -------
+        typing.List[DatamartSearchResult]
+            A list of DatamartSearchResult of possible companion datasets for the supplied data.
+        """
+
+        if not self.url.startswith(SEARCH_URL):
+            return []
+
+        if type(supplied_data) is d3m_Dataset:
+            res_id, suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
+        else:
+            suppied_dataframe = supplied_data
+
+        search_results = []
+        if query is not None:
+            query_json = query.to_json()
+        else:
+            query_json = None
+
+        # first take a search on wikidata
+        wikidata_search_results = self.search_wiki_data(query_json, supplied_data, timeout)
+        search_results.extend(wikidata_search_results)
+        limit_remained = limit - len(wikidata_search_results)
+
         if query is None:
+            # if not query given, try to find the Text columns from given dataframe and use it to find some candidates
             can_query_columns = []
             for each in range(len(suppied_dataframe.columns)):
-                selector = (res_id, ALL_ELEMENTS, each)
+                if type(supplied_data) is d3m_Dataset:
+                    selector = (res_id, ALL_ELEMENTS, each)
+                else:
+                    selector = (ALL_ELEMENTS, each)
                 each_column_meta = supplied_data.metadata.query(selector)
-                if 'http://schema.org/Text' in each_column_meta["semantic_types"] or \
-                        "https://metadata.datadrivendiscovery.org/types/CategoricalData" in each_column_meta[
-                    "semantic_types"]:
+                if 'http://schema.org/Text' in each_column_meta["semantic_types"]:
+                    # or "https://metadata.datadrivendiscovery.org/types/CategoricalData" in each_column_meta["semantic_types"]:
                     can_query_columns.append(each)
 
             if len(can_query_columns) == 0:
-                self._logger.error("No columns can be augment!")
-                return supplied_data
+                self._logger.warning("No columns can be augment!")
+                return search_results
 
-            import pdb
-            pdb.set_trace()
+            results_no_query = []
             for each_column in can_query_columns:
                 column_values = suppied_dataframe.iloc[:, each_column]
                 query_column_entities = list(set(column_values.tolist()))
-                for i, each in enumerate(query_column_entities):
-                    if "'" in each:
-                        query_column_entities.remove(each)
 
-                query_column_entities = query_column_entities[:100]
+                if len(query_column_entities) > MAX_ENTITIES_LENGTH:
+                    query_column_entities = random.sample(query_column_entities, MAX_ENTITIES_LENGTH)
+                query_column_entities = " ".join(query_column_entities)
 
-                search_query ={
-                    "required_variables": [
-                        {
-                            "type": "generic_entity",
-                            "named_entities":query_column_entities
-                        }
-                    ]
-                }
-                pdb.set_trace()
-                result = self.search_general(query=search_query, supplied_data=suppied_dataframe)
+                search_query = DatamartQuery(about=query_column_entities)
+                query_json = search_query.to_json()
+                # TODO: need to improve the query for reequired variables
+                # search_query ={
+                #     "required_variables": [
+                #         {
+                #             "type": "generic_entity",
+                #             "named_entities":query_column_entities
+                #         }
+                #     ]
+                # }
 
-        search_results = []
+                # sort to put best results at top
+                temp_results = self.search_general(query=query_json, supplied_data=suppied_dataframe)
+                temp_results.sort(key=lambda x: x.score, reverse=True)
+                results_no_query.append(temp_results)
+            # we will return the results of each searching query one by one
+            # for example: [res_q1_1,res_q1_2,res_q1_3], [res_q2_1,res_q2_2,res_q2_3] , [res_q3_1,res_q3_2,res_q3_3]
+            # will return as: [res_q1_1, res_q2_1, res_q3_1, res_q1_2, res_q2_2, res_q3_3...]
+            results_rescheduled = []
+            has_remained = True
+            while has_remained:
+                has_remained = False
+                for each in results_no_query:
+                    if len(each) > 0:
+                        has_remained = True
+                        results_rescheduled.append(each.pop(0))
+            # append together
+            search_results.extend(results_rescheduled)
 
-        # first take a search on wikidata
-        wikidata_search_results = self.search_wiki_data(query, supplied_data, timeout)
-        search_results.extend(wikidata_search_results)
-        limit_remianed = limit - len(wikidata_search_results)
-        # if not reach limit, continue search on general datasets
-        if limit_remianed > 0:
-            general_search_results = self.search_general(query, supplied_data, timeout, limit=limit_remianed)
-            search_results.extend(general_search_results)
+        else:  # for the condition if given query, follow the query
+            if limit_remained > 0:
+                query_json = query.to_json()
+                general_search_results = self.search_general(query=query_json, supplied_data=suppied_dataframe, timeout=timeout, limit=limit_remained)
+                general_search_results.sort(key=lambda x: x.score, reverse=True)
+                search_results.extend(general_search_results)
 
+        if len(search_results) > limit:
+            search_results = search_results[:limit]
         return search_results
 
-    def search_wiki_data(self,query, supplied_data: d3m_DataFrame=None, timeout=None, search_threshold=0.5) \
-            -> typing.List[SEARCH_RESULT]:
+    def augment(self, query, supplied_data: d3m_Dataset, timeout: int = None, max_new_columns: int = 1000) -> d3m_Dataset:
+        """
+        In this entry point, the caller supplies a query and a dataset, and datamart returns an augmented dataset.
+        Datamart automatically determines useful data for augmentation and automatically joins the new data to produce
+        an augmented Dataset that may contain new columns and rows, and possibly new dataframes.
+
+        Paramters
+        ---------
+        query: DatamartQuery
+            Query specification
+        supplied_data: d3m.container.Dataset
+            The data you are trying to augment.
+        timeout: int
+            Maximum number of seconds before returning results.
+        max_new_columns: int
+            Maximum number of new columns to add to the original dataset.
+
+        Returns
+        -------
+        d3m.container.Dataset
+            The augmented Dataset
+        """
+        if type(supplied_data) is d3m_Dataset:
+            input_type = "ds"
+            res_id, suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
+        else:
+            suppied_dataframe = supplied_data
+            input_type = "df"
+
+        search_results = self.search_with_data(query=query, supplied_data=supplied_data, timeout=timeout)
+        continue_aug = True
+        count = 0
+        augment_result = supplied_data
+
+        # continue augmenting until reach the maximum new columns or all search_result has been used
+        while continue_aug and count < len(search_results):
+            augment_result = search_results[count].augment(supplied_data=augment_result)
+            count += 1
+            if input_type == "ds":
+                current_column_number = augment_result[res_id].shape[1]
+            else:
+                current_column_number = augment_result.shape[1]
+            if current_column_number >= max_new_columns:
+                continue_aug = False
+
+        return augment_result
+
+    def search_wiki_data(self, query, supplied_data: typing.Union[d3m_DataFrame, d3m_Dataset]=None, timeout=None,
+                         search_threshold=0.5) -> typing.List[DatamartSearchResult]:
         """
         The search function used for wikidata search
         :param query: JSON object describing the query.
         :param supplied_data: the data you are trying to augment.
         :param timeout: allowed time spent on searching
-        :param limit: the limitation on the return amount of DataMartSearchResult
+        :param limit: the limitation on the return amount of DatamartSearchResult
         :param search_threshold: the minimum appeared times of the properties
-        :return: list of search results of DataMartSearchResult
+        :return: list of search results of DatamartSearchResult
         """
         wikidata_results = []
         try:
             q_nodes_columns = []
-            metadata_input = supplied_data.metadata
+            if type(supplied_data) is d3m_Dataset:
+                res_id, suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
+                selector_base_type = "ds"
+            else:
+                suppied_dataframe = supplied_data
+                selector_base_type = "df"
+
             # check whether Qnode is given in the inputs, if given, use this to wikidata and search
             required_variables_names = None
-            if 'required_variables' in query:
+            metadata_input = supplied_data.metadata
+
+            if query is not None and 'required_variables' in query:
                 required_variables_names = []
                 for each in query['required_variables']:
                     required_variables_names.extend(each['names'])
-            for i in range(supplied_data.shape[1]):
-                metadata_selector = (metadata_base.ALL_ELEMENTS, i)
+            for i in range(suppied_dataframe.shape[1]):
+                if selector_base_type == "ds":
+                    metadata_selector = (res_id, metadata_base.ALL_ELEMENTS, i)
+                else:
+                    metadata_selector = (metadata_base.ALL_ELEMENTS, i)
                 if Q_NODE_SEMANTIC_TYPE in metadata_input.query(metadata_selector)["semantic_types"]:
                     # if no required variables given, attach any Q nodes found
-                    if not required_variables_names:
+                    if required_variables_names is None:
                         q_nodes_columns.append(i)
                     # otherwise this column has to be inside required_variables
                     else:
-                        if supplied_data.columns[i] in required_variables_names:
+                        if suppied_dataframe.columns[i] in required_variables_names:
                             q_nodes_columns.append(i)
 
             if len(q_nodes_columns) == 0:
@@ -143,7 +295,7 @@ class D3MDataMart:
                 print("Totally " + str(len(q_nodes_columns)) + " Q nodes columns detected!")
                 # do a wikidata search for each Q nodes column
                 for each_column in q_nodes_columns:
-                    q_nodes_list = supplied_data.iloc[:, each_column].tolist()
+                    q_nodes_list = suppied_dataframe.iloc[:, each_column].tolist()
                     http_address = 'http://minds03.isi.edu:4444/get_properties'
                     headers = {"Content-Type": "application/json"}
                     requests_data = str(q_nodes_list)
@@ -161,8 +313,8 @@ class D3MDataMart:
                         if float(val) / len(q_nodes_list) >= search_threshold:
                             p_nodes_needed.append(key)
                     wikidata_search_result = {"p_nodes_needed": p_nodes_needed,
-                                              "target_q_node_column_name": supplied_data.columns[each_column]}
-                    wikidata_results.append(DataMartSearchResult(search_result=wikidata_search_result,
+                                              "target_q_node_column_name": suppied_dataframe.columns[each_column]}
+                    wikidata_results.append(DatamartSearchResult(search_result=wikidata_search_result,
                                                                  supplied_data=supplied_data,
                                                                  query_json=query,
                                                                  search_type="wikidata")
@@ -176,23 +328,25 @@ class D3MDataMart:
             return wikidata_results
 
     def search_general(self, query, supplied_data: d3m_DataFrame=None, timeout=None, limit: int=20) \
-            -> typing.List[SEARCH_RESULT]:
+            -> typing.List[DatamartSearchResult]:
         """
         The search function used for general elastic search
         :param query: JSON object describing the query.
         :param supplied_data: the data you are trying to augment.
         :param timeout: allowed time spent on searching
-        :param limit: the limitation on the return amount of DataMartSearchResult
-        :return: list of search results of DataMartSearchResult
+        :param limit: the limitation on the return amount of DatamartSearchResult
+        :return: list of search results of DatamartSearchResult
         """
         augmenter = Augment(es_index=PRODUCTION_ES_INDEX)
         es_results = []
         try:
+            params = {"timeout": "2m"}
             if (query and ('required_variables' in query)) or (supplied_data is None):
                 # if ("required_variables" exists or no data):
+
                 cur_results = augmenter.query_by_json(query, supplied_data, size=limit) or []
                 for res in cur_results:
-                    es_results.append(DataMartSearchResult(search_result=res, supplied_data=supplied_data,
+                    es_results.append(DatamartSearchResult(search_result=res, supplied_data=supplied_data,
                                                            query_json=query, search_type="general")
                                       )
 
@@ -209,14 +363,14 @@ class D3MDataMart:
                             "type": "dataframe_columns",
                             "names": [col]
                         }]
-                        cur_results = augmenter.query_by_json(query_copy, supplied_data, size=limit)
+                        cur_results = augmenter.query_by_json(query_copy, supplied_data, size=limit, params=params)
                         if not cur_results:
                             continue
                         for res in cur_results:
                             if res['_id'] not in exist:
                                 # TODO: how about the score ??
                                 exist.add(res['_id'])
-                            es_results.append(DataMartSearchResult(search_result=res, supplied_data=supplied_data,
+                            es_results.append(DatamartSearchResult(search_result=res, supplied_data=supplied_data,
                                                                    query_json=query_copy, search_type="general")
                                               )
             return es_results
@@ -226,34 +380,96 @@ class D3MDataMart:
         finally:
             return es_results
 
-class DataMartSearchResult:
+
+class DatamartMetadata:
     """
-    The class used to store each search results and corresponding search config of DataMart
+    This class represents the metadata associated with search results.
+    """
+    def __init__(self, title: str, description: str):
+        self.title = title
+        self.description = description
+
+    def get_columns(self) -> typing.List[str]:
+        """
+        :return: a list of strings representing the names of columns in the dataset that can be downloaded from a
+        search result.
+        """
+        pass
+
+    def get_detailed_metadata(self) -> dict:
+        """
+        Datamart will use a program-wide metadata standard, currently computed by the Harvard team, using contributions
+        from other performers. This method returns the standard metadata for a dataset.
+        :return: a dict with the standard metadata.
+        """
+        pass
+
+    def get_datamart_specific_metadata(self) -> dict:
+        """
+        A datamart implementation may compute additional metadata beyond the program-wide standard metadata.
+        :return: a dict with the datamart-specific metadata.
+        """
+        pass
+
+
+class DatamartSearchResult:
+    """
+    This class represents the search results of a datamart search.
+    Different datamarts will provide different implementations of this class.
+
+    Attributes
+    ----------
+    join_hints: typing.List[D3MAugmentSpec]
+        Hints for joining supplied data with datamart data
+
     """
     def __init__(self, search_result, supplied_data, query_json, search_type):
+        self._logger = logging.getLogger(__name__)
         self.search_result = search_result
         if "_score" in self.search_result:
             self.score = self.search_result["_score"]
         if "_source" in self.search_result:
             self.metadata = self.search_result["_source"]
         self.supplied_data = supplied_data
+
+        if type(supplied_data) is d3m_Dataset:
+            self.res_id, self.suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
+            self.selector_base_type = "ds"
+        elif type(supplied_data) is d3m_DataFrame:
+            self.suppied_dataframe = supplied_data
+            self.selector_base_type = "df"
+
         self.query_json = query_json
         self.search_type = search_type
         self.pairs = None
-        self._res_id = None # only used for input is Dataset
+        self._res_id = None  # only used for input is Dataset
 
-    def download(self, supplied_data: d3m_DataFrame=None, generate_metadata=True) -> d3m_DataFrame:
+    def download(self, supplied_data: typing.Union[d3m_Dataset, d3m_DataFrame], generate_metadata=True, return_format="ds") \
+            -> typing.Union[d3m_Dataset, d3m_DataFrame]:
         """
-        download the dataFrame and corresponding metadata information of search result
-        everytime call download, the DataFrame will have the exact same columns in same order
+        download the dataset or dataFrame (depending on the input type) and corresponding metadata information of
+        search result everytime call download, the DataFrame will have the exact same columns in same order
         """
         if self.search_type=="general":
-            return_df = self.download_general(supplied_data, generate_metadata)
+            return_df = self.download_general(supplied_data, generate_metadata, return_format)
         elif self.search_type=="wikidata":
-            return_df = self.download_wikidata(supplied_data, generate_metadata)
+            return_df = self.download_wikidata(supplied_data, generate_metadata, return_format)
+
         return return_df
 
-    def download_general(self, supplied_data: d3m_DataFrame=None, generate_metadata=True) -> d3m_DataFrame:
+    def download_general(self, supplied_data: typing.Union[d3m_Dataset, d3m_DataFrame]=None, generate_metadata=True,
+                         return_format="ds", augment_resource_id = AUGMENT_RESOURCE_ID) -> typing.Union[d3m_Dataset, d3m_DataFrame]:
+        """
+        Specified download function for general datamart Datasets
+        :param supplied_data: given supplied data
+        :param generate_metadata: whether need to genreate the metadata or not
+        :return: a dataset or a dataframe depending on the input
+        """
+        if type(supplied_data) is d3m_Dataset:
+            self._res_id, self.suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
+        else:
+            self.suppied_dataframe = supplied_data
+
         candidate_join_column_pairs = self.get_join_hints()
         if len(candidate_join_column_pairs) > 1:
             print("[WARN]: multiple joining column pairs found")
@@ -262,8 +478,8 @@ class DataMartSearchResult:
 
         # start finding pairs
         if supplied_data is None:
-            supplied_data = self.supplied_data
-        left_df = supplied_data
+            supplied_data = self.suppied_dataframe
+        left_df = self.suppied_dataframe
         right_metadata = self.search_result['_source']
         right_df = Utils.materialize(metadata=self.metadata)
         left_metadata = Utils.generate_metadata_from_dataframe(data=left_df, original_meta=None)
@@ -285,12 +501,12 @@ class DataMartSearchResult:
 
                 print(" - start getting pairs for", each_pair)
 
-                result, self.pairs = RLTKJoiner.find_pair(left_df=left_df, right_df=right_df, left_columns=[left_columns],
-                                             right_columns=[right_columns], left_metadata=left_metadata,
-                                             right_metadata=right_metadata)
+                result, self.pairs = RLTKJoiner.find_pair(left_df=left_df, right_df=right_df,
+                                                          left_columns=[left_columns], right_columns=[right_columns],
+                                                          left_metadata=left_metadata, right_metadata=right_metadata)
 
                 join_pairs_result.append(result)
-                # TODO: figure out some way to compare the joining quality
+                # TODO: figure out some way to compute the joining quality
                 candidate_join_column_scores.append(100)
             except:
                 print("failed when getting pairs for", each_pair)
@@ -304,54 +520,113 @@ class DataMartSearchResult:
 
         all_results.sort(key=lambda x: x[1], reverse=True)
 
-        return_df = d3m_DataFrame(all_results[0][2], generate_metadata=False)
-        if generate_metadata:
-            metadata_selector = (ALL_ELEMENTS,)
-            metadata_dimension_columns = {"name": "columns",
-                                          "semantic_types": (
-                                              "https://metadata.datadrivendiscovery.org/types/TabularColumn",),
-                                          "length": return_df.shape[1]}
-            # d3m require it to be frozen ordered dict
-            metadata_dimension_columns = frozendict.FrozenOrderedDict(metadata_dimension_columns)
-            metadata_all_elements = {"dimension": metadata_dimension_columns}
-            metadata_all_elements = frozendict.FrozenOrderedDict(metadata_all_elements)
-            return_df.metadata = return_df.metadata.update(metadata=metadata_all_elements, selector=metadata_selector)
+        if return_format == "ds":
+            return_df = d3m_DataFrame(all_results[0][2], generate_metadata=False)
+            resources = {augment_resource_id: return_df}
+            return_result = d3m_Dataset(resources=resources, generate_metadata=False)
+            if generate_metadata:
+                metadata_shape_part_dict = self._generate_metadata_shape_part(value=return_result, selector=())
+                for each_selector, each_metadata in metadata_shape_part_dict.items():
+                    return_result.metadata = return_result.metadata.update(selector=each_selector, metadata=each_metadata)
+                return_result.metadata = self._generate_metadata_column_part_for_general(return_result.metadata, return_format, augment_resource_id)
 
-            # in the case of further more restricted check, also add metadata query of ()
-            metadata_selector = ()
-            metadata_dimension_rows = {"name": "rows",
-                                       "semantic_types": ("https://metadata.datadrivendiscovery.org/types/TabularRow",),
-                                       "length": return_df.shape[0]}
-            # d3m require it to be frozen ordered dict
-            metadata_dimension_rows = frozendict.FrozenOrderedDict(metadata_dimension_rows)
-            metadata_all = {"structural_type": d3m_DataFrame,
-                            "semantic_types": ("https://metadata.datadrivendiscovery.org/types/Table",),
-                            "dimension": metadata_dimension_rows,
-                            "schema": "https://metadata.datadrivendiscovery.org/schemas/v0/container.json"}
-            metadata_all = frozendict.FrozenOrderedDict(metadata_all)
-            return_df.metadata = return_df.metadata.update(metadata=metadata_all, selector=metadata_selector)
-            for i, each_metadata in enumerate(self.metadata['variables']):
+        elif return_format == "df":
+            return_result = d3m_DataFrame(all_results[0][2], generate_metadata=False)
+            if generate_metadata:
+                metadata_shape_part_dict = self._generate_metadata_shape_part(value=return_result, selector=())
+                for each_selector, each_metadata in metadata_shape_part_dict.items():
+                    return_result.metadata = return_result.metadata.update(selector=each_selector, metadata=each_metadata)
+                return_result.metadata = self._generate_metadata_column_part_for_general(return_result.metadata, return_format, augment_resource_id=None)
+
+        else:
+            raise ValueError("Invalid return format was given")
+
+        return return_result
+
+    def _generate_metadata_shape_part(self, value, selector) -> dict:
+        """
+        recursively generate all metadata for shape part, return a dict
+        :param value:
+        :param selector:
+        :return:
+        """
+        generated_metadata: dict = {}
+        generated_metadata['schema'] = CONTAINER_SCHEMA_VERSION
+        if isinstance(value, d3m_Dataset):  # type: ignore
+            generated_metadata['dimension'] = {
+                'name': 'resources',
+                'semantic_types': ['https://metadata.datadrivendiscovery.org/types/DatasetResource'],
+                'length': len(value),
+            }
+
+            metadata_dict = collections.OrderedDict([(selector, generated_metadata)])
+
+            for k, v in value.items():
+                metadata_dict.update(self._generate_metadata_shape_part(v, selector + (k,)))
+
+            # It is unlikely that metadata is equal across dataset resources, so we do not try to compact metadata here.
+
+            return metadata_dict
+
+        if isinstance(value, d3m_DataFrame):  # type: ignore
+            generated_metadata['semantic_types'] = ['https://metadata.datadrivendiscovery.org/types/Table']
+
+            generated_metadata['dimension'] = {
+                'name': 'rows',
+                'semantic_types': ['https://metadata.datadrivendiscovery.org/types/TabularRow'],
+                'length': value.shape[0],
+            }
+
+            metadata_dict = collections.OrderedDict([(selector, generated_metadata)])
+
+            # Reusing the variable for next dimension.
+            generated_metadata = {
+                'dimension': {
+                    'name': 'columns',
+                    'semantic_types': ['https://metadata.datadrivendiscovery.org/types/TabularColumn'],
+                    'length': value.shape[1],
+                },
+            }
+
+            selector_all_rows = selector + (ALL_ELEMENTS,)
+            metadata_dict[selector_all_rows] = generated_metadata
+            return metadata_dict
+
+    def _generate_metadata_column_part_for_general(self, metadata_return, return_format, augment_resource_id) -> DataMetadata:
+        """
+        Inner function used to generate metadata for general search
+        """
+        # part for adding the whole dataset/ dataframe's metadata
+
+
+        # part for adding each column's metadata
+        for i, each_metadata in enumerate(self.metadata['variables']):
+            if return_format == "ds":
+                metadata_selector = (augment_resource_id, ALL_ELEMENTS, i)
+            elif return_format == "df":
                 metadata_selector = (ALL_ELEMENTS, i)
-                structural_type = each_metadata["description"].split("dtype: ")[-1]
-                if "int" in structural_type:
-                    structural_type = int
-                elif "float" in structural_type:
-                    structural_type = float
-                else:
-                    structural_type = str
-                metadata_each_column = {"name": each_metadata["name"], "structural_type": structural_type,
-                                        'semantic_types': ('https://metadata.datadrivendiscovery.org/types/Attribute',)}
-                return_df.metadata = return_df.metadata.update(metadata=metadata_each_column,
-                                                               selector=metadata_selector)
+            structural_type = each_metadata["description"].split("dtype: ")[-1]
+            if "int" in structural_type:
+                structural_type = int
+            elif "float" in structural_type:
+                structural_type = float
+            else:
+                structural_type = str
+            metadata_each_column = {"name": each_metadata["name"], "structural_type": structural_type,
+                                    'semantic_types': ('https://metadata.datadrivendiscovery.org/types/Attribute',)}
+            metadata_return = metadata_return.update(metadata=metadata_each_column, selector=metadata_selector)
 
-            metadata_selector = (ALL_ELEMENTS, return_df.shape[1])
-            metadata_joining_pairs = {"name": "joining_pairs", "structural_type": typing.List[int],
-                                      'semantic_types': ("http://schema.org/Integer",)}
-            return_df.metadata = return_df.metadata.update(metadata=metadata_joining_pairs, selector=metadata_selector)
+        if return_format == "ds":
+            metadata_selector = (augment_resource_id, ALL_ELEMENTS, i + 1)
+        elif return_format == "df":
+            metadata_selector = (ALL_ELEMENTS, i + 1)
+        metadata_joining_pairs = {"name": "joining_pairs", "structural_type": typing.List[int],
+                                  'semantic_types': ("http://schema.org/Integer",)}
+        metadata_return = metadata_return.update(metadata=metadata_joining_pairs, selector=metadata_selector)
 
-        return return_df
+        return metadata_return
 
-    def download_wikidata(self, supplied_data: d3m_DataFrame, generate_metadata=True) -> d3m_DataFrame:
+    def download_wikidata(self, supplied_data: d3m_Dataset, generate_metadata=True, return_format="dataset") -> typing.Union[d3m_Dataset, d3m_DataFrame]:
         """
         :param supplied_data: input DataFrame
         :param generate_metadata: control whether to automatically generate metadata of the return DataFrame or not
@@ -496,27 +771,27 @@ class DataMartSearchResult:
             print("not seen type : ", datatype)
             return default_type
 
-    def augment(self, supplied_data, generate_metadata=True):
+    def augment(self, supplied_data, generate_metadata=True, augment_resource_id=AUGMENT_RESOURCE_ID):
         """
         download and join using the D3mJoinSpec from get_join_hints()
         """
         if type(supplied_data) is d3m_DataFrame:
-            return self._augment(supplied_data=supplied_data, generate_metadata=generate_metadata, type="df")
+            return self._augment(supplied_data=supplied_data, generate_metadata=generate_metadata, return_format="df", augment_resource_id=augment_resource_id)
         elif type(supplied_data) is d3m_Dataset:
             self._res_id, self.supplied_data = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None, has_hyperparameter=False)
-            res = self._augment(supplied_data=supplied_data, generate_metadata=generate_metadata, type="ds")
+            res = self._augment(supplied_data=supplied_data, generate_metadata=generate_metadata, return_format="ds", augment_resource_id=augment_resource_id)
             return res
 
-    def _augment(self, supplied_data, generate_metadata=True, type="df"):
+    def _augment(self, supplied_data, generate_metadata=True, return_format="ds", augment_resource_id=AUGMENT_RESOURCE_ID):
         """
         download and join using the D3mJoinSpec from get_join_hints()
         """
-        if type=="ds":
+        if type(supplied_data) is d3m_Dataset:
             supplied_data_df = supplied_data[self._res_id]
-        elif type=="df":
+        else:
             supplied_data_df = supplied_data
 
-        download_result = self.download(supplied_data=supplied_data_df, generate_metadata=False)
+        download_result = self.download(supplied_data=supplied_data_df, generate_metadata=False, return_format="df")
         download_result = download_result.drop(columns=['joining_pairs'])
         df_joined = pd.DataFrame()
 
@@ -533,17 +808,18 @@ class DataMartSearchResult:
             df_joined = df_joined.append(new, ignore_index=True)
         # ensure that the original dataframe columns are at the first left part
         df_joined = df_joined[columns_new]
-        df_joined_d3m = d3m_DataFrame(df_joined, generate_metadata=False, dtype=str)
+
         if generate_metadata:
             columns_all = list(df_joined.columns)
             if 'd3mIndex' in df_joined.columns:
                 oldindex = columns_all.index('d3mIndex')
                 columns_all.insert(0, columns_all.pop(oldindex))
             else:
-                print("No d3mIndex column found after data-mart augment!!!")
+                self._logger.warning("No d3mIndex column found after data-mart augment!!!")
             df_joined = df_joined[columns_all]
 
-            # start adding metadata for dataset
+        # start adding column metadata for dataset
+        if generate_metadata:
             metadata_dict_left = {}
             metadata_dict_right = {}
             for each in self.metadata['variables']:
@@ -571,68 +847,58 @@ class DataMartSearchResult:
                     "description": decript
                 }
                 metadata_dict_right[each['name']] = frozendict.FrozenOrderedDict(each_meta)
-            if type == "df":
+            if return_format == "df":
                 left_df_column_legth = supplied_data.metadata.query((metadata_base.ALL_ELEMENTS,))['dimension'][
                     'length']
-            elif type == "ds":
+            elif return_format == "ds":
                 left_df_column_legth = supplied_data.metadata.query((self._res_id, metadata_base.ALL_ELEMENTS,))['dimension']['length']
 
             for i in range(left_df_column_legth):
-                if type == "df":
+                if return_format == "df":
                     each_selector = (ALL_ELEMENTS, i)
-                elif type == "ds":
+                elif return_format == "ds":
                     each_selector = (self._res_id, ALL_ELEMENTS, i)
                 each_column_meta = supplied_data.metadata.query(each_selector)
                 metadata_dict_left[each_column_meta['name']] = each_column_meta
 
             metadata_new = metadata_base.DataMetadata()
             metadata_old = copy.copy(supplied_data.metadata)
-            # for dataset, we need to update () query first
-            if type=="ds":
-                metadata_new = metadata_new.update((), metadata_old.query(()))
-
-            # update column metadata
-            if type == "df":
-                selector = (ALL_ELEMENTS,)
-            elif type == "ds":
-                selector = (self._res_id, ALL_ELEMENTS,)
-            new_column_meta = dict(metadata_old.query(selector))
-            new_column_meta['dimension'] = dict(new_column_meta['dimension'])
-            new_column_meta['dimension']['length'] = df_joined.shape[1]
-            metadata_new = metadata_new.update(selector, new_column_meta)
-
-            # update row metadata
-            if type=="df":
-                selector = ()
-            elif type=="ds":
-                selector = (self._res_id,)
-            new_row_meta = dict(metadata_old.query(selector))
-            new_row_meta['dimension'] = dict(new_row_meta['dimension'])
-            new_row_meta['dimension']['length'] = df_joined.shape[0]
-            new_row_meta['dimension'] = frozendict.FrozenOrderedDict(new_row_meta['dimension'])
-            new_row_meta = frozendict.FrozenOrderedDict(new_row_meta)
-            metadata_new = metadata_new.update(selector, new_row_meta)
 
             new_column_names_list = list(df_joined.columns)
             # update each column's metadata
             for i, current_column_name in enumerate(new_column_names_list):
-                if type == "df":
+                if return_format == "df":
                     each_selector = (metadata_base.ALL_ELEMENTS, i)
-                elif type == "ds":
-                    each_selector = (self._res_id, ALL_ELEMENTS, i)
+                elif return_format == "ds":
+                    each_selector = (augment_resource_id, ALL_ELEMENTS, i)
                 if current_column_name in metadata_dict_left:
                     new_metadata_i = metadata_dict_left[current_column_name]
                 else:
                     new_metadata_i = metadata_dict_right[current_column_name]
                 metadata_new = metadata_new.update(each_selector, new_metadata_i)
-            if type=="df":
-                df_joined_d3m.metadata = metadata_new
-                return df_joined_d3m
-            else:
-                augmented_dataset = supplied_data.copy()
-                augmented_dataset.metadata = metadata_new
-                augmented_dataset[self._res_id] = df_joined_d3m
-                return augmented_dataset
+
+            # start adding shape metadata for dataset
+            if return_format == "ds":
+                return_df = d3m_DataFrame(df_joined, generate_metadata=False)
+                resources = {augment_resource_id: return_df}
+                return_result = d3m_Dataset(resources=resources, generate_metadata=False)
+                if generate_metadata:
+                    return_result.metadata = metadata_new
+                    metadata_shape_part_dict = self._generate_metadata_shape_part(value=return_result, selector=())
+                    for each_selector, each_metadata in metadata_shape_part_dict.items():
+                        return_result.metadata = return_result.metadata.update(selector=each_selector,
+                                                                               metadata=each_metadata)
+            elif return_format == "df":
+                return_result = d3m_DataFrame(df_joined, generate_metadata=False)
+                if generate_metadata:
+                    return_result.metadata = metadata_new
+                    metadata_shape_part_dict = self._generate_metadata_shape_part(value=return_result, selector=())
+                    for each_selector, each_metadata in metadata_shape_part_dict.items():
+                        return_result.metadata = return_result.metadata.update(selector=each_selector,
+                                                                               metadata=each_metadata)
+            import pdb
+            pdb.set_trace()
+            return return_result
 
     def get_score(self) -> float:
         return self.score
@@ -640,7 +906,7 @@ class DataMartSearchResult:
     def get_metadata(self) -> dict:
         return self.metadata
 
-    def get_join_hints(self, supplied_data=None) -> typing.List[JOIN_SPEC]:
+    def get_join_hints(self, supplied_data=None) -> typing.List[D3MJoinSpec]:
         """
         Returns hints for joining supplied data with the data that can be downloaded using this search result.
         In the typical scenario, the hints are based on supplied data that was provided when search was called.
@@ -650,13 +916,11 @@ class DataMartSearchResult:
         :return: a list of join hints. Note that datamart is encouraged to return join hints but not required to do so.
         """
         if not supplied_data:
-            supplied_data = self.supplied_data
+            supplied_data = self.suppied_dataframe
         if self.search_type == "general":
             inner_hits = self.search_result.get('inner_hits', {})
             results = []
             used = set()
-            left = []
-            right = []
             for key_path, outer_hits in inner_hits.items():
                 vars_type, index, ent_type = key_path.split('.')
                 if vars_type != 'required_variables':
@@ -688,22 +952,23 @@ class DataMartSearchResult:
             return results
 
     @classmethod
-    def construct(cls, serialization: dict) -> SEARCH_RESULT:
+    def construct(cls, serialization: dict) -> DatamartSearchResult:
         """
-        Take into the serilized input and reconsctruct a "DataMartSearchResult"
+        Take into the serilized input and reconsctruct a "DatamartSearchResult"
         """
-        load_result = DataMartSearchResult(search_result=serialization["search_result"],
+        load_result = DatamartSearchResult(search_result=serialization["search_result"],
                                            supplied_data=None,
                                            query_json=serialization["query_json"],
                                            search_type=serialization["search_type"])
         return load_result
 
     def serialize(self) -> dict:
-        output = {}
+        output = dict()
         output["search_result"] = self.search_result
         output["query_json"] = self.query_json
         output["search_type"] = self.search_type
         return output
+
 
 class D3MJoinSpec:
     """
@@ -721,9 +986,105 @@ class D3MJoinSpec:
     spec pairs up ["city", "state", "country"] with ["address"], but does not specify how the matching should be done
     e.g., combine the city/state/country columns into a single column, or split the address into several columns.
     """
-    def __init__(self, left_columns: typing.List[int], right_columns: typing.List[int]):
+    def __init__(self, left_columns: typing.List[typing.List[int]], right_columns: typing.List[typing.List[int]],
+                 left_resource_id: str=None, right_resource_id: str=None):
+        self.left_resource_id = left_resource_id
+        self.right_resource_id = right_resource_id
         self.left_columns = left_columns
         self.right_columns = right_columns
         # we can have list of the joining column pairs
         # each list inside left_columns/right_columns is a candidate joining column for that dataFrame
         # each candidate joining column can also have multiple columns
+
+
+class TemporalGranularity(enum.Enum):
+    YEAR = 1
+    MONTH = 2
+    DAY = 3
+    HOUR = 4
+    SECOND = 5
+
+
+class GeospatialGranularity(enum.Enum):
+    COUNTRY = 1
+    STATE = 2
+    COUNTY = 3
+    CITY = 4
+    POSTALCODE = 5
+
+
+class DatamartVariable:
+    pass
+
+
+class DatamartQuery:
+    def __init__(self, about: str=None, required_variables: typing.List[DatamartVariable]=None,
+                 desired_variables: typing.List[DatamartVariable]=None):
+        self.about = about
+        self.required_variables = required_variables
+        self.desired_variables = desired_variables
+
+    def to_json(self):
+        """
+        function used to transform the Query to json format that can used on elastic search
+        :return:
+        """
+        search_query = dict()
+        if self.about is not None:
+            search_query["dataset"] = {
+                    "about": self.about
+                }
+        if self.required_variables is not None:
+            search_query["required_variables"] = self.required_variables
+
+        return search_query
+
+class NamedEntityVariable(DatamartVariable):
+    """
+    Describes columns containing named enitities.
+
+    Parameters
+    ----------
+    entities: List[str]
+        List of strings that should be contained in the matched dataset column.
+    """
+    def __init__(self, entities: typing.List[str]):
+        self.entities = entities
+
+
+class TemporalVariable(DatamartVariable):
+    """
+    Describes columns containing temporal information.
+
+    Parameters
+    ----------
+    start: datetime
+        Requested datetime should be equal or older than this datetime
+    end: datetime
+        Requested datatime should be equal or less than this datetime
+    granularity: TemporalGranularity
+        Requested datetimes are well matched with the requested granularity
+    """
+    def __init__(self, start: datetime.datetime, end: datetime.datetime, granularity: TemporalGranularity):
+        pass
+
+
+class GeospatialVariable(DatamartVariable):
+    """
+    Describes columns containing geospatial information.
+
+    Parameters
+    ----------
+    lat1: float
+        The latitude of the first point
+    long1: float
+        The longitude of the first point
+    lat2: float
+        The latitude of the second point
+    long2: float
+        The longitude of the second point
+    granularity: GeospatialGranularity
+        Requested geosptial values are well matched with the requested granularity
+    """
+    def __init__(self, lat1: float, long1: float, lat2: float, long2: float, granularity: GeospatialGranularity):
+        pass
