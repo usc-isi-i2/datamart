@@ -19,7 +19,7 @@ from datamart.joiners.join_result import JoinResult
 from datamart.joiners.joiner_base import JoinerType
 from itertools import chain
 from datamart.joiners.rltk_joiner import RLTKJoiner
-from SPARQLWrapper import SPARQLWrapper, JSON
+from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
 from d3m.metadata.base import Metadata, DataMetadata, ALL_ELEMENTS
 from datamart.joiners.rltk_joiner import RLTKJoiner_new
 import requests
@@ -36,6 +36,11 @@ D3MJoinSpec = typing.TypeVar('D3MJoinSpec', bound='D3MJoinSpec')
 DatamartQuery = typing.TypeVar('DatamartQuery', bound='DatamartQuery')
 MAX_ENTITIES_LENGTH = 200
 CONTAINER_SCHEMA_VERSION = 'https://metadata.datadrivendiscovery.org/schemas/v0/container.json'
+WIKIDATA_QUERY_SERVER = "http://sitaware.isi.edu:8080/bigdata/namespace/wdq/sparql"
+# WIKIDATA_QUERY_SERVER = "http://sitaware.isi.edu:8080/bigdata/namespace/datamart2/sparql"  # this is testing wikidata
+# WIKIDATA_QUERY_SERVER = "https://query.wikidata.org/sparql"
+P_NODE_IGNORE_LIST = set(["P1549"])
+SPECIAL_REQUEST_FOR_P_NODE = {"P1813": "FILTER(strlen(str(?P1813)) = 2)"}
 AUGMENT_RESOURCE_ID = "augmentData"
 
 
@@ -293,24 +298,52 @@ class D3MDatamart:
 
                 print("Wikidata Q nodes inputs detected! Will search with it.")
                 print("Totally " + str(len(q_nodes_columns)) + " Q nodes columns detected!")
+
                 # do a wikidata search for each Q nodes column
                 for each_column in q_nodes_columns:
                     q_nodes_list = suppied_dataframe.iloc[:, each_column].tolist()
+                    p_count = collections.defaultdict(int)
+                    p_nodes_needed = []
+                    # temporary block
+                    """
                     http_address = 'http://minds03.isi.edu:4444/get_properties'
                     headers = {"Content-Type": "application/json"}
                     requests_data = str(q_nodes_list)
                     requests_data = requests_data.replace("'", '"')
                     r = requests.post(http_address, data=requests_data, headers=headers)
-
-                    p_count = collections.defaultdict(int)
-                    p_nodes_needed = []
                     results = r.json()
                     for each_p_list in results.values():
                         for each_p in each_p_list:
                             p_count[each_p] += 1
+                    """
+                    # TODO: temporary change here, may change back in the future
+                    # Q node format (wd:Q23)(wd: Q42)
+                    q_node_query_part = ""
+                    unique_qnodes = set(q_nodes_list)
+                    for each in unique_qnodes:
+                        if each[0] == "Q":
+                            q_node_query_part += "(wd:" + each + ")"
+                    sparql_query = "select distinct ?item ?property where \n{\n  VALUES (?item) {" + q_node_query_part \
+                                   + "  }\n  ?item ?property ?value .\n  ?wd_property wikibase:directClaim ?property ." \
+                                   + "  values ( ?type ) \n  {\n    ( wikibase:Quantity )\n" \
+                                   + "    ( wikibase:Time )\n    ( wikibase:Monolingualtext )\n  }" \
+                                   + "  ?wd_property wikibase:propertyType ?type .\n}\norder by ?item ?property "
+
+                    try:
+                        sparql = SPARQLWrapper(WIKIDATA_QUERY_SERVER)
+                        sparql.setQuery(sparql_query)
+                        sparql.setReturnFormat(JSON)
+                        sparql.setMethod(POST)
+                        sparql.setRequestMethod(URLENCODED)
+                        results = sparql.query().convert()['results']['bindings']
+                    except:
+                        print("Getting query of wiki data failed!")
+                        continue
+                    for each in results:
+                        p_count[each['property']['value'].split("/")[-1]] += 1
 
                     for key, val in p_count.items():
-                        if float(val) / len(q_nodes_list) >= search_threshold:
+                        if float(val) / len(unique_qnodes) >= search_threshold:
                             p_nodes_needed.append(key)
                     wikidata_search_result = {"p_nodes_needed": p_nodes_needed,
                                               "target_q_node_column_name": suppied_dataframe.columns[each_column]}
@@ -443,6 +476,39 @@ class DatamartSearchResult:
         self.search_type = search_type
         self.pairs = None
         self._res_id = None  # only used for input is Dataset
+        self.join_pairs = None
+
+    def display(self) -> pd.DataFrame:
+        """
+        function used to see what found inside this search result class in a human vision
+        :return: a pandas DataFrame
+        """
+        if self.search_type == "wikidata":
+            column_names = []
+            for each in self.search_result["p_nodes_needed"]:
+                each_name = self._get_node_name(each)
+                column_names.append(each_name)
+            column_names = " ,".join(column_names)
+            required_variable = []
+            required_variable.append(self.search_result["target_q_node_column_name"])
+            result = pd.DataFrame({"title": "wikidata search result for"\
+                                           + self.search_result["target_q_node_column_name"],\
+                                   "columns": column_names, "join columns": required_variable}, index=[0])
+
+        elif self.search_type == "general":
+            title = self.search_result['_source']['title']
+            column_names = []
+            required_variable = []
+            for each in self.query_json['required_variables']:
+                required_variable.append(each['names'])
+
+            for each in self.search_result['_source']['variables']:
+                each_name = each['name']
+                column_names.append(each_name)
+            column_names = " ,".join(column_names)
+            result = pd.DataFrame({"title": title, "columns": column_names, "join columns": required_variable}, index=[0])
+
+        return result
 
     def download(self, supplied_data: typing.Union[d3m_Dataset, d3m_DataFrame], generate_metadata=True, return_format="ds") \
             -> typing.Union[d3m_Dataset, d3m_DataFrame]:
@@ -470,7 +536,11 @@ class DatamartSearchResult:
         else:
             self.suppied_dataframe = supplied_data
 
-        candidate_join_column_pairs = self.get_join_hints()
+        if self.join_pairs is None:
+            candidate_join_column_pairs = self.get_join_hints()
+        else:
+            candidate_join_column_pairs = self.join_pairs
+
         if len(candidate_join_column_pairs) > 1:
             print("[WARN]: multiple joining column pairs found")
         join_pairs_result = []
@@ -499,7 +569,7 @@ class DatamartSearchResult:
                 if left_metadata.get('implicit_variables'):
                     Utils.append_columns_for_implicit_variables_and_add_meta(left_metadata, left_df)
 
-                print(" - start getting pairs for", each_pair)
+                print(" - start getting pairs for", each_pair.to_str_format())
 
                 result, self.pairs = RLTKJoiner.find_pair(left_df=left_df, right_df=right_df,
                                                           left_columns=[left_columns], right_columns=[right_columns],
@@ -519,6 +589,8 @@ class DatamartSearchResult:
             all_results.append(each_result)
 
         all_results.sort(key=lambda x: x[1], reverse=True)
+        if len(all_results) == 0:
+            raise ValueError("[ERROR] Failed to get pairs!")
 
         if return_format == "ds":
             return_df = d3m_DataFrame(all_results[0][2], generate_metadata=False)
@@ -626,7 +698,7 @@ class DatamartSearchResult:
 
         return metadata_return
 
-    def download_wikidata(self, supplied_data: d3m_Dataset, generate_metadata=True, return_format="dataset") -> typing.Union[d3m_Dataset, d3m_DataFrame]:
+    def download_wikidata(self, supplied_data: typing.Union[d3m_Dataset, d3m_DataFrame], generate_metadata=True, return_format="ds",augment_resource_id=AUGMENT_RESOURCE_ID) -> typing.Union[d3m_Dataset, d3m_DataFrame]:
         """
         :param supplied_data: input DataFrame
         :param generate_metadata: control whether to automatically generate metadata of the return DataFrame or not
@@ -636,25 +708,40 @@ class DatamartSearchResult:
         # prepare the query
         p_nodes_needed = self.search_result["p_nodes_needed"]
         target_q_node_column_name = self.search_result["target_q_node_column_name"]
-        q_node_column_number = supplied_data.columns.tolist().index(target_q_node_column_name)
-        q_nodes_list = supplied_data.iloc[:, q_node_column_number].tolist()
+        if type(supplied_data) is d3m_DataFrame:
+            self.suppied_dataframe = supplied_data
+        elif type(supplied_data) is d3m_Dataset:
+            self._res_id, self.suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data,
+                                                                                  resource_id=None)
+
+        q_node_column_number = self.suppied_dataframe.columns.tolist().index(target_q_node_column_name)
+        q_nodes_list = set(self.suppied_dataframe.iloc[:, q_node_column_number].tolist())
         q_nodes_query = ""
         p_nodes_query_part = ""
         p_nodes_optional_part = ""
+        special_request_part = ""
+        # q_nodes_list = q_nodes_list[:30]
         for each in q_nodes_list:
-            q_nodes_query += "(wd:" + each + ") \n"
+            if each != "N/A":
+                q_nodes_query += "(wd:" + each + ") \n"
         for each in p_nodes_needed:
-            p_nodes_query_part += " ?" + each
-            p_nodes_optional_part += "  OPTIONAL { ?q wdt:" + each + " ?" + each + "}\n"
-        sparql_query = "SELECT ?q " + p_nodes_query_part + \
+            if each not in P_NODE_IGNORE_LIST:
+                p_nodes_query_part += " ?" + each
+                p_nodes_optional_part += "  OPTIONAL { ?q wdt:" + each + " ?" + each + "}\n"
+            if each in SPECIAL_REQUEST_FOR_P_NODE:
+                special_request_part += SPECIAL_REQUEST_FOR_P_NODE[each] + "\n"
+
+        sparql_query = "SELECT DISTINCT ?q " + p_nodes_query_part + \
                        "WHERE \n{\n  VALUES (?q) { \n " + q_nodes_query + "}\n" + \
-                       p_nodes_optional_part + "}\n"
+                       p_nodes_optional_part + special_request_part + "}\n"
 
         return_df = d3m_DataFrame()
         try:
-            sparql = SPARQLWrapper("http://sitaware.isi.edu:8080/bigdata/namespace/wdq/sparql")
+            sparql = SPARQLWrapper(WIKIDATA_QUERY_SERVER)
             sparql.setQuery(sparql_query)
             sparql.setReturnFormat(JSON)
+            sparql.setMethod(POST)
+            sparql.setRequestMethod(URLENCODED)
             results = sparql.query().convert()
         except:
             print("Getting query of wiki data failed!")
@@ -669,7 +756,7 @@ class DatamartSearchResult:
             for p_name, p_val in result.items():
                 each_result[p_name] = p_val["value"]
                 # only do this part if generate_metadata is required
-                if generate_metadata and p_name not in semantic_types_dict:
+                if p_name not in semantic_types_dict:
                     if "datatype" in p_val.keys():
                         semantic_types_dict[p_name] = (
                             self._get_semantic_type(p_val["datatype"]),
@@ -682,60 +769,63 @@ class DatamartSearchResult:
 
         p_name_dict = {"q_node": "q_node"}
         for each in return_df.columns.tolist():
-            if each[0] == "P":
+            if each.lower().startswith("p") or each.lower().startswith("c"):
                 p_name_dict[each] = self._get_node_name(each)
 
         # use rltk joiner to find the joining pairs
         joiner = RLTKJoiner_new()
-        joiner.set_join_target_column_name((supplied_data.columns[q_node_column_number], "q_node"))
-        result, self.pairs = joiner.find_pair(left_df=supplied_data, right_df=return_df)
+        joiner.set_join_target_column_names((self.suppied_dataframe.columns[q_node_column_number], "q_node"))
+        result, self.pairs = joiner.find_pair(left_df=self.suppied_dataframe, right_df=return_df)
 
+        # if this condition is true, it means "id" column was added which should not be here
+        if return_df.shape[1] == len(p_name_dict) + 2 and "id" in return_df.columns:
+            return_df = return_df.drop(columns=["id"])
+
+        metadata_new = DataMetadata()
+        self.metadata = {}
+
+        # add remained attributes metadata
+        for each_column in range(0, return_df.shape[1] - 1):
+            current_column_name = p_name_dict[return_df.columns[each_column]]
+            metadata_selector = (ALL_ELEMENTS, each_column)
+            # here we do not modify the original data, we just add an extra "expected_semantic_types" to metadata
+            metadata_each_column = {"name": current_column_name, "structural_type": str,
+                                    'semantic_types': semantic_types_dict[return_df.columns[each_column]]}
+            self.metadata[current_column_name] = metadata_each_column
+            if generate_metadata:
+                metadata_new = metadata_new.update(metadata=metadata_each_column, selector=metadata_selector)
+
+        # special for joining_pairs column
+        metadata_selector = (ALL_ELEMENTS, return_df.shape[1])
+        metadata_joining_pairs = {"name": "joining_pairs", "structural_type": typing.List[int],
+                                  'semantic_types': ("http://schema.org/Integer",)}
         if generate_metadata:
-            metadata_selector = (ALL_ELEMENTS,)
-            metadata_dimension_columns = {"name": "columns",
-                                          "semantic_types": (
-                                              "https://metadata.datadrivendiscovery.org/types/TabularColumn",),
-                                          "length": return_df.shape[1]}
-            # d3m require it to be frozen ordered dict
-            metadata_dimension_columns = frozendict.FrozenOrderedDict(metadata_dimension_columns)
-            metadata_all_elements = {"dimension": metadata_dimension_columns}
-            metadata_all_elements = frozendict.FrozenOrderedDict(metadata_all_elements)
-            return_df.metadata = return_df.metadata.update(metadata=metadata_all_elements, selector=metadata_selector)
+            metadata_new = metadata_new.update(metadata=metadata_joining_pairs, selector=metadata_selector)
 
-            # in the case of further more restricted check, also add metadata query of ()
-            metadata_selector = ()
-            metadata_dimension_rows = {"name": "rows",
-                                       "semantic_types": ("https://metadata.datadrivendiscovery.org/types/TabularRow",),
-                                       "length": return_df.shape[0]}
-            # d3m require it to be frozen ordered dict
-            metadata_dimension_rows = frozendict.FrozenOrderedDict(metadata_dimension_rows)
-            metadata_all = {"structural_type": d3m_DataFrame,
-                            "semantic_types": ("https://metadata.datadrivendiscovery.org/types/Table",),
-                            "dimension": metadata_dimension_rows,
-                            "schema": "https://metadata.datadrivendiscovery.org/schemas/v0/container.json"}
-            metadata_all = frozendict.FrozenOrderedDict(metadata_all)
-            return_df.metadata = return_df.metadata.update(metadata=metadata_all, selector=metadata_selector)
+        # start adding shape metadata for dataset
+        if return_format == "ds":
+            return_df = d3m_DataFrame(return_df, generate_metadata=False)
+            return_df = return_df.rename(columns=p_name_dict)
+            resources = {augment_resource_id: return_df}
+            return_result = d3m_Dataset(resources=resources, generate_metadata=False)
+            if generate_metadata:
+                return_result.metadata = metadata_new
+                metadata_shape_part_dict = self._generate_metadata_shape_part(value=return_result, selector=())
+                for each_selector, each_metadata in metadata_shape_part_dict.items():
+                    return_result.metadata = return_result.metadata.update(selector=each_selector,
+                                                                           metadata=each_metadata)
+            # update column names to be property names instead of number
 
-            # add remained attributes metadata
-            for each_column in range(0, return_df.shape[1] - 1):
-                current_column_name = p_name_dict[return_df.columns[each_column]]
-                metadata_selector = (ALL_ELEMENTS, each_column)
-                # here we do not modify the original data, we just add an extra "expected_semantic_types" to metadata
-                metadata_each_column = {"name": current_column_name, "structural_type": str,
-                                        'semantic_types': semantic_types_dict[return_df.columns[each_column]]}
-                return_df.metadata = return_df.metadata.update(metadata=metadata_each_column,
-                                                               selector=metadata_selector)
-
-            # special for joining_pairs column
-            metadata_selector = (ALL_ELEMENTS, return_df.shape[1])
-            metadata_joining_pairs = {"name": "joining_pairs", "structural_type": typing.List[int],
-                                      'semantic_types': ("http://schema.org/Integer",)}
-            return_df.metadata = return_df.metadata.update(metadata=metadata_joining_pairs, selector=metadata_selector)
-
-        # update column names to be property names instead of number
-        return_df = return_df.rename(columns=p_name_dict)
-
-        return return_df
+        elif return_format == "df":
+            return_result = d3m_DataFrame(return_df, generate_metadata=False)
+            return_result = return_result.rename(columns=p_name_dict)
+            if generate_metadata:
+                return_result.metadata = metadata_new
+                metadata_shape_part_dict = self._generate_metadata_shape_part(value=return_result, selector=())
+                for each_selector, each_metadata in metadata_shape_part_dict.items():
+                    return_result.metadata = return_result.metadata.update(selector=each_selector,
+                                                                           metadata=each_metadata)
+        return return_result
 
     def _get_node_name(self, node_code):
         """
@@ -746,9 +836,11 @@ class DatamartSearchResult:
         sparql_query = "SELECT DISTINCT ?x WHERE \n { \n" + \
                        "wd:" + node_code + " rdfs:label ?x .\n FILTER(LANG(?x) = 'en') \n} "
         try:
-            sparql = SPARQLWrapper("http://sitaware.isi.edu:8080/bigdata/namespace/wdq/sparql")
+            sparql = SPARQLWrapper(WIKIDATA_QUERY_SERVER)
             sparql.setQuery(sparql_query)
             sparql.setReturnFormat(JSON)
+            sparql.setMethod(POST)
+            sparql.setRequestMethod(URLENCODED)
             results = sparql.query().convert()
             return results['results']['bindings'][0]['x']['value']
         except:
@@ -808,6 +900,12 @@ class DatamartSearchResult:
             df_joined = df_joined.append(new, ignore_index=True)
         # ensure that the original dataframe columns are at the first left part
         df_joined = df_joined[columns_new]
+        # if search with wikidata, we can remove duplicate Q node column
+        if self.search_type == "wikidata":
+            df_joined = df_joined.drop(columns=['q_node'])
+
+        if 'id' in df_joined.columns:
+            df_joined = df_joined.drop(columns=['id'])
 
         if generate_metadata:
             columns_all = list(df_joined.columns)
@@ -822,37 +920,42 @@ class DatamartSearchResult:
         if generate_metadata:
             metadata_dict_left = {}
             metadata_dict_right = {}
-            for each in self.metadata['variables']:
-                decript = each['description']
-                dtype = decript.split("dtype: ")[-1]
-                if "float" in dtype:
-                    semantic_types = (
-                        "http://schema.org/Float",
-                        "https://metadata.datadrivendiscovery.org/types/Attribute"
-                    )
-                elif "int" in dtype:
-                    semantic_types = (
-                        "http://schema.org/Integer",
-                        "https://metadata.datadrivendiscovery.org/types/Attribute"
-                    )
-                else:
-                    semantic_types = (
-                        "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-                        "https://metadata.datadrivendiscovery.org/types/Attribute"
-                    )
-                each_meta = {
-                    "name": each['name'],
-                    "structural_type": str,
-                    "semantic_types": semantic_types,
-                    "description": decript
-                }
-                metadata_dict_right[each['name']] = frozendict.FrozenOrderedDict(each_meta)
+            if self.search_type == "general":
+                for each in self.metadata['variables']:
+                    description = each['description']
+                    dtype = description.split("dtype: ")[-1]
+                    if "float" in dtype:
+                        semantic_types = (
+                            "http://schema.org/Float",
+                            "https://metadata.datadrivendiscovery.org/types/Attribute"
+                        )
+                    elif "int" in dtype:
+                        semantic_types = (
+                            "http://schema.org/Integer",
+                            "https://metadata.datadrivendiscovery.org/types/Attribute"
+                        )
+                    else:
+                        semantic_types = (
+                            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+                            "https://metadata.datadrivendiscovery.org/types/Attribute"
+                        )
+                    each_meta = {
+                        "name": each['name'],
+                        "structural_type": str,
+                        "semantic_types": semantic_types,
+                        "description": description
+                    }
+                    metadata_dict_right[each['name']] = frozendict.FrozenOrderedDict(each_meta)
+            else:
+                metadata_dict_right = self.metadata
+
             if return_format == "df":
                 left_df_column_legth = supplied_data.metadata.query((metadata_base.ALL_ELEMENTS,))['dimension'][
                     'length']
             elif return_format == "ds":
                 left_df_column_legth = supplied_data.metadata.query((self._res_id, metadata_base.ALL_ELEMENTS,))['dimension']['length']
 
+            # add the original metadata
             for i in range(left_df_column_legth):
                 if return_format == "df":
                     each_selector = (ALL_ELEMENTS, i)
@@ -896,8 +999,7 @@ class DatamartSearchResult:
                     for each_selector, each_metadata in metadata_shape_part_dict.items():
                         return_result.metadata = return_result.metadata.update(selector=each_selector,
                                                                                metadata=each_metadata)
-            import pdb
-            pdb.set_trace()
+
             return return_result
 
     def get_score(self) -> float:
@@ -905,6 +1007,14 @@ class DatamartSearchResult:
 
     def get_metadata(self) -> dict:
         return self.metadata
+
+    def set_join_pairs(self, join_pairs: typing.List[D3MJoinSpec]) -> None:
+        """
+        manually set up the join pairs
+        :param join_pairs: user specified D3MJoinSpec
+        :return:
+        """
+        self.join_pairs = join_pairs
 
     def get_join_hints(self, supplied_data=None) -> typing.List[D3MJoinSpec]:
         """
@@ -995,6 +1105,10 @@ class D3MJoinSpec:
         # we can have list of the joining column pairs
         # each list inside left_columns/right_columns is a candidate joining column for that dataFrame
         # each candidate joining column can also have multiple columns
+
+    def to_str_format(self):
+        return "[ (" + (self.left_resource_id or "") + ", " + str(self.left_columns) + ") , (" + \
+               (self.right_resource_id or "") + ", " + str(self.right_columns) + ") ]"
 
 
 class TemporalGranularity(enum.Enum):

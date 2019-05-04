@@ -382,7 +382,9 @@ def get_node_name(node_code):
     sparql_query = "SELECT DISTINCT ?x WHERE \n { \n" + \
       "wd:" + node_code + " rdfs:label ?x .\n FILTER(LANG(?x) = 'en') \n} "
     try:
-        sparql = SPARQLWrapper("http://sitaware.isi.edu:8080/bigdata/namespace/wdq/sparql")
+        sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
+
+        # sparql = SPARQLWrapper("http://sitaware.isi.edu:8080/bigdata/namespace/wdq/sparql")
         sparql.setQuery(sparql_query)
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()

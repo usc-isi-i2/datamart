@@ -20,7 +20,7 @@ class RLTKJoiner_new(JoinerBase):
         self.exact_match = False 
         self.join_target_column_names = ""
 
-    def join_target_column_names(self, column_name):
+    def set_join_target_column_names(self, column_name):
         self.join_target_column_names = column_name
 
     def find_pair(self,
@@ -117,6 +117,7 @@ class RLTKJoiner(JoinerBase):
              left_metadata: dict,
              right_metadata: dict
              ) -> typing.Tuple[pd.DataFrame, typing.List[tuple]]:
+
         fp = FeaturePairs(left_df, right_df, left_columns, right_columns, left_metadata, right_metadata)
         block = fp.get_rltk_block()
         record_pairs = rltk.get_record_pairs(fp.left_rltk_dataset, fp.right_rltk_dataset, block=block)
