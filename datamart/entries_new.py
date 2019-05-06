@@ -488,10 +488,10 @@ class DatamartSearchResult:
             for each in self.search_result["p_nodes_needed"]:
                 each_name = self._get_node_name(each)
                 column_names.append(each_name)
-            column_names = " ,".join(column_names)
+            column_names = ", ".join(column_names)
             required_variable = []
             required_variable.append(self.search_result["target_q_node_column_name"])
-            result = pd.DataFrame({"title": "wikidata search result for"\
+            result = pd.DataFrame({"title": "wikidata search result for "\
                                            + self.search_result["target_q_node_column_name"],\
                                    "columns": column_names, "join columns": required_variable}, index=[0])
 
@@ -505,7 +505,7 @@ class DatamartSearchResult:
             for each in self.search_result['_source']['variables']:
                 each_name = each['name']
                 column_names.append(each_name)
-            column_names = " ,".join(column_names)
+            column_names = ", ".join(column_names)
             result = pd.DataFrame({"title": title, "columns": column_names, "join columns": required_variable}, index=[0])
 
         return result
@@ -709,10 +709,11 @@ class DatamartSearchResult:
         p_nodes_needed = self.search_result["p_nodes_needed"]
         target_q_node_column_name = self.search_result["target_q_node_column_name"]
         if type(supplied_data) is d3m_DataFrame:
-            self.suppied_dataframe = supplied_data
+            self.suppied_dataframe = copy.deepcopy(supplied_data)
         elif type(supplied_data) is d3m_Dataset:
-            self._res_id, self.suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data,
+            self._res_id, suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data,
                                                                                   resource_id=None)
+            self.suppied_dataframe = copy.deepcopy(suppied_dataframe)
 
         q_node_column_number = self.suppied_dataframe.columns.tolist().index(target_q_node_column_name)
         q_nodes_list = set(self.suppied_dataframe.iloc[:, q_node_column_number].tolist())
@@ -901,6 +902,7 @@ class DatamartSearchResult:
         # ensure that the original dataframe columns are at the first left part
         df_joined = df_joined[columns_new]
         # if search with wikidata, we can remove duplicate Q node column
+
         if self.search_type == "wikidata":
             df_joined = df_joined.drop(columns=['q_node'])
 
