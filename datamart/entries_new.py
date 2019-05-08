@@ -143,9 +143,12 @@ class D3MDatamart:
                 else:
                     selector = (ALL_ELEMENTS, each)
                 each_column_meta = supplied_data.metadata.query(selector)
-                if 'http://schema.org/Text' in each_column_meta["semantic_types"]:
+                if 'http://schema.org/Text' in each_column_meta["semantic_types"]:# \
                     # or "https://metadata.datadrivendiscovery.org/types/CategoricalData" in each_column_meta["semantic_types"]:
                     can_query_columns.append(each)
+
+            # import pdb
+            # pdb.set_trace()
 
             if len(can_query_columns) == 0:
                 self._logger.warning("No columns can be augment!")
@@ -158,6 +161,10 @@ class D3MDatamart:
 
                 if len(query_column_entities) > MAX_ENTITIES_LENGTH:
                     query_column_entities = random.sample(query_column_entities, MAX_ENTITIES_LENGTH)
+
+                for i in range(len(query_column_entities)):
+                    query_column_entities[i] = str(query_column_entities[i])
+
                 query_column_entities = " ".join(query_column_entities)
 
                 search_query = DatamartQuery(about=query_column_entities)
@@ -549,7 +556,7 @@ class DatamartSearchResult:
         # start finding pairs
         if supplied_data is None:
             supplied_data = self.suppied_dataframe
-        left_df = self.suppied_dataframe
+        left_df = copy.deepcopy(self.suppied_dataframe)
         right_metadata = self.search_result['_source']
         right_df = Utils.materialize(metadata=self.metadata)
         left_metadata = Utils.generate_metadata_from_dataframe(data=left_df, original_meta=None)
@@ -750,6 +757,7 @@ class DatamartSearchResult:
 
         semantic_types_dict = {
             "q_node": ("http://schema.org/Text", 'https://metadata.datadrivendiscovery.org/types/PrimaryKey')}
+
         for result in results["results"]["bindings"]:
             each_result = {}
             q_node_name = result.pop("q")["value"].split("/")[-1]

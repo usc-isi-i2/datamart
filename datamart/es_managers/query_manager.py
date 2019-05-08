@@ -135,7 +135,7 @@ class QueryManager(ESManager):
                 continue
             body["nested"]["query"]["bool"]["should"].append(
                 {
-                    "match_phrase": {
+                    "match": {
                         key: {
                             "query": term.lower(),
                             "_name": term.lower()
@@ -345,7 +345,8 @@ class QueryManager(ESManager):
                                        ]
                         }
                     }
-                    if match_method == "match_phrase":
+                    if match_method == "match" \
+                                       "":
                         url_query["multi_match"]["type"] = "phrase"
                     body["bool"]["must"].append(url_query)
                 else:
@@ -360,7 +361,7 @@ class QueryManager(ESManager):
                 nested["nested"]["inner_hits"]["_source"].append(key.split(".")[1])
                 if key.split(".")[1] == "named_entity":
                     # for named_entity, force the matched method to be "match_phrase":
-                    match_method = "match_phrase"
+                    match_method = "match"
                 if isinstance(value, list):
                     if disjunctive_array_value:
                         nested["nested"]["query"]["bool"]["must"].append({

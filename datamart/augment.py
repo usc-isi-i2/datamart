@@ -45,7 +45,6 @@ class Augment(object):
         """
 
         # print(f'json_query={json_query}')
-
         if json_query:
             query_body = self.qm.parse_json_query(json_query, dataset, return_named_entity=return_named_entity)
             if query_body:

@@ -60,7 +60,7 @@ class JSONQueryManager(QueryManager):
                 ('keywords', 'keywords'),
                 ('url', 'url')
             ]
-            string_arrays = cls.match_key_value_pairs_by_query_mapping(keys_mapping, dataset, "match_phrase")
+            string_arrays = cls.match_key_value_pairs_by_query_mapping(keys_mapping, dataset, "match")
             if string_arrays:
                 outer_must.append(string_arrays)
 
@@ -204,7 +204,7 @@ class JSONQueryManager(QueryManager):
             ('column_values', None)
         ]
         # if the value is array of strings, should be "match_phrase", else "match" ?
-        matches = cls.match_key_value_pairs_by_query_mapping(keys_mapping, entity, "match_phrase")
+        matches = cls.match_key_value_pairs_by_query_mapping(keys_mapping, entity, "match")
         if matches:
             queries.append(matches)
         if queries:
