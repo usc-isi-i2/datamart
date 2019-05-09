@@ -1,7 +1,4 @@
 from setuptools import setup
-from setuptools import find_packages
-
-packages = find_packages()
 
 with open('requirements.txt', 'r') as f:
     install_requires = list()
@@ -17,7 +14,18 @@ setup(name='Datamart',
       description='Data Augmentation',
       author='ISI',
       url='https://github.com/usc-isi-i2/datamart/tree/development',
-      packages=packages,
+      packages=['datamart',
+                'datamart.es_managers',
+                'datamart.joiners', 
+                'datamart.joiners.join_feature', 
+                'datamart.materializers',
+                'datamart.materializers.parsers',
+                'datamart.metadata',
+                'datamart.profilers',
+                'datamart.profilers.helpers',
+                'datamart.utilities',
+                'datamart.resources',
+               ],
       install_requires=install_requires,
 
       dependency_links=dependency_links)
