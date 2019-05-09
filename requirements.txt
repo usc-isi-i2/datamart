@@ -12,3 +12,4 @@ termcolor>=1.1.0
 urllib3>=1.23
 wikipedia-api==0.4.4
 wget>=3.2
+nbconvert >= 5.4.0
