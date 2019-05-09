@@ -26,6 +26,9 @@ setup(name='Datamart',
                 'datamart.utilities',
                 'datamart.resources',
                ],
-      install_requires=install_requires,
+      package_dir={'datamart': 'src/mypkg'},
+      package_data={'datamart_resource_json': ['resources/*.json']
+                    'datamart_resource_csv': ['resources/*.csv']},
 
+      install_requires=install_requires,
       dependency_links=dependency_links)
