@@ -1,11 +1,8 @@
 d3m>=2019.4.4
 etk>=2.1.5
 elasticsearch==6.3.1
-decorator>=4.3.0
 Flask>=1.0.2
 jsonlines>=1.2.0
-nbconvert>=5.4.0
-nbformat>=4.4.0
 psycopg2>=2.7.5
 psycopg2-binary>=2.7.5
 python-dateutil>=2.7.3
@@ -15,4 +12,3 @@ termcolor>=1.1.0
 urllib3>=1.23
 wikipedia-api==0.4.4
 wget>=3.2
-xlrd>=1.1.0
