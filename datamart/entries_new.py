@@ -328,7 +328,7 @@ class D3MDatamart:
                     q_node_query_part = ""
                     unique_qnodes = set(q_nodes_list)
                     for each in unique_qnodes:
-                        if each[0] == "Q":
+                        if len(each) > 0:
                             q_node_query_part += "(wd:" + each + ")"
                     sparql_query = "select distinct ?item ?property where \n{\n  VALUES (?item) {" + q_node_query_part \
                                    + "  }\n  ?item ?property ?value .\n  ?wd_property wikibase:directClaim ?property ." \
@@ -337,6 +337,8 @@ class D3MDatamart:
                                    + "  ?wd_property wikibase:propertyType ?type .\n}\norder by ?item ?property "
 
                     try:
+                        import pdb
+                        pdb.set_trace()
                         sparql = SPARQLWrapper(WIKIDATA_QUERY_SERVER)
                         sparql.setQuery(sparql_query)
                         sparql.setReturnFormat(JSON)
@@ -742,13 +744,15 @@ class DatamartSearchResult:
         sparql_query = "SELECT DISTINCT ?q " + p_nodes_query_part + \
                        "WHERE \n{\n  VALUES (?q) { \n " + q_nodes_query + "}\n" + \
                        p_nodes_optional_part + special_request_part + "}\n"
-
+        import pdb
+        pdb.set_trace()
         return_df = d3m_DataFrame()
         try:
             sparql = SPARQLWrapper(WIKIDATA_QUERY_SERVER)
             sparql.setQuery(sparql_query)
             sparql.setReturnFormat(JSON)
             sparql.setMethod(POST)
+
             sparql.setRequestMethod(URLENCODED)
             results = sparql.query().convert()
         except:
