@@ -20,7 +20,7 @@ from datamart.utilities.utils import Utils
 # from itertools import chain
 from datamart.joiners.rltk_joiner import RLTKJoiner
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
-from d3m.metadata.base import Metadata, DataMetadata, ALL_ELEMENTS
+from d3m.metadata.base import DataMetadata, ALL_ELEMENTS
 from datamart.joiners.rltk_joiner import RLTKJoiner_new
 # import requests
 import traceback
@@ -38,8 +38,8 @@ MAX_ENTITIES_LENGTH = 200
 CONTAINER_SCHEMA_VERSION = 'https://metadata.datadrivendiscovery.org/schemas/v0/container.json'
 WIKIDATA_QUERY_SERVER = "http://sitaware.isi.edu:8080/bigdata/namespace/wdq/sparql"
 # WIKIDATA_QUERY_SERVER = "http://sitaware.isi.edu:8080/bigdata/namespace/datamart2/sparql"  # this is testing wikidata
-# WIKIDATA_QUERY_SERVER = "https://query.wikidata.org/sparql"
-P_NODE_IGNORE_LIST = set(["P1549"])
+# WIKIDATA_QUERY_SERVER = "https://query.wikidata.org/sparql"  # this is the wikidata official server, have some constrains
+P_NODE_IGNORE_LIST = {"P1549"}
 SPECIAL_REQUEST_FOR_P_NODE = {"P1813": "FILTER(strlen(str(?P1813)) = 2)"}
 AUGMENT_RESOURCE_ID = "augmentData"
 
@@ -95,7 +95,7 @@ class D3MDatamart:
         The difference is that only the data in the columns listed in query_by_example_columns is used to identify
         companion datasets.
 
-        Paramters
+        Parameters
         ---------
         query: DatamartQuery
             Query specification
@@ -119,9 +119,9 @@ class D3MDatamart:
             return []
 
         if type(supplied_data) is d3m_Dataset:
-            res_id, suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
+            res_id, supplied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
         else:
-            suppied_dataframe = supplied_data
+            supplied_dataframe = supplied_data
 
         search_results = []
         if query is not None:
@@ -137,13 +137,13 @@ class D3MDatamart:
         if query is None:
             # if not query given, try to find the Text columns from given dataframe and use it to find some candidates
             can_query_columns = []
-            for each in range(len(suppied_dataframe.columns)):
+            for each in range(len(supplied_dataframe.columns)):
                 if type(supplied_data) is d3m_Dataset:
                     selector = (res_id, ALL_ELEMENTS, each)
                 else:
                     selector = (ALL_ELEMENTS, each)
                 each_column_meta = supplied_data.metadata.query(selector)
-                if 'http://schema.org/Text' in each_column_meta["semantic_types"]:# \
+                if 'http://schema.org/Text' in each_column_meta["semantic_types"]:
                     # or "https://metadata.datadrivendiscovery.org/types/CategoricalData" in each_column_meta["semantic_types"]:
                     can_query_columns.append(each)
 
@@ -156,7 +156,7 @@ class D3MDatamart:
 
             results_no_query = []
             for each_column in can_query_columns:
-                column_values = suppied_dataframe.iloc[:, each_column]
+                column_values = supplied_dataframe.iloc[:, each_column]
                 query_column_entities = list(set(column_values.tolist()))
 
                 if len(query_column_entities) > MAX_ENTITIES_LENGTH:
@@ -169,7 +169,7 @@ class D3MDatamart:
 
                 search_query = DatamartQuery(about=query_column_entities)
                 query_json = search_query.to_json()
-                # TODO: need to improve the query for reequired variables
+                # TODO: need to improve the query for required variables
                 # search_query ={
                 #     "required_variables": [
                 #         {
@@ -180,7 +180,7 @@ class D3MDatamart:
                 # }
 
                 # sort to put best results at top
-                temp_results = self.search_general(query=query_json, supplied_data=suppied_dataframe)
+                temp_results = self.search_general(query=query_json, supplied_data=supplied_dataframe)
                 temp_results.sort(key=lambda x: x.score, reverse=True)
                 results_no_query.append(temp_results)
             # we will return the results of each searching query one by one
@@ -200,7 +200,8 @@ class D3MDatamart:
         else:  # for the condition if given query, follow the query
             if limit_remained > 0:
                 query_json = query.to_json()
-                general_search_results = self.search_general(query=query_json, supplied_data=suppied_dataframe, timeout=timeout, limit=limit_remained)
+                general_search_results = self.search_general(query=query_json, supplied_data=supplied_dataframe,
+                                                             timeout=timeout, limit=limit_remained)
                 general_search_results.sort(key=lambda x: x.score, reverse=True)
                 search_results.extend(general_search_results)
 
@@ -214,7 +215,7 @@ class D3MDatamart:
         Datamart automatically determines useful data for augmentation and automatically joins the new data to produce
         an augmented Dataset that may contain new columns and rows, and possibly new dataframes.
 
-        Paramters
+        Parameters
         ---------
         query: DatamartQuery
             Query specification
@@ -232,9 +233,8 @@ class D3MDatamart:
         """
         if type(supplied_data) is d3m_Dataset:
             input_type = "ds"
-            res_id, suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
+            res_id, _ = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
         else:
-            suppied_dataframe = supplied_data
             input_type = "df"
 
         search_results = self.search_with_data(query=query, supplied_data=supplied_data, timeout=timeout)
@@ -255,7 +255,8 @@ class D3MDatamart:
 
         return augment_result
 
-    def search_wiki_data(self, query, supplied_data: typing.Union[d3m_DataFrame, d3m_Dataset]=None, timeout=None,
+    @staticmethod
+    def search_wiki_data(query, supplied_data: typing.Union[d3m_DataFrame, d3m_Dataset]=None, timeout=None,
                          search_threshold=0.5) -> typing.List[DatamartSearchResult]:
         """
         The search function used for wikidata search
@@ -270,10 +271,10 @@ class D3MDatamart:
         try:
             q_nodes_columns = []
             if type(supplied_data) is d3m_Dataset:
-                res_id, suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
+                res_id, supplied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
                 selector_base_type = "ds"
             else:
-                suppied_dataframe = supplied_data
+                supplied_dataframe = supplied_data
                 selector_base_type = "df"
 
             # check whether Qnode is given in the inputs, if given, use this to wikidata and search
@@ -284,7 +285,7 @@ class D3MDatamart:
                 required_variables_names = []
                 for each in query['required_variables']:
                     required_variables_names.extend(each['names'])
-            for i in range(suppied_dataframe.shape[1]):
+            for i in range(supplied_dataframe.shape[1]):
                 if selector_base_type == "ds":
                     metadata_selector = (res_id, metadata_base.ALL_ELEMENTS, i)
                 else:
@@ -295,7 +296,7 @@ class D3MDatamart:
                         q_nodes_columns.append(i)
                     # otherwise this column has to be inside required_variables
                     else:
-                        if suppied_dataframe.columns[i] in required_variables_names:
+                        if supplied_dataframe.columns[i] in required_variables_names:
                             q_nodes_columns.append(i)
 
             if len(q_nodes_columns) == 0:
@@ -308,7 +309,7 @@ class D3MDatamart:
 
                 # do a wikidata search for each Q nodes column
                 for each_column in q_nodes_columns:
-                    q_nodes_list = suppied_dataframe.iloc[:, each_column].tolist()
+                    q_nodes_list = supplied_dataframe.iloc[:, each_column].tolist()
                     p_count = collections.defaultdict(int)
                     p_nodes_needed = []
                     # temporary block
@@ -337,8 +338,6 @@ class D3MDatamart:
                                    + "  ?wd_property wikibase:propertyType ?type .\n}\norder by ?item ?property "
 
                     try:
-                        import pdb
-                        pdb.set_trace()
                         sparql = SPARQLWrapper(WIKIDATA_QUERY_SERVER)
                         sparql.setQuery(sparql_query)
                         sparql.setReturnFormat(JSON)
@@ -355,7 +354,7 @@ class D3MDatamart:
                         if float(val) / len(unique_qnodes) >= search_threshold:
                             p_nodes_needed.append(key)
                     wikidata_search_result = {"p_nodes_needed": p_nodes_needed,
-                                              "target_q_node_column_name": suppied_dataframe.columns[each_column]}
+                                              "target_q_node_column_name": supplied_dataframe.columns[each_column]}
                     wikidata_results.append(DatamartSearchResult(search_result=wikidata_search_result,
                                                                  supplied_data=supplied_data,
                                                                  query_json=query,
@@ -364,12 +363,13 @@ class D3MDatamart:
             return wikidata_results
 
         except:
-            print("Searhcing with wiki data failed")
+            print("Searching with wiki data failed")
             traceback.print_exc()
         finally:
             return wikidata_results
 
-    def search_general(self, query, supplied_data: d3m_DataFrame=None, timeout=None, limit: int=20) \
+    @staticmethod
+    def search_general(query, supplied_data: d3m_DataFrame=None, timeout=None, limit: int=20) \
             -> typing.List[DatamartSearchResult]:
         """
         The search function used for general elastic search
@@ -417,7 +417,7 @@ class D3MDatamart:
                                               )
             return es_results
         except:
-            print("Searhcing with wiki data failed")
+            print("Searching with wiki data failed")
             traceback.print_exc()
         finally:
             return es_results
@@ -475,10 +475,10 @@ class DatamartSearchResult:
         self.supplied_data = supplied_data
 
         if type(supplied_data) is d3m_Dataset:
-            self.res_id, self.suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
+            self.res_id, self.supplied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
             self.selector_base_type = "ds"
         elif type(supplied_data) is d3m_DataFrame:
-            self.suppied_dataframe = supplied_data
+            self.supplied_dataframe = supplied_data
             self.selector_base_type = "df"
 
         self.query_json = query_json
@@ -500,8 +500,8 @@ class DatamartSearchResult:
             column_names = ", ".join(column_names)
             required_variable = []
             required_variable.append(self.search_result["target_q_node_column_name"])
-            result = pd.DataFrame({"title": "wikidata search result for "\
-                                           + self.search_result["target_q_node_column_name"],\
+            result = pd.DataFrame({"title": "wikidata search result for " \
+                                           + self.search_result["target_q_node_column_name"], \
                                    "columns": column_names, "join columns": required_variable}, index=[0])
 
         elif self.search_type == "general":
@@ -541,9 +541,9 @@ class DatamartSearchResult:
         :return: a dataset or a dataframe depending on the input
         """
         if type(supplied_data) is d3m_Dataset:
-            self._res_id, self.suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
+            self._res_id, self.supplied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data, resource_id=None)
         else:
-            self.suppied_dataframe = supplied_data
+            self.supplied_dataframe = supplied_data
 
         if self.join_pairs is None:
             candidate_join_column_pairs = self.get_join_hints()
@@ -557,8 +557,8 @@ class DatamartSearchResult:
 
         # start finding pairs
         if supplied_data is None:
-            supplied_data = self.suppied_dataframe
-        left_df = copy.deepcopy(self.suppied_dataframe)
+            supplied_data = self.supplied_dataframe
+        left_df = copy.deepcopy(self.supplied_dataframe)
         right_metadata = self.search_result['_source']
         right_df = Utils.materialize(metadata=self.metadata)
         left_metadata = Utils.generate_metadata_from_dataframe(data=left_df, original_meta=None)
@@ -718,14 +718,14 @@ class DatamartSearchResult:
         p_nodes_needed = self.search_result["p_nodes_needed"]
         target_q_node_column_name = self.search_result["target_q_node_column_name"]
         if type(supplied_data) is d3m_DataFrame:
-            self.suppied_dataframe = copy.deepcopy(supplied_data)
+            self.supplied_dataframe = copy.deepcopy(supplied_data)
         elif type(supplied_data) is d3m_Dataset:
-            self._res_id, suppied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data,
+            self._res_id, supplied_dataframe = d3m_utils.get_tabular_resource(dataset=supplied_data,
                                                                                   resource_id=None)
-            self.suppied_dataframe = copy.deepcopy(suppied_dataframe)
+            self.supplied_dataframe = copy.deepcopy(supplied_dataframe)
 
-        q_node_column_number = self.suppied_dataframe.columns.tolist().index(target_q_node_column_name)
-        q_nodes_list = set(self.suppied_dataframe.iloc[:, q_node_column_number].tolist())
+        q_node_column_number = self.supplied_dataframe.columns.tolist().index(target_q_node_column_name)
+        q_nodes_list = set(self.supplied_dataframe.iloc[:, q_node_column_number].tolist())
         q_nodes_query = ""
         p_nodes_query_part = ""
         p_nodes_optional_part = ""
@@ -787,8 +787,8 @@ class DatamartSearchResult:
 
         # use rltk joiner to find the joining pairs
         joiner = RLTKJoiner_new()
-        joiner.set_join_target_column_names((self.suppied_dataframe.columns[q_node_column_number], "q_node"))
-        result, self.pairs = joiner.find_pair(left_df=self.suppied_dataframe, right_df=return_df)
+        joiner.set_join_target_column_names((self.supplied_dataframe.columns[q_node_column_number], "q_node"))
+        result, self.pairs = joiner.find_pair(left_df=self.supplied_dataframe, right_df=return_df)
 
         # if this condition is true, it means "id" column was added which should not be here
         if return_df.shape[1] == len(p_name_dict) + 2 and "id" in return_df.columns:
@@ -1040,7 +1040,7 @@ class DatamartSearchResult:
         :return: a list of join hints. Note that datamart is encouraged to return join hints but not required to do so.
         """
         if not supplied_data:
-            supplied_data = self.suppied_dataframe
+            supplied_data = self.supplied_dataframe
         if self.search_type == "general":
             inner_hits = self.search_result.get('inner_hits', {})
             results = []

@@ -43,10 +43,23 @@ class BasicProfiler(object):
                 all_ = column.dropna()
                 nums = pd.to_numeric(all_, errors='coerce').dropna()
                 all_ = all_.unique()
-                if len(all_) == 0 or len(nums)/len(all_) > 0.5:
+                if len(all_) == 0 or len(nums) / len(all_) > 0.5:
                     return False
                 return True
         return False
+
+    @staticmethod
+    def profile_semantic_type(column: pd.Series) -> typing.List:
+        # TODO: we need to check str is text or categorical here
+        # when to use "https://metadata.datadrivendiscovery.org/types/CategoricalData"
+        semantic_types = ["https://metadata.datadrivendiscovery.org/types/Attribute"]
+        if column.dtype.name == "object":
+            semantic_types.append("http://schema.org/Text")
+        elif "float" in column.dtype.name:
+            semantic_types.append("http://schema.org/Float")
+        elif "int" in column.dtype.name:
+            semantic_types.append("http://schema.org/Integer")
+        return semantic_types
 
     @staticmethod
     def profile_temporal_coverage(column: pd.Series, coverage: dict = None) -> typing.Union[dict, bool]:
@@ -198,11 +211,13 @@ class BasicProfiler(object):
             if not variable_metadata.temporal_coverage['start'] or not variable_metadata.temporal_coverage['end']:
                 variable_metadata.temporal_coverage = cls.profile_temporal_coverage(
                     column=column, coverage=variable_metadata.temporal_coverage)
-
         elif not description:
             temporal_coverage = cls.profile_temporal_coverage(column=column)
             if temporal_coverage:
                 variable_metadata.temporal_coverage = temporal_coverage
+
+        if not variable_metadata.semantic_type:
+            variable_metadata.semantic_type = cls.profile_semantic_type(column)
 
         return variable_metadata
 
