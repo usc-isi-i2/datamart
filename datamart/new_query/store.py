@@ -14,6 +14,8 @@ from etk.wikidata.value import Datatype, Item, TimeValue, Precision, QuantityVal
 from etk.wikidata.statement import WDReference
 from etk.wikidata import serialize_change_record
 from etk.wikidata.truthy import TruthyUpdater
+from dsbox.datapreprocessing.cleaner.data_profile import Profiler, Hyperparams as ProfilerHyperparams
+from dsbox.datapreprocessing.cleaner.cleaning_featurizer import CleaningFeaturizer, CleaningFeaturizerHyperparameter
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
 from datamart.utilities.utils import Utils as datamart_utils
 from wikifier import config
@@ -127,16 +129,26 @@ class Datamart_dataset:
             raise ValueError("Unsupported file type")
 
         loaded_data = loaded_data.fillna("")
+
+        # run dsbox's profiler and cleaner
+        hyper1 = ProfilerHyperparams.defaults()
+        profiler = Profiler(hyperparams=hyper1)
+        profiled_df = profiler.produce(inputs=loaded_data).value
+        hyper2 = CleaningFeaturizerHyperparameter.defaults()
+        clean_f = CleaningFeaturizer(hyperparams=hyper2)
+        clean_f.set_training_data(inputs=profiled_df)
+        clean_f.fit()
+        cleaned_df = pd.DataFrame(clean_f.produce(inputs=profiled_df).value)
+        # wikifier_res = wikifier.produce(loaded_data, target_columns=self.columns_are_string)
+
+        wikifier_res = wikifier.produce(cleaned_df)
         # TODO: need update profiler here to generate better semantic type
-        metadata = datamart_utils.generate_metadata_from_dataframe(data=loaded_data)
+        metadata = datamart_utils.generate_metadata_from_dataframe(data=wikifier_res)
         self.columns_are_string = []
         for i, each_column_meta in enumerate(metadata['variables']):
             if 'http://schema.org/Text' in each_column_meta['semantic_type']:
                 self.columns_are_string.append(i)
-        wikifier_res = wikifier.produce(loaded_data, target_columns=self.columns_are_string)
-        # add Q nodes part
-        for i in range(loaded_data.shape[1], wikifier_res.shape[1]):
-            self.columns_are_string.append(i)
+
         return wikifier_res, metadata
 
     def model_data(self, input_df:pd.DataFrame, metadata: dict):
@@ -144,6 +156,7 @@ class Datamart_dataset:
             metadata = {}
         title = metadata.get("title") or ""
         keywords = metadata.get("keywords") or ""
+        # TODO: if no url given?
         url = metadata.get("url") or "https://"
         if type(keywords) is list:
             keywords = " ".join(keywords)
@@ -206,7 +219,7 @@ class Datamart_dataset:
             # pdb.set_trace()
             return False
 
-    def output_to_ttl(self, file_path:                      str, file_format="ttl"):                        
+    def output_to_ttl(self, file_path: str, file_format="ttl"):                        
         """
             output the file only but not upload
         """
@@ -251,15 +264,18 @@ class Datamart_dataset:
         response = requests.post(WIKIDATA_UPDATE_SERVER, data=extracted_data, headers=headers,
                                  auth=HTTPBasicAuth(config.user, config.password))
         print('Upload file finished with status code: {}!'.format(response.status_code))
-        temp_output = StringIO()
-        serialize_change_record(temp_output)
-        tu = TruthyUpdater(WIKIDATA_UPDATE_SERVER, False, config.user, config.password)
-        np_list = []
 
-        for l in temp_output.readlines():
-            if not l: continue
-            node, prop = l.strip().split('\t')
-            np_list.append((node, prop))
-        tu.build_truthy(np_list)
-
-        print('Update truthy finished!')
+        if response.status_code!="200":
+            raise ValueError("Uploading file failed")
+        else:
+            # upload truthy
+            temp_output = StringIO()
+            serialize_change_record(temp_output)
+            tu = TruthyUpdater(WIKIDATA_UPDATE_SERVER, False, config.user, config.password)
+            np_list = []
+            for l in temp_output.readlines():
+                if not l: continue
+                node, prop = l.strip().split('\t')
+                np_list.append((node, prop))
+            tu.build_truthy(np_list)
+            print('Update truthy finished!')
