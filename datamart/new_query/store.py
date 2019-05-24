@@ -1,13 +1,11 @@
 import pandas as pd
 import requests
-import os, json, re, argparse
 import string
 import wikifier
 import typing
 from requests.auth import HTTPBasicAuth
 from etk.etk import ETK
-from etk.extractors.excel_extractor import ExcelExtractor
-from etk.knowledge_graph import KGSchema, URI, Literal, LiteralType, Subject, Reification
+from etk.knowledge_graph import KGSchema
 from etk.etk_module import ETKModule
 from etk.wikidata.entity import WDProperty, WDItem
 from etk.wikidata.value import Datatype, Item, TimeValue, Precision, QuantityValue, StringValue, URLValue, MonolingualText
@@ -18,6 +16,7 @@ from dsbox.datapreprocessing.cleaner.data_profile import Profiler, Hyperparams a
 from dsbox.datapreprocessing.cleaner.cleaning_featurizer import CleaningFeaturizer, CleaningFeaturizerHyperparameter
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
 from datamart.utilities.utils import Utils as datamart_utils
+from datamart.materializers.general_materializer import GeneralMaterializer
 from wikifier import config
 from io import StringIO
 
@@ -25,6 +24,7 @@ from io import StringIO
 # WIKIDATA_UPDATE_SERVER = config.endpoint_update_main
 WIKIDATA_QUERY_SERVER = config.endpoint_query_test  # this is testing wikidata
 WIKIDATA_UPDATE_SERVER = config.endpoint_upload_test  # this is testing wikidata
+
 
 class Datamart_dataset:
     def __init__(self):
@@ -88,7 +88,8 @@ class Datamart_dataset:
 
         p = WDProperty('C2007', Datatype.Item)
         p.add_label('data type', lang='en')
-        p.add_description('the data type used to represent the values of a variable, integer (Q729138), Boolean (Q520777), Real (Q4385701), String (Q184754), Categorical (Q2285707)', lang='en')
+        p.add_description('the data type used to represent the values of a variable, integer (Q729138), Boolean (Q520777), '
+                          'Real (Q4385701), String (Q184754), Categorical (Q2285707)', lang='en')
         p.add_statement('P31', Item('Q18616576'))
         self.doc.kg.add_subject(p)
 
@@ -121,14 +122,38 @@ class Datamart_dataset:
     def load_and_preprocess(self, input_dir, file_type="csv"):
         if file_type=="csv":
             try:
-                loaded_data = pd.read_csv(input_dir)
+                loaded_data = pd.read_csv(input_dir,dtype=str)
             except:
                 raise ValueError("Reading csv from" + input_dir + "failed.")
-        # elif file_type=="":
+
+            # TODO: how to upload to the online server afterwards?
+        elif len(file_type) > 7 and file_type[:7]=="online_":
+            general_materializer = GeneralMaterializer()
+            file_type = file_type[7:]
+                # example: "csv"
+            file_metadata = {
+                "materialization": {
+                    "arguments": {
+                        "url": input_dir,
+                        # one example here: "url": "http://insight.dev.schoolwires.com/HelpAssets/C2Assets/C2Files/C2ImportFamRelSample.csv",
+                        "file_type": file_type
+                    }
+                }
+            }
+            try:
+                result = general_materializer.get(metadata=file_metadata).to_csv(index=False)
+                # remove last \n so that we will not get an extra useless row
+                if result[-1] == "\n":
+                    result = result[:-1]
+                loaded_data = pd.DataFrame([x.split(',') for x in result.split('\n')], dtype=str)
+                loaded_data.columns = loaded_data.iloc[0]
+                loaded_data = loaded_data.drop(0)
+            except:
+                raise ValueError("Loading online data from " + input_dir + "failed!")
         else:
             raise ValueError("Unsupported file type")
 
-        loaded_data = loaded_data.fillna("")
+        # loaded_data = loaded_data.fillna("")
 
         # run dsbox's profiler and cleaner
         hyper1 = ProfilerHyperparams.defaults()
@@ -141,6 +166,8 @@ class Datamart_dataset:
         cleaned_df = pd.DataFrame(clean_f.produce(inputs=profiled_df).value)
         # wikifier_res = wikifier.produce(loaded_data, target_columns=self.columns_are_string)
 
+        # TODO: It seems fill na with "" will change the column type!
+        # cleaned_df = cleaned_df.fillna("")
         wikifier_res = wikifier.produce(cleaned_df)
         # TODO: need update profiler here to generate better semantic type
         metadata = datamart_utils.generate_metadata_from_dataframe(data=wikifier_res)
@@ -148,8 +175,12 @@ class Datamart_dataset:
         for i, each_column_meta in enumerate(metadata['variables']):
             if 'http://schema.org/Text' in each_column_meta['semantic_type']:
                 self.columns_are_string.append(i)
-
+                
+        if len(file_type) > 7 and file_type[:7]=="online_":
+            metadata['url'] = input_dir
+            
         return wikifier_res, metadata
+
 
     def model_data(self, input_df:pd.DataFrame, metadata: dict):
         if metadata is None:
