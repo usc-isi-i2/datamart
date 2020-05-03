@@ -20,7 +20,9 @@ def generate_json_schema(dst_path):
         schema['provenance'] =  {'source':'acleddata.com'}
         schema['materialization'] = {
             "python_path": 'acled_materializer',
-            "arguments": {}
+            "arguments": {
+                "url": schema['url']
+            }
         }
         schema['variables'] = [
             {
