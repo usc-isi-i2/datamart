@@ -137,12 +137,13 @@ class Utils:
         # Get cache instance
         try:
             cache = Cache.get_instance()
-        except:
+        except Exception as e:
             print("ERR: Unable to get cache instance")
+            print(e)
             cache = None
         
         if cache:
-            key = json.dumps(metadata["materialization"]) + json.dumps(constrains)
+            key = json.dumps(metadata["materialization"], sort_keys=True) + json.dumps(constrains, sort_keys=True)
             ttl = metadata.get("validity",cache.lifetime_duration)
 
             # Query cache
