@@ -44,7 +44,7 @@ prompt-toolkit==2.0.5
 psycopg2==2.7.5
 psycopg2-binary==2.7.5
 ptyprocess==0.6.0
-Pygments==2.2.0
+Pygments==2.7.4
 pyopenssl==18.0.0
 pyparsing==2.3.0
 python-dateutil==2.7.3
